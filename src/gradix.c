@@ -123,7 +123,7 @@ set_location_and_time(double lon, double lat, double alt, int year, int month, i
 }
 
 int
-oldmain(int argc, char *argv[])
+main(int argc, char *argv[])
 {
 #if !CLUTTER_CHECK_VERSION(1, 3, 6)
 #error "You need Clutter >= 1.3.6 to compile this software"
@@ -140,6 +140,7 @@ oldmain(int argc, char *argv[])
 	       lat = 47.462485,
 	       alt = 200,
 	       te,
+	       pos,
 	       cusps[13],
 	       ascmc[10];
 	int p;
@@ -154,31 +155,48 @@ oldmain(int argc, char *argv[])
 
 	swe_houses(te, lat, lon, 'P', cusps, ascmc);
 
-	printf("\nhouse cusp positions:\n");
-	for (p = 0; p < 13; p++) {
-		printf("%d\t%f\n", p, cusps[p]);
+	for (p = 1; p < 13; p++) {
+		printf("House %2d..: %2.0f (%f)\n", p, ceilf(cusps[p] / 30.0), cusps[p]);
 	}
 
-	printf("\nAscMC\n");
-	for (p = 0; p < 10; p++) {
-		printf("%f\n", ascmc[p]);
-	}
+	printf("Asc.......: %.0f\n", ceilf(ascmc[0] / 30.0));
+	printf("MC........: %.0f\n", ceilf(ascmc[1] / 30.0));
 
-	/*
-	 * a loop over all planets
-	 */
-	printf("\nplanet\tposition\n");
-	for (p = SE_SUN; p <= SE_CHIRON; p++) {
-		double pos;
+	pos = get_planet_position(SE_SUN, te);
+	printf("Sun.......: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
 
-		if (p == SE_EARTH) {
-			continue;
-		}
+	pos = get_planet_position(SE_MOON, te);
+	printf("Moon......: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
 
-		pos = get_planet_position(p, te);
+	pos = get_planet_position(SE_MERCURY, te);
+	printf("Mercury...: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
 
-		printf("%d\t%11.7f\n", p, pos);
-	}
+	pos = get_planet_position(SE_VENUS, te);
+	printf("Venus.....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+
+	pos = get_planet_position(SE_MARS, te);
+	printf("Mars......: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+
+	pos = get_planet_position(SE_JUPITER, te);
+	printf("Jupiter...: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+
+	pos = get_planet_position(SE_SATURN, te);
+	printf("Saturn....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+
+	pos = get_planet_position(SE_URANUS, te);
+	printf("Uranus....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+
+	pos = get_planet_position(SE_NEPTUNE, te);
+	printf("Neptune...: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+
+	pos = get_planet_position(SE_PLUTO, te);
+	printf("Pluto.....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+
+	pos = get_planet_position(SE_CHIRON, te);
+	printf("Chiron....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+
+	pos = get_planet_position(SE_MEAN_NODE, te);
+	printf("North Node: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
 
 	return OK;
 }
@@ -280,7 +298,7 @@ on_actor_resize(ClutterActor *actor, const ClutterActorBox *allocation, ClutterA
 }
 
 int
-main(int argc, char *argv[])
+gradix_clutter_main(int argc, char *argv[])
 {
 	ClutterActor *stage,
 		     *sign_aries,
