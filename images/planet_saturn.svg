@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="35.683598"
+   height="46.210938"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="30 - Jupiter.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7810999"
+     inkscape:cx="52.905796"
+     inkscape:cy="115.98657"
+     inkscape:document-units="px"
+     inkscape:current-layer="text3055"
+     showgrid="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1021"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="1. réteg"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-97.018767,-679.06252)">
+    <g
+       transform="translate(4.1941991,642.27564)"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Placidus Symbols;-inkscape-font-specification:Placidus Symbols"
+       id="text3055">
+      <g
+         transform="translate(92.824574,69.161)"
+         style="line-height:125%;fill:#000000;font-family:Placidus Symbols;-inkscape-font-specification:Placidus Symbols"
+         id="text3835">
+        <path
+           d="M 9.2578125,9.2079105 9.5507813,9.090723 C 11.503895,8.1662402 13.463528,7.2482724 15.429688,6.3368168 19.20571,4.5008793 22.239561,2.7560894 24.53125,1.1024418 c 3.229139,-2.3307234 5.012991,-4.4726484 5.351562,-6.4257813 0.01299,-0.065094 0.0195,-0.1627504 0.01953,-0.2929687 -3e-5,-0.4687394 -0.247426,-0.8072807 -0.742188,-1.015625 -0.481799,-0.208322 -1.184924,-0.3124885 -2.109375,-0.3125 -1.458359,1.15e-5 -3.437523,0.247407 -5.9375,0.7421875 -1.289082,0.2604271 -3.378924,0.7291766 -6.269531,1.40625 -2.213554,0.5208421 -3.496105,0.7812585 -3.847656,0.78125 -0.182303,8.5e-6 -0.273448,-0.026033 -0.273438,-0.078125 l 0.05859,-15.1953123 -10.78125,0 0,-4.609375 10.78125,0 0,-8.476563 4.609375,0 0,8.476563 15.429687,0 0,4.609375 -15.429687,0 0.07813,9.7460935 c 0.55988,-0.1562357 1.119775,-0.318996 1.679687,-0.4882815 1.458315,-0.39061 2.838522,-0.696599 4.140625,-0.917968 1.91404,-0.325506 3.66534,-0.488266 5.253907,-0.488282 2.708304,1.6e-5 4.817677,0.442724 6.328125,1.328125 1.874965,1.0937638 2.812464,2.8645954 2.8125,5.3125003 -3.6e-5,2.5781317 -2.011753,5.37760809 -6.035157,8.3984375 -2.721381,2.0442697 -6.52346,4.2838508 -11.40625,6.7187502 -4.348972,2.174471 -6.582042,3.346345 -6.699218,3.515625 L 9.2578125,9.2079105"
+           id="path3840"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+  </g>
+</svg>
