@@ -10,6 +10,22 @@ AC_PROG_CC
 AM_PROG_AR
 LT_INIT
 AC_PROG_LIBTOOL
+AC_CHECK_LIB([m], [sincos])
+AC_CHECK_LIB([m], [atan2])
+AC_CHECK_LIB([m], [fmod])
+AC_CHECK_LIB([m], [acos])
+AC_CHECK_LIB([m], [sin])
+AC_CHECK_LIB([m], [atan])
+AC_CHECK_LIB([m], [asin])
+AC_CHECK_LIB([m], [exp])
+AC_CHECK_LIB([m], [trunc])
+AC_CHECK_LIB([m], [tan])
+AC_CHECK_LIB([m], [cos])
+AC_CHECK_LIB([m], [log])
+AC_CHECK_LIB([m], [pow])
+AC_CHECK_LIB([m], [log10])
+AC_CHECK_LIB([m], [sqrt])
+AC_CHECK_LIB([m], [floor])
 PKG_PROG_PKG_CONFIG
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
