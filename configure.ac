@@ -7,6 +7,7 @@ if test "x$enable_debug" = "xyes" ; then
 fi
 
 AC_PROG_CC
+AM_PROG_CC_C_O
 AM_PROG_AR
 LT_INIT
 AC_PROG_LIBTOOL
@@ -27,8 +28,15 @@ AC_CHECK_LIB([m], [log10])
 AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([m], [floor])
 PKG_PROG_PKG_CONFIG
+PKG_CHECK_MODULES([GTK], [gtk+-3.0])
+PKG_CHECK_MODULES([CLUTTERX11], [clutter-x11-1.0])
+PKG_CHECK_MODULES([PIXBUF], [gdk-pixbuf-2.0])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
+
+LIBSWE_LIBS='$(top_builddir)/swe/src/libswe-1.75.la'
+AC_SUBST(LIBSWE_LIBS)
+
 AC_CONFIG_FILES([
 	Makefile
 	swe/src/Makefile
