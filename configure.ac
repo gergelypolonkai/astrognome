@@ -1,5 +1,7 @@
 AC_INIT([gradix], [0.1], [gergely@polonkai.eu])
+AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_SILENT_RULES([yes])
 AC_ARG_ENABLE(debug, [AC_HELP_STRING([--enable-debug], [compile with debugging support. Be warned that debugging support can eat a large amount of CPU when many clients are connected. Also, debug logs can become very large!])], , enable_debug=no)
 
 if test "x$enable_debug" = "xyes" ; then
@@ -9,13 +11,13 @@ fi
 AC_PROG_CC
 AM_PROG_CC_C_O
 AM_PROG_AR
-LT_INIT
 AC_PROG_LIBTOOL
 IT_PROG_INTLTOOL([0.35.0])
 GETTEXT_PACKAGE=gradix
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [GETTEXT package name])
 AM_LIB_GNU_GETTEXT
+LT_INIT
 AC_CHECK_LIB([m], [sincos])
 AC_CHECK_LIB([m], [atan2])
 AC_CHECK_LIB([m], [fmod])
@@ -37,7 +39,6 @@ PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 PKG_CHECK_MODULES([CLUTTERX11], [clutter-x11-1.0])
 PKG_CHECK_MODULES([PIXBUF], [gdk-pixbuf-2.0])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_HEADERS([config.h])
 
 LIBSWE_LIBS='$(top_builddir)/swe/src/libswe-1.75.la'
 AC_SUBST(LIBSWE_LIBS)
