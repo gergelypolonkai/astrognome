@@ -58,6 +58,10 @@ typedef struct {
     signType_t type;
     signElement_t element;
     int rulingPlanet;
+    int domicilePlanet;
+    int detrimentPlanet;
+    int exaltedPlanet;
+    int fallingPlanet;
 } signTypePair_t;
 
 typedef struct {
@@ -99,19 +103,21 @@ typedef struct {
 } moonPhase;
 
 const signTypePair_t signType[] = {
-    { 0, 0, 0 },
-    { TYPE_CARDINAL, ELEMENT_FIRE,  SE_MARS    }, // Aries
-    { TYPE_FIX,      ELEMENT_EARTH, SE_VENUS   }, // Taurus
-    { TYPE_MUTABLE,  ELEMENT_AIR,   SE_MERCURY }, // Gemini
-    { TYPE_CARDINAL, ELEMENT_WATER, SE_MOON    }, // Cancer
-    { TYPE_FIX,      ELEMENT_FIRE,  SE_SUN     }, // Leo
-    { TYPE_MUTABLE,  ELEMENT_EARTH, SE_MERCURY }, // Virgo
-    { TYPE_CARDINAL, ELEMENT_AIR,   SE_VENUS   }, // Libra
-    { TYPE_FIX,      ELEMENT_WATER, SE_PLUTO   }, // Scorpio
-    { TYPE_MUTABLE,  ELEMENT_FIRE,  SE_JUPITER }, // Saggitarius
-    { TYPE_CARDINAL, ELEMENT_EARTH, SE_SATURN  }, // Capricorn
-    { TYPE_FIX,      ELEMENT_AIR,   SE_URANUS  }, // Aquarius
-    { TYPE_MUTABLE,  ELEMENT_WATER, SE_NEPTUNE }, // Pisces
+    { 0, 0, 0, 0, 0, 0, 0 },
+//    Type           Element        Dominating planet       Detriment planet        Fall planet
+//                                              Domicile planet         Exalted planet
+    { TYPE_CARDINAL, ELEMENT_FIRE,  SE_MARS,    SE_MARS,    SE_VENUS,   SE_SUN,     SE_SATURN  }, // Aries
+    { TYPE_FIX,      ELEMENT_EARTH, SE_VENUS,   SE_VENUS,   SE_MARS,    SE_MOON,    0          }, // Taurus
+    { TYPE_MUTABLE,  ELEMENT_AIR,   SE_MERCURY, SE_MERCURY, SE_JUPITER, 0,          0          }, // Gemini
+    { TYPE_CARDINAL, ELEMENT_WATER, SE_MOON,    SE_MOON,    SE_SATURN,  SE_JUPITER, SE_MARS    }, // Cancer
+    { TYPE_FIX,      ELEMENT_FIRE,  SE_SUN,     SE_SUN,     SE_SATURN,  0,          0          }, // Leo
+    { TYPE_MUTABLE,  ELEMENT_EARTH, SE_MERCURY, SE_MERCURY, SE_JUPITER, SE_MERCURY, SE_VENUS   }, // Virgo
+    { TYPE_CARDINAL, ELEMENT_AIR,   SE_VENUS,   SE_VENUS,   SE_MARS,    SE_SATURN,  SE_SUN     }, // Libra
+    { TYPE_FIX,      ELEMENT_WATER, SE_PLUTO,   SE_MARS,    SE_VENUS,   0,          SE_MOON    }, // Scorpio
+    { TYPE_MUTABLE,  ELEMENT_FIRE,  SE_JUPITER, SE_JUPITER, SE_MERCURY, 0,          0          }, // Saggitarius
+    { TYPE_CARDINAL, ELEMENT_EARTH, SE_SATURN,  SE_SATURN,  SE_MOON,    SE_MARS,    SE_JUPITER }, // Capricorn
+    { TYPE_FIX,      ELEMENT_AIR,   SE_URANUS,  SE_SATURN,  SE_SUN,     0,          0          }, // Aquarius
+    { TYPE_MUTABLE,  ELEMENT_WATER, SE_NEPTUNE, SE_JUPITER, SE_MERCURY, SE_VENUS,   SE_MERCURY }, // Pisces
 };
 
 const char *signName[] = {
