@@ -212,12 +212,14 @@ main(int argc, char *argv[])
 #error "You need Clutter >= 1.3.6 to compile this software"
 #endif
 
-	int year = 1983,
-	    month = 3,
-	    day = 7,
-	    hour = 11,
-	    min = 54,
-	    sec = 45;
+#if 1
+    year = 1983;
+    month = 3;
+    day = 7;
+    hour = 11;
+    min = 54;
+#endif
+
 	double timezone = 1.0,
 	       lon = 19.081599,
 	       lat = 47.462485,
