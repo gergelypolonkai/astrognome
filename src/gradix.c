@@ -302,15 +302,15 @@ get_moon_phase(gint year, gint month, gint day, gint hour, gint min, gint sec)
 int
 main(int argc, char *argv[])
 {
+#if !CLUTTER_CHECK_VERSION(1, 3, 6)
+#error "You need Clutter >= 1.3.6 to compile this software"
+#endif
     int year = 1981,
         month = 3,
         day = 11,
         hour = 23,
         min = 39,
         sec = 45,
-#if !CLUTTER_CHECK_VERSION(1, 3, 6)
-#error "You need Clutter >= 1.3.6 to compile this software"
-#endif
         p;
     double timezone = 1.0,
            lon = 19.081599,
