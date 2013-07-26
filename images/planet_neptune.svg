@@ -9,12 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="46.210934"
-   height="46.210941"
+   width="25.683594"
+   height="29.21875"
    id="svg2"
-   version="1.1"
+   sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="32 - Uránusz.svg">
+   version="1.0"
+   sodipodi:docname="planet_uranus.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -22,22 +23,25 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7810999"
-     inkscape:cx="10.579548"
-     inkscape:cy="-29.25206"
+     inkscape:zoom="1.979899"
+     inkscape:cx="231.04399"
+     inkscape:cy="-70.541172"
      inkscape:document-units="px"
-     inkscape:current-layer="text3055"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="1920"
+     inkscape:window-height="1021"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1920"
-     inkscape:window-height="1021"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -52,23 +56,18 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="1. réteg"
+     inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-139.34502,-533.82388)">
+     transform="translate(-270.46294,-375.63652)">
     <g
-       transform="translate(4.1941991,642.27564)"
-       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Placidus Symbols;-inkscape-font-specification:Placidus Symbols"
-       id="text3055">
-      <g
-         transform="translate(66.017526,-163.8571)"
-         style="line-height:125%;fill:#000000;font-family:Placidus Symbols;-inkscape-font-specification:Placidus Symbols"
-         id="text3887">
-        <path
-           d="m 90.070786,101.61628 0,-7.734375 -7.929688,0 0,-4.589844 7.929688,0 0,-6.171875 -6.953125,0 c -0.781264,9e-6 -1.621107,-0.14322 -2.519532,-0.429688 -1.380218,-0.442698 -2.695321,-1.178374 -3.945312,-2.207031 -0.559903,-0.481758 -1.074225,-1.106758 -1.542969,-1.875 -0.468755,-0.781235 -0.878911,-1.686182 -1.230469,-2.714844 -0.06511,-0.2604 -0.130213,-1.22394 -0.195312,-2.890625 -0.06511,-1.679666 -0.117192,-3.261696 -0.15625,-4.746093 -0.02605,-1.497371 -0.04558,-2.695286 -0.05859,-3.59375 l -4.335937,3.046875 6.503906,-12.304688 6.503906,12.304688 -4.355469,-3.046875 0,7.96875 0,0.273437 c -8e-6,0.48179 0.0651,0.937519 0.195313,1.367188 0.208324,0.703142 0.61848,1.47137 1.230469,2.304687 0.273427,0.351578 0.631499,0.683609 1.074218,0.996094 0.520822,0.364598 1.080717,0.644545 1.679688,0.839844 l 8.105469,0.07813 0,-13.828125 -4.316407,3.046875 6.464844,-12.304688 6.503906,12.304688 -4.316406,-3.046875 0,13.828125 6.484373,0 c 0.0521,0.01303 0.11715,0.02605 0.19531,0.03906 0.0781,1.4e-5 0.18226,1.4e-5 0.3125,0 0.72913,1.4e-5 1.39971,-0.136705 2.01172,-0.410156 0.95048,-0.429673 1.73173,-1.158839 2.34375,-2.1875 0.29944,-0.455712 0.53382,-0.976545 0.70312,-1.5625 0.18226,-0.59894 0.2734,-1.269512 0.27344,-2.011719 l 0.0391,-0.292969 -0.0391,-7.402343 -4.39453,3.046875 6.54297,-12.304688 6.46484,12.304688 -4.29687,-3.046875 c -4e-5,0.442735 -4e-5,0.976589 0,1.601562 -4e-5,0.612005 0.006,1.380233 0.0195,2.304688 -4e-5,1.84898 -0.0196,3.424499 -0.0586,4.726562 -0.0261,1.28908 -0.0847,2.122413 -0.17579,2.5 -0.20837,1.17189 -0.49483,2.102879 -0.85937,2.792969 -0.57296,1.093762 -1.4779,2.037772 -2.71484,2.832031 -0.76827,0.533865 -1.6016,0.93751 -2.5,1.210938 -1.09379,0.32553 -2.38285,0.48829 -3.86719,0.488281 l -6.347654,0 0,6.171875 7.832024,0 0,4.589844 -7.968743,0 0,7.734372 -4.335937,0"
-           id="path3892"
-           inkscape:connector-curvature="0" />
-      </g>
+       transform="translate(258.5991,387.1767)"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Cantarell;-inkscape-font-specification:Cantarell"
+       id="text2990">
+      <path
+         d="m 26.199777,14.026228 0,3.652344 -2.949219,0 0,-3.652344 -3.4375,0 0,-2.949219 3.4375,0 0,-2.7148435 C 21.102106,8.0757167 19.233618,7.1382177 17.645089,5.5496655 15.691955,3.5965545 14.708883,1.2202548 14.69587,-1.5792408 l 0,-1.640625 -2.8125,2.7734375 -0.01953,-2.734375 2.832031,-2.9882812 2.96875,0 2.8125,2.9882812 0,2.734375 -2.8125,-2.7734375 0,1.640625 0.03906,0 0,0.039063 -0.03906,0 c 0.01301,1.96616309 0.696603,3.6263177 2.050782,4.9804688 1.015611,1.028659 2.193995,1.6731896 3.535156,1.9335937 l 0,-13.9453125 -2.832031,2.7539063 -0.01953,-2.7148438 2.851563,-3.0078122 2.949219,0 2.832031,3.0078122 0,2.7148438 -2.832031,-2.7539063 0,13.9257813 c 1.315083,-0.2604041 2.473936,-0.8984243 3.476562,-1.9140625 1.380184,-1.3801928 2.070288,-3.04685776 2.070313,-5 l 0,-0.019531 0.01953,0 0,-1.7382812 -2.8125,2.77343745 -0.01953,-2.73437495 2.832031,-2.9882813 2.96875,0 2.8125,2.9882813 0,2.73437495 -2.8125,-2.77343745 0,1.7382812 0.01953,0 0,0.078125 c -0.01305,2.7474123 -0.996121,5.0976703 -2.949219,7.0507813 -1.588565,1.5755313 -3.457052,2.5130304 -5.605468,2.8125 l 0,2.7148435 3.417968,0 0,2.949219 -3.417968,0"
+         style="font-family:Cantarell;-inkscape-font-specification:Cantarell"
+         id="path3330" />
     </g>
   </g>
 </svg>

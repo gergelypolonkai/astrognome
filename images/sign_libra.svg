@@ -9,12 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="37.949219"
-   height="31.777344"
+   width="29.179688"
+   height="24.023438"
    id="svg2"
-   version="1.1"
+   sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="07 - Mérleg 1.svg">
+   version="1.0"
+   sodipodi:docname="sign_virgo.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -22,22 +23,25 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7810999"
-     inkscape:cx="45.134138"
-     inkscape:cy="34.507569"
+     inkscape:zoom="1.979899"
+     inkscape:cx="318.1412"
+     inkscape:cy="-160.26766"
      inkscape:document-units="px"
-     inkscape:current-layer="text3055"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="1920"
+     inkscape:window-height="1021"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1920"
-     inkscape:window-height="1021"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -52,23 +56,18 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="1. réteg"
+     inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-96.828597,-628.99995)">
+     transform="translate(-268.72466,-378.74199)">
     <g
-       transform="translate(4.1941991,642.27564)"
-       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Placidus Symbols;-inkscape-font-specification:Placidus Symbols"
-       id="text3055">
-      <g
-         transform="translate(84.898125,11.0799)"
-         style="line-height:125%;fill:#000000;font-family:Placidus Symbols;-inkscape-font-specification:Placidus Symbols"
-         id="text3211">
-        <path
-           d="m 7.7362731,7.4217501 0,-3.5546875 37.9492189,0 0,3.5546875 -37.9492189,0 m 14.9999999,-13.8867188 0,3.28125 -14.9999999,0 0,-3.515625 10.5273439,0 c -1.914076,-1.9531107 -2.871107,-4.1536293 -2.871094,-6.6015623 -1.3e-5,-3.020812 1.119778,-5.618465 3.359375,-7.792969 2.239565,-2.17445 4.902323,-3.261689 7.988281,-3.261719 3.07289,3e-5 5.722627,1.087269 7.949219,3.261719 2.239549,2.161483 3.35934,4.759137 3.359375,7.792969 -3.5e-5,2.434912 -0.950555,4.6354308 -2.851562,6.6015623 l 10.488281,0 0,3.515625 -15,0 0,-3.28125 c 2.565073,-1.6666529 3.847624,-3.8867023 3.847656,-6.6601563 -3.2e-5,-2.083312 -0.774771,-3.886696 -2.324219,-5.410156 -1.536486,-1.536433 -3.359401,-2.304661 -5.46875,-2.304688 -2.122418,2.7e-5 -3.958353,0.761745 -5.507812,2.285157 -1.536476,1.52346 -2.304704,3.333354 -2.304688,5.429687 -1.6e-5,2.773454 1.269514,4.9935034 3.808594,6.6601563"
-           id="path3216"
-           inkscape:connector-curvature="0" />
-      </g>
+       transform="translate(258.5991,387.1767)"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Cantarell;-inkscape-font-specification:Cantarell"
+       id="text2990">
+      <path
+         d="m 10.125558,12.619978 29.179687,0 0,2.96875 -29.179687,0 0,-2.96875 m 10.878906,-4.8242188 -10.878906,0 0,-2.96875 6.914062,0 C 16.167215,3.4728567 15.731018,1.9429104 15.731027,0.23716545 c -9e-6,-2.40883435 0.833323,-4.45310315 2.5,-6.13281245 1.679674,-1.6926831 3.723943,-2.5390364 6.132812,-2.5390625 2.421855,2.61e-5 4.472634,0.8463794 6.152344,2.5390625 1.692683,1.6797093 2.539036,3.7239781 2.539062,6.13281245 -2.6e-5,1.70574495 -0.442734,3.23569125 -1.328125,4.58984375 l 7.578125,0 0,2.96875 -11.582031,0 0,-2.96875 -0.01953,0 c 0.234354,-0.1692578 0.462218,-0.3645701 0.683594,-0.5859375 1.119769,-1.1067563 1.679664,-2.4479008 1.679687,-4.0234375 -2.3e-5,-1.5885226 -0.553408,-2.9361775 -1.660156,-4.0429687 -1.106791,-1.1067483 -2.454446,-1.6601331 -4.042969,-1.6601563 -1.588558,2.32e-5 -2.936212,0.553408 -4.042969,1.6601563 -1.106783,1.1067912 -1.660168,2.4544461 -1.660156,4.0429687 -1.2e-5,1.5755367 0.553373,2.9166812 1.660156,4.0234375 0.20832,0.2213674 0.436184,0.4166797 0.683594,0.5859375 l 0,2.96875"
+         style="font-family:Cantarell;-inkscape-font-specification:Cantarell"
+         id="path3784" />
     </g>
   </g>
 </svg>

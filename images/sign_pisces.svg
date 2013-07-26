@@ -9,12 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="29.863281"
-   height="37.050781"
+   width="23.300781"
+   height="29.21875"
    id="svg2"
-   version="1.1"
+   sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="11 - Vízöntő 1.svg">
+   version="1.0"
+   sodipodi:docname="sign_aquarius.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -22,22 +23,25 @@
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
+     gridtolerance="10000"
+     guidetolerance="10"
+     objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7810999"
-     inkscape:cx="36.507022"
-     inkscape:cy="43.377879"
+     inkscape:zoom="1.979899"
+     inkscape:cx="193.46588"
+     inkscape:cy="-137.95927"
      inkscape:document-units="px"
-     inkscape:current-layer="text3055"
+     inkscape:current-layer="layer1"
+     inkscape:window-width="1920"
+     inkscape:window-height="1021"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     inkscape:window-width="1920"
-     inkscape:window-height="1021"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -52,23 +56,18 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="1. réteg"
+     inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-113.41754,-615.61399)">
+     transform="translate(-271.65435,-375.63652)">
     <g
-       transform="translate(4.1941991,642.27564)"
-       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Placidus Symbols;-inkscape-font-specification:Placidus Symbols"
-       id="text3055">
-      <g
-         transform="translate(101.26151,-21.38631)"
-         style="line-height:125%;fill:#000000;font-family:Placidus Symbols;-inkscape-font-specification:Placidus Symbols"
-         id="text3341">
-        <path
-           d="m 19.250894,13.806696 c -1.5e-5,2.942718 -0.670588,6.028653 -2.011719,9.257812 -1.341158,3.229168 -3.151052,6.132811 -5.429687,8.710938 l -3.8476564,0 C 13.144114,26.319717 15.735257,20.33014 15.735269,13.806696 l -7.5195312,0 0,-2.636719 7.5195312,0 C 15.735257,8.4225998 15.051664,5.6426546 13.684488,2.8301334 12.395417,0.17391012 10.487867,-2.5279101 7.9618316,-5.2753353 l 3.6523434,0 c 4.427071,4.76565235 6.972642,10.2474177 7.636719,16.4453123 l 7.304688,0 c 0.624976,-6.2369571 3.164036,-11.71872241 7.617187,-16.4453123 l 3.652344,0 c -2.513052,2.7344044 -4.414092,5.42971419 -5.703125,8.0859375 -1.380235,2.825542 -2.070339,5.6119976 -2.070313,8.3593748 l 7.519532,0 0,2.636719 -7.519532,0 c -2.6e-5,6.523444 2.591117,12.513021 7.773438,17.96875 l -3.847656,0 c -1.132842,-1.302087 -2.154976,-2.682294 -3.066407,-4.140625 -0.911484,-1.445312 -1.699244,-2.975258 -2.363281,-4.589844 -1.328148,-3.24218 -1.99221,-6.321604 -1.992187,-9.238281 l -7.304688,0"
-           id="path3346"
-           inkscape:connector-curvature="0" />
-      </g>
+       transform="translate(258.5991,387.1767)"
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Cantarell;-inkscape-font-specification:Cantarell"
+       id="text2990">
+      <path
+         d="M 27.059152,4.6902905 22.35212,4.7488842 C 21.935439,9.1499344 19.917211,13.440295 16.297433,17.619978 l -3.222656,0.05859 c 3.997385,-4.570308 6.171862,-8.8801998 6.523437,-12.9296878 l -5.78125,0 0,-3.359375 5.78125,0 c -0.364596,-4.036438 -2.545583,-8.3463295 -6.542969,-12.9296872 l 3.242188,0.05859 c 3.619778,4.1666921 5.638006,8.4570524 6.054687,12.8710942 l 4.726563,0 c 0.403625,-4.4140418 2.421852,-8.7044021 6.054687,-12.8710942 l 3.222657,-0.05859 c -3.997422,4.5833577 -6.171899,8.8932492 -6.523438,12.9296872 l 5.761719,0 -0.01953,3.359375 -5.78125,0 c 0.37758,4.049488 2.565078,8.3593798 6.5625,12.9296878 l -3.242188,-0.05859 C 29.481004,13.440295 27.462777,9.1499344 27.059152,4.7488842 l 0,-0.058594"
+         style="font-family:Cantarell;-inkscape-font-specification:Cantarell"
+         id="path3934" />
     </g>
   </g>
 </svg>

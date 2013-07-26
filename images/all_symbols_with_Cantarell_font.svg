@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="18.320312"
-   height="29.21875"
+   width="494.57031"
+   height="188.63281"
    id="svg2"
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
    version="1.0"
-   sodipodi:docname="planet_jupiter.svg">
+   sodipodi:docname="planet_chiron.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -29,8 +29,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.979899"
-     inkscape:cx="207.16907"
-     inkscape:cy="-56.693525"
+     inkscape:cx="302.74459"
+     inkscape:cy="131.82207"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:window-width="1920"
@@ -59,15 +59,30 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-274.13481,-375.63652)">
-    <g
-       transform="translate(258.5991,387.1767)"
+     transform="translate(-267.20122,-371.14433)">
+    <text
+       xml:space="preserve"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Cantarell;-inkscape-font-specification:Cantarell"
-       id="text2990">
-      <path
-         d="m 17.606027,-5.0753345 -2.070313,0 0,-2.9492188 2.070313,0 0,-3.5156247 2.96875,0 0,3.5156247 3.476562,0 0,2.9492188 -3.476562,0 0,7.5585937 c 1.445297,-1.4192542 3.157535,-2.12888892 5.136718,-2.12890625 2.317687,1.733e-5 4.251279,0.83986025 5.800782,2.51953125 1.562473,1.6797006 2.343723,3.7369902 2.34375,6.171875 -2.7e-5,1.1718828 -0.455756,2.5065168 -1.367188,4.0039058 -0.911483,1.484379 -1.367212,3.014325 -1.367187,4.589844 l 0,0.03906 -2.949219,0 c -2.1e-5,-1.718749 0.455707,-3.352862 1.367187,-4.902344 0.924456,-1.549473 1.386695,-2.7929611 1.386719,-3.7304688 -2.4e-5,-1.6015523 -0.507836,-2.9492072 -1.523437,-4.0429687 -1.002626,-1.1067571 -2.226583,-1.660142 -3.671875,-1.6601563 -1.43231,1.43e-5 -2.649756,0.5533992 -3.652344,1.6601563 -1.002619,1.1067824 -1.50392,2.4544373 -1.503906,4.0429687 l 0,8.6328128 -2.96875,0 0,-22.7539065"
-         style="font-family:Cantarell;-inkscape-font-specification:Cantarell"
-         id="path3270" />
-    </g>
+       x="6.7857141"
+       y="17.678572"
+       id="text2990"
+       sodipodi:linespacing="125%"
+       transform="translate(258.5991,387.1767)"><tspan
+         sodipodi:role="line"
+         x="6.7857141"
+         y="17.678572"
+         id="tspan3004">☉☾☿♀♂♃♄⛢♆♇⚷⚸☊☋℞</tspan><tspan
+         sodipodi:role="line"
+         x="6.7857141"
+         y="67.678574"
+         id="tspan3012">⚳⚴⚵⚶</tspan><tspan
+         sodipodi:role="line"
+         x="6.7857141"
+         y="117.67857"
+         id="tspan3014">♈♉♊♋♌♍♎♏♐♑♒♓</tspan><tspan
+         sodipodi:role="line"
+         x="6.7857141"
+         y="167.67857"
+         id="tspan3016">☌⚺⚹Q□△⚼bQ⚻☍∠</tspan></text>
   </g>
 </svg>
