@@ -348,8 +348,6 @@ main(int argc, char *argv[])
            te,
            cusps[13],
            ascmc[10];
-    int elementPoint[4];
-    int typePoint[3];
     planetInfo_t *planetInfo;
     moonPhase *phase;
 
@@ -360,14 +358,6 @@ main(int argc, char *argv[])
     hour = 11;
     min = 54;
 #endif
-
-    for (p = 0; p < 4; p++) {
-        elementPoint[p] = 0;
-    }
-
-    for (p = 0; p < 3; p++) {
-        typePoint[p] = 0;
-    }
 
     swe_set_ephe_path(EPHEDIR);
 
@@ -384,7 +374,6 @@ main(int argc, char *argv[])
     }
 
     sign = get_sign(ascmc[0]);
-    ascTypePair = signType[sign];
 
     printf("Asc.......: %s\n", signName[sign]);
 
