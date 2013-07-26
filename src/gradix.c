@@ -233,28 +233,28 @@ set_location_and_time(double lon, double lat, double alt, int year, int month, i
 moonPhase *
 get_moon_phase(gint year, gint month, gint day, gint hour, gint min, gint sec)
 {
-	GDateTime *baseDate,
+    GDateTime *baseDate,
               *gds;
-	GTimeSpan diff;
-	gdouble phasePercent,
+    GTimeSpan diff;
+    gdouble phasePercent,
             realPercent;
     moonState state;
     moonPhase *ret;
 
-	baseDate = g_date_time_new_utc(2005, 5, 8, 8, 48, 0);
-	// TODO: this should use the time zone used at the birth place
-	gds = g_date_time_new_local(year, month, day, 0, 0, 0);
-	diff = g_date_time_difference(gds, baseDate) / 1000;
+    baseDate = g_date_time_new_utc(2005, 5, 8, 8, 48, 0);
+    // TODO: this should use the time zone used at the birth place
+    gds = g_date_time_new_local(year, month, day, 0, 0, 0);
+    diff = g_date_time_difference(gds, baseDate) / 1000;
 
-	g_date_time_unref(gds);
-	g_date_time_unref(baseDate);
+    g_date_time_unref(gds);
+    g_date_time_unref(baseDate);
 
-	// The current phase of the moon, between 0 and 100 (both 0 and 100 are new moon, 50 is full moon)
-	phasePercent = fmod((diff * 100) / (SYNODIC * MSPERDAY), 100);
+    // The current phase of the moon, between 0 and 100 (both 0 and 100 are new moon, 50 is full moon)
+    phasePercent = fmod((diff * 100) / (SYNODIC * MSPERDAY), 100);
 
-	if (phasePercent < 0) {
-		phasePercent += 100.0;
-	}
+    if (phasePercent < 0) {
+        phasePercent += 100.0;
+    }
 
     if ((phasePercent < 0) || (phasePercent > 100)) {
         fprintf(stderr, "Error during moon phase calculation!\n");
@@ -262,8 +262,8 @@ get_moon_phase(gint year, gint month, gint day, gint hour, gint min, gint sec)
         return NULL;
     }
 
-	// The real percentage is a number around the illumination percentage of the moon
-	realPercent = (50.0 - fabs(phasePercent - 50.0)) * 2;
+    // The real percentage is a number around the illumination percentage of the moon
+    realPercent = (50.0 - fabs(phasePercent - 50.0)) * 2;
 
     // Uuuugly!
     if (phasePercent == 0) {
@@ -293,6 +293,7 @@ get_moon_phase(gint year, gint month, gint day, gint hour, gint min, gint sec)
     return ret;
 }
 
+int
 main(int argc, char *argv[])
 {
 #if !CLUTTER_CHECK_VERSION(1, 3, 6)
