@@ -8,6 +8,9 @@
 #define IMAGEDIR "/home/polesz/Projektek/c/gradix/images"
 #define EPHEDIR "/home/polesz/Projektek/c/gradix/swe/data"
 
+#define SYNODIC 29.53058867
+#define MSPERDAY 86400000
+
 typedef enum {
 	SIGN_ARIES = 1,
 	SIGN_TAURUS,
@@ -22,6 +25,23 @@ typedef enum {
 	SIGN_AQUARIUS,
 	SIGN_PISCES
 } zodiacSign;
+
+typedef enum {
+    MOON_STATE_NEW,
+    MOON_STATE_WAXING_CRESCENT,
+    MOON_STATE_WAXING_HALF,
+    MOON_STATE_WAXING_GIBBOUS,
+    MOON_STATE_FULL,
+    MOON_STATE_WANING_GIBBOUS,
+    MOON_STATE_WANING_HALF,
+    MOON_STATE_WANING_CRESCENT,
+    MOON_STATE_DARK
+} moonState;
+
+typedef struct {
+    moonState phase;
+	double visiblePercentage;
+} moonPhase;
 
 //RsvgHandle *svgHandle[SE_CHIRON + SIGN_PISCES + 1];
 
@@ -123,6 +143,69 @@ set_location_and_time(double lon, double lat, double alt, int year, int month, i
 }
 
 int
+moonPhase *
+get_moon_phase(gint year, gint month, gint day, gint hour, gint min, gint sec)
+{
+	GDateTime *baseDate,
+              *gds;
+	GTimeSpan diff;
+	gdouble phasePercent,
+            realPercent;
+    moonState state;
+    moonPhase *ret;
+
+	baseDate = g_date_time_new_utc(2005, 5, 8, 8, 48, 0);
+	// TODO: this should use the time zone used at the birth place
+	gds = g_date_time_new_local(year, month, day, 0, 0, 0);
+	diff = g_date_time_difference(gds, baseDate) / 1000;
+
+	g_date_time_unref(gds);
+	g_date_time_unref(baseDate);
+
+	// The current phase of the moon, between 0 and 100 (both 0 and 100 are new moon, 50 is full moon)
+	phasePercent = fmod((diff * 100) / (SYNODIC * MSPERDAY), 100);
+
+	if (phasePercent < 0) {
+		phasePercent += 100.0;
+	}
+
+    if ((phasePercent < 0) || (phasePercent > 100)) {
+        fprintf(stderr, "Error during moon phase calculation!\n");
+
+        return NULL;
+    }
+
+	// The real percentage is a number around the illumination percentage of the moon
+	realPercent = (50.0 - fabs(phasePercent - 50.0)) * 2;
+
+    // Uuuugly!
+    if (phasePercent == 0) {
+        state = MOON_STATE_NEW;
+    } else if (phasePercent < 25) {
+        state = MOON_STATE_WAXING_CRESCENT;
+    } else if (phasePercent == 25) {
+        state = MOON_STATE_WAXING_HALF;
+    } else if (phasePercent < 50) {
+        state = MOON_STATE_WAXING_GIBBOUS;
+    } else if (phasePercent == 50) {
+        state = MOON_STATE_FULL;
+    } else if (phasePercent < 75) {
+        state = MOON_STATE_WANING_GIBBOUS;
+    } else if (phasePercent == 75) {
+        state = MOON_STATE_WANING_HALF;
+    } else if (phasePercent < 100) {
+        state = MOON_STATE_WANING_CRESCENT;
+    } else {
+        state = MOON_STATE_DARK;
+    }
+
+    ret = g_new0(moonPhase, 1);
+    ret->phase = state;
+    ret->visiblePercentage = realPercent;
+
+    return ret;
+}
+
 main(int argc, char *argv[])
 {
 #if !CLUTTER_CHECK_VERSION(1, 3, 6)
@@ -159,6 +242,7 @@ main(int argc, char *argv[])
 		printf("House %2d..: %2.0f (%f)\n", p, ceilf(cusps[p] / 30.0), cusps[p]);
 	}
 
+	get_moon_phase(year, month, day, hour, min, sec);
 	printf("Asc.......: %.0f\n", ceilf(ascmc[0] / 30.0));
 	printf("MC........: %.0f\n", ceilf(ascmc[1] / 30.0));
 
