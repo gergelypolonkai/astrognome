@@ -182,25 +182,53 @@ init_graphics(void)
     return TRUE;
 }
 
-double
-get_planet_position(int32 planet_no, double date)
+planetInfo_t *
+get_planet_info(int32 planetNo, double date, double cusps[])
 {
-	int32 iflgret,
-	      iflag = SEFLG_SPEED | SEFLG_TOPOCTR;
-	double x2[6];
-	char serr[AS_MAXCH];  
+    int32 iflgret,
+          iflag = SEFLG_SPEED | SEFLG_TOPOCTR;
+    double x2[6];
+    char serr[AS_MAXCH];
+    planetInfo_t *ret = g_new0(planetInfo_t, 1);
+    int i;
 
-	iflgret = swe_calc(date, planet_no, iflag, x2, serr);
+    iflgret = swe_calc(date, planetNo, iflag, x2, serr);
 
-	if (iflgret < 0) {
-		printf("error: %s\n", serr);
+    if (iflgret < 0) {
+        printf("error: %s\n", serr);
 
-		return -1;
-	} else if (iflgret != iflag) {
-		printf("warning: iflgret != iflag. %s\n", serr);
-	}
+        return NULL;
+    } else if (iflgret != iflag) {
+        printf("warning: iflgret != iflag. %s\n", serr);
+    }
 
-	return x2[0];
+    ret->house = 0;
+
+    for (i = 1; i < 13; i++) {
+        int j = (i < 12) ? i + 1 : 1;
+
+        if (cusps[j] < cusps[i]) {
+            if ((x2[0] >= cusps[i]) || (x2[0] < cusps[j])) {
+                ret->house = i;
+
+                break;
+            }
+        } else {
+            if ((x2[0] >= cusps[i]) && (x2[0] < cusps[j])) {
+                ret->house = i;
+
+                break;
+            }
+        }
+    }
+
+    ret->position = x2[0];
+    ret->sign = (int)ceilf(x2[0] / 30.0);
+    ret->retrograde = x2[3] < 0;
+    ret->type = signType[ret->sign].type;
+    ret->element = signType[ret->sign].element;
+
+    return ret;
 }
 
 int
