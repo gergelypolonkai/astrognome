@@ -206,30 +206,30 @@ get_planet_position(int32 planet_no, double date)
 int
 set_location_and_time(double lon, double lat, double alt, int year, int month, int day, int hour, int min, double sec, double d_timezone, double *jd)
 {
-	int utc_year,
-	    utc_month,
-	    utc_day,
-	    utc_hour,
-	    utc_min;
-	double utc_sec,
-	       retval,
-	       dret[2];
-	char serr[AS_MAXCH];  
+    int utc_year,
+        utc_month,
+        utc_day,
+        utc_hour,
+        utc_min;
+    double utc_sec,
+           retval,
+           dret[2];
+    char serr[AS_MAXCH];
 
-	swe_set_topo(lon, lat, alt);
-	swe_utc_time_zone(year, month, day, hour, min, sec, d_timezone, &utc_year, &utc_month, &utc_day, &utc_hour, &utc_min, &utc_sec);
-	if ((retval = swe_utc_to_jd(utc_year, utc_month, utc_day, utc_hour, utc_min, utc_sec, SE_GREG_CAL, dret, serr)) == ERR) {
-		printf("error: %s\n", serr);
+    swe_set_topo(lon, lat, alt);
+    swe_utc_time_zone(year, month, day, hour, min, sec, d_timezone, &utc_year, &utc_month, &utc_day, &utc_hour, &utc_min, &utc_sec);
 
-		return 0;
-	}
+    if ((retval = swe_utc_to_jd(utc_year, utc_month, utc_day, utc_hour, utc_min, utc_sec, SE_GREG_CAL, dret, serr)) == ERR) {
+        printf("error: %s\n", serr);
 
-	*jd = dret[0];
+        return 0;
+    }
 
-	return 1;
+    *jd = dret[0];
+
+    return 1;
 }
 
-int
 moonPhase *
 get_moon_phase(gint year, gint month, gint day, gint hour, gint min, gint sec)
 {
