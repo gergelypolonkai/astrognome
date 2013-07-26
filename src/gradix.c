@@ -339,6 +339,7 @@ main(int argc, char *argv[])
         hour = 23,
         min = 39,
         sec = 45,
+        sign,
         p;
     double timezone = 1.0,
            lon = 19.081599,
@@ -347,6 +348,10 @@ main(int argc, char *argv[])
            te,
            cusps[13],
            ascmc[10];
+    int elementPoint[4];
+    int typePoint[3];
+    planetInfo_t *planetInfo;
+    moonPhase *phase;
 
 #if 1
     year = 1983;
@@ -356,8 +361,13 @@ main(int argc, char *argv[])
     min = 54;
 #endif
 
-	       pos,
+    for (p = 0; p < 4; p++) {
+        elementPoint[p] = 0;
+    }
 
+    for (p = 0; p < 3; p++) {
+        typePoint[p] = 0;
+    }
 
     swe_set_ephe_path(EPHEDIR);
 
