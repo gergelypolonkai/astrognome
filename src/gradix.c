@@ -332,17 +332,18 @@ main(int argc, char *argv[])
 
 
     swe_set_ephe_path(EPHEDIR);
-	if (set_location_and_time(lon, lat, alt, year, month, day, hour, min, sec, timezone, &te) == 0) {
-		return 1;
-	}
 
-	printf("date: %02d.%02d.%d at %02d:%02d:%02d, at %f, %f\n", year, month, day, hour, min, sec, lon, lat);
+    if (set_location_and_time(lon, lat, alt, year, month, day, hour, min, sec, timezone, &te) == 0) {
+        return 1;
+    }
 
-	swe_houses(te, lat, lon, 'P', cusps, ascmc);
+    printf("date: %02d.%02d.%d at %02d:%02d:%02d, at %f, %f\n", year, month, day, hour, min, sec, lon, lat);
 
-	for (p = 1; p < 13; p++) {
-		printf("House %2d..: %2.0f (%f)\n", p, ceilf(cusps[p] / 30.0), cusps[p]);
-	}
+    swe_houses(te, lat, lon, 'P', cusps, ascmc);
+
+    for (p = 1; p < 13; p++) {
+        printf("House %2d..: %2.0f (%f)\n", p, ceilf(cusps[p] / 30.0), cusps[p]);
+    }
 
 	get_moon_phase(year, month, day, hour, min, sec);
 	printf("Asc.......: %.0f\n", ceilf(ascmc[0] / 30.0));
