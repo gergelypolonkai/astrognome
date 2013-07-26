@@ -434,6 +434,22 @@ main(int argc, char *argv[])
     printf("Dark Moon.: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
     g_free (planetInfo);
 
+    planetInfo = get_planet_info(SE_CERES, te, cusps);
+    printf("Ceres.....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free(planetInfo);
+
+    planetInfo = get_planet_info(SE_PALLAS, te, cusps);
+    printf("Pallas....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free(planetInfo);
+
+    planetInfo = get_planet_info(SE_JUNO, te, cusps);
+    printf("Juno......: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free(planetInfo);
+
+    planetInfo = get_planet_info(SE_VESTA, te, cusps);
+    printf("Vesta.....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free(planetInfo);
+
     return OK;
 }
 
