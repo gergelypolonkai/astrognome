@@ -345,45 +345,64 @@ main(int argc, char *argv[])
         printf("House %2d..: %2.0f (%f)\n", p, ceilf(cusps[p] / 30.0), cusps[p]);
     }
 
-	get_moon_phase(year, month, day, hour, min, sec);
-	printf("Asc.......: %.0f\n", ceilf(ascmc[0] / 30.0));
-	printf("MC........: %.0f\n", ceilf(ascmc[1] / 30.0));
+    sign = get_sign(ascmc[0]);
+    ascTypePair = signType[sign];
 
-	pos = get_planet_position(SE_SUN, te);
-	printf("Sun.......: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    printf("Asc.......: %s\n", signName[sign]);
 
-	pos = get_planet_position(SE_MOON, te);
-	printf("Moon......: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    sign = get_sign(ascmc[1]);
+    printf("MC........: %s\n", signName[sign]);
 
-	pos = get_planet_position(SE_MERCURY, te);
-	printf("Mercury...: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info(SE_SUN, te, cusps);
+    printf("Sun.......: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free(planetInfo);
 
-	pos = get_planet_position(SE_VENUS, te);
-	printf("Venus.....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info(SE_MOON, te, cusps);
+    phase = get_moon_phase(year, month, day, hour, min, sec);
+    printf("Moon......: %s (%.2f%% visibility), %s, House: %d (%f)\n", moonStateName[phase->phase], phase->visiblePercentage, signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free(phase);
+    g_free(planetInfo);
 
-	pos = get_planet_position(SE_MARS, te);
-	printf("Mars......: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info(SE_MERCURY, te, cusps);
+    printf("Mercury...: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
 
-	pos = get_planet_position(SE_JUPITER, te);
-	printf("Jupiter...: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info (SE_VENUS, te, cusps);
+    printf("Venus.....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
 
-	pos = get_planet_position(SE_SATURN, te);
-	printf("Saturn....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info(SE_MARS, te, cusps);
+    printf("Mars......: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
 
-	pos = get_planet_position(SE_URANUS, te);
-	printf("Uranus....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info(SE_JUPITER, te, cusps);
+    printf("Jupiter...: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
 
-	pos = get_planet_position(SE_NEPTUNE, te);
-	printf("Neptune...: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info(SE_SATURN, te, cusps);
+    printf("Saturn....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
 
-	pos = get_planet_position(SE_PLUTO, te);
-	printf("Pluto.....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info(SE_URANUS, te, cusps);
+    printf("Uranus....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
 
-	pos = get_planet_position(SE_CHIRON, te);
-	printf("Chiron....: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info(SE_NEPTUNE, te, cusps);
+    printf("Neptune...: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
 
-	pos = get_planet_position(SE_MEAN_NODE, te);
-	printf("North Node: %2.0f (%f)\n", ceilf(pos / 30.0), pos);
+    planetInfo = get_planet_info(SE_PLUTO, te, cusps);
+    printf("Pluto.....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
+
+    planetInfo = get_planet_info(SE_CHIRON, te, cusps);
+    printf("Chiron....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
+
+    planetInfo = get_planet_info(SE_MEAN_NODE, te, cusps);
+    printf("North Node: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
+
 
     return OK;
 }
