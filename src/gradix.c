@@ -403,6 +403,9 @@ main(int argc, char *argv[])
     printf("North Node: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
     g_free (planetInfo);
 
+    planetInfo = get_planet_info(SE_MEAN_APOG, te, cusps);
+    printf("Dark Moon.: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    g_free (planetInfo);
 
     return OK;
 }
