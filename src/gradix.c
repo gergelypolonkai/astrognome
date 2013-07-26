@@ -296,9 +296,23 @@ get_moon_phase(gint year, gint month, gint day, gint hour, gint min, gint sec)
 int
 main(int argc, char *argv[])
 {
+    int year = 1981,
+        month = 3,
+        day = 11,
+        hour = 23,
+        min = 39,
+        sec = 45,
 #if !CLUTTER_CHECK_VERSION(1, 3, 6)
 #error "You need Clutter >= 1.3.6 to compile this software"
 #endif
+        p;
+    double timezone = 1.0,
+           lon = 19.081599,
+           lat = 47.462485,
+           alt = 200,
+           te,
+           cusps[13],
+           ascmc[10];
 
 #if 1
     year = 1983;
@@ -308,18 +322,10 @@ main(int argc, char *argv[])
     min = 54;
 #endif
 
-	double timezone = 1.0,
-	       lon = 19.081599,
-	       lat = 47.462485,
-	       alt = 200,
-	       te,
 	       pos,
-	       cusps[13],
-	       ascmc[10];
-	int p;
 
-	swe_set_ephe_path(EPHEDIR);
 
+    swe_set_ephe_path(EPHEDIR);
 	if (set_location_and_time(lon, lat, alt, year, month, day, hour, min, sec, timezone, &te) == 0) {
 		return 1;
 	}
