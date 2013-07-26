@@ -1,0 +1,4 @@
+2013-07-26  gettextize  <bug-gnu-gettext@gnu.org>
+
+	* Makefile.am (EXTRA_DIST): New variable.
+
