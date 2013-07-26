@@ -27,6 +27,49 @@ typedef enum {
 } zodiacSign;
 
 typedef enum {
+    TYPE_CARDINAL = 1,
+    TYPE_FIX,
+    TYPE_MUTABLE
+} signType_t;
+
+const char *signTypeName[] = {
+    NULL,
+    "Cardinal",
+    "Fix",
+    "Mutable"
+};
+
+typedef enum {
+    ELEMENT_FIRE = 1,
+    ELEMENT_EARTH,
+    ELEMENT_AIR,
+    ELEMENT_WATER
+} signElement_t;
+
+const char *signElementName[] = {
+    NULL,
+    "Fire",
+    "Earth",
+    "Air",
+    "Water"
+};
+
+typedef struct {
+    signType_t type;
+    signElement_t element;
+    int rulingPlanet;
+} signTypePair_t;
+
+typedef struct {
+    double position;
+    zodiacSign sign;
+    int house;
+    short int retrograde;
+    signType_t type;
+    signElement_t element;
+} planetInfo_t;
+
+typedef enum {
     MOON_STATE_NEW,
     MOON_STATE_WAXING_CRESCENT,
     MOON_STATE_WAXING_HALF,
@@ -38,10 +81,54 @@ typedef enum {
     MOON_STATE_DARK
 } moonState;
 
+const char *moonStateName[] = {
+    "New Moon",
+    "Waxing Crescent Moon",
+    "Waxing Half Moon",
+    "Waxing Gibbous Moon",
+    "Full Moon",
+    "Waning Gibbous Moon",
+    "Waning Half Moon",
+    "Waning Crescent Moon",
+    "Dark Moon"
+};
+
 typedef struct {
     moonState phase;
     double visiblePercentage;
 } moonPhase;
+
+const signTypePair_t signType[] = {
+    { 0, 0, 0 },
+    { TYPE_CARDINAL, ELEMENT_FIRE,  SE_MARS    }, // Aries
+    { TYPE_FIX,      ELEMENT_EARTH, SE_VENUS   }, // Taurus
+    { TYPE_MUTABLE,  ELEMENT_AIR,   SE_MERCURY }, // Gemini
+    { TYPE_CARDINAL, ELEMENT_WATER, SE_MOON    }, // Cancer
+    { TYPE_FIX,      ELEMENT_FIRE,  SE_SUN     }, // Leo
+    { TYPE_MUTABLE,  ELEMENT_EARTH, SE_MERCURY }, // Virgo
+    { TYPE_CARDINAL, ELEMENT_AIR,   SE_VENUS   }, // Libra
+    { TYPE_FIX,      ELEMENT_WATER, SE_PLUTO   }, // Scorpio
+    { TYPE_MUTABLE,  ELEMENT_FIRE,  SE_JUPITER }, // Saggitarius
+    { TYPE_CARDINAL, ELEMENT_EARTH, SE_SATURN  }, // Capricorn
+    { TYPE_FIX,      ELEMENT_AIR,   SE_URANUS  }, // Aquarius
+    { TYPE_MUTABLE,  ELEMENT_WATER, SE_NEPTUNE }, // Pisces
+};
+
+const char *signName[] = {
+    NULL,
+    "Aries",
+    "Taurus",
+    "Gemini",
+    "Cancer",
+    "Leo",
+    "Virgo",
+    "Libra",
+    "Scorpio",
+    "Saggitarius",
+    "Capricorn",
+    "Aquarius",
+    "Pisces"
+};
 
 //RsvgHandle *svgHandle[SE_CHIRON + SIGN_PISCES + 1];
 
