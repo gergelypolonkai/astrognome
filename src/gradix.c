@@ -230,6 +230,12 @@ set_location_and_time(double lon, double lat, double alt, int year, int month, i
     return 1;
 }
 
+long int
+get_sign(double pos)
+{
+    return (int)ceilf(pos / 30.0);
+}
+
 moonPhase *
 get_moon_phase(gint year, gint month, gint day, gint hour, gint min, gint sec)
 {
