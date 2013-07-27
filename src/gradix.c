@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <cairo.h>
-#include <clutter/clutter.h>
+#include <glib.h>
 
 #include "calculate.h"
 
@@ -108,9 +108,6 @@ init_graphics(void)
 int
 main(int argc, char *argv[])
 {
-#if !CLUTTER_CHECK_VERSION(1, 3, 6)
-#error "You need Clutter >= 1.3.6 to compile this software"
-#endif
     int year = 1981,
         month = 3,
         day = 11,

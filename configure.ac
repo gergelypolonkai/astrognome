@@ -36,8 +36,6 @@ AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([m], [floor])
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([GTK], [gtk+-3.0])
-PKG_CHECK_MODULES([CLUTTERX11], [clutter-x11-1.0])
-PKG_CHECK_MODULES([PIXBUF], [gdk-pixbuf-2.0])
 AC_CONFIG_MACRO_DIR([m4])
 
 LIBSWE_LIBS='$(top_builddir)/swe/src/libswe-1.75.la'
