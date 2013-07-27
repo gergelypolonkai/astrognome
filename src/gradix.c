@@ -2,6 +2,7 @@
 #include <math.h>
 #include <cairo.h>
 #include <glib.h>
+#include <gtk/gtk.h>
 
 #include "calculate.h"
 
@@ -9,6 +10,7 @@
 
 #define IMAGEDIR "/home/polesz/Projektek/c/gradix/images"
 #define EPHEDIR "/home/polesz/Projektek/c/gradix/swe/data"
+#define UI_FILE "/home/polesz/Projektek/c/gradix/src/gradix.ui"
 
 const char *signTypeName[] = {
     NULL,
@@ -53,7 +55,47 @@ const char *signName[] = {
     "Pisces"
 };
 
-//RsvgHandle *svgHandle[SE_CHIRON + SIGN_PISCES + 1];
+GtkBuilder *builder;
+
+void
+about_action_activate_cb(GtkAction *action, gpointer user_data)
+{
+	GtkDialog *about_dialog;
+
+	about_dialog = GTK_DIALOG(gtk_builder_get_object(builder, "dialog_about"));
+
+	gtk_dialog_run(about_dialog);
+
+	gtk_widget_destroy(GTK_WIDGET(about_dialog));
+}
+
+int
+main(int argc, char *argv[])
+{
+	GtkWidget *mainWindow;
+	GError *err = NULL;
+
+	gtk_init(&argc, &argv);
+
+	builder = gtk_builder_new();
+
+	if (gtk_builder_add_from_file(builder, UI_FILE, &err) == 0) {
+		g_print("Juj!\n");
+	}
+
+	mainWindow = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
+	gtk_builder_connect_signals (builder, NULL);
+
+	gtk_widget_show(mainWindow);
+	gtk_main();
+
+	g_object_unref(G_OBJECT(builder));
+
+	return 0;
+}
+
+/*
+RsvgHandle *svgHandle[SE_CHIRON + SIGN_PISCES + 1];
 
 gboolean
 init_graphics(void)
@@ -228,7 +270,6 @@ main(int argc, char *argv[])
     return OK;
 }
 
-/*
 static gboolean
 draw_clock (ClutterCanvas *canvas, cairo_t *cr, int width, int height)
 {
