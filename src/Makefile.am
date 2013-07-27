@@ -1,5 +1,5 @@
 bin_PROGRAMS = gradix
 
-gradix_SOURCES = gradix.c
+gradix_SOURCES = gradix.c calculate.c
 gradix_LDADD = $(LIBSWE_LIBS) $(GTK_LIBS) $(CLUTTERX11_LIBS) $(PIXBUF_LIBS)
 gradix_CFLAGS = $(CFLAGS) $(GTK_CFLAGS) $(CLUTTERX11_CFLAGS) $(PIXBUF_CFLAGS) -Wall
