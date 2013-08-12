@@ -1,3 +1,4 @@
+
 /************************************************************
    $Header: /home/dieter/sweph/RCS/sweodef.h,v 1.74 2008/06/16 10:07:20 dieter Exp $
    definitions and constants for all Swiss Ephemeris source files,
@@ -68,99 +69,99 @@
   for promoting such software, products or services.
 */
 
-#ifndef _OURDEF_INCLUDED	/* ourdef.h is a superset of sweodef.h */
-#ifndef _SWEODEF_INCLUDED /* allow multiple #includes */
+#ifndef _OURDEF_INCLUDED        /* ourdef.h is a superset of sweodef.h */
+#ifndef _SWEODEF_INCLUDED       /* allow multiple #includes */
 #define _SWEODEF_INCLUDED
- 
-# define MY_TRUE 1	/* for use in other defines, before TRUE is defined */
-# define MY_FALSE 0	/* for use in other defines, before TRUE is defined */
+
+#define MY_TRUE 1               /* for use in other defines, before TRUE is defined */
+#define MY_FALSE 0              /* for use in other defines, before TRUE is defined */
 
 
-#ifdef _WIN32		/* Microsoft VC 5.0 does not define MSDOS anymore */
-# undef MSDOS
-# define MSDOS MY_TRUE
+#ifdef _WIN32                   /* Microsoft VC 5.0 does not define MSDOS anymore */
+#undef MSDOS
+#define MSDOS MY_TRUE
 #include <wtypes.h>
 #include <objbase.h>
 #include <wincon.h>
 #include <winbase.h>
 #include <io.h>
 #include <windows.h>
-# define sleep(x)	Sleep((x) * 1000)
+#define sleep(x)	Sleep((x) * 1000)
 #endif
 
 #ifdef _MSC_VER
-# define MS_VC
+#define MS_VC
 #endif
 
-#ifdef WIN32		/* Microsoft VC 5.0 does not define MSDOS anymore */
-# define MSDOS MY_TRUE
+#ifdef WIN32                    /* Microsoft VC 5.0 does not define MSDOS anymore */
+#define MSDOS MY_TRUE
 #endif
 
-#ifdef MSDOS	/* already defined by some DOS compilers */
-# undef MSDOS
-# define MSDOS MY_TRUE
+#ifdef MSDOS                    /* already defined by some DOS compilers */
+#undef MSDOS
+#define MSDOS MY_TRUE
 #endif
 
-#ifdef __TURBOC__	/* defined by  turboc */
-# ifndef MSDOS
-#   define MSDOS MY_TRUE
-# endif
-# define TURBO_C
+#ifdef __TURBOC__               /* defined by  turboc */
+#ifndef MSDOS
+#define MSDOS MY_TRUE
+#endif
+#define TURBO_C
 #endif
 
-#ifdef __SC__	/* defined by  Symantec C */
-# ifndef MSDOS
-#   define MSDOS MY_TRUE
-# endif
-# define SYMANTEC_C
+#ifdef __SC__                   /* defined by  Symantec C */
+#ifndef MSDOS
+#define MSDOS MY_TRUE
+#endif
+#define SYMANTEC_C
 #endif
 
-#ifdef __WATCOMC__	/* defined by  WatcomC */
-# ifndef MSDOS
-#   define MSDOS MY_TRUE
-# endif
-# define WATCOMC
+#ifdef __WATCOMC__              /* defined by  WatcomC */
+#ifndef MSDOS
+#define MSDOS MY_TRUE
+#endif
+#define WATCOMC
 #endif
 
-#ifdef __MWERKS__	/* defined on Macintosh CodeWarrior */
-# if macintosh && powerc
-#  define MACOS MY_TRUE		/* let it undefined otherwise */
-#  define MSDOS MY_FALSE	/* in case one above fired falsely */
-# endif
+#ifdef __MWERKS__               /* defined on Macintosh CodeWarrior */
+#if macintosh && powerc
+#define MACOS MY_TRUE           /* let it undefined otherwise */
+#define MSDOS MY_FALSE          /* in case one above fired falsely */
+#endif
 #endif
 
 #ifdef MSDOS
-#  define HPUNIX MY_FALSE
-#  define INTEL_BYTE_ORDER 1
-#  ifndef TURBO_C
-#    define MS_C	/* assume Microsoft C compiler */
-#  endif
-# define MYFAR far
-# define UNIX_FS MY_FALSE
+#define HPUNIX MY_FALSE
+#define INTEL_BYTE_ORDER 1
+#ifndef TURBO_C
+#define MS_C                    /* assume Microsoft C compiler */
+#endif
+#define MYFAR far
+#define UNIX_FS MY_FALSE
 #else
-# ifdef MACOS
-#  define HPUNIX MY_FALSE
-#  define MYFAR
-#  define UNIX_FS MY_FALSE
-# else
-#  define MSDOS MY_FALSE
-#  define HPUNIX MY_TRUE
-#  ifndef _HPUX_SOURCE
-#    define _HPUX_SOURCE
-#  endif
-#  define MYFAR
-#  define UNIX_FS MY_TRUE
-# endif
+#ifdef MACOS
+#define HPUNIX MY_FALSE
+#define MYFAR
+#define UNIX_FS MY_FALSE
+#else
+#define MSDOS MY_FALSE
+#define HPUNIX MY_TRUE
+#ifndef _HPUX_SOURCE
+#define _HPUX_SOURCE
+#endif
+#define MYFAR
+#define UNIX_FS MY_TRUE
+#endif
 #endif
 
 #include <math.h>
 #include <stdlib.h>
 #ifndef FILE
-# include <stdio.h>
+#include <stdio.h>
 #endif
 
 #if HPUNIX
-#  include <unistd.h>
+#include <unistd.h>
 #endif
 
 /*
@@ -170,63 +171,63 @@
  */
 #include <limits.h>
 #if INT_MAX < 40000
-# define INT_16
+#define INT_16
 #else
-# if LONG_MAX > INT_MAX
-#   define LONG_64
-# endif
+#if LONG_MAX > INT_MAX
+#define LONG_64
+#endif
 #endif
 
 #ifdef BYTE_ORDER
 #ifdef LITTLE_ENDIAN
-# if BYTE_ORDER == LITTLE_ENDIAN
-#  define INTEL_BYTE_ORDER
-# endif
+#if BYTE_ORDER == LITTLE_ENDIAN
+#define INTEL_BYTE_ORDER
+#endif
 #endif
 #endif
 
 #ifdef INT_16
-  typedef long	int32;
-  typedef unsigned long	uint32;
-  typedef int	int16;
-  typedef double  REAL8;  /* real with at least 64 bit precision */
-  typedef long    INT4;   /* signed integer with at least 32 bit precision */
-  typedef unsigned long UINT4;
+typedef long int32;
+typedef unsigned long uint32;
+typedef int int16;
+typedef double REAL8;           /* real with at least 64 bit precision */
+typedef long INT4;              /* signed integer with at least 32 bit precision */
+typedef unsigned long UINT4;
                           /* unsigned integer with at least 32 bit precision */
-  typedef int     AS_BOOL;
-  typedef unsigned int UINT2;	/* unsigned 16 bits */
-# define ABS4	labs		/* abs function for long */ 
+typedef int AS_BOOL;
+typedef unsigned int UINT2;     /* unsigned 16 bits */
+#define ABS4	labs            /* abs function for long */
 #else
-  typedef int	int32;
-  typedef long long	int64;
-  typedef unsigned int	uint32;
-  typedef short	int16;
-  typedef double  REAL8;  /* real with at least 64 bit precision */
-  typedef int     INT4;   /* signed integer with at least 32 bit precision */
-  typedef unsigned int UINT4; 
-			/* unsigned integer with at least 32 bit precision */
-  typedef int     AS_BOOL;
-  typedef unsigned short UINT2;	/* unsigned 16 bits */
-  # define ABS4	abs		/* abs function for long */
+typedef int int32;
+typedef long long int64;
+typedef unsigned int uint32;
+typedef short int16;
+typedef double REAL8;           /* real with at least 64 bit precision */
+typedef int INT4;               /* signed integer with at least 32 bit precision */
+typedef unsigned int UINT4;
+                        /* unsigned integer with at least 32 bit precision */
+typedef int AS_BOOL;
+typedef unsigned short UINT2;   /* unsigned 16 bits */
+#define ABS4	abs             /* abs function for long */
 #endif
 
-#if MSDOS 
-# ifdef TURBO_C
-#   include <alloc.h>		/* MSC needs malloc ! */
-# else
-#   include <malloc.h>
-# endif
-# define SIGALRM SIGINT
+#if MSDOS
+#ifdef TURBO_C
+#include <alloc.h>              /* MSC needs malloc ! */
+#else
+#include <malloc.h>
+#endif
+#define SIGALRM SIGINT
 #endif
 
-#ifndef TRUE 
-#  define TRUE 1
-#  define FALSE 0
+#ifndef TRUE
+#define TRUE 1
+#define FALSE 0
 #endif
 
-#ifndef OK 
-#  define OK (0)
-#  define ERR (-1)
+#ifndef OK
+#define OK (0)
+#define ERR (-1)
 #endif
 
 /* hack because UCHAR is already used by mingw gcc */
@@ -240,30 +241,30 @@ typedef unsigned char UCHAR;
 #define UCP	(UCHAR*)
 #define SCP	(char*)
 
-# define ODEGREE_STRING "°"	/* degree as string, utf8 encoding */
- 
+#define ODEGREE_STRING "°"     /* degree as string, utf8 encoding */
+
 
 
 #ifndef HUGE
-#  define HUGE 1.7E+308     /* biggest value for REAL8 */
+#define HUGE 1.7E+308           /* biggest value for REAL8 */
 #endif
 #ifndef M_PI
-#  define M_PI 3.14159265358979323846
+#define M_PI 3.14159265358979323846
 #endif
- 
+
 #define forward static
 
-#define AS_MAXCH 256    /* used for string declarations, allowing 255 char+\0 */
- 
+#define AS_MAXCH 256            /* used for string declarations, allowing 255 char+\0 */
+
 #define DEGTORAD 0.0174532925199433
 #define RADTODEG 57.2957795130823
- 
-typedef int32    centisec;       /* centiseconds used for angles and times */
-#define CS	(centisec)	/* use for casting */
-#define CSEC	centisec	/* use for typing */
 
-#define DEG     360000  /* degree expressed in centiseconds */
-#define DEG7_30 (2700000)	/* 7.5 degrees */
+typedef int32 centisec;         /* centiseconds used for angles and times */
+#define CS	(centisec)      /* use for casting */
+#define CSEC	centisec        /* use for typing */
+
+#define DEG     360000          /* degree expressed in centiseconds */
+#define DEG7_30 (2700000)       /* 7.5 degrees */
 #define DEG15   (15 * DEG)
 #define DEG24   (24 * DEG)
 #define DEG30   (30 * DEG)
@@ -274,48 +275,49 @@ typedef int32    centisec;       /* centiseconds used for angles and times */
 #define DEG180  (180 * DEG)
 #define DEG270  (270 * DEG)
 #define DEG360  (360 * DEG)
- 
-#define CSTORAD  4.84813681109536E-08 /* centisec to rad: pi / 180 /3600/100 */
-#define RADTOCS  2.06264806247096E+07 /* rad to centisec 180*3600*100/pi */
- 
-#define CS2DEG	(1.0/360000.0)	/* centisec to degree */
+
+#define CSTORAD  4.84813681109536E-08   /* centisec to rad: pi / 180 /3600/100 */
+#define RADTOCS  2.06264806247096E+07   /* rad to centisec 180*3600*100/pi */
+
+#define CS2DEG	(1.0/360000.0)  /* centisec to degree */
 
 /* control strings for fopen()	*/
 #if UNIX_FS
-#  define BFILE_R_ACCESS "r"	/* open binary file for reading */
-#  define BFILE_RW_ACCESS "r+"	/* open binary file for writing and reading */
-#  define BFILE_W_CREATE "w"	/* create/open binary file for write*/
-#  define BFILE_A_ACCESS "a+"	/* create/open binary file for append*/
-#  define FILE_R_ACCESS "r"	/* open text file for reading */
-#  define FILE_RW_ACCESS "r+"	/* open text file for writing and reading */
-#  define FILE_W_CREATE "w"	/* create/open text file for write*/
-#  define FILE_A_ACCESS "a+"	/* create/open text file for append*/
-#  define O_BINARY 0		/* for open(), not defined in Unix */
-#  define OPEN_MODE 0666	/* default file creation mode */
-#  define DIR_GLUE "/"		/* glue string for directory/file */
-#  define PATH_SEPARATOR ";:"	/* semicolon or colon may be used */
+#define BFILE_R_ACCESS "r"      /* open binary file for reading */
+#define BFILE_RW_ACCESS "r+"    /* open binary file for writing and reading */
+#define BFILE_W_CREATE "w"      /* create/open binary file for write */
+#define BFILE_A_ACCESS "a+"     /* create/open binary file for append */
+#define FILE_R_ACCESS "r"       /* open text file for reading */
+#define FILE_RW_ACCESS "r+"     /* open text file for writing and reading */
+#define FILE_W_CREATE "w"       /* create/open text file for write */
+#define FILE_A_ACCESS "a+"      /* create/open text file for append */
+#define O_BINARY 0              /* for open(), not defined in Unix */
+#define OPEN_MODE 0666          /* default file creation mode */
+#define DIR_GLUE "/"            /* glue string for directory/file */
+#define PATH_SEPARATOR ";:"     /* semicolon or colon may be used */
 #else
-#  define BFILE_R_ACCESS "rb"	/* open binary file for reading */
-#  define BFILE_RW_ACCESS "r+b"	/* open binary file for writing and reading */
-#  define BFILE_W_CREATE "wb"	/* create/open binary file for write*/
-#  define BFILE_A_ACCESS "a+b"	/* create/open binary file for append*/
-#  define PATH_SEPARATOR ";"	/* semicolon as PATH separator */
-#  define OPEN_MODE 0666	/* default file creation mode */
-# ifdef MACOS
-#  define FILE_R_ACCESS "r"	/* open text file for reading */
-#  define FILE_RW_ACCESS "r+"	/* open text file for writing and reading */
-#  define FILE_W_CREATE "w"	/* create/open text file for write*/
-#  define FILE_A_ACCESS "a+"	/* create/open text file for append*/
-#  define DIR_GLUE ":"		/* glue string for directory/file */
-# else
-#  define FILE_R_ACCESS "rt"	/* open text file for reading */
-#  define FILE_RW_ACCESS "r+t"	/* open text file for writing and reading */
-#  define FILE_W_CREATE "wt"	/* create/open text file for write*/
-#  define FILE_A_ACCESS "a+t"	/* create/open text file for append*/
+#define BFILE_R_ACCESS "rb"     /* open binary file for reading */
+#define BFILE_RW_ACCESS "r+b"   /* open binary file for writing and reading */
+#define BFILE_W_CREATE "wb"     /* create/open binary file for write */
+#define BFILE_A_ACCESS "a+b"    /* create/open binary file for append */
+#define PATH_SEPARATOR ";"      /* semicolon as PATH separator */
+#define OPEN_MODE 0666          /* default file creation mode */
+#ifdef MACOS
+#define FILE_R_ACCESS "r"       /* open text file for reading */
+#define FILE_RW_ACCESS "r+"     /* open text file for writing and reading */
+#define FILE_W_CREATE "w"       /* create/open text file for write */
+#define FILE_A_ACCESS "a+"      /* create/open text file for append */
+#define DIR_GLUE ":"            /* glue string for directory/file */
+#else
+#define FILE_R_ACCESS "rt"      /* open text file for reading */
+#define FILE_RW_ACCESS "r+t"    /* open text file for writing and reading */
+#define FILE_W_CREATE "wt"      /* create/open text file for write */
+#define FILE_A_ACCESS "a+t"     /* create/open text file for append */
+
 /* attention, all backslashes for msdos directry names must be written as \\,
    because it is the C escape character */
-#  define DIR_GLUE "\\"		/* glue string for directory/file */
-# endif
+#define DIR_GLUE "\\"           /* glue string for directory/file */
+#endif
 #endif
 
 #include <string.h>

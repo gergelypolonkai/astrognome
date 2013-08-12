@@ -1,3 +1,4 @@
+
 /*******************************************************
 $Header: /home/dieter/sweph/RCS/swehouse.h,v 1.74 2008/06/16 10:07:20 dieter Exp $
 module swehouse.h
@@ -59,16 +60,17 @@ house and (simple) aspect calculation
   for promoting such software, products or services.
 */
 
-struct houses {
-	  double cusp[37];
-	  double ac;
-	  double mc;
-	  double vertex;
-	  double equasc;
-	  double coasc1;
-	  double coasc2;
-	  double polasc;
-	};
+struct houses
+{
+    double cusp[37];
+    double ac;
+    double mc;
+    double vertex;
+    double equasc;
+    double coasc1;
+    double coasc2;
+    double polasc;
+};
 
 #define HOUSES 	struct houses
 #define VERY_SMALL	1E-10

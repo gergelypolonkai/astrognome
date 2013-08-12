@@ -5,6 +5,7 @@
   Authors: Dieter Koch and Alois Treindl, Astrodienst Zurich
 
 ************************************************************/
+
 /* Copyright (C) 1997 - 2008 Astrodienst AG, Switzerland.  All rights reserved.
 
   License conditions
@@ -67,57 +68,63 @@
 /* Precession coefficients for remote past and future.
  * One of the following four defines must be true.
  */
-#define PREC_VONDRAK_2011	TRUE	
-#define PREC_WILLIAMS_1994	FALSE	
+#define PREC_VONDRAK_2011	TRUE
+#define PREC_WILLIAMS_1994	FALSE
 #define PREC_SIMON_1994 	FALSE
 #define PREC_LASKAR_1986 	FALSE
-#define PREC_BRETAGNON_2003	FALSE	
+#define PREC_BRETAGNON_2003	FALSE
+
 /* IAU precession 1976 or 2003 for recent centuries.
  * only one of the following two defines may be TRUE */
-#define PREC_IAU_1976		FALSE 	
-#define PREC_IAU_2003		FALSE  /* precession model P03 */	
-#define PREC_IAU_1976_CTIES          2.0 	/* J2000 +/- two centuries */
+#define PREC_IAU_1976		FALSE
+#define PREC_IAU_2003		FALSE   /* precession model P03 */
+#define PREC_IAU_1976_CTIES          2.0        /* J2000 +/- two centuries */
+
 /* we use P03 for whole ephemeris */
-#define PREC_IAU_2003_CTIES          75.0 	/* J2000 +/- 75 centuries */
+#define PREC_IAU_2003_CTIES          75.0       /* J2000 +/- 75 centuries */
 
 /* choose between the following nutation models */
 #define NUT_IAU_1980          FALSE
-#define NUT_IAU_2000A         FALSE   /* very time consuming ! */
-#define NUT_IAU_2000B         TRUE  /* fast, but precision of milli-arcsec */
-					 
+#define NUT_IAU_2000A         FALSE     /* very time consuming ! */
+#define NUT_IAU_2000B         TRUE      /* fast, but precision of milli-arcsec */
+
 /* coordinate transformation */
 extern void swi_coortrf(double *xpo, double *xpn, double eps);
 
 /* coordinate transformation */
-extern void swi_coortrf2(double *xpo, double *xpn, double sineps, double coseps);
+extern void swi_coortrf2(double *xpo, double *xpn, double sineps,
+                         double coseps);
 
 /* cartesian to polar coordinates */
 extern void swi_cartpol(double *x, double *l);
- 
+
 /* cartesian to polar coordinates with velocity */
 extern void swi_cartpol_sp(double *x, double *l);
 extern void swi_polcart_sp(double *l, double *x);
- 
+
 /* polar to cartesian coordinates */
 extern void swi_polcart(double *l, double *x);
 
 /* GCRS to J2000 */
 extern void swi_bias(double *x, int32 iflag, AS_BOOL backward);
+
 /* GCRS to FK5 */
 extern void swi_icrs2fk5(double *x, int32 iflag, AS_BOOL backward);
 
 /* precession */
-extern int swi_precess(double *R, double J, int direction );
+extern int swi_precess(double *R, double J, int direction);
 extern void swi_precess_speed(double *xx, double t, int direction);
 
 /* from sweph.c, light deflection, aberration, etc. */
 extern void swi_deflect_light(double *xx, double dt, int32 iflag);
 extern void swi_aberr_light(double *xx, double *xe, int32 iflag);
 extern int swi_plan_for_osc_elem(int32 iflag, double tjd, double *xx);
-extern int swi_trop_ra2sid_lon(double *xin, double *xout, double *xoutr, int32 iflag, char *serr);
-extern int swi_trop_ra2sid_lon_sosy(double *xin, double *xout, double *xoutr, int32 iflag, char *serr);
-extern int swi_get_observer(double tjd, int32 iflag, 
-	AS_BOOL do_save, double *xobs, char *serr);
+extern int swi_trop_ra2sid_lon(double *xin, double *xout, double *xoutr,
+                               int32 iflag, char *serr);
+extern int swi_trop_ra2sid_lon_sosy(double *xin, double *xout, double *xoutr,
+                                    int32 iflag, char *serr);
+extern int swi_get_observer(double tjd, int32 iflag, AS_BOOL do_save,
+                            double *xobs, char *serr);
 extern void swi_force_app_pos_etc();
 
 /* obliquity of ecliptic */
@@ -130,9 +137,9 @@ extern void swi_check_nutation(double tjd, int32 iflag);
 extern int swi_nutation(double J, double *nutlo);
 extern void swi_nutate(double *xx, int32 iflag, AS_BOOL backward);
 
-extern void swi_mean_lunar_elements(double tjd, 
-							 double *node, double *dnode, 
-							 double *peri, double *dperi);
+extern void swi_mean_lunar_elements(double tjd, double *node, double *dnode,
+                                    double *peri, double *dperi);
+
 /* */
 extern double swi_mod2PI(double x);
 
@@ -142,6 +149,7 @@ extern double swi_edcheb(double x, double *coef, int ncf);
 
 /* cross product of vectors */
 extern void swi_cross_prod(double *a, double *b, double *x);
+
 /* dot product of vecotrs */
 extern double swi_dot_prod_unit(double *x, double *y);
 
@@ -166,14 +174,14 @@ extern char *swi_strcpy(char *to, char *from);
 extern char *swi_strncpy(char *to, char *from, size_t n);
 
 #ifdef TRACE
-#  define TRACE_COUNT_MAX         10000
-  extern FILE *swi_fp_trace_c;
-  extern FILE *swi_fp_trace_out;
-  extern void swi_open_trace(char *serr);
-  extern int32 swi_trace_count;
-  static char *fname_trace_c = "swetrace.c";
-  static char *fname_trace_out = "swetrace.txt";
+#define TRACE_COUNT_MAX         10000
+extern FILE *swi_fp_trace_c;
+extern FILE *swi_fp_trace_out;
+extern void swi_open_trace(char *serr);
+extern int32 swi_trace_count;
+static char *fname_trace_c = "swetrace.c";
+static char *fname_trace_out = "swetrace.txt";
 #ifdef FORCE_IFLAG
-  static char *fname_force_flg = "force.flg";
+static char *fname_force_flg = "force.flg";
 #endif
 #endif /* TRACE */

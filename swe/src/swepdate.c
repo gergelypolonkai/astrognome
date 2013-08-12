@@ -1,9 +1,11 @@
+
 /*****************************************************
 $Header: swepdate.c,v 1.65 2003/06/14 13:02:01 alois Exp $
 Placalc compatibility interface for Swiss Ephemeris.
 date functions
 
 *******************************************************/
+
 /* Copyright (C) 1997 - 2008 Astrodienst AG, Switzerland.  All rights reserved.
   
   License conditions
@@ -129,28 +131,32 @@ date functions
 		    and notifies errors like 32 January.
  ****************************************************************/
 
-double julday(int month, int day, int year, double hour, int gregflag) 
+double
+julday(int month, int day, int year, double hour, int gregflag)
 {
-  double jd;
-  jd = swe_julday(year, month, day, hour, gregflag);
-  return jd;
+    double jd;
+    jd = swe_julday(year, month, day, hour, gregflag);
+    return jd;
 }
 
 /*
  * monday = 0, ... sunday = 6
  */
-int day_of_week(double jd)
+int
+day_of_week(double jd)
 {
-  return (((int) floor (jd - 2433282 - 1.5) %7) + 7) % 7;
+    return (((int)floor(jd - 2433282 - 1.5) % 7) + 7) % 7;
 }
 
 /*************** julday ******************
   get absolute julian day number (author: Marc Pottenger)
   with bug fix for year < -4711   15-aug-88
 */
-double juldays(int gregflag, ADATE *adp ) 
+double
+juldays(int gregflag, ADATE * adp)
 {
-  return swe_julday(adp->year, adp->month, adp->day, adp->csec / 360000.0, gregflag);
+    return swe_julday(adp->year, adp->month, adp->day, adp->csec / 360000.0,
+                      gregflag);
 }
 
 /*** revjul ******************************************************
@@ -172,10 +178,10 @@ double juldays(int gregflag, ADATE *adp )
   Original author Mark Pottenger, Los Angeles.
   with bug fix for year < -4711 16-aug-88 Alois Treindl
 *************************************************************************/
-void revjul (double jd, int gregflag,
-	     int *jmon, int *jday, int *jyear, double *jut)
+void
+revjul(double jd, int gregflag, int *jmon, int *jday, int *jyear, double *jut)
 {
-  swe_revjul(jd, gregflag, jyear, jmon, jday, jut);
+    swe_revjul(jd, gregflag, jyear, jmon, jday, jut);
 }
 
 /************************************* revjul *********
@@ -183,11 +189,12 @@ void revjul (double jd, int gregflag,
   with bug fix for year < -4711 16-aug-88
   arguments are julian day #, calendar flag (0=julian, 1=gregorian)
 */
-void revjuls(double jd, int gregflag, struct adate *adp)
+void
+revjuls(double jd, int gregflag, struct adate *adp)
 {
-  double jut;
-  swe_revjul(jd, gregflag, &adp->year, &adp->month, &adp->day, &jut);
-  adp->csec = jut * 360000.0 + 0.5;
+    double jut;
+    swe_revjul(jd, gregflag, &adp->year, &adp->month, &adp->day, &jut);
+    adp->csec = jut * 360000.0 + 0.5;
 }
 
 /*********************************************************
@@ -215,28 +222,28 @@ void revjuls(double jd, int gregflag, struct adate *adp)
   Return: OK or ERR (for illegal date)
 *********************************************************/
 
-int date_conversion (int d ,
-                     int m ,
-                     int y ,		/* day, month, year */
-                     centisec gutime, 	/* greenwich time in centiseconds */
-                     char c,  /* calendar g[regorian]|j[ulian]|a[stro = greg] */
-                     double *tgmt	
-			/* julian date relative 0.Jan.1950 12:00 gmt */
-			/* shift is 2433282 from absolute Julian date */
-		    ) 
-{ 
-  int rday, rmon, ryear;
-  double rut, jd;
-  int gregflag = SE_JUL_CAL;
-  if (c == 'g' || c == 'a')
-    gregflag = SE_GREG_CAL;
-  rut = gutime / 360000.0;	/* hours GMT */
-  jd = julday(m, d, y, rut, gregflag);
-  revjul(jd, gregflag, &rmon, &rday, &ryear, &rut);
-  *tgmt = jd - JUL_OFFSET;
-  if (rmon == m && rday == d && ryear == y) {
-    return OK;
-  } else {
-    return ERR;
-  }
-}	/* end date_conversion */
+int
+date_conversion(int d, int m, int y,    /* day, month, year */
+                centisec gutime,        /* greenwich time in centiseconds */
+                char c,         /* calendar g[regorian]|j[ulian]|a[stro = greg] */
+                double *tgmt
+                /* julian date relative 0.Jan.1950 12:00 gmt */
+                /* shift is 2433282 from absolute Julian date */
+    )
+{
+    int rday, rmon, ryear;
+    double rut, jd;
+    int gregflag = SE_JUL_CAL;
+    if (c == 'g' || c == 'a')
+        gregflag = SE_GREG_CAL;
+    rut = gutime / 360000.0;    /* hours GMT */
+    jd = julday(m, d, y, rut, gregflag);
+    revjul(jd, gregflag, &rmon, &rday, &ryear, &rut);
+    *tgmt = jd - JUL_OFFSET;
+    if (rmon == m && rday == d && ryear == y) {
+        return OK;
+    }
+    else {
+        return ERR;
+    }
+}                               /* end date_conversion */

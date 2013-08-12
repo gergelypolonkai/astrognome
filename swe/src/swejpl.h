@@ -1,3 +1,4 @@
+
 /* 
  | $Header: /home/dieter/sweph/RCS/swejpl.h,v 1.74 2008/06/16 10:07:20 dieter Exp $
  |
@@ -10,6 +11,7 @@
   Authors: Dieter Koch and Alois Treindl, Astrodienst Zurich
 
 **************************************************************/
+
 /* Copyright (C) 1997 - 2008 Astrodienst AG, Switzerland.  All rights reserved.
 
   License conditions
@@ -67,8 +69,8 @@
 
 #include "sweodef.h"
 
-#define J_MERCURY	0	/* jpl body indices, modified by Alois */
-#define J_VENUS		1	/* now they start at 0 and not at 1 */
+#define J_MERCURY	0       /* jpl body indices, modified by Alois */
+#define J_VENUS		1       /* now they start at 0 and not at 1 */
 #define J_EARTH		2
 #define J_MARS		3
 #define J_JUPITER	4
@@ -89,7 +91,8 @@
  * ntarg can be all of the above, ncent all except J_NUT and J_LIB.
  * Librations and Nutations are not affected by ncent.
  */
-extern int swi_pleph(double et, int ntarg, int ncent, double *rrd, char *serr);
+extern int swi_pleph(double et, int ntarg, int ncent, double *rrd,
+                     char *serr);
 
 /*
  * read the ephemeris constants. ss[0..2] returns start, end and granule size.
@@ -97,9 +100,9 @@ extern int swi_pleph(double et, int ntarg, int ncent, double *rrd, char *serr);
  */
 extern void swi_close_jpl_file(void);
 
-extern int swi_open_jpl_file(double *ss, char *fname, char *fpath, char *serr);
+extern int swi_open_jpl_file(double *ss, char *fname, char *fpath,
+                             char *serr);
 
 extern int32 swi_get_jpl_denum(void);
 
 extern void swi_IERS_FK5(double *xin, double *xout, int dir);
-
