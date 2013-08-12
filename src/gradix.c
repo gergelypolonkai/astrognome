@@ -58,7 +58,7 @@ const char *signName[] = {
 GtkBuilder *builder;
 
 void
-about_action_activate_cb(GtkAction *action, gpointer user_data)
+action_about_activate_cb(GtkAction *action, gpointer user_data)
 {
 	GtkDialog *about_dialog;
 
@@ -66,7 +66,19 @@ about_action_activate_cb(GtkAction *action, gpointer user_data)
 
 	gtk_dialog_run(about_dialog);
 
-	gtk_widget_destroy(GTK_WIDGET(about_dialog));
+	gtk_widget_hide(GTK_WIDGET(about_dialog));
+}
+
+void
+action_new_activate_cb(GtkAction *action, gpointer user_data)
+{
+	GtkDialog *new_dialog;
+
+	new_dialog = GTK_DIALOG(gtk_builder_get_object(builder, "dialog_new"));
+
+	g_print("%d\n", gtk_dialog_run(new_dialog));
+
+	gtk_widget_hide(GTK_WIDGET(new_dialog));
 }
 
 int
@@ -83,7 +95,7 @@ main(int argc, char *argv[])
 		g_print("Juj!\n");
 	}
 
-	mainWindow = GTK_WIDGET(gtk_builder_get_object(builder, "main_window"));
+	mainWindow = GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
 	gtk_builder_connect_signals (builder, NULL);
 
 	gtk_widget_show(mainWindow);
