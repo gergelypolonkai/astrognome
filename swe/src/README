@@ -1,0 +1,6 @@
+This directory holds the Swiss Ephemeris library. It can be downloaded from
+http://www.astro.com/swisseph/ and used via the GPL licence.
+
+The original directory is stripped down, and the unneded files are deleted (like
+the swetest source and such. In the future, even the library may be optimised
+further.
