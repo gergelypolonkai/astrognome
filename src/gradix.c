@@ -87,7 +87,6 @@ main(int argc, char *argv[])
         hour = 23,
         min = 39,
         sec = 45,
-        sign,
         p;
     guint *point;
     double timezone = 1.0,
@@ -101,7 +100,8 @@ main(int argc, char *argv[])
     moonPhase *phase;
     GHashTable *signDataTable,
                *elementPointsTable,
-               *typePointsTable;
+               *typePointsTable,
+               *planetInfoTable;
     signData_t *signData;
 
 #if 1
@@ -115,6 +115,7 @@ main(int argc, char *argv[])
     signDataTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
     elementPointsTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     typePointsTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+    planetInfoTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
     // Initialize sign data table
 
@@ -145,94 +146,105 @@ main(int argc, char *argv[])
         printf("House %2d..: %2.0f (%f)\n", p, ceilf(cusps[p] / 30.0), cusps[p]);
     }
 
-    sign = get_sign(ascmc[0]);
-    printf("Asc.......: %s\n", signName[sign]);
-    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, sign, point, 2);
 
-    sign = get_sign(ascmc[1]);
-    printf("MC........: %s\n", signName[sign]);
-    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, sign, point, 1);
+    planetInfo = g_new0(planetInfo_t, 1);
+    planetInfo->position = ascmc[0];
+    planetInfo->sign = get_sign(ascmc[0]);
+    planetInfo->house = 1;
+    planetInfo->retrograde = FALSE;
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NPLANETS + SE_ASC), planetInfo);
+    printf("Asc.......: %s (%f)\n", signName[planetInfo->sign], planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 2);
+
+    planetInfo = g_new0(planetInfo_t, 1);
+    planetInfo->position = ascmc[1];
+    planetInfo->sign = get_sign(ascmc[1]);
+    planetInfo->house = 10;
+    planetInfo->retrograde = FALSE;
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NPLANETS + SE_MC), planetInfo);
+    printf("MC........: %s (%f)\n", signName[planetInfo->sign], planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
 
     planetInfo = get_planet_info(SE_SUN, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_SUN), planetInfo);
     printf("Sun.......: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 2);
-    g_free(planetInfo);
 
     planetInfo = get_planet_info(SE_MOON, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MOON), planetInfo);
     phase = get_moon_phase(year, month, day, hour, min, sec);
     printf("Moon......: %s (%.2f%% visibility), %s, House: %d (%f%s)\n", moonStateName[phase->phase], phase->visiblePercentage, signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 2);
     g_free(phase);
-    g_free(planetInfo);
 
     planetInfo = get_planet_info(SE_MERCURY, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MERCURY), planetInfo);
     printf("Mercury...: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 2);
-    g_free (planetInfo);
 
     planetInfo = get_planet_info (SE_VENUS, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_VENUS), planetInfo);
     printf("Venus.....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_MARS, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MARS), planetInfo);
     printf("Mars......: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_JUPITER, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_JUPITER), planetInfo);
     printf("Jupiter...: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_SATURN, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_SATURN), planetInfo);
     printf("Saturn....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_URANUS, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_URANUS), planetInfo);
     printf("Uranus....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_NEPTUNE, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NEPTUNE), planetInfo);
     printf("Neptune...: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_PLUTO, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_PLUTO), planetInfo);
     printf("Pluto.....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_CHIRON, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_CHIRON), planetInfo);
     printf("Chiron....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_MEAN_NODE, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MEAN_NODE), planetInfo);
     printf("North Node: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
     INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_MEAN_APOG, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MEAN_APOG), planetInfo);
     printf("Dark Moon.: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
-    g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_CERES, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_CERES), planetInfo);
     printf("Ceres.....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
-    g_free(planetInfo);
 
     planetInfo = get_planet_info(SE_PALLAS, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_PALLAS), planetInfo);
     printf("Pallas....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
-    g_free(planetInfo);
 
     planetInfo = get_planet_info(SE_JUNO, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_JUNO), planetInfo);
     printf("Juno......: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
-    g_free(planetInfo);
 
     planetInfo = get_planet_info(SE_VESTA, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_VESTA), planetInfo);
     printf("Vesta.....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
-    g_free(planetInfo);
 
     point = g_hash_table_lookup(elementPointsTable, GINT_TO_POINTER(ELEMENT_FIRE));
     printf("\nFire.: %d\n", (point == NULL) ? 0 : *point);
@@ -250,6 +262,7 @@ main(int argc, char *argv[])
     point = g_hash_table_lookup(typePointsTable, GINT_TO_POINTER(TYPE_MUTABLE));
     printf("Mutable.: %d\n", (point == NULL) ? 0 : *point);
 
+    g_hash_table_unref(planetInfoTable);
     g_hash_table_unref(typePointsTable);
     g_hash_table_unref(elementPointsTable);
     g_hash_table_unref(signDataTable);
