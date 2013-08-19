@@ -55,6 +55,19 @@ const char *signName[] = {
     "Pisces"
 };
 
+typedef struct {
+	gchar *name;
+	guint size;
+	gdouble orbis;
+	gboolean harmonic;
+	gboolean strong;
+} aspectData_t;
+
+const aspectData_t aspectData[] = {
+	{ "Trigon", 60, 6.0, TRUE, TRUE },
+	{ NULL, 0, 0.0, FALSE, FALSE }
+};
+
 #define ADD_SIGN(ht, v, s, e, t) v = g_new0(signData_t, 1); \
                                  (v)->signId = (s); \
                                  (v)->element = (e); \
@@ -103,6 +116,7 @@ main(int argc, char *argv[])
                *typePointsTable,
                *planetInfoTable;
     signData_t *signData;
+    GList *planetIdList;
 
 #if 1
     year = 1983;
@@ -268,6 +282,11 @@ main(int argc, char *argv[])
     printf("Fix.....: %d\n", (point == NULL) ? 0 : *point);
     point = g_hash_table_lookup(typePointsTable, GINT_TO_POINTER(TYPE_MUTABLE));
     printf("Mutable.: %d\n", (point == NULL) ? 0 : *point);
+
+    printf("\nASPECTS\n=======\n\n");
+
+    planetIdList = g_hash_table_get_keys(planetInfoTable);
+    g_list_free(planetIdList);
 
     g_hash_table_unref(planetInfoTable);
     g_hash_table_unref(typePointsTable);
