@@ -12,6 +12,12 @@
 #define EPHEDIR "/home/polesz/Projektek/c/gradix/swe/data"
 #define UI_FILE "/home/polesz/Projektek/c/gradix/src/gradix.ui"
 
+typedef struct {
+    int signId;
+    signElement_t element;
+    signType_t type;
+} signData_t;
+
 const char *signTypeName[] = {
     NULL,
     "Cardinal",
@@ -55,6 +61,30 @@ const char *signName[] = {
     "Pisces"
 };
 
+#define ADD_SIGN(ht, v, s, e, t) v = g_new0(signData_t, 1); \
+                                 (v)->signId = (s); \
+                                 (v)->element = (e); \
+                                 (v)->type = (t); \
+                                 g_hash_table_replace((ht), GINT_TO_POINTER(s), (v));
+
+#define INCREASE_POINTS(dts, dte, dtt, vsd, s, p, val) (vsd) = g_hash_table_lookup((dts), GINT_TO_POINTER(s)); \
+                                                       g_assert((vsd) != NULL); \
+                                                       \
+                                                       if (((p) = g_hash_table_lookup((dte), GINT_TO_POINTER((vsd)->element))) == NULL) { \
+                                                           (p) = g_new0(guint, 1); \
+                                                       } \
+                                                       \
+                                                       *(p) += (val); \
+                                                       g_hash_table_replace((dte), GINT_TO_POINTER((vsd)->element), (p)); \
+                                                       \
+                                                       if (((p) = g_hash_table_lookup((dtt), GINT_TO_POINTER((vsd)->type))) == NULL) { \
+                                                           (p) = g_new0(guint, 1); \
+                                                       } \
+                                                       \
+                                                       *(p) += (val); \
+                                                       g_hash_table_replace((dtt), GINT_TO_POINTER((vsd)->type), (p));
+
+/*
 GtkBuilder *builder;
 
 void
@@ -105,6 +135,7 @@ main(int argc, char *argv[])
 
 	return 0;
 }
+*/
 
 /*
 RsvgHandle *svgHandle[SE_CHIRON + SIGN_PISCES + 1];
@@ -158,6 +189,7 @@ init_graphics(void)
 
     return TRUE;
 }
+*/
 
 int
 main(int argc, char *argv[])
@@ -170,6 +202,7 @@ main(int argc, char *argv[])
         sec = 45,
         sign,
         p;
+    guint *point;
     double timezone = 1.0,
            lon = 19.081599,
            lat = 47.462485,
@@ -179,6 +212,10 @@ main(int argc, char *argv[])
            ascmc[10];
     planetInfo_t *planetInfo;
     moonPhase *phase;
+    GHashTable *signDataTable,
+               *elementPointsTable,
+               *typePointsTable;
+    signData_t *signData;
 
 #if 1
     year = 1983;
@@ -187,6 +224,25 @@ main(int argc, char *argv[])
     hour = 11;
     min = 54;
 #endif
+
+    signDataTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+    elementPointsTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+    typePointsTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+
+    // Initialize sign data table
+
+    ADD_SIGN(signDataTable, signData, SIGN_ARIES,       ELEMENT_FIRE,  TYPE_CARDINAL);
+    ADD_SIGN(signDataTable, signData, SIGN_TAURUS,      ELEMENT_EARTH, TYPE_FIX);
+    ADD_SIGN(signDataTable, signData, SIGN_GEMINI,      ELEMENT_AIR,   TYPE_MUTABLE);
+    ADD_SIGN(signDataTable, signData, SIGN_CANCER,      ELEMENT_WATER, TYPE_CARDINAL);
+    ADD_SIGN(signDataTable, signData, SIGN_LEO,         ELEMENT_FIRE,  TYPE_FIX);
+    ADD_SIGN(signDataTable, signData, SIGN_VIRGO,       ELEMENT_EARTH, TYPE_MUTABLE);
+    ADD_SIGN(signDataTable, signData, SIGN_LIBRA,       ELEMENT_AIR,   TYPE_CARDINAL);
+    ADD_SIGN(signDataTable, signData, SIGN_SCORPIO,     ELEMENT_WATER, TYPE_FIX);
+    ADD_SIGN(signDataTable, signData, SIGN_SAGGITARIUS, ELEMENT_FIRE,  TYPE_MUTABLE);
+    ADD_SIGN(signDataTable, signData, SIGN_CAPRICORN,   ELEMENT_EARTH, TYPE_CARDINAL);
+    ADD_SIGN(signDataTable, signData, SIGN_AQUARIUS,    ELEMENT_AIR,   TYPE_FIX);
+    ADD_SIGN(signDataTable, signData, SIGN_PISCES,      ELEMENT_WATER, TYPE_MUTABLE);
 
     swe_set_ephe_path(EPHEDIR);
 
@@ -203,52 +259,63 @@ main(int argc, char *argv[])
     }
 
     sign = get_sign(ascmc[0]);
-
     printf("Asc.......: %s\n", signName[sign]);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, sign, point, 2);
 
     sign = get_sign(ascmc[1]);
     printf("MC........: %s\n", signName[sign]);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, sign, point, 1);
 
     planetInfo = get_planet_info(SE_SUN, te, cusps);
     printf("Sun.......: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 2);
     g_free(planetInfo);
 
     planetInfo = get_planet_info(SE_MOON, te, cusps);
     phase = get_moon_phase(year, month, day, hour, min, sec);
     printf("Moon......: %s (%.2f%% visibility), %s, House: %d (%f)\n", moonStateName[phase->phase], phase->visiblePercentage, signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 2);
     g_free(phase);
     g_free(planetInfo);
 
     planetInfo = get_planet_info(SE_MERCURY, te, cusps);
     printf("Mercury...: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 2);
     g_free (planetInfo);
 
     planetInfo = get_planet_info (SE_VENUS, te, cusps);
     printf("Venus.....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
     g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_MARS, te, cusps);
     printf("Mars......: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
     g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_JUPITER, te, cusps);
     printf("Jupiter...: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
     g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_SATURN, te, cusps);
     printf("Saturn....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
     g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_URANUS, te, cusps);
     printf("Uranus....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
     g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_NEPTUNE, te, cusps);
     printf("Neptune...: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
     g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_PLUTO, te, cusps);
     printf("Pluto.....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
     g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_CHIRON, te, cusps);
@@ -257,6 +324,7 @@ main(int argc, char *argv[])
 
     planetInfo = get_planet_info(SE_MEAN_NODE, te, cusps);
     printf("North Node: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
+    INCREASE_POINTS(signDataTable, elementPointsTable, typePointsTable, signData, planetInfo->sign, point, 1);
     g_free (planetInfo);
 
     planetInfo = get_planet_info(SE_MEAN_APOG, te, cusps);
@@ -279,9 +347,30 @@ main(int argc, char *argv[])
     printf("Vesta.....: %s, House: %d (%f)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position);
     g_free(planetInfo);
 
+    point = g_hash_table_lookup(elementPointsTable, GINT_TO_POINTER(ELEMENT_FIRE));
+    printf("\nFire.: %d\n", (point == NULL) ? 0 : *point);
+    point = g_hash_table_lookup(elementPointsTable, GINT_TO_POINTER(ELEMENT_EARTH));
+    printf("Earth: %d\n", (point == NULL) ? 0 : *point);
+    point = g_hash_table_lookup(elementPointsTable, GINT_TO_POINTER(ELEMENT_AIR));
+    printf("Air..: %d\n", (point == NULL) ? 0 : *point);
+    point = g_hash_table_lookup(elementPointsTable, GINT_TO_POINTER(ELEMENT_WATER));
+    printf("Water: %d\n", (point == NULL) ? 0 : *point);
+
+    point = g_hash_table_lookup(typePointsTable, GINT_TO_POINTER(TYPE_CARDINAL));
+    printf("\nCardinal: %d\n", (point == NULL) ? 0 : *point);
+    point = g_hash_table_lookup(typePointsTable, GINT_TO_POINTER(TYPE_FIX));
+    printf("Fix.....: %d\n", (point == NULL) ? 0 : *point);
+    point = g_hash_table_lookup(typePointsTable, GINT_TO_POINTER(TYPE_MUTABLE));
+    printf("Mutable.: %d\n", (point == NULL) ? 0 : *point);
+
+    g_hash_table_unref(typePointsTable);
+    g_hash_table_unref(elementPointsTable);
+    g_hash_table_unref(signDataTable);
+
     return OK;
 }
 
+/*
 static gboolean
 draw_clock (ClutterCanvas *canvas, cairo_t *cr, int width, int height)
 {
