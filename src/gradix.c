@@ -138,14 +138,17 @@ main(int argc, char *argv[])
         return 1;
     }
 
-    printf("date: %02d.%02d.%d at %02d:%02d:%02d, at %f, %f\n", year, month, day, hour, min, sec, lon, lat);
+    printf("Date: %02d.%02d.%d at %02d:%02d:%02d, at %f, %f\n", year, month, day, hour, min, sec, lon, lat);
+
+    printf("\nHOUSES\n======\n\n");
 
     swe_houses(te, lat, lon, 'P', cusps, ascmc);
 
     for (p = 1; p < 13; p++) {
-        printf("House %2d..: %2.0f (%f)\n", p, ceilf(cusps[p] / 30.0), cusps[p]);
+        printf("House %2d..: %s (%f)\n", p, signName[get_sign(cusps[p])], cusps[p]);
     }
 
+    printf("\nPLANETS AND POINTS\n==================\n\n");
 
     planetInfo = g_new0(planetInfo_t, 1);
     planetInfo->position = ascmc[0];
@@ -246,8 +249,10 @@ main(int argc, char *argv[])
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_VESTA), planetInfo);
     printf("Vesta.....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
 
+    printf("\nELEMENTS\n========\n\n");
+
     point = g_hash_table_lookup(elementPointsTable, GINT_TO_POINTER(ELEMENT_FIRE));
-    printf("\nFire.: %d\n", (point == NULL) ? 0 : *point);
+    printf("Fire.: %d\n", (point == NULL) ? 0 : *point);
     point = g_hash_table_lookup(elementPointsTable, GINT_TO_POINTER(ELEMENT_EARTH));
     printf("Earth: %d\n", (point == NULL) ? 0 : *point);
     point = g_hash_table_lookup(elementPointsTable, GINT_TO_POINTER(ELEMENT_AIR));
@@ -255,8 +260,10 @@ main(int argc, char *argv[])
     point = g_hash_table_lookup(elementPointsTable, GINT_TO_POINTER(ELEMENT_WATER));
     printf("Water: %d\n", (point == NULL) ? 0 : *point);
 
+    printf("\nTYPES\n=====\n\n");
+
     point = g_hash_table_lookup(typePointsTable, GINT_TO_POINTER(TYPE_CARDINAL));
-    printf("\nCardinal: %d\n", (point == NULL) ? 0 : *point);
+    printf("Cardinal: %d\n", (point == NULL) ? 0 : *point);
     point = g_hash_table_lookup(typePointsTable, GINT_TO_POINTER(TYPE_FIX));
     printf("Fix.....: %d\n", (point == NULL) ? 0 : *point);
     point = g_hash_table_lookup(typePointsTable, GINT_TO_POINTER(TYPE_MUTABLE));
