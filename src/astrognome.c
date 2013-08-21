@@ -4,7 +4,7 @@
 
 #include "../swe/src/swephexp.h"
 
-#define EPHEDIR "/home/polesz/Projektek/c/gradix/swe/data"
+#define EPHEDIR "/home/polesz/Projektek/c/astragnome/swe/data"
 
 typedef struct {
     int signId;

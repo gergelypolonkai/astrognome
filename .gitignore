@@ -10,7 +10,7 @@ Makefile.in
 /config.h.in
 /aclocal.m4
 /ar-lib
-/src/gradix
+/src/astrognome
 /ltmain.sh
 /autom4te.cache/
 /m4/

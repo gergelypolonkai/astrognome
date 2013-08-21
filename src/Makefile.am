@@ -1,6 +1,6 @@
-bin_PROGRAMS = gradix
+bin_PROGRAMS = astrognome
 
-gradix_SOURCES = gradix.c calculate.c
-gradix_LDADD = $(LIBSWE_LIBS) $(GTK_LIBS)
-gradix_LDFLAGS = -rdynamic
-gradix_CFLAGS = $(CFLAGS) $(GTK_CFLAGS) -Wall
+astragnome_SOURCES = astragnome.c calculate.c
+astragnome_LDADD = $(LIBSWE_LIBS) $(GTK_LIBS)
+astragnome_LDFLAGS = -rdynamic
+astragnome_CFLAGS = $(CFLAGS) $(GTK_CFLAGS) -Wall

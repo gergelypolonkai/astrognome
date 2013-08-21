@@ -1,4 +1,4 @@
-AC_INIT([gradix], [0.1], [gergely@polonkai.eu])
+AC_INIT([astrognome], [0.1], [gergely@polonkai.eu])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AM_SILENT_RULES([yes])
@@ -13,7 +13,7 @@ AM_PROG_CC_C_O
 AM_PROG_AR
 AC_PROG_LIBTOOL
 IT_PROG_INTLTOOL([0.35.0])
-GETTEXT_PACKAGE=gradix
+GETTEXT_PACKAGE=astrognome
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [GETTEXT package name])
 AM_GNU_GETTEXT([external])

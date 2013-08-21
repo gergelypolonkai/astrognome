@@ -22,10 +22,10 @@
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">dialog</property>
-    <property name="program_name">GRadix</property>
+    <property name="program_name">AstroGnome</property>
     <property name="version">1.0</property>
     <property name="copyright" translatable="yes">2013 Gergely Polonkai</property>
-    <property name="website">http://gergely.polonkai.eu/gradix/</property>
+    <property name="website">http://gergely.polonkai.eu/astrognome/</property>
     <property name="authors">Gergely POLONKAI &lt;gergely@polonkai.eu&gt;</property>
     <property name="license_type">gpl-3-0</property>
     <child internal-child="vbox">
