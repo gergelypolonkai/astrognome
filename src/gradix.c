@@ -15,6 +15,13 @@ typedef struct {
 typedef struct {
     int planetId;
     gchar *name;
+    gdouble orb;
+    zodiacSign domicile1,
+               domicile2,
+               exile1,
+               exile2,
+               exalted,
+               fall;
 } planetData_t;
 
 const char *signTypeName[] = {
@@ -96,10 +103,17 @@ const aspectData_t aspectData[] = {
                                  (v)->type = (t); \
                                  g_hash_table_replace((ht), GINT_TO_POINTER(s), (v));
 
-#define ADD_PLANET(ht, v, i, n) (v) = g_new0(planetData_t, 1); \
-                                (v)->planetId = (i); \
-                                (v)->name = g_strdup(n); \
-                                g_hash_table_replace((ht), GINT_TO_POINTER(i), (v));
+#define ADD_PLANET(ht, v, i, n, o, dom1, dom2, exi1, exi2, exa, fal) (v) = g_new0(planetData_t, 1); \
+                                                                     (v)->planetId = (i); \
+                                                                     (v)->name = g_strdup(n); \
+                                                                     (v)->orb = (o); \
+                                                                     (v)->domicile1 = (dom1); \
+                                                                     (v)->domicile2 = (dom2); \
+                                                                     (v)->exile1 = (exi1); \
+                                                                     (v)->exile2 = (exi2); \
+                                                                     (v)->exalted = (exa); \
+                                                                     (v)->fall = (fal); \
+                                                                     g_hash_table_replace((ht), GINT_TO_POINTER(i), (v));
 
 #define INCREASE_POINTS(dts, dte, dtt, vsd, s, p, val) (vsd) = g_hash_table_lookup((dts), GINT_TO_POINTER(s)); \
                                                        g_assert((vsd) != NULL); \
@@ -237,25 +251,25 @@ main(int argc, char *argv[])
 
     // Initialize planet data table
 
-    ADD_PLANET(planetDataTable, planetData, SE_SUN,               "Sun");
-    ADD_PLANET(planetDataTable, planetData, SE_MOON,              "Moon");
-    ADD_PLANET(planetDataTable, planetData, SE_MERCURY,           "Mercury");
-    ADD_PLANET(planetDataTable, planetData, SE_VENUS,             "Venus");
-    ADD_PLANET(planetDataTable, planetData, SE_MARS,              "Mars");
-    ADD_PLANET(planetDataTable, planetData, SE_JUPITER,           "Jupiter");
-    ADD_PLANET(planetDataTable, planetData, SE_SATURN,            "Saturn");
-    ADD_PLANET(planetDataTable, planetData, SE_URANUS,            "Uranus");
-    ADD_PLANET(planetDataTable, planetData, SE_NEPTUNE,           "Neptune");
-    ADD_PLANET(planetDataTable, planetData, SE_PLUTO,             "Pluto");
-    ADD_PLANET(planetDataTable, planetData, SE_CHIRON,            "Chiron");
-    ADD_PLANET(planetDataTable, planetData, SE_MEAN_NODE,         "Ascending Moon Node");
-    ADD_PLANET(planetDataTable, planetData, SE_MEAN_APOG,         "Dark Moon");
-    ADD_PLANET(planetDataTable, planetData, SE_CERES,             "Ceres");
-    ADD_PLANET(planetDataTable, planetData, SE_PALLAS,            "Pallas");
-    ADD_PLANET(planetDataTable, planetData, SE_JUNO,              "Juno");
-    ADD_PLANET(planetDataTable, planetData, SE_VESTA,             "Vesta");
-    ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_ASC, "Ascendent");
-    ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_MC,  "Midheaven");
+    ADD_PLANET(planetDataTable, planetData, SE_SUN,               "Sun",                 13.0, SIGN_LEO,         SIGN_NONE,     SIGN_AQUARIUS,    SIGN_NONE,   SIGN_ARIES,     SIGN_LIBRA);
+    ADD_PLANET(planetDataTable, planetData, SE_MOON,              "Moon",                9.0,  SIGN_CANCER,      SIGN_NONE,     SIGN_CAPRICORN,   SIGN_NONE,   SIGN_TAURUS,    SIGN_SCORPIO);
+    ADD_PLANET(planetDataTable, planetData, SE_MERCURY,           "Mercury",             7.0,  SIGN_GEMINI,      SIGN_VIRGO,    SIGN_SAGGITARIUS, SIGN_PISCES, SIGN_VIRGO,     SIGN_PISCES);
+    ADD_PLANET(planetDataTable, planetData, SE_VENUS,             "Venus",               7.0,  SIGN_TAURUS,      SIGN_LIBRA,    SIGN_SCORPIO,     SIGN_ARIES,  SIGN_PISCES,    SIGN_VIRGO);
+    ADD_PLANET(planetDataTable, planetData, SE_MARS,              "Mars",                7.0,  SIGN_ARIES,       SIGN_SCORPIO,  SIGN_LIBRA,       SIGN_TAURUS, SIGN_CAPRICORN, SIGN_CANCER);
+    ADD_PLANET(planetDataTable, planetData, SE_JUPITER,           "Jupiter",             9.0,  SIGN_SAGGITARIUS, SIGN_PISCES,   SIGN_GEMINI,      SIGN_VIRGO,  SIGN_CANCER,    SIGN_CAPRICORN);
+    ADD_PLANET(planetDataTable, planetData, SE_SATURN,            "Saturn",              7.0,  SIGN_CAPRICORN,   SIGN_AQUARIUS, SIGN_CANCER,      SIGN_LEO,    SIGN_LIBRA,     SIGN_ARIES);
+    ADD_PLANET(planetDataTable, planetData, SE_URANUS,            "Uranus",              5.0,  SIGN_AQUARIUS,    SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_NEPTUNE,           "Neptune",             5.0,  SIGN_PISCES,      SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_PLUTO,             "Pluto",               3.0,  SIGN_SCORPIO,     SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_CHIRON,            "Chiron",              2.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_MEAN_NODE,         "Ascending Moon Node", 2.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_MEAN_APOG,         "Dark Moon",           2.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_CERES,             "Ceres",               2.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_PALLAS,            "Pallas",              2.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_JUNO,              "Juno",                2.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_VESTA,             "Vesta",               2.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_ASC, "Ascendent",           9.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
+    ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_MC,  "Midheaven",           5.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
 
     // Initialize sign data table
 
