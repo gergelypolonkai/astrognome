@@ -63,7 +63,7 @@ const char *signName[] = {
 typedef struct {
     gchar *name;
     guint size;
-    guint orbis;
+    guint orbModifier;
     gboolean harmonic;
     gboolean major;
 } aspectData_t;
@@ -76,7 +76,18 @@ typedef struct {
  * opposition - 180, 8
  */
 const aspectData_t aspectData[] = {
-	{ NULL, 0, 0.0, FALSE, FALSE }
+    // Name            Size Orb  Harmonic Major
+    { "Conjuction",    0,   0,   TRUE,    TRUE  },
+    { "Opposition",    180, 0,   TRUE,    TRUE  },
+    { "Trine",         120, 0,   TRUE,    TRUE  },
+    { "Square",        90,  0,   FALSE,   TRUE  },
+    { "Sextile",       60,  1,   TRUE,    TRUE  },
+    { "Quincunx",      150, 2,   FALSE,   FALSE },
+    { "Semi-sextile",  30,  2,   TRUE,    FALSE },
+    { "Semi-square",   45,  2,   FALSE,   FALSE },
+    { "Sesqui-square", 135, 2,   FALSE,   FALSE },
+    { "Quintile",      72,  3,   TRUE,    FALSE },
+    { "Bi-quintile",   144, 3,   TRUE,    FALSE }
 };
 
 #define ADD_SIGN(ht, v, s, e, t) (v) = g_new0(signData_t, 1); \
