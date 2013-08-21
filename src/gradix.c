@@ -65,7 +65,7 @@ typedef struct {
 	guint size;
 	gdouble orbis;
 	gboolean harmonic;
-	gboolean strong;
+	gboolean major;
 } aspectData_t;
 
 const aspectData_t aspectData[] = {
