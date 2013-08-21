@@ -68,8 +68,14 @@ typedef struct {
 	gboolean major;
 } aspectData_t;
 
+/*
+ * conjuction - 0, 8
+ * sextile    - 60, 4
+ * square     - 90, 8
+ * trine      - 120, 4
+ * opposition - 180, 8
+ */
 const aspectData_t aspectData[] = {
-	{ "Trigon", 60, 6.0, TRUE, TRUE },
 	{ NULL, 0, 0.0, FALSE, FALSE }
 };
 
