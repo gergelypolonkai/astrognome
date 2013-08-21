@@ -61,7 +61,7 @@ const char *signName[] = {
     "Virgo",
     "Libra",
     "Scorpio",
-    "Saggitarius",
+    "Sagittarius",
     "Capricorn",
     "Aquarius",
     "Pisces"
@@ -278,10 +278,10 @@ main(int argc, char *argv[])
 
     ADD_PLANET(planetDataTable, planetData, SE_SUN,               "Sun",                 13.0, SIGN_LEO,         SIGN_NONE,     SIGN_AQUARIUS,    SIGN_NONE,   SIGN_ARIES,     SIGN_LIBRA);
     ADD_PLANET(planetDataTable, planetData, SE_MOON,              "Moon",                9.0,  SIGN_CANCER,      SIGN_NONE,     SIGN_CAPRICORN,   SIGN_NONE,   SIGN_TAURUS,    SIGN_SCORPIO);
-    ADD_PLANET(planetDataTable, planetData, SE_MERCURY,           "Mercury",             7.0,  SIGN_GEMINI,      SIGN_VIRGO,    SIGN_SAGGITARIUS, SIGN_PISCES, SIGN_VIRGO,     SIGN_PISCES);
+    ADD_PLANET(planetDataTable, planetData, SE_MERCURY,           "Mercury",             7.0,  SIGN_GEMINI,      SIGN_VIRGO,    SIGN_SAGITTARIUS, SIGN_PISCES, SIGN_VIRGO,     SIGN_PISCES);
     ADD_PLANET(planetDataTable, planetData, SE_VENUS,             "Venus",               7.0,  SIGN_TAURUS,      SIGN_LIBRA,    SIGN_SCORPIO,     SIGN_ARIES,  SIGN_PISCES,    SIGN_VIRGO);
     ADD_PLANET(planetDataTable, planetData, SE_MARS,              "Mars",                7.0,  SIGN_ARIES,       SIGN_SCORPIO,  SIGN_LIBRA,       SIGN_TAURUS, SIGN_CAPRICORN, SIGN_CANCER);
-    ADD_PLANET(planetDataTable, planetData, SE_JUPITER,           "Jupiter",             9.0,  SIGN_SAGGITARIUS, SIGN_PISCES,   SIGN_GEMINI,      SIGN_VIRGO,  SIGN_CANCER,    SIGN_CAPRICORN);
+    ADD_PLANET(planetDataTable, planetData, SE_JUPITER,           "Jupiter",             9.0,  SIGN_SAGITTARIUS, SIGN_PISCES,   SIGN_GEMINI,      SIGN_VIRGO,  SIGN_CANCER,    SIGN_CAPRICORN);
     ADD_PLANET(planetDataTable, planetData, SE_SATURN,            "Saturn",              7.0,  SIGN_CAPRICORN,   SIGN_AQUARIUS, SIGN_CANCER,      SIGN_LEO,    SIGN_LIBRA,     SIGN_ARIES);
     ADD_PLANET(planetDataTable, planetData, SE_URANUS,            "Uranus",              5.0,  SIGN_AQUARIUS,    SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
     ADD_PLANET(planetDataTable, planetData, SE_NEPTUNE,           "Neptune",             5.0,  SIGN_PISCES,      SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
@@ -306,7 +306,7 @@ main(int argc, char *argv[])
     ADD_SIGN(signDataTable, signData, SIGN_VIRGO,       ELEMENT_EARTH, TYPE_MUTABLE);
     ADD_SIGN(signDataTable, signData, SIGN_LIBRA,       ELEMENT_AIR,   TYPE_CARDINAL);
     ADD_SIGN(signDataTable, signData, SIGN_SCORPIO,     ELEMENT_WATER, TYPE_FIX);
-    ADD_SIGN(signDataTable, signData, SIGN_SAGGITARIUS, ELEMENT_FIRE,  TYPE_MUTABLE);
+    ADD_SIGN(signDataTable, signData, SIGN_SAGITTARIUS, ELEMENT_FIRE,  TYPE_MUTABLE);
     ADD_SIGN(signDataTable, signData, SIGN_CAPRICORN,   ELEMENT_EARTH, TYPE_CARDINAL);
     ADD_SIGN(signDataTable, signData, SIGN_AQUARIUS,    ELEMENT_AIR,   TYPE_FIX);
     ADD_SIGN(signDataTable, signData, SIGN_PISCES,      ELEMENT_WATER, TYPE_MUTABLE);

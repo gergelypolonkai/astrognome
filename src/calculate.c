@@ -14,7 +14,7 @@ const signTypePair_t signType[] = {
     { TYPE_MUTABLE,  ELEMENT_EARTH, SE_MERCURY, SE_MERCURY, SE_JUPITER, SE_MERCURY, SE_VENUS   }, // Virgo
     { TYPE_CARDINAL, ELEMENT_AIR,   SE_VENUS,   SE_VENUS,   SE_MARS,    SE_SATURN,  SE_SUN     }, // Libra
     { TYPE_FIX,      ELEMENT_WATER, SE_PLUTO,   SE_MARS,    SE_VENUS,   0,          SE_MOON    }, // Scorpio
-    { TYPE_MUTABLE,  ELEMENT_FIRE,  SE_JUPITER, SE_JUPITER, SE_MERCURY, 0,          0          }, // Saggitarius
+    { TYPE_MUTABLE,  ELEMENT_FIRE,  SE_JUPITER, SE_JUPITER, SE_MERCURY, 0,          0          }, // Sagittarius
     { TYPE_CARDINAL, ELEMENT_EARTH, SE_SATURN,  SE_SATURN,  SE_MOON,    SE_MARS,    SE_JUPITER }, // Capricorn
     { TYPE_FIX,      ELEMENT_AIR,   SE_URANUS,  SE_SATURN,  SE_SUN,     0,          0          }, // Aquarius
     { TYPE_MUTABLE,  ELEMENT_WATER, SE_NEPTUNE, SE_JUPITER, SE_MERCURY, SE_VENUS,   SE_MERCURY }, // Pisces
