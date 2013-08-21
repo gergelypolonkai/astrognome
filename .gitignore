@@ -18,6 +18,7 @@ Makefile.in
 /stamp-h1
 /config.guess
 /config.log
+/config.rpath
 /config.status
 /config.sub
 /configure
@@ -26,5 +27,13 @@ Makefile.in
 /libtool
 /compile
 /po/POTFILES
+/po/Makevars.template
 /po/Makefile.in.in
 /po/stamp-it
+/po/Rules-quot
+/po/boldquot.sed
+/po/en@boldquot.header
+/po/en@quot.header
+/po/insert-header.sin
+/po/quot.sed
+/po/remove-potcdate.sin
