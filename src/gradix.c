@@ -144,8 +144,8 @@ void
 check_aspects_inner_loop(gpointer data, gpointer user_data)
 {
     struct aspect_check_data *checkData = user_data;
-    gint outerPlanetId = (gint)g_list_nth_data(checkData->planetIdList, checkData->currentOuterPlanetId);
-    gint innerPlanetId = (gint)g_list_nth_data(checkData->planetIdList, checkData->currentInnerPlanetId);
+    gint outerPlanetId = GPOINTER_TO_INT(g_list_nth_data(checkData->planetIdList, checkData->currentOuterPlanetId));
+    gint innerPlanetId = GPOINTER_TO_INT(g_list_nth_data(checkData->planetIdList, checkData->currentInnerPlanetId));
     planetInfo_t *outerPlanet,
                  *innerPlanet;
     planetData_t *outerPlanetData,
