@@ -1,6 +1,6 @@
 AC_INIT([astrognome], [0.1], [gergely@polonkai.eu])
 AC_CONFIG_HEADERS([config.h])
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AM_INIT_AUTOMAKE([-Wall foreign])
 AM_SILENT_RULES([yes])
 AC_ARG_ENABLE(debug, [AC_HELP_STRING([--enable-debug], [compile with debugging support. Be warned that debugging support can eat a large amount of CPU when many clients are connected. Also, debug logs can become very large!])], , enable_debug=no)
 
@@ -17,6 +17,7 @@ GETTEXT_PACKAGE=astrognome
 AC_SUBST(GETTEXT_PACKAGE)
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [GETTEXT package name])
 AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.17])
 LT_INIT
 AC_CHECK_LIB([m], [sincos])
 AC_CHECK_LIB([m], [atan2])
