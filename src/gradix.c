@@ -68,7 +68,7 @@ const aspectData_t aspectData[] = {
 	{ NULL, 0, 0.0, FALSE, FALSE }
 };
 
-#define ADD_SIGN(ht, v, s, e, t) v = g_new0(signData_t, 1); \
+#define ADD_SIGN(ht, v, s, e, t) (v) = g_new0(signData_t, 1); \
                                  (v)->signId = (s); \
                                  (v)->element = (e); \
                                  (v)->type = (t); \
