@@ -4,7 +4,8 @@
 #define MSPERDAY 86400000
 
 typedef enum {
-    SIGN_ARIES = 1,
+    SIGN_NONE,
+    SIGN_ARIES,
     SIGN_TAURUS,
     SIGN_GEMINI,
     SIGN_CANCER,
