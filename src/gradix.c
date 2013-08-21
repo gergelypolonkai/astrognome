@@ -61,11 +61,11 @@ const char *signName[] = {
 };
 
 typedef struct {
-	gchar *name;
-	guint size;
-	gdouble orbis;
-	gboolean harmonic;
-	gboolean major;
+    gchar *name;
+    guint size;
+    guint orbis;
+    gboolean harmonic;
+    gboolean major;
 } aspectData_t;
 
 /*
