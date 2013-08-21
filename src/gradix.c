@@ -107,6 +107,67 @@ const aspectData_t aspectData[] = {
                                                        *(p) += (val); \
                                                        g_hash_table_replace((dtt), GINT_TO_POINTER((vsd)->type), (p));
 
+struct aspect_check_data {
+    GList *planetIdList;
+    guint currentOuterPlanetId;
+    guint currentInnerPlanetId;
+    GHashTable *planetInfoTable;
+    GHashTable *planetDataTable;
+};
+
+void
+check_aspects_inner_loop(gpointer data, gpointer user_data)
+{
+    struct aspect_check_data *checkData = user_data;
+    gint outerPlanetId = (gint)g_list_nth_data(checkData->planetIdList, checkData->currentOuterPlanetId);
+    gint innerPlanetId = (gint)g_list_nth_data(checkData->planetIdList, checkData->currentInnerPlanetId);
+    planetInfo_t *outerPlanet,
+                 *innerPlanet;
+    planetData_t *outerPlanetData,
+                 *innerPlanetData;
+    gdouble distance;
+
+    if (outerPlanetId == innerPlanetId) {
+        checkData->currentInnerPlanetId++;
+
+        return;
+    }
+
+    outerPlanet = g_hash_table_lookup(checkData->planetInfoTable, GINT_TO_POINTER(outerPlanetId));
+    innerPlanet = g_hash_table_lookup(checkData->planetInfoTable, GINT_TO_POINTER(innerPlanetId));
+
+    g_assert(outerPlanet != NULL);
+    g_assert(innerPlanet != NULL);
+
+    outerPlanetData = g_hash_table_lookup(checkData->planetDataTable, GINT_TO_POINTER(outerPlanetId));
+    innerPlanetData = g_hash_table_lookup(checkData->planetDataTable, GINT_TO_POINTER(innerPlanetId));
+
+    g_assert(outerPlanetData != NULL);
+    g_assert(innerPlanetData != NULL);
+
+    distance = abs(outerPlanet->position - innerPlanet->position);
+
+    if (distance > 180.0) {
+        distance = 360.0 - distance;
+    }
+
+    printf("%s vs. %s: %f\n", outerPlanetData->name, innerPlanetData->name, distance);
+
+    checkData->currentInnerPlanetId++;
+}
+
+void
+check_aspects_outer_loop(gpointer data, gpointer user_data)
+{
+    struct aspect_check_data *checkData = user_data;
+
+    checkData->currentInnerPlanetId = checkData->currentOuterPlanetId;
+
+    g_list_foreach(g_list_nth(checkData->planetIdList, checkData->currentOuterPlanetId), check_aspects_inner_loop, user_data);
+
+    checkData->currentOuterPlanetId++;
+}
+
 void
 free_planet_data(gpointer data)
 {
@@ -144,6 +205,7 @@ main(int argc, char *argv[])
     planetData_t *planetData;
     signData_t *signData;
     GList *planetIdList;
+    struct aspect_check_data aspectCheckData;
 
 #if 1
     year = 1983;
@@ -339,6 +401,11 @@ main(int argc, char *argv[])
     printf("\nASPECTS\n=======\n\n");
 
     planetIdList = g_hash_table_get_keys(planetInfoTable);
+    aspectCheckData.planetIdList = planetIdList;
+    aspectCheckData.currentOuterPlanetId = 0;
+    aspectCheckData.planetInfoTable = planetInfoTable;
+    aspectCheckData.planetDataTable = planetDataTable;
+    g_list_foreach(planetIdList, check_aspects_outer_loop, &aspectCheckData);
     g_list_free(planetIdList);
 
     g_hash_table_unref(planetInfoTable);
