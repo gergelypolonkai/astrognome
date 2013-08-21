@@ -12,6 +12,11 @@ typedef struct {
     signType_t type;
 } signData_t;
 
+typedef struct {
+    int planetId;
+    gchar *name;
+} planetData_t;
+
 const char *signTypeName[] = {
     NULL,
     "Cardinal",
@@ -74,6 +79,11 @@ const aspectData_t aspectData[] = {
                                  (v)->type = (t); \
                                  g_hash_table_replace((ht), GINT_TO_POINTER(s), (v));
 
+#define ADD_PLANET(ht, v, i, n) (v) = g_new0(planetData_t, 1); \
+                                (v)->planetId = (i); \
+                                (v)->name = g_strdup(n); \
+                                g_hash_table_replace((ht), GINT_TO_POINTER(i), (v));
+
 #define INCREASE_POINTS(dts, dte, dtt, vsd, s, p, val) (vsd) = g_hash_table_lookup((dts), GINT_TO_POINTER(s)); \
                                                        g_assert((vsd) != NULL); \
                                                        \
@@ -90,6 +100,15 @@ const aspectData_t aspectData[] = {
                                                        \
                                                        *(p) += (val); \
                                                        g_hash_table_replace((dtt), GINT_TO_POINTER((vsd)->type), (p));
+
+void
+free_planet_data(gpointer data)
+{
+    planetData_t *planetData = data;
+
+    g_free(planetData->name);
+    g_free(planetData);
+}
 
 int
 main(int argc, char *argv[])
@@ -127,9 +146,32 @@ main(int argc, char *argv[])
 #endif
 
     signDataTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+    planetDataTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_planet_data);
     elementPointsTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     typePointsTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     planetInfoTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
+
+    // Initialize planet data table
+
+    ADD_PLANET(planetDataTable, planetData, SE_SUN,               "Sun");
+    ADD_PLANET(planetDataTable, planetData, SE_MOON,              "Moon");
+    ADD_PLANET(planetDataTable, planetData, SE_MERCURY,           "Mercury");
+    ADD_PLANET(planetDataTable, planetData, SE_VENUS,             "Venus");
+    ADD_PLANET(planetDataTable, planetData, SE_MARS,              "Mars");
+    ADD_PLANET(planetDataTable, planetData, SE_JUPITER,           "Jupiter");
+    ADD_PLANET(planetDataTable, planetData, SE_SATURN,            "Saturn");
+    ADD_PLANET(planetDataTable, planetData, SE_URANUS,            "Uranus");
+    ADD_PLANET(planetDataTable, planetData, SE_NEPTUNE,           "Neptune");
+    ADD_PLANET(planetDataTable, planetData, SE_PLUTO,             "Pluto");
+    ADD_PLANET(planetDataTable, planetData, SE_CHIRON,            "Chiron");
+    ADD_PLANET(planetDataTable, planetData, SE_MEAN_NODE,         "Ascending Moon Node");
+    ADD_PLANET(planetDataTable, planetData, SE_MEAN_APOG,         "Dark Moon");
+    ADD_PLANET(planetDataTable, planetData, SE_CERES,             "Ceres");
+    ADD_PLANET(planetDataTable, planetData, SE_PALLAS,            "Pallas");
+    ADD_PLANET(planetDataTable, planetData, SE_JUNO,              "Juno");
+    ADD_PLANET(planetDataTable, planetData, SE_VESTA,             "Vesta");
+    ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_ASC, "Ascendent");
+    ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_MC,  "Midheaven");
 
     // Initialize sign data table
 
@@ -291,6 +333,7 @@ main(int argc, char *argv[])
     g_hash_table_unref(planetInfoTable);
     g_hash_table_unref(typePointsTable);
     g_hash_table_unref(elementPointsTable);
+    g_hash_table_unref(planetDataTable);
     g_hash_table_unref(signDataTable);
 
     return OK;
