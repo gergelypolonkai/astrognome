@@ -118,12 +118,12 @@ main(int argc, char *argv[])
         day = 11,
         hour = 23,
         min = 39,
-        sec = 45,
+        sec = 34,
         p;
     guint *point;
     double timezone = 1.0,
-           lon = 19.081599,
-           lat = 47.462485,
+           lon = 20.766666,
+           lat = 48.2,
            alt = 200,
            te,
            cusps[13],
@@ -143,6 +143,9 @@ main(int argc, char *argv[])
     day = 7;
     hour = 11;
     min = 54;
+    sec = 47;
+    lon = 19.081599;
+    lat = 47.462485;
 #endif
 
     signDataTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
