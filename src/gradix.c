@@ -150,7 +150,11 @@ check_aspects_inner_loop(gpointer data, gpointer user_data)
                  *innerPlanet;
     planetData_t *outerPlanetData,
                  *innerPlanetData;
-    gdouble distance;
+    gdouble planetOrb,
+            distance,
+            difference;
+    gint i;
+    const aspectData_t *aspect = NULL;
 
     if (outerPlanetId == innerPlanetId) {
         checkData->currentInnerPlanetId++;
@@ -170,13 +174,33 @@ check_aspects_inner_loop(gpointer data, gpointer user_data)
     g_assert(outerPlanetData != NULL);
     g_assert(innerPlanetData != NULL);
 
-    distance = abs(outerPlanet->position - innerPlanet->position);
+    distance = fabs(outerPlanet->position - innerPlanet->position);
+    planetOrb = fmin(outerPlanetData->orb, innerPlanetData->orb);
 
     if (distance > 180.0) {
         distance = 360.0 - distance;
     }
 
-    printf("%s vs. %s: %f\n", outerPlanetData->name, innerPlanetData->name, distance);
+    for (i = 0; i < sizeof(aspectData) / sizeof(aspectData_t); i++) {
+        gdouble diff = fabs(aspectData[i].size - distance);
+        gdouble aspectOrb = fmax(1.0, planetOrb - aspectData[i].orbModifier);
+
+        if (diff <= aspectOrb) {
+            printf("%f ", diff);
+            aspect = &(aspectData[i]);
+            if (aspectData[i].size == 0) {
+                difference = (1 - ((360.0 - diff) / 360.0)) * 100.0;
+            } else {
+                difference = (1 - ((aspectData[i].size - diff) / aspectData[i].size)) * 100.0;
+            }
+
+            break;
+        }
+    }
+
+    if (aspect != NULL) {
+        printf("%s vs. %s: %s (±%f%%)\n", outerPlanetData->name, innerPlanetData->name, aspect->name, difference);
+    }
 
     checkData->currentInnerPlanetId++;
 }
@@ -187,6 +211,7 @@ check_aspects_outer_loop(gpointer data, gpointer user_data)
     struct aspect_check_data *checkData = user_data;
 
     checkData->currentInnerPlanetId = checkData->currentOuterPlanetId;
+    printf("\n");
 
     g_list_foreach(g_list_nth(checkData->planetIdList, checkData->currentOuterPlanetId), check_aspects_inner_loop, user_data);
 
