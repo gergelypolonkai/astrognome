@@ -131,9 +131,11 @@ main(int argc, char *argv[])
     planetInfo_t *planetInfo;
     moonPhase *phase;
     GHashTable *signDataTable,
+               *planetDataTable,
                *elementPointsTable,
                *typePointsTable,
                *planetInfoTable;
+    planetData_t *planetData;
     signData_t *signData;
     GList *planetIdList;
 
