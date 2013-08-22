@@ -539,6 +539,8 @@ main(int argc, char *argv[])
     aspectCheckData.planetDataTable = planetDataTable;
     g_list_foreach(planetIdList, check_aspects_outer_loop, &aspectCheckData);
 
+    printf("\nANTISCIA\n========\n\n");
+
     aspectCheckData.planetIdList = planetIdList;
     aspectCheckData.currentOuterPlanetId = 0;
     aspectCheckData.planetInfoTable = planetInfoTable;
