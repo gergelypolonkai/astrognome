@@ -167,8 +167,8 @@ check_aspects_inner_loop(gpointer data, gpointer user_data)
     g_assert(outerPlanetData != NULL);
     g_assert(innerPlanetData != NULL);
 
-    distance = fabs(outerPlanet->position - innerPlanet->position);
     planetOrb = fmin(outerPlanetData->orb, innerPlanetData->orb);
+    distance = fabs(outerPlanet->position - innerPlanet->position);
 
     if (distance > 180.0) {
         distance = 360.0 - distance;
