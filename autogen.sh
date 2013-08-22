@@ -10,7 +10,7 @@ if test x"$FOUND_GNOME_AUTOGEN_SH" = x"1"; then
 else
     echo "GNOME's gnome-autogen.sh can not be found in your path. If you have it in a"
     echo "non-trivial place, simply call it now, with e.g."
-    echo "/non/trivial/dir/gnome-autogen.sh This file usually can be found in a package"
-    echo "like gnome-devel."
+    echo "/non/trivial/dir/gnome-autogen.sh. In RPM based distributions it can be"
+    echo "found in the gnome-common package."
 fi
 
