@@ -75,6 +75,12 @@ typedef struct {
     gboolean major;
 } aspectData_t;
 
+typedef struct {
+    gchar *name;
+    zodiacSign startSign;
+    gboolean middleAxis;
+} mirrorpointData_t;
+
 const aspectData_t aspectData[] = {
     // Name            Size Orb  Harmonic Major
     { "Conjuction",    0,   0,   TRUE,    TRUE  },
@@ -88,6 +94,13 @@ const aspectData_t aspectData[] = {
     { "Sesqui-square", 135, 2,   FALSE,   FALSE },
     { "Quintile",      72,  3,   TRUE,    FALSE },
     { "Bi-quintile",   144, 3,   TRUE,    FALSE }
+};
+
+const mirrorpointData_t mirrorpointData[] = {
+    { "Aries/Libra",        SIGN_ARIES,  FALSE },
+    { "mid Taurus/Scoripo", SIGN_TAURUS, TRUE  },
+    { "Cancer/Capricorn",   SIGN_CANCER, FALSE },
+    { "mid Leo/Aquarius",   SIGN_LEO,    TRUE  },
 };
 
 #define ADD_SIGN(ht, v, s, e, t) (v) = g_new0(signData_t, 1); \
@@ -207,6 +220,82 @@ check_aspects_outer_loop(gpointer data, gpointer user_data)
     printf("\n");
 
     g_list_foreach(g_list_nth(checkData->planetIdList, checkData->currentOuterPlanetId), check_aspects_inner_loop, user_data);
+
+    checkData->currentOuterPlanetId++;
+}
+
+void
+check_mirrorpoints_inner_loop(gpointer data, gpointer user_data)
+{
+    struct aspect_check_data *checkData = user_data;
+    gint outerPlanetId = GPOINTER_TO_INT(g_list_nth_data(checkData->planetIdList, checkData->currentOuterPlanetId));
+    gint innerPlanetId = GPOINTER_TO_INT(g_list_nth_data(checkData->planetIdList, checkData->currentInnerPlanetId));
+    planetInfo_t *outerPlanet,
+                 *innerPlanet;
+    planetData_t *outerPlanetData,
+                 *innerPlanetData;
+    gdouble planetOrb,
+            difference;
+    gint i;
+    const mirrorpointData_t *mirrorpoint = NULL;
+
+    if (outerPlanetId == innerPlanetId) {
+        checkData->currentInnerPlanetId++;
+
+        return;
+    }
+
+    outerPlanet = g_hash_table_lookup(checkData->planetInfoTable, GINT_TO_POINTER(outerPlanetId));
+    innerPlanet = g_hash_table_lookup(checkData->planetInfoTable, GINT_TO_POINTER(innerPlanetId));
+
+    g_assert(outerPlanet != NULL);
+    g_assert(innerPlanet != NULL);
+
+    outerPlanetData = g_hash_table_lookup(checkData->planetDataTable, GINT_TO_POINTER(outerPlanetId));
+    innerPlanetData = g_hash_table_lookup(checkData->planetDataTable, GINT_TO_POINTER(innerPlanetId));
+
+    g_assert(outerPlanetData != NULL);
+    g_assert(innerPlanetData != NULL);
+
+    planetOrb = fmin(outerPlanetData->orb, innerPlanetData->orb);
+
+    for (i = 0; i < sizeof(mirrorpointData) / sizeof(mirrorpointData_t); i++) {
+        gdouble mirrorPosition;
+        gdouble startPoint = (mirrorpointData[i].startSign - 1) * 30;
+
+        if (mirrorpointData[i].middleAxis == TRUE) {
+            startPoint += 15.0;
+        }
+
+        mirrorPosition = 2 * startPoint - outerPlanet->position;
+
+        if (mirrorPosition < 0) {
+            mirrorPosition += 360.0;
+        }
+
+        if ((difference = fabs(innerPlanet->position - mirrorPosition)) <= planetOrb) {
+            mirrorpoint = &(mirrorpointData[i]);
+
+            break;
+        }
+    }
+
+    if (mirrorpoint != NULL) {
+        printf("%s vs. %s: %s (±%f)\n", outerPlanetData->name, innerPlanetData->name, mirrorpoint->name, difference);
+    }
+
+    checkData->currentInnerPlanetId++;
+}
+
+void
+check_mirrorpoints_outer_loop(gpointer data, gpointer user_data)
+{
+    struct aspect_check_data *checkData = user_data;
+
+    checkData->currentInnerPlanetId = checkData->currentOuterPlanetId;
+    printf("\n");
+
+    g_list_foreach(g_list_nth(checkData->planetIdList, checkData->currentOuterPlanetId), check_mirrorpoints_inner_loop, user_data);
 
     checkData->currentOuterPlanetId++;
 }
@@ -449,6 +538,12 @@ main(int argc, char *argv[])
     aspectCheckData.planetInfoTable = planetInfoTable;
     aspectCheckData.planetDataTable = planetDataTable;
     g_list_foreach(planetIdList, check_aspects_outer_loop, &aspectCheckData);
+
+    aspectCheckData.planetIdList = planetIdList;
+    aspectCheckData.currentOuterPlanetId = 0;
+    aspectCheckData.planetInfoTable = planetInfoTable;
+    aspectCheckData.planetDataTable = planetDataTable;
+    g_list_foreach(planetIdList, check_mirrorpoints_outer_loop, &aspectCheckData);
     g_list_free(planetIdList);
 
     g_hash_table_unref(planetInfoTable);
