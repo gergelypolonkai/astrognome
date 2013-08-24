@@ -68,6 +68,7 @@ typedef struct {
     signElement_t element;
 } planetInfo_t;
 
+guint get_house(gdouble position, gdouble cusps[]);
 planetInfo_t *get_planet_info(int32 planetNo, double date, double cusps[]);
 int set_location_and_time(double lon, double lat, double alt, int year, int month, int day, int hour, int min, double sec, double d_timezone, double *jd);
 long int get_sign(double pos);

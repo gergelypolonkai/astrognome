@@ -20,6 +20,33 @@ const signTypePair_t signType[] = {
     { TYPE_MUTABLE,  ELEMENT_WATER, SE_NEPTUNE, SE_JUPITER, SE_MERCURY, SE_VENUS,   SE_MERCURY }, // Pisces
 };
 
+guint
+get_house(gdouble position, gdouble cusps[])
+{
+    guint i,
+          house = 0;
+
+    for (i = 1; i < 13; i++) {
+        int j = (i < 12) ? i + 1 : 1;
+
+        if (cusps[j] < cusps[i]) {
+            if ((position >= cusps[i]) || (position < cusps[j])) {
+                house = i;
+
+                break;
+            }
+        } else {
+            if ((position >= cusps[i]) && (position < cusps[j])) {
+                house = i;
+
+                break;
+            }
+        }
+    }
+
+    return house;
+}
+
 planetInfo_t *
 get_planet_info(int32 planetNo, double date, double cusps[])
 {
@@ -28,7 +55,6 @@ get_planet_info(int32 planetNo, double date, double cusps[])
     double x2[6];
     char serr[AS_MAXCH];
     planetInfo_t *ret = g_new0(planetInfo_t, 1);
-    int i;
 
     iflgret = swe_calc(date, planetNo, iflag, x2, serr);
 
@@ -40,25 +66,7 @@ get_planet_info(int32 planetNo, double date, double cusps[])
         printf("warning: iflgret != iflag. %s\n", serr);
     }
 
-    ret->house = 0;
-
-    for (i = 1; i < 13; i++) {
-        int j = (i < 12) ? i + 1 : 1;
-
-        if (cusps[j] < cusps[i]) {
-            if ((x2[0] >= cusps[i]) || (x2[0] < cusps[j])) {
-                ret->house = i;
-
-                break;
-            }
-        } else {
-            if ((x2[0] >= cusps[i]) && (x2[0] < cusps[j])) {
-                ret->house = i;
-
-                break;
-            }
-        }
-    }
+    ret->house = get_house(x2[0], cusps);
 
     ret->position = x2[0];
     ret->sign = (int)ceilf(x2[0] / 30.0);
