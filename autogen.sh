@@ -1,16 +1,22 @@
 #!/bin/sh
 # Run this to generate all the initial makefiles, etc.
 
-FOUND_GNOME_AUTOGEN_SH=1
+srcdir=`dirname $0`
+test -z "$srcdir" && srcdir=.
 
-which gnome-autogen.sh &> /dev/null || FOUND_GNOME_AUTOGEN_SH=0
+PKG_NAME="astrognome"
 
-if test x"$FOUND_GNOME_AUTOGEN_SH" = x"1"; then
-    gnome-autogen.sh
-else
-    echo "GNOME's gnome-autogen.sh can not be found in your path. If you have it in a"
-    echo "non-trivial place, simply call it now, with e.g."
-    echo "/non/trivial/dir/gnome-autogen.sh. In RPM based distributions it can be"
-    echo "found in the gnome-common package."
-fi
+(test -f $srcdir/configure.ac \
+  && test -f $srcdir/src/astrognome.c) || {
+    echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
+    echo " top-level $PKG_NAME directory"
+    exit 1
+}
+
+which gnome-autogen.sh || {
+    echo "gnome-autogen.sh not found, you need to install gnome-common"
+    exit 1
+}
+
+REQUIRED_AUTOMAKE_VERSION=1.9 . gnome-autogen.sh
 
