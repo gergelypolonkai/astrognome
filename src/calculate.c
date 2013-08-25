@@ -2,6 +2,16 @@
 
 #include "calculate.h"
 
+/**
+ * SECTION:calculate
+ * @short_description: functions for astronomical calculations
+ * @title: Astronomical calculation functions
+ * @section_id:
+ * @include: calculate.h
+ *
+ * These functions are for astronomical calculations. They are deprecated by SWE-GLib on the long run
+ */
+
 const signTypePair_t signType[] = {
     { 0, 0, 0, 0, 0, 0, 0 },
 //    Type           Element        Dominating planet       Detriment planet        Fall planet
@@ -20,6 +30,16 @@ const signTypePair_t signType[] = {
     { TYPE_MUTABLE,  ELEMENT_WATER, SE_NEPTUNE, SE_JUPITER, SE_MERCURY, SE_VENUS,   SE_MERCURY }, // Pisces
 };
 
+/**
+ * get_house:
+ * @position: the latitude position of the celestial body on the sky
+ * @cusps: an array of gdoubles, which contains the position of the house
+ * cusps. MUST contain 12 gdouble values!
+ *
+ * Calculates in which house the given position is.
+ *
+ * Returns: the number of the house in which the given position is
+ */
 guint
 get_house(gdouble position, gdouble cusps[])
 {
