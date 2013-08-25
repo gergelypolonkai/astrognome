@@ -35,6 +35,7 @@ AC_CHECK_LIB([m], [pow])
 AC_CHECK_LIB([m], [log10])
 AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([m], [floor])
+GTK_DOC_CHECK([1.19], [--flavour no-tmpl])
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 AC_CONFIG_MACRO_DIR([m4])
@@ -43,9 +44,10 @@ LIBSWE_LIBS='$(top_builddir)/swe/src/libswe-1.75.la'
 AC_SUBST(LIBSWE_LIBS)
 
 AC_CONFIG_FILES([
-	Makefile
-	swe/src/Makefile
-	src/Makefile
-	po/Makefile.in
+    Makefile
+    swe/src/Makefile
+    src/Makefile
+    po/Makefile.in
+    docs/reference/astrognome/Makefile
 ])
 AC_OUTPUT

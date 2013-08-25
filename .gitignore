@@ -37,3 +37,23 @@ Makefile.in
 /po/insert-header.sin
 /po/quot.sed
 /po/remove-potcdate.sin
+
+#Documentation related files
+/docs/reference/*/*.args
+/docs/reference/*/*.hierarchy
+/docs/reference/*/*.interfaces
+/docs/reference/*/*.prerequisites
+/docs/reference/*/*.signals
+/docs/reference/*/*.stamp
+/docs/reference/*/*.types
+/docs/reference/*/*-decl-list.txt
+/docs/reference/*/*-decl.txt
+/docs/reference/*/*-overrides.txt
+/docs/reference/*/*-undeclared.txt
+/docs/reference/*/*-docs.xml
+/docs/reference/*/*-sections.txt
+/docs/reference/*/*-undocumented.txt
+/docs/reference/*/*-unused.txt
+/docs/reference/*/xml/
+/docs/reference/*/html/
+/gtk-doc.make
