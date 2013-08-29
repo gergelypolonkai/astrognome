@@ -4,6 +4,8 @@
 *.o
 *.lo
 *.la
+*.bak
+.*.sw?
 Makefile
 Makefile.in
 /config.h
@@ -26,6 +28,7 @@ Makefile.in
 /install-sh
 /libtool
 /compile
+/tags
 /po/POTFILES
 /po/Makevars.template
 /po/Makefile.in.in
