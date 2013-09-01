@@ -10,7 +10,7 @@ struct _GsweMomentPrivate {
 };
 
 enum {
-    SIGNAL_MOMENT_CHANGED,
+    SIGNAL_CHANGED,
     SIGNAL_LAST
 };
 
@@ -41,12 +41,12 @@ gswe_moment_class_init(GsweMomentClass *klass)
     gobject_class->get_property = gswe_moment_get_property;
 
     /**
-     * GsweMoment::moment-changed:
+     * GsweMoment::changed:
      * @moment: the GsweMoment object that received the signal
      *
-     * The ::moment-changed signal is emitted each time the time or coordinates are changed
+     * The ::changed signal is emitted each time the time or coordinates are changed
      */
-    gswe_moment_signals[SIGNAL_MOMENT_CHANGED] = g_signal_new("moment-changed", G_OBJECT_CLASS_TYPE(gobject_class), G_SIGNAL_RUN_FIRST, G_STRUCT_OFFSET(GsweMomentClass, moment_changed), NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE, 0);
+    gswe_moment_signals[SIGNAL_CHANGED] = g_signal_new("changed", G_OBJECT_CLASS_TYPE(gobject_class), G_SIGNAL_RUN_FIRST, G_STRUCT_OFFSET(GsweMomentClass, changed), NULL, NULL, g_cclosure_marshal_generic, G_TYPE_NONE, 0);
 
     /**
      * GsweMoment:timestamp:
@@ -57,9 +57,9 @@ gswe_moment_class_init(GsweMomentClass *klass)
 }
 
 static void
-gswe_moment_emit_moment_changed(GsweMoment *moment)
+gswe_moment_emit_changed(GsweMoment *moment)
 {
-    g_signal_emit(moment, gswe_moment_signals[SIGNAL_MOMENT_CHANGED], 0);
+    g_signal_emit(moment, gswe_moment_signals[SIGNAL_CHANGED], 0);
 }
 
 void
@@ -133,9 +133,9 @@ gswe_moment_set_timestamp(GsweMoment *moment, GsweTimestamp *timestamp)
 {
     GsweMomentPrivate *priv = moment->priv;
 
-    /* Emit the moment-changed signal to notify registrants of the change */
     priv->timestamp = timestamp;
-    gswe_moment_emit_moment_changed(moment);
+    /* Emit the changed signal to notify registrants of the change */
+    gswe_moment_emit_changed(moment);
 }
 
 GQuark

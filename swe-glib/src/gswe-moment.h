@@ -54,7 +54,7 @@ struct _GsweMomentClass {
     /* Class members */
 
     /*< private >*/
-    void (*moment_changed)(GsweMoment *moment);
+    void (*changed)(GsweMoment *moment);
 };
 
 /* used by GSWE_TYPE_MOMENT */
