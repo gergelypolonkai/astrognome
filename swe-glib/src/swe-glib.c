@@ -8,6 +8,7 @@
 gboolean gswe_initialized = FALSE;
 gchar *gswe_ephe_path = NULL;
 GHashTable *gswe_planet_info_table;
+GHashTable *gswe_house_system_info_table;
 
 #define ADD_PLANET(ht, v, i, s, n, o, dom1, dom2, exi1, exi2, exa, fal) (v) = g_new0(GswePlanetInfo, 1); \
                                                                         (v)->planet = (i); \
@@ -22,11 +23,24 @@ GHashTable *gswe_planet_info_table;
                                                                         (v)->fall_sign = (fal); \
                                                                         g_hash_table_replace((ht), GINT_TO_POINTER(i), (v));
 
+#define ADD_HOUSE_SYSTEM(ht, v, i, s, n) (v) = g_new0(GsweHouseSystemInfo, 1); \
+                                         (v)->system = i; \
+                                         (v)->sweph_id = s; \
+                                         (v)->name = g_strdup(n); \
+                                         g_hash_table_replace((ht), GINT_TO_POINTER(i), (v));
+
 void
 gswe_free_planet_info(gpointer planet_info)
 {
     g_free(((GswePlanetInfo *)planet_info)->name);
     g_free(planet_info);
+}
+
+void
+gswe_free_house_system_info(gpointer house_system_info)
+{
+    g_free(((GsweHouseSystemInfo *)house_system_info)->name);
+    g_free(house_system_info);
 }
 
 /**
@@ -40,6 +54,7 @@ void
 gswe_init(gchar *sweph_path)
 {
     GswePlanetInfo *planet_info;
+    GsweHouseSystemInfo *house_system_info;
 
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
@@ -66,6 +81,13 @@ gswe_init(gchar *sweph_path)
     ADD_PLANET(gswe_planet_info_table, planet_info, GSWE_PLANET_ASCENDENT,   -1,           _("Ascendent"),           9.0,  GSWE_SIGN_NONE,        GSWE_SIGN_NONE,     GSWE_SIGN_NONE,        GSWE_SIGN_NONE,   GSWE_SIGN_NONE,      GSWE_SIGN_NONE);
     ADD_PLANET(gswe_planet_info_table, planet_info, GSWE_PLANET_MC,          -1,           _("Midheaven"),           5.0,  GSWE_SIGN_NONE,        GSWE_SIGN_NONE,     GSWE_SIGN_NONE,        GSWE_SIGN_NONE,   GSWE_SIGN_NONE,      GSWE_SIGN_NONE);
     ADD_PLANET(gswe_planet_info_table, planet_info, GSWE_PLANET_VERTEX,      -1,           _("Vertex"),              2.0,  GSWE_SIGN_NONE,        GSWE_SIGN_NONE,     GSWE_SIGN_NONE,        GSWE_SIGN_NONE,   GSWE_SIGN_NONE,      GSWE_SIGN_NONE);
+
+    gswe_house_system_info_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, gswe_free_house_system_info);
+
+    ADD_HOUSE_SYSTEM(gswe_house_system_info_table, house_system_info, GSWE_HOUSE_SYSTEM_NONE,     0,   _("None"));
+    ADD_HOUSE_SYSTEM(gswe_house_system_info_table, house_system_info, GSWE_HOUSE_SYSTEM_PLACIDUS, 'P', _("Placidus"));
+    ADD_HOUSE_SYSTEM(gswe_house_system_info_table, house_system_info, GSWE_HOUSE_SYSTEM_KOCH,     'K', _("Koch"));
+    ADD_HOUSE_SYSTEM(gswe_house_system_info_table, house_system_info, GSWE_HOUSE_SISTEM_EQUAL,    'E', _("Equal"));
 
     gswe_ephe_path = g_strdup(sweph_path);
     swe_set_ephe_path(sweph_path);
