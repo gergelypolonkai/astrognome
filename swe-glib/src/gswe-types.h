@@ -60,6 +60,8 @@ typedef enum {
 /**
  * GswePlanetInfo:
  * @planet:          the planet ID
+ * @sweph_id:        the planet ID according to the Swiss Ephemeris libarary
+ *                   (or -1, if the planet has no such ID)
  * @orb:             the planet's “personal” orb
  * @name:            the planet's name
  * @domicile_sign_1: the first sign in which the planet is domicile
@@ -71,6 +73,7 @@ typedef enum {
  */
 typedef struct {
     GswePlanet planet;
+    gint sweph_id;
     gdouble orb;
     gchar *name;
     GsweZodiac domicile_sign_1;
