@@ -3,6 +3,8 @@
 
 #include <glib-object.h>
 
+#include "gswe-timestamp.h"
+
 #define GSWE_TYPE_MOMENT            (gswe_moment_get_type())
 #define GSWE_MOMENT(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), GSWE_TYPE_MOMENT, GsweMoment))
 #define GSWE_IS_MOMENT(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), GSWE_TYPE_MOMENT))

@@ -5,7 +5,6 @@
 
 struct _GsweMomentPrivate {
     GDateTime *timestamp;
-    gdouble julian_timestamp;
     GsweCoordinates coordinates;
 };
 
