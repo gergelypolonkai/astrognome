@@ -8,7 +8,6 @@
 gboolean gswe_initialized = FALSE;
 gchar *gswe_ephe_path = NULL;
 GHashTable *gswe_planet_info_table;
-GArray *gswe_morrison_stephenson_deltat = NULL;
 
 #define ADD_PLANET(ht, v, i, n, o, dom1, dom2, exi1, exi2, exa, fal) (v) = g_new0(GswePlanetInfo, 1); \
                                                                      (v)->planet = (i); \
