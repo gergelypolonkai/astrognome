@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = swe/src src po docs/reference/astrognome
+SUBDIRS = swe/src swe-glib/src src po docs/reference/swe-glib docs/reference/astrognome
 
 EXTRA_DIST = config.rpath m4/ChangeLog
 

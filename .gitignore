@@ -45,6 +45,11 @@ Makefile.in
 /po/quot.sed
 /po/remove-potcdate.sin
 
+# SWE-GLib related files, should be removed when SWE-GLib goes separate
+/swe-glib/src/enumtypes.c
+/swe-glib/src/enumtypes.h
+/swe-glib/src/gswetest
+
 #Documentation related files
 /docs/reference/*/*.args
 /docs/reference/*/*.hierarchy

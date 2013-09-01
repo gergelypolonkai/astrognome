@@ -37,17 +37,25 @@ AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([m], [floor])
 GTK_DOC_CHECK([1.19], [--flavour no-tmpl])
 PKG_PROG_PKG_CONFIG
+AC_PATH_PROG([GLIB_MKENUMS], [glib-mkenums])
+PKG_CHECK_MODULES([GLIB], [glib-2.0])
+PKG_CHECK_MODULES([GOBJECT], [gobject-2.0])
 PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 AC_CONFIG_MACRO_DIR([m4])
 
 LIBSWE_LIBS='$(top_builddir)/swe/src/libswe-1.75.la'
 AC_SUBST(LIBSWE_LIBS)
 
+LIBSWE_GLIB_LIBS='$(top_builddir)/swe-glib/src/libswe-glib-0.1.la'
+AC_SUBST(LIBSWE_GLIB_LIBS)
+
 AC_CONFIG_FILES([
     Makefile
     swe/src/Makefile
+    swe-glib/src/Makefile
     src/Makefile
     po/Makefile.in
     docs/reference/astrognome/Makefile
+    docs/reference/swe-glib/Makefile
 ])
 AC_OUTPUT
