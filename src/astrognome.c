@@ -3,6 +3,7 @@
 #include "calculate.h"
 
 #include "../swe/src/swephexp.h"
+#include "../swe-glib/src/swe-glib.h"
 
 #define EPHEDIR "/home/polesz/Projektek/c/astrognome/swe/data"
 
@@ -309,6 +310,17 @@ free_planet_data(gpointer data)
     g_free(planetData);
 }
 
+void
+print_house_cusp(gpointer data, gpointer user_data)
+{
+    gdouble *cusp = data;
+    gint *house = user_data;
+
+    printf("House %2d..: %s (%f)\n", *house, signName[get_sign(*cusp)], *cusp);
+
+    *house += 1;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -338,6 +350,8 @@ main(int argc, char *argv[])
     signData_t *signData;
     GList *planetIdList;
     struct aspect_check_data aspectCheckData;
+    GsweTimestamp *timestamp;
+    GsweMoment *moment;
 
 #if 1
     year = 1983;
@@ -395,6 +409,10 @@ main(int argc, char *argv[])
     ADD_SIGN(signDataTable, signData, SIGN_PISCES,      ELEMENT_WATER, TYPE_MUTABLE);
 
     swe_set_ephe_path(EPHEDIR);
+    gswe_init(EPHEDIR);
+
+    timestamp = gswe_timestamp_new_from_gregorian_full(year, month, day, hour, min, sec, 0, 1.0);
+    moment = gswe_moment_new_full(timestamp, lon, lat, alt, GSWE_HOUSE_SYSTEM_PLACIDUS);
 
     if (set_location_and_time(lon, lat, alt, year, month, day, hour, min, sec, timezone, &te) == 0) {
         return 1;
@@ -406,9 +424,8 @@ main(int argc, char *argv[])
 
     swe_houses(te, lat, lon, 'P', cusps, ascmc);
 
-    for (p = 1; p < 13; p++) {
-        printf("House %2d..: %s (%f)\n", p, signName[get_sign(cusps[p])], cusps[p]);
-    }
+    p = 1;
+    g_list_foreach(gswe_moment_get_house_cusps(moment), print_house_cusp, &p);
 
     printf("\nPLANETS AND POINTS\n==================\n\n");
 

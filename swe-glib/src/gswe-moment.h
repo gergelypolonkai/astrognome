@@ -31,12 +31,14 @@ GQuark gswe_moment_error_quark(void);
  * GsweCoordinates:
  * @longitude: longitude part of the coordinates
  * @latitude: latitude part of the coordinates
+ * @altitude: altitude relative to sea level
  *
  * GsweCoordinates specifies an exact point on Earth's surface
  */
 typedef struct _GsweCoordinates {
     gdouble longitude;
     gdouble latitude;
+    gdouble altitude;
 } GsweCoordinates;
 
 struct _GsweMoment {
@@ -64,7 +66,9 @@ GType gswe_moment_get_type(void);
 
 /* Method definitions */
 GsweMoment *gswe_moment_new(void);
+GsweMoment *gswe_moment_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude, gdouble altitude, GsweHouseSystem house_system);
 void gswe_moment_set_timestamp(GsweMoment *moment, GsweTimestamp *timestamp);
+GList *gswe_moment_get_house_cusps(GsweMoment *moment);
 
 #endif /* __GSWE_MOMENT_H__ */
 

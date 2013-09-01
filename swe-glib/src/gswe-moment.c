@@ -1,11 +1,28 @@
-#include <math.h>
+#include "swe-glib.h"
+#include "gswe-types.h"
 #include "gswe-moment.h"
+
+#include "../../swe/src/swephexp.h"
 
 #define GSWE_MOMENT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GSWE_TYPE_MOMENT, GsweMomentPrivate))
 
+/**
+ * GsweMomentPrivate:
+ * @timestamp: a #GsweTimestmp object representing the current local time at
+ *             the given position specified by @coordinates. Be warned though,
+ *             that the time zone is NOT checked against the coordinates!
+ * @coordinates: the coordinates of the observers position
+ * @revision: an internal counter which is incremented whenever the timestamp
+ *            or the coordinates change. Planetary positions are recalculated
+ *            if this number changes
+ */
 struct _GsweMomentPrivate {
     GsweTimestamp *timestamp;
     GsweCoordinates coordinates;
+    GsweHouseSystem house_system;
+    guint revision;
+    GList *house_list;
+    guint house_revision;
 };
 
 enum {
@@ -67,6 +84,9 @@ gswe_moment_init(GsweMoment *moment)
     moment->priv = GSWE_MOMENT_GET_PRIVATE(moment);
 
     moment->priv->timestamp = NULL;
+    moment->priv->house_list = NULL;
+    moment->priv->planet_list = NULL;
+    moment->priv->revision = 1;
 
     //moment->priv->a_string = g_strdup("Maman");
 }
@@ -74,6 +94,8 @@ gswe_moment_init(GsweMoment *moment)
 static void
 gswe_moment_timestamp_changed(GsweMoment *moment, gpointer data)
 {
+    moment->priv->revision++;
+    gswe_moment_emit_changed(moment);
 }
 
 static void
@@ -91,9 +113,9 @@ gswe_moment_dispose(GObject *gobject)
 static void
 gswe_moment_finalize(GObject *gobject)
 {
-    //GsweMoment *moment = GSWE_MOMENT(gobject);
+    GsweMoment *moment = GSWE_MOMENT(gobject);
 
-    //g_free(moment->priv->a_string);
+    g_list_free_full(moment->priv->house_list, g_free);
 
     G_OBJECT_CLASS(gswe_moment_parent_class)->finalize(gobject);
 }
@@ -173,5 +195,58 @@ GsweMoment *
 gswe_moment_new(void)
 {
     return (GsweMoment *)g_object_new(GSWE_TYPE_MOMENT, NULL);
+}
+
+GsweMoment *
+gswe_moment_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude, gdouble altitude, GsweHouseSystem house_system)
+{
+    GsweMoment *moment = gswe_moment_new();
+
+    moment->priv->timestamp = timestamp;
+    g_object_ref(timestamp);
+    g_signal_connect(G_OBJECT(timestamp), "changed", G_CALLBACK(gswe_moment_timestamp_changed), NULL);
+    moment->priv->coordinates.longitude = longitude;
+    moment->priv->coordinates.latitude = latitude;
+    moment->priv->coordinates.altitude = altitude;
+    moment->priv->house_system = house_system;
+
+    return moment;
+}
+
+static void
+gswe_moment_calculate_house_positions(GsweMoment *moment)
+{
+    gdouble cusps[13],
+            ascmc[10];
+    gint i;
+    GsweHouseSystemInfo *house_system_data;
+
+    if ((house_system_data = g_hash_table_lookup(gswe_house_system_info_table, GINT_TO_POINTER(moment->priv->house_system))) == NULL) {
+        g_error("Unknown house system!");
+    }
+
+    swe_houses(gswe_timestamp_get_julian_day(moment->priv->timestamp), moment->priv->coordinates.latitude, moment->priv->coordinates.longitude, house_system_data->sweph_id, cusps, ascmc);
+
+    g_list_free_full(moment->priv->house_list, g_free);
+    moment->priv->house_list = NULL;
+
+    for (i = 12; i >= 1; i--) {
+        gdouble *cusp = g_new0(gdouble, 1);
+
+        *cusp = cusps[i];
+        moment->priv->house_list = g_list_prepend(moment->priv->house_list, cusp);
+    }
+
+    moment->priv->house_revision = moment->priv->revision;
+}
+
+GList *
+gswe_moment_get_house_cusps(GsweMoment *moment)
+{
+    if (moment->priv->house_revision != moment->priv->revision) {
+        gswe_moment_calculate_house_positions(moment);
+    }
+
+    return moment->priv->house_list;
 }
 

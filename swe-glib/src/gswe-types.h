@@ -1,6 +1,8 @@
 #ifndef __SWE_GLIB_GSWE_PLANETS_H__
 #define __SWE_GLIB_GSWE_PLANETS_H__
 
+#include <glib.h>
+
 typedef enum {
     GSWE_PLANET_NONE,
     GSWE_PLANET_SUN,
