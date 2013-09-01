@@ -43,6 +43,21 @@ typedef enum {
 } GsweZodiac;
 
 typedef enum {
+    GSWE_ASPECT_NONE,
+    GSWE_ASPECT_CONJUCTION,
+    GSWE_ASPECT_SEXTILE,
+    GSWE_ASPECT_SQUARE,
+    GSWE_ASPECT_TRINE,
+    GSWE_ASPECT_OPPOSITION,
+    GSWE_ASPECT_SEMISEXTILE,
+    GSWE_ASPECT_SEMISQUARE,
+    GSWE_ASPECT_QUINTILE,
+    GSWE_ASPECT_SESQUISQUARE,
+    GSWE_ASPECT_BIQUINTILE,
+    GSWE_ASPECT_QUINCUNX
+} GsweAspect;
+
+typedef enum {
     GSWE_ELEMENT_NONE,
     GSWE_ELEMENT_FIRE,
     GSWE_ELEMENT_EARTH,
@@ -83,6 +98,25 @@ typedef struct {
     GsweZodiac exalted_sign;
     GsweZodiac fall_sign;
 } GswePlanetInfo;
+
+typedef enum {
+    GSWE_HOUSE_SYSTEM_NONE,
+    GSWE_HOUSE_SYSTEM_PLACIDUS,
+    GSWE_HOUSE_SYSTEM_KOCH,
+    GSWE_HOUSE_SISTEM_EQUAL
+} GsweHouseSystem;
+
+/**
+ * GsweHouseSystemInfo:
+ * @system: the house system's ID
+ * @sweph_id: the character value that represents this house system in the Swiss Ephemeris library
+ * @name: the name of this house system
+ */
+typedef struct {
+    GsweHouseSystem system;
+    gchar sweph_id;
+    gchar *name;
+} GsweHouseSystemInfo;
 
 #endif /* __SWE_GLIB_GSWE_PLANETS_H__ */
 
