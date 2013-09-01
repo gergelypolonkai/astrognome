@@ -4,7 +4,7 @@
 #define GSWE_MOMENT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GSWE_TYPE_MOMENT, GsweMomentPrivate))
 
 struct _GsweMomentPrivate {
-    GDateTime *timestamp;
+    GsweTimestamp *timestamp;
     GsweCoordinates coordinates;
 };
 
@@ -52,7 +52,7 @@ gswe_moment_class_init(GsweMomentClass *klass)
      *
      * The timestamp associated with this moment
      */
-    g_object_class_install_property(gobject_class, PROP_TIMESTAMP, g_param_spec_pointer("timestamp", "Timestamp", "Timestamp of this moment", G_PARAM_READWRITE));
+    g_object_class_install_property(gobject_class, PROP_TIMESTAMP, g_param_spec_object("timestamp", "Timestamp", "Timestamp of this moment", GSWE_TYPE_TIMESTAMP, G_PARAM_READWRITE));
 }
 
 static void
@@ -62,20 +62,28 @@ gswe_moment_emit_changed(GsweMoment *moment)
 }
 
 void
-gswe_moment_init(GsweMoment *self)
+gswe_moment_init(GsweMoment *moment)
 {
-    self->priv = GSWE_MOMENT_GET_PRIVATE(self);
+    moment->priv = GSWE_MOMENT_GET_PRIVATE(moment);
 
-    //self->priv->an_object = g_object_new(MAMAN_TYPE_BAZ, NULL);
-    //self->priv->a_string = g_strdup("Maman");
+    moment->priv->timestamp = NULL;
+
+    //moment->priv->a_string = g_strdup("Maman");
+}
+
+static void
+gswe_moment_timestamp_changed(GsweMoment *moment, gpointer data)
+{
 }
 
 static void
 gswe_moment_dispose(GObject *gobject)
 {
-    //GsweMoment *self = GSWE_MOMENT(gobject);
+    GsweMoment *moment = GSWE_MOMENT(gobject);
 
-    //g_clear_object(&self->priv->an_object);
+    g_signal_handlers_disconnect_by_func(moment->priv->timestamp, gswe_moment_timestamp_changed, NULL);
+
+    g_clear_object(&moment->priv->timestamp);
 
     G_OBJECT_CLASS(gswe_moment_parent_class)->dispose(gobject);
 }
@@ -83,9 +91,9 @@ gswe_moment_dispose(GObject *gobject)
 static void
 gswe_moment_finalize(GObject *gobject)
 {
-    //GsweMoment *self = GSWE_MOMENT(gobject);
+    //GsweMoment *moment = GSWE_MOMENT(gobject);
 
-    //g_free(self->priv->a_string);
+    //g_free(moment->priv->a_string);
 
     G_OBJECT_CLASS(gswe_moment_parent_class)->finalize(gobject);
 }
@@ -130,11 +138,29 @@ gswe_moment_get_property(GObject *object, guint prop_id, GValue *value, GParamSp
 void
 gswe_moment_set_timestamp(GsweMoment *moment, GsweTimestamp *timestamp)
 {
-    GsweMomentPrivate *priv = moment->priv;
+    if (moment->priv->timestamp != NULL) {
+        g_signal_handlers_disconnect_by_func(moment->priv->timestamp, gswe_moment_timestamp_changed, NULL);
+        g_clear_object(&moment->priv->timestamp);
+    }
 
-    priv->timestamp = timestamp;
+    moment->priv->timestamp = timestamp;
+    g_object_ref(timestamp);
+    g_signal_connect(G_OBJECT(timestamp), "changed", G_CALLBACK(gswe_moment_timestamp_changed), NULL);
+
     /* Emit the changed signal to notify registrants of the change */
     gswe_moment_emit_changed(moment);
+}
+
+/**
+ * gswe_moment_get_timestamp:
+ * @moment: The GsweMoment object of which you requent its timestamp object
+ *
+ * Returns: a #GsweTimestamp object assigned to the given moment
+ */
+GsweTimestamp *
+gswe_moment_get_timestamp(GsweMoment *moment)
+{
+    return moment->priv->timestamp;
 }
 
 GQuark
