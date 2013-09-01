@@ -45,7 +45,7 @@ GType gswe_timestamp_get_type(void);
 /* Method definitions */
 GsweTimestamp *gswe_timestamp_new(void);
 GsweTimestamp *gswe_timestamp_new_from_julian_day(gdouble julian_day);
-GsweTimestamp * gswe_timestamp_new_from_gregorian_full(gint year, gint month, gint day, gint hour, gint minute, gint second, gint microsecond, GTimeZone *time_zone);
+GsweTimestamp * gswe_timestamp_new_from_gregorian_full(gint year, gint month, gint day, gint hour, gint minute, gint second, gint microsecond, gdouble time_zone_offset);
 void gswe_timestamp_set_instant_recalc(GsweTimestamp *timestamp, gboolean instant_recalc);
 gboolean gswe_timestamp_get_instant_recalc(GsweTimestamp *timestamp);
 void gswe_timestamp_set_gregorian_year(GsweTimestamp *timestamp, gint gregorian_year);
@@ -62,6 +62,8 @@ void gswe_timestamp_set_gregorian_second(GsweTimestamp *timestamp, gint gregoria
 gint gswe_timestamp_get_gregorian_second(GsweTimestamp *timestamp);
 void gswe_timestamp_set_gregorian_microsecond(GsweTimestamp *timestamp, gint gregorian_microsecond);
 gint gswe_timestamp_get_gregorian_microsecond(GsweTimestamp *timestamp);
+void gswe_timestamp_set_gregorian_timezone(GsweTimestamp *timestamp, gdouble gregorian_timezone_offset);
+gdouble gswe_timestamp_get_gregorian_timezone(GsweTimestamp *timestamp);
 void gswe_timestamp_set_julian_day(GsweTimestamp *timestamp, gdouble julian_day);
 gdouble gswe_timestamp_get_julian_day(GsweTimestamp *timestamp);
 

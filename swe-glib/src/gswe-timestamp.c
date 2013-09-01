@@ -23,7 +23,7 @@ struct _GsweTimestampPrivate {
     gint gregorian_minute;
     gint gregorian_second;
     gint gregorian_microsecond;
-    GTimeZone *gregorian_timezone;
+    gdouble gregorian_timezone_offset;
 
     gdouble julian_day;
 };
@@ -44,6 +44,7 @@ enum {
     PROP_GREGORIAN_MINUTE,
     PROP_GREGORIAN_SECOND,
     PROP_GREGORIAN_MICROSECOND,
+    PROP_GREGORIAN_TIMEZONE_OFFSET,
     PROP_JULIAN_DAY_VALID
 };
 
@@ -150,6 +151,13 @@ gswe_timestamp_class_init(GsweTimestampClass *klass)
     g_object_class_install_property(gobject_class, PROP_GREGORIAN_MICROSECOND, g_param_spec_int("gregorian-microsecond", "Gregorian microsecond", "The microsecond according to the Gregorian calendar", 0, G_MAXINT, g_date_time_get_microsecond(local_time), G_PARAM_READWRITE));
 
     /**
+     * GsweTimestamp:gregorian-timezone-offset:
+     *
+     * The time zone offset in hours, relative to UTC
+     */
+    g_object_class_install_property(gobject_class, PROP_GREGORIAN_TIMEZONE_OFFSET, g_param_spec_double("gregorian-timezone-offset", "Gregorian timezone offset", "The offset relative to UTC in the Gregorian calendar", -24.0, 24.0, 0.0, G_PARAM_READWRITE));
+
+    /**
      * GsweTimestamp:julian-day-valid
      *
      * If TRUE, the Julian day value stored in the GsweTimestamp object is
@@ -171,8 +179,6 @@ void
 gswe_timestamp_init(GsweTimestamp *self)
 {
     self->priv = GSWE_TIMESTAMP_GET_PRIVATE(self);
-
-    self->priv->gregorian_timezone = g_time_zone_new_local();
 }
 
 static void
@@ -230,6 +236,11 @@ gswe_timestamp_set_property(GObject *object, guint prop_id, const GValue *value,
 
         case PROP_GREGORIAN_MICROSECOND:
             gswe_timestamp_set_gregorian_microsecond(timestamp, g_value_get_int(value));
+
+            break;
+
+        case PROP_GREGORIAN_TIMEZONE_OFFSET:
+            gswe_timestamp_set_gregorian_timezone(timestamp, g_value_get_double(value));
 
             break;
 
@@ -295,6 +306,11 @@ gswe_timestamp_get_property(GObject *object, guint prop_id, GValue *value, GPara
         case PROP_GREGORIAN_MICROSECOND:
             gswe_timestamp_calculate_gregorian(timestamp);
             g_value_set_int(value, timestamp->priv->gregorian_microsecond);
+
+            break;
+
+        case PROP_GREGORIAN_TIMEZONE_OFFSET:
+            g_value_set_double(value, timestamp->priv->gregorian_timezone_offset);
 
             break;
 
@@ -499,6 +515,27 @@ gswe_timestamp_get_gregorian_microsecond(GsweTimestamp *timestamp)
     return timestamp->priv->gregorian_microsecond;
 }
 
+void
+gswe_timestamp_set_gregorian_timezone(GsweTimestamp *timestamp, gdouble gregorian_timezone_offset)
+{
+    timestamp->priv->gregorian_timezone_offset = gregorian_timezone_offset;
+    timestamp->priv->valid_dates = VALID_GREGORIAN;
+
+    if (timestamp->priv->instant_recalc == TRUE) {
+        gswe_timestamp_calculate_all(timestamp);
+    }
+
+    gswe_timestamp_emit_changed(timestamp);
+}
+
+gdouble
+gswe_timestamp_get_gregorian_timezone(GsweTimestamp *timestamp)
+{
+    gswe_timestamp_calculate_gregorian(timestamp);
+
+    return timestamp->priv->gregorian_timezone_offset;
+}
+
 static void
 gswe_timestamp_calculate_julian(GsweTimestamp *timestamp)
 {
@@ -520,7 +557,8 @@ gswe_timestamp_calculate_julian(GsweTimestamp *timestamp)
         g_error("This timestamp object holds no valid values. This can't be good.");
     }
 
-    swe_utc_time_zone(timestamp->priv->gregorian_year, timestamp->priv->gregorian_month, timestamp->priv->gregorian_day, timestamp->priv->gregorian_hour, timestamp->priv->gregorian_minute, timestamp->priv->gregorian_second + timestamp->priv->gregorian_microsecond / 1000.0, g_time_zone_get_offset(timestamp->priv->gregorian_timezone, 0) / 3600.0, &utc_year, &utc_month, &utc_day, &utc_hour, &utc_minute, &utc_second);
+    swe_utc_time_zone(timestamp->priv->gregorian_year, timestamp->priv->gregorian_month, timestamp->priv->gregorian_day, timestamp->priv->gregorian_hour, timestamp->priv->gregorian_minute, timestamp->priv->gregorian_second + timestamp->priv->gregorian_microsecond / 1000.0, timestamp->priv->gregorian_timezone_offset, &utc_year, &utc_month, &utc_day, &utc_hour, &utc_minute, &utc_second);
+
     if ((retval = swe_utc_to_jd(utc_year, utc_month, utc_day, utc_hour, utc_minute, utc_second, SE_GREG_CAL, dret, serr)) == ERR) {
         g_error("Swiss Ephemeris error: %s", serr);
     } else {
@@ -563,23 +601,19 @@ gswe_timestamp_new(void)
 }
 
 GsweTimestamp *
-gswe_timestamp_new_from_gregorian_full(gint year, gint month, gint day, gint hour, gint minute, gint second, gint microsecond, GTimeZone *time_zone)
+gswe_timestamp_new_from_gregorian_full(gint year, gint month, gint day, gint hour, gint minute, gint second, gint microsecond, gdouble time_zone_offset)
 {
     GsweTimestamp *timestamp = GSWE_TIMESTAMP(g_object_new(GSWE_TYPE_TIMESTAMP,
-                "gregorian-year",        year,
-                "gregorian-month",       month,
-                "gregorian-day",         day,
-                "gregorian-hour",        hour,
-                "gregorian-minute",      minute,
-                "gregorian-second",      second,
-                "gregorian-microsecond", microsecond,
+                "gregorian-year",            year,
+                "gregorian-month",           month,
+                "gregorian-day",             day,
+                "gregorian-hour",            hour,
+                "gregorian-minute",          minute,
+                "gregorian-second",          second,
+                "gregorian-microsecond",     microsecond,
+                "gregorian-timezone-offset", time_zone_offset,
                 NULL));
 
-    if (timestamp->priv->gregorian_timezone != NULL) {
-        g_time_zone_unref(timestamp->priv->gregorian_timezone);
-    }
-
-    timestamp->priv->gregorian_timezone = g_time_zone_ref(time_zone);
     timestamp->priv->valid_dates = VALID_GREGORIAN;
 
     return timestamp;
