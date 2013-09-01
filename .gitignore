@@ -29,10 +29,14 @@ Makefile.in
 /libtool
 /compile
 /tags
+
+# Translation related files
 /po/POTFILES
 /po/Makevars.template
 /po/Makefile.in.in
 /po/stamp-it
+/po/*.gmo
+/po/*.pot
 /po/Rules-quot
 /po/boldquot.sed
 /po/en@boldquot.header
