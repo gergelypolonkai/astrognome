@@ -304,10 +304,16 @@ gswe_moment_calculate_house_positions(GsweMoment *moment)
     moment->priv->house_list = NULL;
 
     for (i = 12; i >= 1; i--) {
-        gdouble *cusp = g_new0(gdouble, 1);
+        GsweHouseData *house_data = g_new0(GsweHouseData, 1);
 
-        *cusp = cusps[i];
-        moment->priv->house_list = g_list_prepend(moment->priv->house_list, cusp);
+        house_data->house = i;
+        house_data->cusp_position = cusps[i];
+
+        if ((house_data->sign = g_hash_table_lookup(gswe_sign_info_table, GINT_TO_POINTER((gint)ceilf(cusps[i] / 30.0)))) == NULL) {
+            g_error("Calculations brought an unknown sign!");
+        }
+
+        moment->priv->house_list = g_list_prepend(moment->priv->house_list, house_data);
     }
 
     moment->priv->house_revision = moment->priv->revision;

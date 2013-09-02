@@ -61,6 +61,12 @@ typedef struct {
 } GswePlanetData;
 
 typedef struct {
+    guint house;
+    gdouble cusp_position;
+    GsweSignInfo *sign;
+} GsweHouseData;
+
+typedef struct {
     GsweMoonPhase phase;
     gdouble illumination;
 } GsweMoonPhaseData;
