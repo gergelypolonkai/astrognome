@@ -147,5 +147,14 @@ typedef struct {
     gchar *name;
 } GsweHouseSystemInfo;
 
+typedef struct {
+    GsweAspect aspect;
+    gchar *name;
+    guint size;
+    guint orb_modifier;
+    gboolean harmonic;
+    gboolean major;
+} GsweAspectInfo;
+
 #endif /* __SWE_GLIB_GSWE_PLANETS_H__ */
 
