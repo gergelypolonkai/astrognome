@@ -23,6 +23,7 @@ struct _GsweMomentPrivate {
     guint revision;
     GList *house_list;
     guint house_revision;
+    GList *planet_list;
 };
 
 enum {
@@ -228,6 +229,47 @@ gswe_moment_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitu
     return moment;
 }
 
+static gint
+find_by_planet_id(gconstpointer a, gconstpointer b)
+{
+    const GswePlanetData *planet_data = a;
+    const GswePlanet *planet = b;
+
+    if (planet_data->planet_id == *planet) {
+        return 0;
+    }
+
+    return 1;
+}
+
+static void
+gswe_calculate_data_by_position(GsweMoment *moment, GswePlanet planet, gdouble position)
+{
+    GswePlanetData *planet_data = (GswePlanetData *)(g_list_find_custom(moment->priv->planet_list, &planet, find_by_planet_id)->data);
+    GsweZodiac sign;
+    GsweSignInfo *sign_info;
+
+    if (planet_data == NULL) {
+        return;
+    }
+
+    if (planet_data->revision == moment->priv->revision) {
+        return;
+    }
+
+    sign = (GsweZodiac)ceil(position / 30.0);
+
+    if ((sign_info = g_hash_table_lookup(gswe_sign_info_table, GINT_TO_POINTER(sign))) == NULL) {
+        g_error("Calculations brought an unknown sign!");
+    }
+
+    planet_data->position = position;
+    planet_data->retrograde = FALSE;
+    planet_data->house = gswe_moment_get_house(moment, position);
+    planet_data->sign = sign_info;
+    planet_data->revision = moment->priv->revision;
+}
+
 static void
 gswe_moment_calculate_house_positions(GsweMoment *moment)
 {
@@ -235,6 +277,10 @@ gswe_moment_calculate_house_positions(GsweMoment *moment)
             ascmc[10];
     gint i;
     GsweHouseSystemInfo *house_system_data;
+
+    if (moment->priv->house_revision == moment->priv->revision) {
+        return;
+    }
 
     if ((house_system_data = g_hash_table_lookup(gswe_house_system_info_table, GINT_TO_POINTER(moment->priv->house_system))) == NULL) {
         g_error("Unknown house system!");
@@ -253,6 +299,18 @@ gswe_moment_calculate_house_positions(GsweMoment *moment)
     }
 
     moment->priv->house_revision = moment->priv->revision;
+
+    if (gswe_moment_has_planet(moment, GSWE_PLANET_ASCENDENT)) {
+        gswe_calculate_data_by_position(moment, GSWE_PLANET_ASCENDENT, ascmc[0]);
+    }
+
+    if (gswe_moment_has_planet(moment, GSWE_PLANET_MC)) {
+        gswe_calculate_data_by_position(moment, GSWE_PLANET_MC, ascmc[1]);
+    }
+
+    if (gswe_moment_has_planet(moment, GSWE_PLANET_VERTEX)) {
+        gswe_calculate_data_by_position(moment, GSWE_PLANET_VERTEX, ascmc[3]);
+    }
 }
 
 GList *
@@ -263,5 +321,133 @@ gswe_moment_get_house_cusps(GsweMoment *moment)
     }
 
     return moment->priv->house_list;
+}
+
+gboolean
+gswe_moment_has_planet(GsweMoment *moment, GswePlanet planet)
+{
+    return (g_list_find_custom(moment->priv->planet_list, &planet, find_by_planet_id) != NULL);
+}
+
+void
+gswe_moment_add_planet(GsweMoment *moment, GswePlanet planet)
+{
+    GswePlanetData *planet_data = g_new0(GswePlanetData, 1);
+    GswePlanetInfo *planet_info;
+
+    if (gswe_moment_has_planet(moment, planet)) {
+        return;
+    }
+
+    if ((planet_info = g_hash_table_lookup(gswe_planet_info_table, GINT_TO_POINTER(planet))) == NULL) {
+        g_warning("Unknown planet ID: %d", planet);
+
+        return;
+    }
+
+    planet_data->planet_id = planet;
+    planet_data->planet_info = planet_info;
+    planet_data->position = 0.0;
+    planet_data->house = 1;
+    planet_data->sign = NULL;
+    planet_data->revision = 0;
+
+    moment->priv->planet_list = g_list_append(moment->priv->planet_list, planet_data);
+}
+
+static void
+planet_add(gpointer key, gpointer value, gpointer user_data)
+{
+    GswePlanet planet = (GswePlanet)GPOINTER_TO_INT(key);
+    GsweMoment *moment = GSWE_MOMENT(user_data);
+
+    gswe_moment_add_planet(moment, planet);
+}
+
+void
+gswe_moment_add_all_planets(GsweMoment *moment)
+{
+    g_hash_table_foreach(gswe_planet_info_table, planet_add, moment);
+}
+
+GList *
+gswe_moment_get_planets(GsweMoment *moment)
+{
+    return moment->priv->planet_list;
+}
+
+gint
+gswe_moment_get_house(GsweMoment *moment, gdouble position)
+{
+    gint i;
+    gswe_moment_calculate_house_positions(moment);
+
+    for (i = 1; i <= 12; i++) {
+        gint j = (i < 12) ? i + 1 : 1;
+        gdouble cusp_i = *(gdouble *)g_list_nth_data(moment->priv->house_list, i - 1),
+                cusp_j = *(gdouble *)g_list_nth_data(moment->priv->house_list, j - 1);
+
+        if (cusp_j < cusp_i) {
+            if ((position >= cusp_i) || (position < cusp_j)) {
+                return i;
+            }
+        } else {
+            if ((position >= cusp_i) && (position < cusp_j)) {
+                return i;
+            }
+        }
+    }
+
+    return 0;
+}
+
+static void
+gswe_moment_calculate_planet(GsweMoment *moment, GswePlanet planet)
+{
+    GswePlanetData *planet_data = (GswePlanetData *)(g_list_find_custom(moment->priv->planet_list, &planet, find_by_planet_id)->data);
+    gchar serr[AS_MAXCH];
+    gint ret;
+    gdouble x2[6];
+
+    if (planet_data == NULL) {
+        return;
+    }
+
+    if (planet_data->revision == moment->priv->revision) {
+        return;
+    }
+
+    if (planet_data->planet_info->real_body == FALSE) {
+        g_warning("The position data of planet %d can not be calculated by this function", planet);
+
+        return;
+    }
+
+    swe_set_topo(moment->priv->coordinates.longitude, moment->priv->coordinates.latitude, moment->priv->coordinates.altitude);
+    if ((ret = swe_calc(gswe_timestamp_get_julian_day(moment->priv->timestamp), planet_data->planet_info->sweph_id, SEFLG_SPEED | SEFLG_TOPOCTR, x2, serr)) < 0) {
+        g_warning("Swiss Ephemeris error: %s", serr);
+
+        return;
+    } else if (ret != (SEFLG_SPEED | SEFLG_TOPOCTR)) {
+        g_warning("Swiss Ephemeris error: %s", serr);
+    }
+
+    gswe_calculate_data_by_position(moment, planet, x2[0]);
+
+    planet_data->retrograde = (x2[3] < 0);
+}
+
+GswePlanetData *
+gswe_moment_get_planet(GsweMoment *moment, GswePlanet planet)
+{
+    GswePlanetData *planet_data = (GswePlanetData *)(g_list_find_custom(moment->priv->planet_list, &planet, find_by_planet_id)->data);
+
+    if (planet_data == NULL) {
+        return NULL;
+    }
+
+    gswe_moment_calculate_planet(moment, planet);
+
+    return planet_data;
 }
 
