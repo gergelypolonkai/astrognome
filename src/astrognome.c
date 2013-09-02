@@ -318,11 +318,9 @@ main(int argc, char *argv[])
            ascmc[10];
     planetInfo_t *planetInfo;
     GsweMoonPhaseData *moon_phase;
-    GHashTable *signDataTable,
-               *planetDataTable,
+    GHashTable *planetDataTable,
                *planetInfoTable;
     planetData_t *planetData;
-    signData_t *signData;
     GList *planetIdList;
     struct aspect_check_data aspectCheckData;
     GsweTimestamp *timestamp;
@@ -340,7 +338,6 @@ main(int argc, char *argv[])
     lat = 47.462485;
 #endif
 
-    signDataTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
     planetDataTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, free_planet_data);
     planetInfoTable = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
@@ -366,21 +363,6 @@ main(int argc, char *argv[])
     ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_ASC,    "Ascendent",           9.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
     ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_MC,     "Midheaven",           5.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
     ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_VERTEX, "Vertex",              2.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
-
-    // Initialize sign data table
-
-    ADD_SIGN(signDataTable, signData, SIGN_ARIES,       ELEMENT_FIRE,  TYPE_CARDINAL);
-    ADD_SIGN(signDataTable, signData, SIGN_TAURUS,      ELEMENT_EARTH, TYPE_FIX);
-    ADD_SIGN(signDataTable, signData, SIGN_GEMINI,      ELEMENT_AIR,   TYPE_MUTABLE);
-    ADD_SIGN(signDataTable, signData, SIGN_CANCER,      ELEMENT_WATER, TYPE_CARDINAL);
-    ADD_SIGN(signDataTable, signData, SIGN_LEO,         ELEMENT_FIRE,  TYPE_FIX);
-    ADD_SIGN(signDataTable, signData, SIGN_VIRGO,       ELEMENT_EARTH, TYPE_MUTABLE);
-    ADD_SIGN(signDataTable, signData, SIGN_LIBRA,       ELEMENT_AIR,   TYPE_CARDINAL);
-    ADD_SIGN(signDataTable, signData, SIGN_SCORPIO,     ELEMENT_WATER, TYPE_FIX);
-    ADD_SIGN(signDataTable, signData, SIGN_SAGITTARIUS, ELEMENT_FIRE,  TYPE_MUTABLE);
-    ADD_SIGN(signDataTable, signData, SIGN_CAPRICORN,   ELEMENT_EARTH, TYPE_CARDINAL);
-    ADD_SIGN(signDataTable, signData, SIGN_AQUARIUS,    ELEMENT_AIR,   TYPE_FIX);
-    ADD_SIGN(signDataTable, signData, SIGN_PISCES,      ELEMENT_WATER, TYPE_MUTABLE);
 
     swe_set_ephe_path(EPHEDIR);
     gswe_init(EPHEDIR);
@@ -589,7 +571,6 @@ main(int argc, char *argv[])
 
     g_hash_table_unref(planetInfoTable);
     g_hash_table_unref(planetDataTable);
-    g_hash_table_unref(signDataTable);
 
     return OK;
 }
