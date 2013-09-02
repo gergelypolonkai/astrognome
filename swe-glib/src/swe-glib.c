@@ -10,6 +10,7 @@ gchar *gswe_ephe_path = NULL;
 GHashTable *gswe_planet_info_table;
 GHashTable *gswe_sign_info_table;
 GHashTable *gswe_house_system_info_table;
+GsweTimestamp *gswe_full_moon_base_date;
 
 #define ADD_PLANET(ht, v, i, s, r, n, o, h, dom1, dom2, exi1, exi2, exa, fal) (v) = g_new0(GswePlanetInfo, 1); \
                                                                               (v)->planet = (i); \
@@ -121,6 +122,8 @@ gswe_init(gchar *sweph_path)
     ADD_HOUSE_SYSTEM(gswe_house_system_info_table, house_system_info, GSWE_HOUSE_SYSTEM_PLACIDUS, 'P', _("Placidus"));
     ADD_HOUSE_SYSTEM(gswe_house_system_info_table, house_system_info, GSWE_HOUSE_SYSTEM_KOCH,     'K', _("Koch"));
     ADD_HOUSE_SYSTEM(gswe_house_system_info_table, house_system_info, GSWE_HOUSE_SISTEM_EQUAL,    'E', _("Equal"));
+
+    gswe_full_moon_base_date = gswe_timestamp_new_from_gregorian_full(2005, 5, 8, 3, 48, 0, 0, 0.0);
 
     gswe_ephe_path = g_strdup(sweph_path);
     swe_set_ephe_path(sweph_path);

@@ -1,8 +1,11 @@
 #include "swe-glib.h"
 #include "gswe-types.h"
 #include "gswe-moment.h"
+#include "swe-glib-private.h"
 
 #include "../../swe/src/swephexp.h"
+
+#define SYNODIC 29.53058867
 
 #define GSWE_MOMENT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE((obj), GSWE_TYPE_MOMENT, GsweMomentPrivate))
 
@@ -27,6 +30,8 @@ struct _GsweMomentPrivate {
     guint points_revision;
     GHashTable *element_points;
     GHashTable *quality_points;
+    guint moon_phase_revision;
+    GsweMoonPhaseData moon_phase;
 };
 
 enum {
@@ -94,6 +99,7 @@ gswe_moment_init(GsweMoment *moment)
     moment->priv->quality_points = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     moment->priv->house_revision = 0;
     moment->priv->points_revision = 0;
+    moment->priv->moon_phase_revision = 0;
     moment->priv->revision = 1;
 }
 
@@ -525,5 +531,53 @@ gswe_moment_get_quality_points(GsweMoment *moment, GsweQuality quality)
     point = GPOINTER_TO_INT(g_hash_table_lookup(moment->priv->quality_points, GINT_TO_POINTER(quality)));
 
     return point;
+}
+
+GsweMoonPhaseData *
+gswe_moment_get_moon_phase(GsweMoment *moment)
+{
+    gdouble difference,
+            phase_percent;
+
+    if (moment->priv->moon_phase_revision == moment->priv->revision) {
+        return &(moment->priv->moon_phase);
+    }
+
+    difference = (gswe_timestamp_get_julian_day(moment->priv->timestamp) - gswe_timestamp_get_julian_day(gswe_full_moon_base_date));
+    phase_percent = fmod((difference * 100) / SYNODIC, 100);
+
+    if (phase_percent < 0) {
+        phase_percent += 100.0;
+    }
+
+    if ((phase_percent < 0) || (phase_percent > 100)) {
+        g_error("Error during Moon phase calculation!");
+    }
+
+    moment->priv->moon_phase.illumination = (50.0 - fabs(phase_percent - 50.0)) * 2;
+
+    if (phase_percent == 0) {
+        moment->priv->moon_phase.phase = GSWE_MOON_PHASE_NEW;
+    } else if (phase_percent < 25) {
+        moment->priv->moon_phase.phase = GSWE_MOON_PHASE_WAXING_CRESCENT;
+    } else if (phase_percent == 25) {
+        moment->priv->moon_phase.phase = GSWE_MOON_PHASE_WAXING_HALF;
+    } else if (phase_percent < 50) {
+        moment->priv->moon_phase.phase = GSWE_MOON_PHASE_WAXING_GIBBOUS;
+    } else if (phase_percent == 50) {
+        moment->priv->moon_phase.phase = GSWE_MOON_PHASE_FULL;
+    } else if (phase_percent < 75) {
+        moment->priv->moon_phase.phase = GSWE_MOON_PHASE_WANING_GIBBOUS;
+    } else if (phase_percent == 75) {
+        moment->priv->moon_phase.phase = GSWE_MOON_PHASE_WANING_HALF;
+    } else if (phase_percent < 100) {
+        moment->priv->moon_phase.phase = GSWE_MOON_PHASE_WANING_CRESCENT;
+    } else {
+        moment->priv->moon_phase.phase = GSWE_MOON_PHASE_DARK;
+    }
+
+    moment->priv->moon_phase_revision = moment->priv->revision;
+
+    return &(moment->priv->moon_phase);
 }
 
