@@ -413,6 +413,7 @@ main(int argc, char *argv[])
 
     timestamp = gswe_timestamp_new_from_gregorian_full(year, month, day, hour, min, sec, 0, 1.0);
     moment = gswe_moment_new_full(timestamp, lon, lat, alt, GSWE_HOUSE_SYSTEM_PLACIDUS);
+    gswe_moment_add_all_planets(moment);
 
     if (set_location_and_time(lon, lat, alt, year, month, day, hour, min, sec, timezone, &te) == 0) {
         return 1;
