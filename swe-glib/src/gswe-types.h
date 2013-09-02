@@ -74,6 +74,13 @@ typedef enum {
     GSWE_QUALITY_MUTABLE
 } GsweQuality;
 
+typedef enum {
+    GSWE_HOUSE_SYSTEM_NONE,
+    GSWE_HOUSE_SYSTEM_PLACIDUS,
+    GSWE_HOUSE_SYSTEM_KOCH,
+    GSWE_HOUSE_SISTEM_EQUAL
+} GsweHouseSystem;
+
 /**
  * GswePlanetInfo:
  * @planet:          the planet ID
@@ -100,13 +107,6 @@ typedef struct {
     GsweZodiac exalted_sign;
     GsweZodiac fall_sign;
 } GswePlanetInfo;
-
-typedef enum {
-    GSWE_HOUSE_SYSTEM_NONE,
-    GSWE_HOUSE_SYSTEM_PLACIDUS,
-    GSWE_HOUSE_SYSTEM_KOCH,
-    GSWE_HOUSE_SISTEM_EQUAL
-} GsweHouseSystem;
 
 /**
  * GsweHouseSystemInfo:
