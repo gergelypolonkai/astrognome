@@ -322,7 +322,7 @@ main(int argc, char *argv[])
            cusps[13],
            ascmc[10];
     planetInfo_t *planetInfo;
-    moonPhase *phase;
+    GsweMoonPhaseData *moon_phase;
     GHashTable *signDataTable,
                *planetDataTable,
                *planetInfoTable;
@@ -332,6 +332,7 @@ main(int argc, char *argv[])
     struct aspect_check_data aspectCheckData;
     GsweTimestamp *timestamp;
     GsweMoment *moment;
+    GswePlanetData *planet_data;
 
 #if 1
     year = 1983;
@@ -408,13 +409,20 @@ main(int argc, char *argv[])
 
     printf("\nPLANETS AND POINTS\n==================\n\n");
 
+    // Ascendent
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_ASCENDENT);
+    printf("%s: %s (%f)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->position);
+
     planetInfo = g_new0(planetInfo_t, 1);
     planetInfo->position = ascmc[0];
     planetInfo->sign = get_sign(ascmc[0]);
     planetInfo->house = 1;
     planetInfo->retrograde = FALSE;
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NPLANETS + SE_ASC), planetInfo);
-    printf("Asc.......: %s (%f)\n", signName[planetInfo->sign], planetInfo->position);
+
+    // Midheaven
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_MC);
+    printf("%s: %s (%f)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->position);
 
     planetInfo = g_new0(planetInfo_t, 1);
     planetInfo->position = ascmc[1];
@@ -422,7 +430,10 @@ main(int argc, char *argv[])
     planetInfo->house = 10;
     planetInfo->retrograde = FALSE;
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NPLANETS + SE_MC), planetInfo);
-    printf("MC........: %s (%f)\n", signName[planetInfo->sign], planetInfo->position);
+
+    // Vertex
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_VERTEX);
+    printf("%s: %s (%f)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->position);
 
     planetInfo = g_new0(planetInfo_t, 1);
     planetInfo->position = ascmc[3];
@@ -430,77 +441,126 @@ main(int argc, char *argv[])
     planetInfo->house = get_house(ascmc[3], cusps);
     planetInfo->retrograde = FALSE;
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NPLANETS + SE_VERTEX), planetInfo);
-    printf("Vertex....: %s (%f)\n", signName[planetInfo->sign], planetInfo->position);
+
+    // Sun
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_SUN);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_SUN, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_SUN), planetInfo);
-    printf("Sun.......: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Moon
+    moon_phase = gswe_moment_get_moon_phase(moment);
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_MOON);
+    printf("%s: %s (%.2f%% visibility), %s, House: %d (%f%s)\n", planet_data->planet_info->name, moonStateName[moon_phase->phase], moon_phase->illumination, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_MOON, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MOON), planetInfo);
-    phase = get_moon_phase(year, month, day, hour, min, sec);
-    printf("Moon......: %s (%.2f%% visibility), %s, House: %d (%f%s)\n", moonStateName[phase->phase], phase->visiblePercentage, signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
-    g_free(phase);
+
+    // Mercury
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_MERCURY);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_MERCURY, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MERCURY), planetInfo);
-    printf("Mercury...: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Venus
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_VENUS);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info (SE_VENUS, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_VENUS), planetInfo);
-    printf("Venus.....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Mars
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_MARS);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_MARS, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MARS), planetInfo);
-    printf("Mars......: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Jupiter
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_JUPITER);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_JUPITER, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_JUPITER), planetInfo);
-    printf("Jupiter...: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Saturn
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_SATURN);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_SATURN, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_SATURN), planetInfo);
-    printf("Saturn....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Uranus
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_URANUS);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_URANUS, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_URANUS), planetInfo);
-    printf("Uranus....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Neptune
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_NEPTUNE);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_NEPTUNE, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NEPTUNE), planetInfo);
-    printf("Neptune...: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Pluto
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_PLUTO);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_PLUTO, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_PLUTO), planetInfo);
-    printf("Pluto.....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
 
-    planetInfo = get_planet_info(SE_CHIRON, te, cusps);
-    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_CHIRON), planetInfo);
-    printf("Chiron....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+    // Mean node
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_MOON_NODE);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_MEAN_NODE, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MEAN_NODE), planetInfo);
-    printf("North Node: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Mean apogee
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_MOON_APOGEE);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_MEAN_APOG, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_MEAN_APOG), planetInfo);
-    printf("Dark Moon.: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Chiron
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_CHIRON);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
+
+    planetInfo = get_planet_info(SE_CHIRON, te, cusps);
+    g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_CHIRON), planetInfo);
+
+    // Ceres
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_CERES);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_CERES, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_CERES), planetInfo);
-    printf("Ceres.....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Pallas
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_PALLAS);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_PALLAS, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_PALLAS), planetInfo);
-    printf("Pallas....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Juno
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_JUNO);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_JUNO, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_JUNO), planetInfo);
-    printf("Juno......: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
+
+    // Vesta
+    planet_data = gswe_moment_get_planet(moment, GSWE_PLANET_VESTA);
+    printf("%s: %s, House: %d (%f%s)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->house, planet_data->position, (planet_data->retrograde) ? ", retrograde" : "");
 
     planetInfo = get_planet_info(SE_VESTA, te, cusps);
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_VESTA), planetInfo);
-    printf("Vesta.....: %s, House: %d (%f%s)\n", signName[planetInfo->sign], planetInfo->house, planetInfo->position, (planetInfo->retrograde) ? ", retrograde" : "");
 
     printf("\nELEMENTS\n========\n\n");
 
