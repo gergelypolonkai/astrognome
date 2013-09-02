@@ -295,12 +295,9 @@ free_planet_data(gpointer data)
 void
 print_house_cusp(gpointer data, gpointer user_data)
 {
-    gdouble *cusp = data;
-    gint *house = user_data;
+    GsweHouseData *house_data = data;
 
-    printf("House %2d..: %s (%f)\n", *house, signName[get_sign(*cusp)], *cusp);
-
-    *house += 1;
+    printf("House %2d..: %s (%f)\n", house_data->house, house_data->sign->name, house_data->cusp_position);
 }
 
 int
@@ -311,8 +308,7 @@ main(int argc, char *argv[])
         day = 11,
         hour = 23,
         min = 39,
-        sec = 34,
-        p;
+        sec = 34;
     double timezone = 1.0,
            lon = 20.766666,
            lat = 48.2,
@@ -403,8 +399,7 @@ main(int argc, char *argv[])
 
     swe_houses(te, lat, lon, 'P', cusps, ascmc);
 
-    p = 1;
-    g_list_foreach(gswe_moment_get_house_cusps(moment), print_house_cusp, &p);
+    g_list_foreach(gswe_moment_get_house_cusps(moment), print_house_cusp, NULL);
 
     printf("\nPLANETS AND POINTS\n==================\n\n");
 
@@ -413,8 +408,8 @@ main(int argc, char *argv[])
     printf("%s: %s (%f)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->position);
 
     planetInfo = g_new0(planetInfo_t, 1);
-    planetInfo->position = ascmc[0];
-    planetInfo->sign = get_sign(ascmc[0]);
+    planetInfo->position = planet_data->position;
+    planetInfo->sign = planet_data->sign->sign_id;
     planetInfo->house = 1;
     planetInfo->retrograde = FALSE;
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NPLANETS + SE_ASC), planetInfo);
@@ -424,8 +419,8 @@ main(int argc, char *argv[])
     printf("%s: %s (%f)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->position);
 
     planetInfo = g_new0(planetInfo_t, 1);
-    planetInfo->position = ascmc[1];
-    planetInfo->sign = get_sign(ascmc[1]);
+    planetInfo->position = planet_data->position;
+    planetInfo->sign = planet_data->sign->sign_id;
     planetInfo->house = 10;
     planetInfo->retrograde = FALSE;
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NPLANETS + SE_MC), planetInfo);
@@ -435,9 +430,9 @@ main(int argc, char *argv[])
     printf("%s: %s (%f)\n", planet_data->planet_info->name, planet_data->sign->name, planet_data->position);
 
     planetInfo = g_new0(planetInfo_t, 1);
-    planetInfo->position = ascmc[3];
-    planetInfo->sign = get_sign(ascmc[3]);
-    planetInfo->house = get_house(ascmc[3], cusps);
+    planetInfo->position = planet_data->position;
+    planetInfo->sign = planet_data->sign->sign_id;
+    planetInfo->house = planet_data->house;
     planetInfo->retrograde = FALSE;
     g_hash_table_replace(planetInfoTable, GINT_TO_POINTER(SE_NPLANETS + SE_VERTEX), planetInfo);
 
