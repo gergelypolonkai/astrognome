@@ -109,6 +109,13 @@ typedef struct {
     GsweZodiac fall_sign;
 } GswePlanetInfo;
 
+typedef struct {
+    GsweZodiac sign_id;
+    gchar *name;
+    GsweElement element;
+    GsweQuality quality;
+} GsweSignInfo;
+
 /**
  * GsweHouseSystemInfo:
  * @system: the house system's ID
