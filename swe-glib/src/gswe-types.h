@@ -88,6 +88,8 @@ typedef enum {
  *                   (or -1, if the planet has no such ID)
  * @orb:             the planet's “personal” orb
  * @name:            the planet's name
+ * @points:          the value this planet counts in the element/quality points
+ *                   table
  * @domicile_sign_1: the first sign in which the planet is domicile
  * @domicile_sign_2: the second sign in which the planet is domicile
  * @exile_sign_1:    the first sign in which the planet is in exile

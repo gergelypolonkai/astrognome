@@ -157,6 +157,17 @@ gswe_moment_get_property(GObject *object, guint prop_id, GValue *value, GParamSp
     }
 }
 
+/**
+ * gswe_moment_set_timestamp:
+ * @moment: A GsweMoment object
+ * @timestamp: A GsweTimestamp object. The moment object holds a reference on
+ *             timestamp, which is cleared when a new timestamp is set, or the
+ *             moment object is disposed.
+ *
+ * Sets a new timestamp for this planetary moment. Also emits the ::changed
+ * signal to notify owner of this change. This helps redrawing screen data
+ * according to the new time value.
+ */
 void
 gswe_moment_set_timestamp(GsweMoment *moment, GsweTimestamp *timestamp)
 {
@@ -176,6 +187,10 @@ gswe_moment_set_timestamp(GsweMoment *moment, GsweTimestamp *timestamp)
 /**
  * gswe_moment_get_timestamp:
  * @moment: The GsweMoment object of which you requent its timestamp object
+ *
+ * Get the timestamp object of the given GsweMoment. The moment object holds a
+ * reference to this object, so if you need the timestamp object after moment
+ * is disposed, call g_object_ref() on it!
  *
  * Returns: a #GsweTimestamp object assigned to the given moment
  */
