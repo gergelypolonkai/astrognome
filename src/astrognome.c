@@ -176,7 +176,6 @@ check_aspects_inner_loop(gpointer data, gpointer user_data)
         gdouble aspectOrb = fmax(1.0, planetOrb - aspectData[i].orbModifier);
 
         if (diff <= aspectOrb) {
-            printf("%f ", diff);
             aspect = &(aspectData[i]);
             if (aspectData[i].size == 0) {
                 difference = (1 - ((360.0 - diff) / 360.0)) * 100.0;
