@@ -143,17 +143,17 @@ gswe_init(gchar *sweph_path)
 
     gswe_aspect_info_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, gswe_free_aspect_info);
 
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_CONJUCTION,   "Conjuction",    0,   0, TRUE,  TRUE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_OPPOSITION,   "Opposition",    180, 0, TRUE,  TRUE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_TRINE,        "Trine",         120, 0, TRUE,  TRUE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SQUARE,       "Square",        90,  0, FALSE, TRUE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SEXTILE,      "Sextile",       60,  1, TRUE,  TRUE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_QUINCUNX,     "Quincunx",      150, 2, FALSE, FALSE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SEMISEXTILE,  "Semi-sextile",  30,  2, TRUE,  FALSE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SEMISQUARE,   "Semi-square",   45,  2, FALSE, FALSE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SESQUISQUARE, "Sesqui-square", 135, 2, FALSE, FALSE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_QUINTILE,     "Quintile",      72,  3, TRUE,  FALSE);
-    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_BIQUINTILE,   "Bi-quintile",   144, 3, TRUE,  FALSE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_CONJUCTION,   _("Conjuction"),    0,   0, TRUE,  TRUE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_OPPOSITION,   _("Opposition"),    180, 0, TRUE,  TRUE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_TRINE,        _("Trine"),         120, 0, TRUE,  TRUE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SQUARE,       _("Square"),        90,  0, FALSE, TRUE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SEXTILE,      _("Sextile"),       60,  1, TRUE,  TRUE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_QUINCUNX,     _("Quincunx"),      150, 2, FALSE, FALSE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SEMISEXTILE,  _("Semi-sextile"),  30,  2, TRUE,  FALSE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SEMISQUARE,   _("Semi-square"),   45,  2, FALSE, FALSE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_SESQUISQUARE, _("Sesqui-square"), 135, 2, FALSE, FALSE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_QUINTILE,     _("Quintile"),      72,  3, TRUE,  FALSE);
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_BIQUINTILE,   _("Bi-quintile"),   144, 3, TRUE,  FALSE);
 
     gswe_full_moon_base_date = gswe_timestamp_new_from_gregorian_full(2005, 5, 8, 3, 48, 0, 0, 0.0);
 
