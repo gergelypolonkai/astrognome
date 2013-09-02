@@ -143,6 +143,9 @@ gswe_init(gchar *sweph_path)
 
     gswe_aspect_info_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, gswe_free_aspect_info);
 
+    // Note that because all aspects must be <= 180°, GSWE_ASPECT_NONE can
+    // never really exist. It is provided for name fetching purposes only.
+    ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_NONE,         _("None"),          360, 4, FALSE, FALSE);
     ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_CONJUCTION,   _("Conjuction"),    0,   0, TRUE,  TRUE);
     ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_OPPOSITION,   _("Opposition"),    180, 0, TRUE,  TRUE);
     ADD_ASPECT(gswe_aspect_info_table, aspect_info, GSWE_ASPECT_TRINE,        _("Trine"),         120, 0, TRUE,  TRUE);
