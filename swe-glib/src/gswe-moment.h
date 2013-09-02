@@ -94,6 +94,8 @@ void gswe_moment_add_planet(GsweMoment *moment, GswePlanet planet);
 void gswe_moment_add_all_planets(GsweMoment *moment);
 GList *gswe_moment_get_planets(GsweMoment *moment);
 GswePlanetData *gswe_moment_get_planet(GsweMoment *moment, GswePlanet planet);
+guint gswe_moment_get_element_points(GsweMoment *moment, GsweElement element);
+guint gswe_moment_get_quality_points(GsweMoment *moment, GsweQuality quality);
 
 #endif /* __GSWE_MOMENT_H__ */
 

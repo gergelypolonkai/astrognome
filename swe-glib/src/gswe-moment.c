@@ -24,6 +24,9 @@ struct _GsweMomentPrivate {
     GList *house_list;
     guint house_revision;
     GList *planet_list;
+    guint points_revision;
+    GHashTable *element_points;
+    GHashTable *quality_points;
 };
 
 enum {
@@ -87,9 +90,11 @@ gswe_moment_init(GsweMoment *moment)
     moment->priv->timestamp = NULL;
     moment->priv->house_list = NULL;
     moment->priv->planet_list = NULL;
+    moment->priv->element_points = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+    moment->priv->quality_points = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
+    moment->priv->house_revision = 0;
+    moment->priv->points_revision = 0;
     moment->priv->revision = 1;
-
-    //moment->priv->a_string = g_strdup("Maman");
 }
 
 static void
@@ -117,6 +122,7 @@ gswe_moment_finalize(GObject *gobject)
     GsweMoment *moment = GSWE_MOMENT(gobject);
 
     g_list_free_full(moment->priv->house_list, g_free);
+    g_list_free_full(moment->priv->planet_list, g_free);
 
     G_OBJECT_CLASS(gswe_moment_parent_class)->finalize(gobject);
 }
@@ -370,37 +376,6 @@ gswe_moment_add_all_planets(GsweMoment *moment)
     g_hash_table_foreach(gswe_planet_info_table, planet_add, moment);
 }
 
-GList *
-gswe_moment_get_planets(GsweMoment *moment)
-{
-    return moment->priv->planet_list;
-}
-
-gint
-gswe_moment_get_house(GsweMoment *moment, gdouble position)
-{
-    gint i;
-    gswe_moment_calculate_house_positions(moment);
-
-    for (i = 1; i <= 12; i++) {
-        gint j = (i < 12) ? i + 1 : 1;
-        gdouble cusp_i = *(gdouble *)g_list_nth_data(moment->priv->house_list, i - 1),
-                cusp_j = *(gdouble *)g_list_nth_data(moment->priv->house_list, j - 1);
-
-        if (cusp_j < cusp_i) {
-            if ((position >= cusp_i) || (position < cusp_j)) {
-                return i;
-            }
-        } else {
-            if ((position >= cusp_i) && (position < cusp_j)) {
-                return i;
-            }
-        }
-    }
-
-    return 0;
-}
-
 static void
 gswe_moment_calculate_planet(GsweMoment *moment, GswePlanet planet)
 {
@@ -437,6 +412,52 @@ gswe_moment_calculate_planet(GsweMoment *moment, GswePlanet planet)
     planet_data->retrograde = (x2[3] < 0);
 }
 
+void
+calculate_planet(gpointer data, gpointer user_data)
+{
+    GswePlanetData *planet_data = data;
+    GsweMoment *moment = user_data;
+
+    gswe_moment_calculate_planet(moment, planet_data->planet_id);
+}
+
+void
+gswe_moment_calculate_all_planets(GsweMoment *moment)
+{
+    g_list_foreach(moment->priv->planet_list, calculate_planet, moment);
+}
+
+GList *
+gswe_moment_get_planets(GsweMoment *moment)
+{
+    return moment->priv->planet_list;
+}
+
+gint
+gswe_moment_get_house(GsweMoment *moment, gdouble position)
+{
+    gint i;
+    gswe_moment_calculate_house_positions(moment);
+
+    for (i = 1; i <= 12; i++) {
+        gint j = (i < 12) ? i + 1 : 1;
+        gdouble cusp_i = *(gdouble *)g_list_nth_data(moment->priv->house_list, i - 1),
+                cusp_j = *(gdouble *)g_list_nth_data(moment->priv->house_list, j - 1);
+
+        if (cusp_j < cusp_i) {
+            if ((position >= cusp_i) || (position < cusp_j)) {
+                return i;
+            }
+        } else {
+            if ((position >= cusp_i) && (position < cusp_j)) {
+                return i;
+            }
+        }
+    }
+
+    return 0;
+}
+
 GswePlanetData *
 gswe_moment_get_planet(GsweMoment *moment, GswePlanet planet)
 {
@@ -449,5 +470,60 @@ gswe_moment_get_planet(GsweMoment *moment, GswePlanet planet)
     gswe_moment_calculate_planet(moment, planet);
 
     return planet_data;
+}
+
+static void
+add_points(GswePlanetData *planet_data, GsweMoment *moment)
+{
+    guint point;
+
+    gswe_moment_calculate_planet(moment, planet_data->planet_id);
+
+    point = GPOINTER_TO_INT(g_hash_table_lookup(moment->priv->element_points, GINT_TO_POINTER(planet_data->sign->element))) + planet_data->planet_info->points;
+    g_hash_table_replace(moment->priv->element_points, GINT_TO_POINTER(planet_data->sign->element), GINT_TO_POINTER(point));
+
+    point = GPOINTER_TO_INT(g_hash_table_lookup(moment->priv->quality_points, GINT_TO_POINTER(planet_data->sign->quality)));
+
+    point += planet_data->planet_info->points;
+    g_hash_table_replace(moment->priv->quality_points, GINT_TO_POINTER(planet_data->sign->quality), GINT_TO_POINTER(point));
+}
+
+static void
+gswe_moment_calculate_points(GsweMoment *moment)
+{
+    if (moment->priv->points_revision == moment->priv->revision) {
+        return;
+    }
+
+    g_hash_table_remove_all(moment->priv->element_points);
+    g_hash_table_remove_all(moment->priv->quality_points);
+
+    g_list_foreach(moment->priv->planet_list, (GFunc)add_points, moment);
+
+    moment->priv->points_revision = moment->priv->revision;
+}
+
+guint
+gswe_moment_get_element_points(GsweMoment *moment, GsweElement element)
+{
+    guint point;
+
+    gswe_moment_calculate_points(moment);
+
+    point = GPOINTER_TO_INT(g_hash_table_lookup(moment->priv->element_points, GINT_TO_POINTER(element)));
+
+    return point;
+}
+
+guint
+gswe_moment_get_quality_points(GsweMoment *moment, GsweQuality quality)
+{
+    guint point;
+
+    gswe_moment_calculate_points(moment);
+
+    point = GPOINTER_TO_INT(g_hash_table_lookup(moment->priv->quality_points, GINT_TO_POINTER(quality)));
+
+    return point;
 }
 
