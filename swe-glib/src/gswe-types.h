@@ -100,6 +100,7 @@ typedef struct {
     gint sweph_id;
     gdouble orb;
     gchar *name;
+    gint points;
     GsweZodiac domicile_sign_1;
     GsweZodiac domicile_sign_2;
     GsweZodiac exile_sign_1;
