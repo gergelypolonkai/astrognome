@@ -102,18 +102,18 @@ gswe_init(gchar *sweph_path)
 
     gswe_sign_info_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, gswe_free_sign_info);
 
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_ARIES,       _("Aries"),       GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_TAURUS,      _("Taurus"),      GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_GEMINI,      _("Gemini"),      GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_CANCER,      _("Cancer"),      GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_LEO,         _("Leo"),         GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_VIRGO,       _("Virgo"),       GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_LIBRA,       _("Libra"),       GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_SCORPIO,     _("Scorpio"),     GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_SAGITTARIUS, _("Sagittarius"), GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_CAPRICORN,   _("Capricorn"),   GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_AQUARIUS,    _("Aquarius"),    GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
-    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_PISCES,      _("Pisces"),      GSWE_ELEMENT_FIRE, GSWE_QUALITY_CARDINAL);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_ARIES,       _("Aries"),       GSWE_ELEMENT_FIRE,  GSWE_QUALITY_CARDINAL);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_TAURUS,      _("Taurus"),      GSWE_ELEMENT_EARTH, GSWE_QUALITY_FIX);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_GEMINI,      _("Gemini"),      GSWE_ELEMENT_AIR,   GSWE_QUALITY_MUTABLE);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_CANCER,      _("Cancer"),      GSWE_ELEMENT_WATER, GSWE_QUALITY_CARDINAL);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_LEO,         _("Leo"),         GSWE_ELEMENT_FIRE,  GSWE_QUALITY_FIX);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_VIRGO,       _("Virgo"),       GSWE_ELEMENT_EARTH, GSWE_QUALITY_MUTABLE);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_LIBRA,       _("Libra"),       GSWE_ELEMENT_AIR,   GSWE_QUALITY_CARDINAL);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_SCORPIO,     _("Scorpio"),     GSWE_ELEMENT_WATER, GSWE_QUALITY_FIX);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_SAGITTARIUS, _("Sagittarius"), GSWE_ELEMENT_FIRE,  GSWE_QUALITY_MUTABLE);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_CAPRICORN,   _("Capricorn"),   GSWE_ELEMENT_EARTH, GSWE_QUALITY_CARDINAL);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_AQUARIUS,    _("Aquarius"),    GSWE_ELEMENT_AIR,   GSWE_QUALITY_FIX);
+    ADD_SIGN(gswe_sign_info_table, sign_info, GSWE_SIGN_PISCES,      _("Pisces"),      GSWE_ELEMENT_WATER, GSWE_QUALITY_MUTABLE);
 
     gswe_house_system_info_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, gswe_free_house_system_info);
 
