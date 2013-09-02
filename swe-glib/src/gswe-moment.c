@@ -32,6 +32,8 @@ struct _GsweMomentPrivate {
     GHashTable *quality_points;
     guint moon_phase_revision;
     GsweMoonPhaseData moon_phase;
+    GList *aspect_list;
+    guint aspect_revision;
 };
 
 enum {
@@ -42,6 +44,11 @@ enum {
 enum {
     PROP_0,
     PROP_TIMESTAMP
+};
+
+struct GsweAspectFinder {
+    GswePlanet planet1;
+    GswePlanet planet2;
 };
 
 static guint gswe_moment_signals[SIGNAL_LAST] = {0};
@@ -95,11 +102,13 @@ gswe_moment_init(GsweMoment *moment)
     moment->priv->timestamp = NULL;
     moment->priv->house_list = NULL;
     moment->priv->planet_list = NULL;
+    moment->priv->aspect_list = NULL;
     moment->priv->element_points = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     moment->priv->quality_points = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     moment->priv->house_revision = 0;
     moment->priv->points_revision = 0;
     moment->priv->moon_phase_revision = 0;
+    moment->priv->aspect_revision = 0;
     moment->priv->revision = 1;
 }
 
@@ -585,5 +594,113 @@ gswe_moment_get_moon_phase(GsweMoment *moment)
     moment->priv->moon_phase_revision = moment->priv->revision;
 
     return &(moment->priv->moon_phase);
+}
+
+static gint
+find_aspect_by_both_planets(GsweAspectData *aspect, struct GsweAspectFinder *aspect_finder)
+{
+    if (((aspect->planet1->planet_id == aspect_finder->planet1) && (aspect->planet2->planet_id == aspect_finder->planet2)) || ((aspect->planet1->planet_id == aspect_finder->planet2) && (aspect->planet2->planet_id == aspect_finder->planet1))) {
+        return 0;
+    }
+
+    return 1;
+}
+
+static gboolean
+find_aspect(gpointer aspect_p, GsweAspectInfo *aspect_info, GsweAspectData *aspect_data)
+{
+    GsweAspect aspect = GPOINTER_TO_INT(aspect_p);
+    gdouble distance,
+            diff,
+            planet_orb,
+            aspect_orb;
+
+    distance = fabs(aspect_data->planet1->position - aspect_data->planet2->position);
+
+    if (distance > 180.0) {
+        distance = 360.0 - distance;
+    }
+
+    diff = fabs(aspect_info->size - distance);
+    planet_orb = fmin(aspect_data->planet1->planet_info->orb, aspect_data->planet2->planet_info->orb);
+    aspect_orb = fmax(1.0, planet_orb - aspect_info->orb_modifier);
+
+    if (diff < aspect_orb) {
+        aspect_data->aspect = aspect;
+        aspect_data->aspect_info = aspect_info;
+
+        if (aspect_info->size == 0) {
+            aspect_data->difference = (1 - ((360.0 - diff) / 360.0)) * 100.0;
+        } else {
+            aspect_data->difference = (1 - ((aspect_info->size - diff) / aspect_info->size)) * 100.0;
+        }
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static void
+gswe_moment_calculate_aspects(GsweMoment *moment)
+{
+    GList *oplanet,
+          *iplanet;
+
+    if (moment->priv->aspect_revision == moment->priv->revision) {
+        return;
+    }
+
+    gswe_moment_calculate_all_planets(moment);
+    g_list_free_full(moment->priv->aspect_list, g_free);
+
+    for (oplanet = moment->priv->planet_list; oplanet; oplanet = oplanet->next) {
+        for (iplanet = moment->priv->planet_list; iplanet; iplanet = iplanet->next) {
+            GswePlanetData *outer_planet = oplanet->data,
+                           *inner_planet = iplanet->data;
+            struct GsweAspectFinder aspect_finder;
+            GsweAspectData *aspect_data;
+
+            if (outer_planet->planet_id == inner_planet->planet_id) {
+                continue;
+            }
+
+            aspect_finder.planet1 = outer_planet->planet_id;
+            aspect_finder.planet2 = inner_planet->planet_id;
+
+            if (g_list_find_custom(moment->priv->aspect_list, &aspect_finder, (GCompareFunc)find_aspect_by_both_planets) != NULL) {
+                continue;
+            }
+
+            aspect_data = g_new0(GsweAspectData, 1);
+            aspect_data->planet1 = outer_planet;
+            aspect_data->planet2 = inner_planet;
+            aspect_data->aspect = GSWE_ASPECT_NONE;
+
+            (void)g_hash_table_find(gswe_aspect_info_table, (GHRFunc)find_aspect, aspect_data);
+
+            if (aspect_data->aspect == GSWE_ASPECT_NONE) {
+                aspect_data->aspect_info = g_hash_table_lookup(gswe_aspect_info_table, GINT_TO_POINTER(GSWE_ASPECT_NONE));
+            }
+
+            moment->priv->aspect_list = g_list_prepend(moment->priv->aspect_list, aspect_data);
+        }
+    }
+
+    moment->priv->aspect_revision = moment->priv->revision;
+}
+
+GList *
+gswe_moment_get_aspects(GsweMoment *moment)
+{
+    gswe_moment_calculate_aspects(moment);
+
+    return moment->priv->aspect_list;
+}
+
+GList *
+gswe_moment_get_planet_aspects(GsweMoment *moment, GswePlanet planet)
+{
+    return NULL;
 }
 

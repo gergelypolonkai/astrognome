@@ -71,6 +71,14 @@ typedef struct {
     gdouble illumination;
 } GsweMoonPhaseData;
 
+typedef struct {
+    GswePlanetData *planet1;
+    GswePlanetData *planet2;
+    GsweAspect aspect;
+    gdouble difference;
+    GsweAspectInfo *aspect_info;
+} GsweAspectData;
+
 struct _GsweMoment {
     /* Parent instance structure */
     GObject parent_instance;
@@ -108,6 +116,7 @@ GswePlanetData *gswe_moment_get_planet(GsweMoment *moment, GswePlanet planet);
 guint gswe_moment_get_element_points(GsweMoment *moment, GsweElement element);
 guint gswe_moment_get_quality_points(GsweMoment *moment, GsweQuality quality);
 GsweMoonPhaseData *gswe_moment_get_moon_phase(GsweMoment *moment);
+GList *gswe_moment_get_aspects(GsweMoment *moment);
 
 #endif /* __GSWE_MOMENT_H__ */
 
