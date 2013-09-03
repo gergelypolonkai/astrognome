@@ -75,6 +75,7 @@ typedef struct {
     GswePlanetData *planet1;
     GswePlanetData *planet2;
     GsweAspect aspect;
+    gdouble distance;
     gdouble difference;
     GsweAspectInfo *aspect_info;
 } GsweAspectData;

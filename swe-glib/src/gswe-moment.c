@@ -610,18 +610,17 @@ static gboolean
 find_aspect(gpointer aspect_p, GsweAspectInfo *aspect_info, GsweAspectData *aspect_data)
 {
     GsweAspect aspect = GPOINTER_TO_INT(aspect_p);
-    gdouble distance,
-            diff,
+    gdouble diff,
             planet_orb,
             aspect_orb;
 
-    distance = fabs(aspect_data->planet1->position - aspect_data->planet2->position);
+    aspect_data->distance = fabs(aspect_data->planet1->position - aspect_data->planet2->position);
 
-    if (distance > 180.0) {
-        distance = 360.0 - distance;
+    if (aspect_data->distance > 180.0) {
+        aspect_data->distance = 360.0 - aspect_data->distance;
     }
 
-    diff = fabs(aspect_info->size - distance);
+    diff = fabs(aspect_info->size - aspect_data->distance);
     planet_orb = fmin(aspect_data->planet1->planet_info->orb, aspect_data->planet2->planet_info->orb);
     aspect_orb = fmax(1.0, planet_orb - aspect_info->orb_modifier);
 
