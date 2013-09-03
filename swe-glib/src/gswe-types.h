@@ -60,6 +60,14 @@ typedef enum {
 } GsweAspect;
 
 typedef enum {
+    GSWE_MIRROR_NONE,
+    GSWE_MIRROR_ARIES,
+    GSWE_MIRROR_MID_TAURUS,
+    GSWE_MIRROR_CANCER,
+    GSWE_MIRROR_MID_LEO
+} GsweMirror;
+
+typedef enum {
     GSWE_ELEMENT_NONE,
     GSWE_ELEMENT_FIRE,
     GSWE_ELEMENT_EARTH,
@@ -155,6 +163,13 @@ typedef struct {
     gboolean harmonic;
     gboolean major;
 } GsweAspectInfo;
+
+typedef struct {
+    GsweMirror mirror_id;
+    GsweSignInfo *start_sign;
+    gchar *name;
+    gboolean middle_axis;
+} GsweMirrorInfo;
 
 #endif /* __SWE_GLIB_GSWE_PLANETS_H__ */
 

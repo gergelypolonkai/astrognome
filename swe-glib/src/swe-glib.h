@@ -10,6 +10,7 @@ extern GHashTable *gswe_planet_info_table;
 extern GHashTable *gswe_sign_info_table;
 extern GHashTable *gswe_house_system_info_table;
 extern GHashTable *gswe_aspect_info_table;
+extern GHashTable *gswe_mirror_info_table;
 
 void gswe_init(gchar *sweph_path);
 
