@@ -689,6 +689,16 @@ gswe_moment_calculate_aspects(GsweMoment *moment)
     moment->priv->aspect_revision = moment->priv->revision;
 }
 
+/**
+ * gswe_moment_get_aspects:
+ * @moment: the GsweMoment to operate on
+ *
+ * Gets all planetary aspects between the planets added by
+ * gswe_moment_add_planet() or gswe_moment_add_all_planets().
+ *
+ * Returns: a GList of #GsweAspectData. Both the GList and GsweAspectData
+ *          objects belong to @moment, and should not be freed or modified.
+ */
 GList *
 gswe_moment_get_aspects(GsweMoment *moment)
 {
@@ -697,6 +707,19 @@ gswe_moment_get_aspects(GsweMoment *moment)
     return moment->priv->aspect_list;
 }
 
+/**
+ * gswe_moment_get_planet_aspects:
+ * @moment: the GsweMoment to operate on
+ * @planet: the planet whose aspects you want to get
+ *
+ * Get all the aspects between @planet and all the other planets added with
+ * gswe_moment_add_planet() or gswe_moment_add_all_planets().
+ *
+ * Returns: a GList of #GsweAspectData. The GsweAspectData structures belong to
+ *          @moment, but the GList should be freed using g_list_free(). If the
+ *          planet has no aspects, or the planet has not been added to @moment,
+ *          returns NULL.
+ */
 GList *
 gswe_moment_get_planet_aspects(GsweMoment *moment, GswePlanet planet)
 {
