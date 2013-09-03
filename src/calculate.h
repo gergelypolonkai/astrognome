@@ -1,8 +1,5 @@
 #include "../swe/src/swephexp.h"
 
-#define SYNODIC 29.53058867
-#define MSPERDAY 86400000
-
 typedef enum {
     SIGN_NONE,
     SIGN_ARIES,
@@ -41,23 +38,6 @@ typedef struct {
     int exaltedPlanet;
     int fallingPlanet;
 } signTypePair_t;
-
-typedef enum {
-    MOON_STATE_NEW,
-    MOON_STATE_WAXING_CRESCENT,
-    MOON_STATE_WAXING_HALF,
-    MOON_STATE_WAXING_GIBBOUS,
-    MOON_STATE_FULL,
-    MOON_STATE_WANING_GIBBOUS,
-    MOON_STATE_WANING_HALF,
-    MOON_STATE_WANING_CRESCENT,
-    MOON_STATE_DARK
-} moonState;
-
-typedef struct {
-    moonState phase;
-    double visiblePercentage;
-} moonPhase;
 
 typedef struct {
     double position;

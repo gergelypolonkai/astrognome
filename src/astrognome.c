@@ -8,12 +8,6 @@
 #define EPHEDIR "/home/polesz/Projektek/c/astrognome/swe/data"
 
 typedef struct {
-    int signId;
-    signElement_t element;
-    signType_t type;
-} signData_t;
-
-typedef struct {
     int planetId;
     gchar *name;
     gdouble orb;
@@ -25,21 +19,6 @@ typedef struct {
                fall;
 } planetData_t;
 
-const char *signTypeName[] = {
-    NULL,
-    "Cardinal",
-    "Fix",
-    "Mutable"
-};
-
-const char *signElementName[] = {
-    NULL,
-    "Fire",
-    "Earth",
-    "Air",
-    "Water"
-};
-
 const char *moonStateName[] = {
     "New Moon",
     "Waxing Crescent Moon",
@@ -50,22 +29,6 @@ const char *moonStateName[] = {
     "Waning Half Moon",
     "Waning Crescent Moon",
     "Dark Moon"
-};
-
-const char *signName[] = {
-    NULL,
-    "Aries",
-    "Taurus",
-    "Gemini",
-    "Cancer",
-    "Leo",
-    "Virgo",
-    "Libra",
-    "Scorpio",
-    "Sagittarius",
-    "Capricorn",
-    "Aquarius",
-    "Pisces"
 };
 
 typedef struct {
@@ -103,12 +66,6 @@ const mirrorpointData_t mirrorpointData[] = {
     { "Cancer/Capricorn",   SIGN_CANCER, FALSE },
     { "mid Leo/Aquarius",   SIGN_LEO,    TRUE  },
 };
-
-#define ADD_SIGN(ht, v, s, e, t) (v) = g_new0(signData_t, 1); \
-                                 (v)->signId = (s); \
-                                 (v)->element = (e); \
-                                 (v)->type = (t); \
-                                 g_hash_table_replace((ht), GINT_TO_POINTER(s), (v));
 
 #define ADD_PLANET(ht, v, i, n, o, dom1, dom2, exi1, exi2, exa, fal) (v) = g_new0(planetData_t, 1); \
                                                                      (v)->planetId = (i); \
@@ -364,7 +321,6 @@ main(int argc, char *argv[])
     ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_MC,     "Midheaven",           5.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
     ADD_PLANET(planetDataTable, planetData, SE_NPLANETS + SE_VERTEX, "Vertex",              2.0,  SIGN_NONE,        SIGN_NONE,     SIGN_NONE,        SIGN_NONE,   SIGN_NONE,      SIGN_NONE);
 
-    swe_set_ephe_path(EPHEDIR);
     gswe_init(EPHEDIR);
 
     timestamp = gswe_timestamp_new_from_gregorian_full(year, month, day, hour, min, sec, 0, 1.0);
