@@ -1,0 +1,52 @@
+<W00d5t0ck> hello
+<W00d5t0ck> what is the best way to create still 2D graphics?
+<desrt> cairo
+<desrt> it has a fairly nice interface like "go to this point, then to this point, draw a line, draw an arc" and so on
+<W00d5t0ck> can it handle external images?
+<desrt> like pngs, etc?
+<W00d5t0ck> I have svg, as it scales better
+<W00d5t0ck> but basicly, yes
+<desrt> you can use librsvg to render svgs to cairo, in vector form
+<desrt> if you go through a different image loader library (like GdkPixbuf) then you'll end up rasterising it first
+<W00d5t0ck> the first version is more to my likes
+<desrt> you might find this helpful: http://cgit.freedesktop.org/~cworth/svg2pdf/tree/svg2pdf.c
+<desrt> shows how to render an svg to a cairo pdf surface
+<desrt> but you could just as well use it for other cairo surfaces, including the ones you get out of gtk
+* nkoep kilépett (Read error: 145 (Connection timed out))
+<W00d5t0ck> thank you
+<desrt> are you making something that you want to end up on the screen eventually?
+<W00d5t0ck> yes
+<W00d5t0ck> and possibly to save it to an image file later
+<desrt> depending on your app, you'll either want to create a cairo image surface and draw to it, then draw the image surface to the screen from your gtk draw() function
+<desrt> or just draw directly to gtk's cairo context from your draw function
+<desrt> cairo_surface_write_to_png() will help with that
+* yoseforb kilépett (Remote closed the connection)
+<W00d5t0ck> I'll take a look then
+* yoseforb (~yoseforb@164.138.127.79) csatlakozott ide: #gtk+
+<W00d5t0ck> and if I want to get a bit farther? Like I want to add some actions to the svg parts? E.g. tooltips should appear when I hover a specific "sub-image"
+<desrt> that would be complicated
+<W00d5t0ck> I was more than sure :)
+<desrt> particularly if you wanted to do it for named parts of the svg file...
+<desrt> if you want to do it for a particular hard-coded coordinate you could use a motion notify event and a handler that does a popup when the mouse is over the area you care about
+<desrt> but i don't think rsvg has any mechanism for saying "the box with xml id 'foo' is at these coordinates"
+<W00d5t0ck> no, the svg files I load are small icons actually
+<W00d5t0ck> no named parts
+<desrt> probably would not be too hard then
+<W00d5t0ck> they are svg onlf for scalability
+<desrt> from the Gtk side, you're probably going to want to use a GtkDrawingArea
+<W00d5t0ck> I've already figured out that, I'm currently digging my nose into Gtk documentation to see how to draw on it
+<desrt> then do gtk_widget_add_events() on it for GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_POINTER_MOTION_MASK
+<chpe> actually there is an API for that in rsvg, but it's horribly slow
+<desrt> W00d5t0ck: connect to the "draw" signal on the drawing area
+<desrt> it will hand you a cairo_t as one of the arguments
+<desrt> draw on it....
+<chpe> well, id -> rect, but not the other way
+<desrt> chpe: neat.  that's very useful.
+<desrt> W00d5t0ck: what language are you using?
+<desrt> if it's anything other than C, you almost certainly want to subclass GtkDrawingArea
+<W00d5t0ck> I'm only familiar enough with C
+<desrt> and if it is C, and you know how to subclass, i'd still recommend doing it that way, and overriding the 'draw' function in the subclass
+<W00d5t0ck> I've done subclassing back in Gtk 2, with C
+<desrt> it's the same deal still
+<W00d5t0ck> so I think it won't be a problem
+<desrt> 'cept gtk2 didn't have 'draw'
