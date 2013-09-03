@@ -700,6 +700,19 @@ gswe_moment_get_aspects(GsweMoment *moment)
 GList *
 gswe_moment_get_planet_aspects(GsweMoment *moment, GswePlanet planet)
 {
-    return NULL;
+    GList *ret = NULL,
+          *aspect;
+
+    gswe_moment_calculate_aspects(moment);
+
+    for (aspect = moment->priv->aspect_list; aspect; aspect = aspect->next) {
+        GsweAspectData *aspect_data = aspect->data;
+
+        if ((aspect_data->planet1->planet_id == planet) || (aspect_data->planet2->planet_id == planet)) {
+            ret = g_list_prepend(ret, aspect_data);
+        }
+    }
+
+    return ret;
 }
 

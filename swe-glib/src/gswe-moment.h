@@ -118,6 +118,7 @@ guint gswe_moment_get_element_points(GsweMoment *moment, GsweElement element);
 guint gswe_moment_get_quality_points(GsweMoment *moment, GsweQuality quality);
 GsweMoonPhaseData *gswe_moment_get_moon_phase(GsweMoment *moment);
 GList *gswe_moment_get_aspects(GsweMoment *moment);
+GList *gswe_moment_get_planet_aspects(GsweMoment *moment, GswePlanet planet);
 
 #endif /* __GSWE_MOMENT_H__ */
 
