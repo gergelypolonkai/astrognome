@@ -74,11 +74,19 @@ typedef struct {
 typedef struct {
     GswePlanetData *planet1;
     GswePlanetData *planet2;
-    GsweAspect aspect;
     gdouble distance;
-    gdouble difference;
+    GsweAspect aspect;
     GsweAspectInfo *aspect_info;
+    gdouble difference;
 } GsweAspectData;
+
+typedef struct {
+    GswePlanetData *planet1;
+    GswePlanetData *planet2;
+    GsweMirror mirror;
+    GsweMirrorInfo *mirror_info;
+    gdouble difference;
+} GsweMirrorData;
 
 struct _GsweMoment {
     /* Parent instance structure */
@@ -119,6 +127,10 @@ guint gswe_moment_get_quality_points(GsweMoment *moment, GsweQuality quality);
 GsweMoonPhaseData *gswe_moment_get_moon_phase(GsweMoment *moment);
 GList *gswe_moment_get_aspects(GsweMoment *moment);
 GList *gswe_moment_get_planet_aspects(GsweMoment *moment, GswePlanet planet);
+GList *gswe_moment_get_all_mirrorpoints(GsweMoment *moment);
+GList *gswe_moment_get_all_planet_mirrorpoints(GsweMoment *moment, GswePlanet planet);
+GList *gswe_moment_get_mirror_mirrorpoints(GsweMoment *moment, GsweMirror mirror);
+GList *gswe_moment_get_mirror_planet_mirrorpoints(GsweMoment *moment, GsweMirror mirror, GswePlanet planet);
 
 #endif /* __GSWE_MOMENT_H__ */
 

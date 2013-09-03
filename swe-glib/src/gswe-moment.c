@@ -34,6 +34,8 @@ struct _GsweMomentPrivate {
     GsweMoonPhaseData moon_phase;
     GList *aspect_list;
     guint aspect_revision;
+    GList *mirrorpoint_list;
+    guint mirrorpoint_revision;
 };
 
 enum {
@@ -103,12 +105,14 @@ gswe_moment_init(GsweMoment *moment)
     moment->priv->house_list = NULL;
     moment->priv->planet_list = NULL;
     moment->priv->aspect_list = NULL;
+    moment->priv->mirrorpoint_list = NULL;
     moment->priv->element_points = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     moment->priv->quality_points = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
     moment->priv->house_revision = 0;
     moment->priv->points_revision = 0;
     moment->priv->moon_phase_revision = 0;
     moment->priv->aspect_revision = 0;
+    moment->priv->mirrorpoint_revision = 0;
     moment->priv->revision = 1;
 }
 
@@ -733,6 +737,167 @@ gswe_moment_get_planet_aspects(GsweMoment *moment, GswePlanet planet)
 
         if ((aspect_data->planet1->planet_id == planet) || (aspect_data->planet2->planet_id == planet)) {
             ret = g_list_prepend(ret, aspect_data);
+        }
+    }
+
+    return ret;
+}
+
+static gboolean
+find_mirror(gpointer mirror_p, GsweMirrorInfo *mirror_info, GsweMirrorData *mirror_data)
+{
+    GsweMirror mirror = GPOINTER_TO_INT(mirror_p);
+    gdouble start_point,
+            mirror_position,
+            planet_orb;
+
+    if (mirror == GSWE_MIRROR_NONE) {
+        return FALSE;
+    }
+
+    planet_orb = fmin(mirror_data->planet1->planet_info->orb, mirror_data->planet2->planet_info->orb);
+    start_point = (mirror_info->start_sign->sign_id - 1) * 30.0;
+
+    if (mirror_info->middle_axis == TRUE) {
+        start_point += 15.0;
+    }
+
+    mirror_position = 2 * start_point - mirror_data->planet1->position;
+
+    if (mirror_position < 0) {
+        mirror_position += 360.0;
+    }
+
+    if ((mirror_data->difference = fabs(mirror_data->planet2->position - mirror_position)) <= planet_orb) {
+        mirror_data->mirror_info = mirror_info;
+        mirror_data->mirror = mirror;
+
+        return TRUE;
+    } else {
+        mirror_data->difference = 0.0;
+    }
+
+    return FALSE;
+}
+
+static gint
+find_mirror_by_both_planets(GsweMirrorData *mirror, struct GsweAspectFinder *mirror_finder)
+{
+    if (((mirror->planet1->planet_id == mirror_finder->planet1) && (mirror->planet2->planet_id == mirror_finder->planet2)) || ((mirror->planet1->planet_id == mirror_finder->planet2) && (mirror->planet2->planet_id == mirror_finder->planet1))) {
+        return 0;
+    }
+
+    return 1;
+}
+
+static void
+gswe_moment_calculate_mirrorpoints(GsweMoment *moment)
+{
+    GList *oplanet,
+          *iplanet;
+
+    if (moment->priv->mirrorpoint_revision == moment->priv->revision) {
+        return;
+    }
+
+    gswe_moment_calculate_all_planets(moment);
+    g_list_free_full(moment->priv->mirrorpoint_list, g_free);
+
+    for (oplanet = moment->priv->planet_list; oplanet; oplanet = oplanet->next) {
+        for (iplanet = moment->priv->planet_list; iplanet; iplanet = iplanet->next) {
+            GswePlanetData *outer_planet = oplanet->data,
+                           *inner_planet = iplanet->data;
+            GsweMirrorData *mirror_data;
+            struct GsweAspectFinder mirror_finder;
+
+            if (outer_planet->planet_id == inner_planet->planet_id) {
+                continue;
+            }
+
+            mirror_finder.planet1 = outer_planet->planet_id;
+            mirror_finder.planet2 = inner_planet->planet_id;
+
+            if (g_list_find_custom(moment->priv->mirrorpoint_list, &mirror_finder, (GCompareFunc)find_mirror_by_both_planets) != NULL) {
+                continue;
+            }
+
+            mirror_data = g_new0(GsweMirrorData, 1);
+            mirror_data->planet1 = outer_planet;
+            mirror_data->planet2 = inner_planet;
+            mirror_data->mirror = GSWE_MIRROR_NONE;
+
+            (void)g_hash_table_find(gswe_mirror_info_table, (GHRFunc)find_mirror, mirror_data);
+
+            if (mirror_data->mirror == GSWE_MIRROR_NONE) {
+                mirror_data->mirror_info = g_hash_table_lookup(gswe_mirror_info_table, GINT_TO_POINTER(GSWE_MIRROR_NONE));
+            }
+
+            moment->priv->mirrorpoint_list = g_list_prepend(moment->priv->mirrorpoint_list, mirror_data);
+        }
+    }
+
+    moment->priv->mirrorpoint_revision = moment->priv->revision;
+}
+
+GList *
+gswe_moment_get_all_mirrorpoints(GsweMoment *moment)
+{
+    gswe_moment_calculate_mirrorpoints(moment);
+
+    return moment->priv->mirrorpoint_list;
+}
+
+GList *
+gswe_moment_get_all_planet_mirrorpoints(GsweMoment *moment, GswePlanet planet)
+{
+    GList *ret = NULL,
+          *mirror;
+
+    gswe_moment_calculate_mirrorpoints(moment);
+
+    for (mirror = moment->priv->mirrorpoint_list; mirror; mirror = mirror->next) {
+        GsweMirrorData *mirror_data = mirror->data;
+
+        if ((mirror_data->planet1->planet_id == planet) || (mirror_data->planet2->planet_id == planet)) {
+            ret = g_list_prepend(ret, mirror_data);
+        }
+    }
+
+    return ret;
+}
+
+GList *
+gswe_moment_get_mirror_mirrorpoints(GsweMoment *moment, GsweMirror mirror)
+{
+    GList *ret = NULL,
+          *mirror_l;
+
+    gswe_moment_calculate_mirrorpoints(moment);
+
+    for (mirror_l = moment->priv->mirrorpoint_list; mirror_l; mirror_l = mirror_l->next) {
+        GsweMirrorData *mirror_data = mirror_l->data;
+
+        if (mirror_data->mirror == mirror) {
+            ret = g_list_prepend(ret, mirror_data);
+        }
+    }
+
+    return ret;
+}
+
+GList *
+gswe_moment_get_mirror_planet_mirrorpoints(GsweMoment *moment, GsweMirror mirror, GswePlanet planet)
+{
+    GList *ret = NULL,
+          *mirror_l;
+
+    gswe_moment_calculate_mirrorpoints(moment);
+
+    for (mirror_l = moment->priv->mirrorpoint_list; mirror_l; mirror_l = mirror_l->next) {
+        GsweMirrorData *mirror_data = mirror_l->data;
+
+        if (((mirror_data->planet1->planet_id == planet) || (mirror_data->planet2->planet_id == planet))  && (mirror_data->mirror == mirror)) {
+            ret = g_list_prepend(ret, mirror_data);
         }
     }
 
