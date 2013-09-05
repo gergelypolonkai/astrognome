@@ -15,7 +15,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
    version="1.0"
-   sodipodi:docname="sign_scorpio.svg">
+   sodipodi:docname="sign_sagittarius.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -58,16 +58,11 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-268.6856,-375.63652)">
-    <g
-       transform="translate(258.5991,387.1767)"
+     id="layer1">
+    <path
+       inkscape:connector-curvature="0"
+       id="sign_sagittarius"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Cantarell;-inkscape-font-specification:Cantarell"
-       id="text2990">
-      <path
-         d="m 36.356027,3.4598217 0,-9.921875 -13.769532,13.7695313 6.191407,6.191406 -2.109375,2.109375 -6.191407,-6.191406 -8.28125,8.28125 -0.01953,-0.01953 -2.070312,-2.070313 -0.01953,-0.01953 8.28125,-8.28125 -6.191406,-6.1914063 0.01953,-0.019531 2.070313,-2.07031255 0.01953,-0.0195313 6.191406,6.1914063 13.769532,-13.7695313 -9.921875,0 0,-2.9687497 15,0 0,14.9999997 -2.96875,0"
-         style="font-family:Cantarell;-inkscape-font-specification:Cantarell"
-         id="path3844" />
-    </g>
+       d="m 26.26953,15 0,-9.92187 -13.76953,13.76953 6.1914,6.1914 -2.10937,2.10938 -6.19141,-6.19141 -8.28125,8.28125 -0.0195,-0.0195 -2.07031,-2.07031 -0.0195,-0.0195 8.28125,-8.28125 -6.19141,-6.19141 0.0195,-0.0195 2.07032,-2.07031 0.0195,-0.0195 6.19141,6.19141 13.76953,-13.76954 -9.92187,0 0,-2.96875 15,0 0,15 -2.96875,0" />
   </g>
 </svg>

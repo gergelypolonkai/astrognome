@@ -9,42 +9,38 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="18.320312"
-   height="29.21875"
-   id="svg2"
-   sodipodi:version="0.32"
+   width="39.016876"
+   height="27.76"
+   id="svg3740"
+   version="1.1"
    inkscape:version="0.48.4 r9939"
-   version="1.0"
-   sodipodi:docname="planet_saturn.svg">
+   sodipodi:docname="point_vertex.svg">
   <defs
-     id="defs4" />
+     id="defs3742" />
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     gridtolerance="10000"
-     guidetolerance="10"
-     objecttolerance="10"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="207.16907"
-     inkscape:cy="-56.693525"
+     inkscape:zoom="16"
+     inkscape:cx="26.2898"
+     inkscape:cy="11.126113"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     inkscape:window-width="1920"
-     inkscape:window-height="1021"
-     inkscape:window-x="0"
-     inkscape:window-y="27"
      showgrid="false"
      fit-margin-top="0"
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
+     inkscape:window-width="1680"
+     inkscape:window-height="991"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
      inkscape:window-maximized="1" />
   <metadata
-     id="metadata7">
+     id="metadata3745">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -56,14 +52,18 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
+     inkscape:label="1. réteg"
      inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-274.13481,-375.63652)">
+     id="layer1">
     <path
-       inkscape:connector-curvature="0"
-       id="planet_saturn"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Cantarell;-inkscape-font-specification:Cantarell"
-       d="m 2.07032,6.46485 -2.07032,0 0,-2.94922 2.07032,0 0,-3.51563 2.96875,0 0,3.51563 3.47656,0 0,2.94922 -3.47656,0 0,7.55859 c 1.44529,-1.41926 3.15753,-2.12889 5.13672,-2.12891 2.31768,2e-5 4.25127,0.83986 5.80078,2.51953 1.56247,1.6797 2.34372,3.73699 2.34375,6.17188 -3e-5,1.17188 -0.45576,2.50652 -1.36719,4.0039 -0.91148,1.48438 -1.36721,3.01433 -1.36719,4.58985 l 0,0.0391 -2.94922,0 c -2e-5,-1.71875 0.45571,-3.35286 1.36719,-4.90235 0.92446,-1.54947 1.38669,-2.79296 1.38672,-3.73046 -3e-5,-1.60156 -0.50784,-2.94921 -1.52344,-4.04297 -1.00262,-1.10676 -2.22658,-1.66014 -3.67187,-1.66016 -1.43231,2e-5 -2.64976,0.5534 -3.65235,1.66016 -1.00262,1.10678 -1.50392,2.45443 -1.5039,4.04297 l 0,8.63281 -2.96875,0 0,-22.75391" />
+       inkscape:connector-curvature="0"
+       id="point_vertex_1"
+       d="m 0,0 9.6800001,27.76 4.12,0 9.68,-27.76 -3.68,0 -7.92,24.24 -7.9200001,-24.24 -3.96,0" />
+    <path
+       style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Cantarell;-inkscape-font-specification:Cantarell"
+       inkscape:connector-curvature="0"
+       id="ppint_vertex_2"
+       d="m 35.5768751,8.48 -5.24,7.64 -5.44,-7.64 -3.72,0 7,9.8 -6.76,9.48 3.4,0 4.92,-7.24 5.16,7.24 3.72,0 -6.72,-9.44 7.12,-9.84 -3.44,0" />
   </g>
 </svg>

@@ -15,7 +15,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
    version="1.0"
-   sodipodi:docname="comet_pallas.svg">
+   sodipodi:docname="comet_juno.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -58,16 +58,11 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-268.82231,-375.59746)">
-    <g
-       transform="translate(258.5991,387.1767)"
+     id="layer1">
+    <path
+       inkscape:connector-curvature="0"
+       id="planet_juno"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Cantarell;-inkscape-font-specification:Cantarell"
-       id="text2990">
-      <path
-         d="m 12.35212,-7.1847095 2.402344,-2.3828125 4.941406,4.9414062 0,-6.9531252 3.496094,0 0,6.933594 4.921875,-4.921875 2.402344,2.3828125 -5.546875,5.546875 7.675781,0 0,2.42187495 -7.539062,0 5.410156,5.41015625 -2.382813,2.4023438 -4.941406,-4.9414063 0,11.6015628 5.3125,0 0,2.421875 -5.3125,0 0,5.019531 -3.515625,0 0,-5.019531 -5.3125,0 0,-2.421875 5.3125,0 0,-11.6015628 -4.941406,4.9414063 -2.382813,-2.4023438 5.410157,-5.41015625 -7.539063,0 0,-2.42187495 7.675781,0 -5.546875,-5.546875"
-         style="font-family:Cantarell;-inkscape-font-specification:Cantarell"
-         id="path3569" />
-    </g>
+       d="m 2.12891,4.39453 2.40234,-2.38281 4.94141,4.9414 0,-6.95312 3.49609,0 0,6.93359 4.92188,-4.92187 2.40234,2.38281 -5.54687,5.54688 7.67578,0 0,2.42187 -7.53906,0 5.41015,5.41016 -2.38281,2.40234 -4.94141,-4.94141 0,11.60157 5.3125,0 0,2.42187 -5.3125,0 0,5.01953 -3.51562,0 0,-5.01953 -5.3125,0 0,-2.42187 5.3125,0 0,-11.60157 -4.94141,4.94141 -2.38281,-2.40234 5.41016,-5.41016 -7.53907,0 0,-2.42187 7.67579,0 -5.54688,-5.54688" />
   </g>
 </svg>

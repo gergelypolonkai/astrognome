@@ -15,7 +15,7 @@
    sodipodi:version="0.32"
    inkscape:version="0.48.4 r9939"
    version="1.0"
-   sodipodi:docname="comet_juno.svg">
+   sodipodi:docname="comet_vesta.svg">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -58,16 +58,11 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1"
-     transform="translate(-267.72856,-379.13262)">
-    <g
-       transform="translate(258.5991,387.1767)"
+     id="layer1">
+    <path
+       inkscape:connector-curvature="0"
+       id="planet_vesta"
        style="font-size:40px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Cantarell;-inkscape-font-specification:Cantarell"
-       id="text2990">
-      <path
-         d="m 38.426339,11.233259 0,2.421875 -5.878906,0 -8.769531,8.730469 -8.769532,-8.730469 -5.8789059,0 0,-2.421875 8.1640629,0 6.484375,6.445313 6.484375,-6.445313 8.164062,0 m -12.871094,-19.2773435 0,11.7578125 -3.359375,0 0,-11.7578125 3.359375,0 m -11.035156,12.734375 5.078125,0 4.179688,4.1601562 4.179687,-4.1601562 5.078125,0 0,2.421875 -2.773437,0 -6.484375,6.4453125 -6.484375,-6.4453125 -2.773438,0 0,-2.421875"
-         style="font-family:Cantarell;-inkscape-font-specification:Cantarell"
-         id="path3591" />
-    </g>
+       d="m 29.29688,19.27734 0,2.42187 -5.87891,0 -8.76953,8.73047 -8.76953,-8.73047 -5.87891,0 0,-2.42187 8.16407,0 6.48437,6.44531 6.48438,-6.44531 8.16406,0 m -12.87109,-19.27734 0,11.75781 -3.35938,0 0,-11.75781 3.35938,0 m -11.03516,12.73437 5.07812,0 4.17969,4.16016 4.17969,-4.16016 5.07812,0 0,2.42188 -2.77343,0 -6.48438,6.44531 -6.48437,-6.44531 -2.77344,0 0,-2.42188" />
   </g>
 </svg>
