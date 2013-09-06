@@ -1,6 +1,0 @@
-This directory contains version 1.75 of the Swiss Ephemeris programming
-library in a reduced form, so it can be used in an Autotools project like
-Astrognome.
-
-If you need the full version, you can download it from
-ftp://ftp.astro.com/pub/swisseph/ (as of July, 2013)
