@@ -12,6 +12,10 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AM_PROG_AR
 AC_PROG_LIBTOOL
+AC_PATH_PROGS(PERL, [perl5 perl])
+have_geonames_perl_modules=no
+AX_PROG_PERL_MODULES([XML::Writer IO::File], [have_geonames_perl_modules=yes], AC_MSG_WARN([XML::Writer and IO::File perl modules are required if you want to regenerate geodata.xml!]))
+AC_SUBST([have_geonames_perl_modules])
 IT_PROG_INTLTOOL([0.35.0])
 GETTEXT_PACKAGE=astrognome
 AC_SUBST(GETTEXT_PACKAGE)
@@ -48,6 +52,7 @@ AC_CONFIG_FILES([
     Makefile
     src/Makefile
     po/Makefile.in
+    data/geonames/Makefile
     docs/reference/astrognome/Makefile
 ])
 AC_OUTPUT
