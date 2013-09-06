@@ -3,7 +3,7 @@
 
 #include <swe-glib.h>
 
-#define UI_FILE "/home/polesz/Projektek/c/astrognome/src/astrognome.ui"
+#define UI_FILE PKGDATADIR "/astrognome.ui"
 
 GtkBuilder *builder;
 
