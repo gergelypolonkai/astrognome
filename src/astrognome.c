@@ -1,9 +1,8 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
-#include "../swe-glib/src/swe-glib.h"
+#include <swe-glib.h>
 
-#define EPHEDIR "/home/polesz/Projektek/c/astrognome/swe/data"
 #define UI_FILE "/home/polesz/Projektek/c/astrognome/src/astrognome.ui"
 
 GtkBuilder *builder;
@@ -487,7 +486,7 @@ main(int argc, char *argv[])
     GError *err = NULL;
     GtkWidget *window_main;
 
-    gswe_init(EPHEDIR);
+    gswe_init();
     gtk_init(&argc, &argv);
 
     builder = gtk_builder_new();
