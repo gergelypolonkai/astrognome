@@ -1,5 +1,6 @@
 #include <glib.h>
 #include <gtk/gtk.h>
+#include <glib/gi18n.h>
 
 #include <swe-glib.h>
 
@@ -480,20 +481,29 @@ action_new_activate_cb(GtkAction *action, gpointer user_data)
     gtk_widget_hide(GTK_WIDGET(dialog_new));
 }
 
-int
-main(int argc, char *argv[])
+static void
+application_activate_cb(GtkApplication *app, gpointer user_data)
 {
     GError *err = NULL;
-    GtkWidget *window_main;
-
-    gswe_init();
-    gtk_init(&argc, &argv);
+    GtkWidget *window,
+              *grid;
 
     builder = gtk_builder_new();
 
     if (gtk_builder_add_from_file(builder, UI_FILE, &err) == 0) {
         g_error("Builder error: %s", err->message);
     }
+
+    window = gtk_application_window_new(app);
+    gtk_window_set_title(GTK_WINDOW(window), _("Astrognome"));
+
+    grid = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(window), grid);
+
+    gtk_widget_show_all(window);
+
+    /*
+    gtk_init(&argc, &argv);
 
     window_main = GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
     gtk_window_set_title(GTK_WINDOW(window_main), "Astrognome");
@@ -502,8 +512,26 @@ main(int argc, char *argv[])
     gtk_widget_show(window_main);
     gtk_main();
 
+    return 0;
+    */
+}
+
+int
+main(int argc, char *argv[])
+{
+    gint status;
+    GtkApplication *app;
+
+    gswe_init();
+
+    app = gtk_application_new("eu.polonkai.gergely.astrognome", G_APPLICATION_FLAGS_NONE);
+    g_signal_connect(app, "activate", G_CALLBACK(application_activate_cb), NULL);
+
+    status = g_application_run(G_APPLICATION(app), argc, argv);
+
+    g_object_unref(app);
     g_object_unref(G_OBJECT(builder));
 
-    return 0;
+    return status;
 }
 
