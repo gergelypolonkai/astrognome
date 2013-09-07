@@ -48,8 +48,14 @@ PKG_CHECK_MODULES([GTK], [gtk+-3.0])
 PKG_CHECK_MODULES([SWE_GLIB], [swe-glib])
 AC_CONFIG_MACRO_DIR([m4])
 
+LIBGD_INIT([
+    header-bar
+    static
+])
+
 AC_CONFIG_FILES([
     Makefile
+    libgd/Makefile
     src/Makefile
     po/Makefile.in
     data/geonames/Makefile
