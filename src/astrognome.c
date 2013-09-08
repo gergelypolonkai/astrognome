@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
@@ -6,9 +7,19 @@
 
 #include <swe-glib.h>
 
+#include "ag-app.h"
+
 #define UI_FILE PKGDATADIR "/astrognome.ui"
 
 GtkBuilder *builder;
+static gboolean option_quit;
+static gboolean option_version;
+
+static GOptionEntry options[] = {
+    { "version", 'v', 0, G_OPTION_ARG_NONE, &option_version, N_("Display version and exit"),    NULL },
+    { "quit",    'q', 0, G_OPTION_ARG_NONE, &option_quit,    N_("Quit any running Astrognome"), NULL },
+    { NULL }
+};
 
 const char *moonStateName[] = {
     "New Moon",
@@ -484,11 +495,23 @@ action_new_activate_cb(GtkAction *action, gpointer user_data)
 }
 
 static void
+run_action(AgApp *app, gboolean is_remote)
+{
+    if (option_quit) {
+        ag_app_quit(app);
+    } else if (is_remote) {
+        ag_app_raise(app);
+    }
+}
+
+static void
 application_activate_cb(GtkApplication *app, gpointer user_data)
 {
     GError *err = NULL;
     GtkWidget *window,
-              *grid;
+              *grid,
+              *header_bar,
+              *menu_button;
 
     builder = gtk_builder_new();
 
@@ -532,17 +555,49 @@ int
 main(int argc, char *argv[])
 {
     gint status;
-    GtkApplication *app;
+    AgApp *app;
+    GError *err = NULL;
+
+    setlocale(LC_ALL, "");
+    bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    textdomain(GETTEXT_PACKAGE);
 
     gswe_init();
 
-    app = gtk_application_new("eu.polonkai.gergely.astrognome", G_APPLICATION_FLAGS_NONE);
+    if (!gtk_init_with_args(&argc, &argv, NULL, options, GETTEXT_PACKAGE, &err)) {
+        g_printerr("%s\n", err->message);
+
+        return EXIT_FAILURE;
+    }
+
+    if (option_version) {
+        g_print("%s\n", PACKAGE_STRING);
+
+        return EXIT_SUCCESS;
+    }
+
+    app = ag_app_new();
     g_signal_connect(app, "activate", G_CALLBACK(application_activate_cb), NULL);
+    g_application_set_default(G_APPLICATION(app));
+
+    if (!g_application_register(G_APPLICATION(app), NULL, &err)) {
+        g_printerr("Couldn't register Astrognome instance: '%s'\n", (err) ? err->message : "");
+        g_object_unref(app);
+
+        return EXIT_FAILURE;
+    }
+
+    if (g_application_get_is_remote(G_APPLICATION(app))) {
+        run_action(app, TRUE);
+        g_object_unref(app);
+
+        return EXIT_SUCCESS;
+    }
 
     status = g_application_run(G_APPLICATION(app), argc, argv);
 
     g_object_unref(app);
-    g_object_unref(G_OBJECT(builder));
 
     return status;
 }
