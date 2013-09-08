@@ -32,13 +32,21 @@
     <section>
       <item>
         <attribute name="label" translatable="yes">Chart</attribute>
-        <attribute name="action">win.tab-chart</attribute>
+        <attribute name="action">win.tab-change</attribute>
+        <attribute name="target">chart</attribute>
         <attribute name="accel">F5</attribute>
       </item>
       <item>
         <attribute name="label" translatable="yes">Aspects</attribute>
-        <attribute name="action">win.tab-aspects</attribute>
+        <attribute name="action">win.tab-change</attribute>
+        <attribute name="target">aspects</attribute>
         <attribute name="accel">F9</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Points</attribute>
+        <attribute name="action">win.tab-change</attribute>
+        <attribute name="target">points</attribute>
+        <attribute name="accel">F8</attribute>
       </item>
     </section>
   </menu>

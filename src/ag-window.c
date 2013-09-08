@@ -34,9 +34,23 @@ close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     gtk_widget_destroy(GTK_WIDGET(window));
 }
 
+static void
+set_tab_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+    g_action_change_state(G_ACTION(action), parameter);
+}
+
+static void
+change_tab_cb(GSimpleAction *action, GVariant *state, gpointer user_data)
+{
+    g_warning("Change to: %s", g_variant_get_string(state, NULL));
+    g_simple_action_set_state(action, state);
+}
+
 static GActionEntry win_entries[] = {
-    { "close",     close_cb,     NULL, NULL,    NULL },
-    { "gear-menu", gear_menu_cb, NULL, "false", NULL },
+    { "close",      close_cb,     NULL, NULL,      NULL },
+    { "gear-menu",  gear_menu_cb, NULL, "false",   NULL },
+    { "tab-change", set_tab_cb,   "s",  "'chart'", change_tab_cb },
 };
 
 static void
@@ -80,6 +94,7 @@ window_populate(AgWindow *window)
     AgWindowPrivate *priv = window->priv;
     GtkWidget *menu_button;
     GObject *menu;
+    GtkWidget *placeholder;
 
     priv->header_bar = gd_header_bar_new();
     menu_button = gd_header_menu_button_new();
@@ -92,6 +107,18 @@ window_populate(AgWindow *window)
 
     menu = gtk_builder_get_object(priv->builder, "window-menu");
     gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menu_button), G_MENU_MODEL(menu));
+
+    priv->notebook = gtk_notebook_new();
+    gtk_grid_attach(GTK_GRID(priv->grid), priv->notebook, 0, 1, 1, 1);
+
+    placeholder = gtk_label_new("PLACEHOLDER FOR THE CHART WEBKIT");
+    gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
+
+    placeholder = gtk_label_new("PLACEHOLDER FOR THE ASPECTS TABLE");
+    gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
+
+    placeholder = gtk_label_new("PLACEHOLDER FOR THE POINTS TABLES");
+    gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
 
     gtk_widget_show_all(priv->grid);
 }
