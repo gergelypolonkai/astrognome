@@ -20,9 +20,9 @@ AM_CPPFLAGS = -DG_LOG_DOMAIN=\"Astrognome\" -DLOCALEDIR=\"$(localedir)\" -DPKGDA
 bin_PROGRAMS = astrognome
 
 astrognome_SOURCES = ag-app.c astrognome.c $(BUILT_SOURCES)
-astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS)
+astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS) $(top_builddir)/libgd/libgd.la
 astrognome_LDFLAGS = -rdynamic
-astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) -Wall
+astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) -Wall -I$(top_srcdir)/libgd
 
 guidir = $(pkgdatadir)
 gui_DATA = astrognome.ui

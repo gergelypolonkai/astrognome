@@ -2,6 +2,8 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
+#include <libgd/gd.h>
+
 #include <swe-glib.h>
 
 #define UI_FILE PKGDATADIR "/astrognome.ui"
@@ -499,6 +501,16 @@ application_activate_cb(GtkApplication *app, gpointer user_data)
 
     grid = gtk_grid_new();
     gtk_container_add(GTK_CONTAINER(window), grid);
+
+    header_bar = gd_header_bar_new();
+
+    menu_button = gd_header_menu_button_new();
+    gd_header_button_set_symbolic_icon_name(GD_HEADER_BUTTON(menu_button), "emblem-system-symbolic");
+    gtk_actionable_set_action_name(GTK_ACTIONABLE(menu_button), "win.gear-menu");
+
+    gd_header_bar_pack_end(GD_HEADER_BAR(header_bar), menu_button);
+
+    gtk_grid_attach(GTK_GRID(grid), header_bar, 0, 0, 1, 1);
 
     gtk_widget_show_all(window);
 
