@@ -8,6 +8,7 @@
 #include <swe-glib.h>
 
 #include "ag-app.h"
+#include "ag-window.h"
 
 #define UI_FILE PKGDATADIR "/astrognome.ui"
 
@@ -497,48 +498,8 @@ run_action(AgApp *app, gboolean is_remote)
 static void
 application_activate_cb(GtkApplication *app, gpointer user_data)
 {
-    GError *err = NULL;
-    GtkWidget *window,
-              *grid,
-              *header_bar,
-              *menu_button;
-
-    builder = gtk_builder_new();
-
-    if (gtk_builder_add_from_file(builder, UI_FILE, &err) == 0) {
-        g_error("Builder error: %s", err->message);
-    }
-
-    window = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(window), _("Astrognome"));
-
-    grid = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(window), grid);
-
-    header_bar = gd_header_bar_new();
-
-    menu_button = gd_header_menu_button_new();
-    gd_header_button_set_symbolic_icon_name(GD_HEADER_BUTTON(menu_button), "emblem-system-symbolic");
-    gtk_actionable_set_action_name(GTK_ACTIONABLE(menu_button), "win.gear-menu");
-
-    gd_header_bar_pack_end(GD_HEADER_BAR(header_bar), menu_button);
-
-    gtk_grid_attach(GTK_GRID(grid), header_bar, 0, 0, 1, 1);
-
-    gtk_widget_show_all(window);
-
-    /*
-    gtk_init(&argc, &argv);
-
-    window_main = GTK_WIDGET(gtk_builder_get_object(builder, "window_main"));
-    gtk_window_set_title(GTK_WINDOW(window_main), "Astrognome");
-    gtk_builder_connect_signals(builder, NULL);
-
-    gtk_widget_show(window_main);
-    gtk_main();
-
-    return 0;
-    */
+    ag_app_new_window(AG_APP(app));
+    run_action(AG_APP(app), FALSE);
 }
 
 int

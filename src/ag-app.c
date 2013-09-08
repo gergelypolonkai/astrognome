@@ -1,6 +1,7 @@
 #include <glib/gi18n.h>
 
 #include "ag-app.h"
+#include "ag-window.h"
 #include "config.h"
 
 struct _AgAppPrivate {
@@ -48,7 +49,7 @@ new_window_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     AgApp *self = AG_APP(user_data);
     GtkWidget *window;
 
-    window = gtk_application_window_new(GTK_APPLICATION(self));
+    window = ag_window_new(self);
     gtk_application_add_window(GTK_APPLICATION(self), GTK_WINDOW(window));
     gtk_widget_show_all(window);
 }
