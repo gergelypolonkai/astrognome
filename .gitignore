@@ -31,6 +31,10 @@ Makefile.in
 /compile
 /tags
 
+# Generated files
+/src/ag-resources.c
+/src/ag-resources.h
+
 # Geonames related things
 /data/geonames/*.txt
 /data/geonames/geodata.xml

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/eu/polonkai/gergely/astrognome">
+    <file>astrognome.ui</file>
+  </gresource>
+</gresources>

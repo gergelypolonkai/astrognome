@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 3.6 -->
+  <menu id="app-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">New window</attribute>
+        <attribute name="action">app.new-window</attribute>
+        <attribute name="accel">&lt;Primary&gt;n</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Preferences</attribute>
+        <attribute name="action">app.preferences</attribute>
+        <attribute name="accel">&lt;Primary&gt;p</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">About Astrognome</attribute>
+        <attribute name="action">app.about</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Quit</attribute>
+        <attribute name="action">app.quit</attribute>
+        <attribute name="accel">&lt;Primary&gt;q</attribute>
+      </item>
+    </section>
+  </menu>
   <object class="GtkActionGroup" id="actions">
     <property name="accel_group">accels</property>
     <child>

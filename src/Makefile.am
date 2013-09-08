@@ -1,7 +1,25 @@
+resource_files = $(shell glib-compile-resources --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/ag.gresource.xml)
+
+ag-resources.c: ag.gresource.xml $(resource_files)
+	glib-compile-resources --target=$@ --sourcedir=$(srcdir) --generate-source --c-name ag $(srcdir)/ag.gresource.xml
+
+ag-resources.h: ag.gresource.xml $(resource_files)
+	glib-compile-resources --target=$@ --sourcedir=$(srcdir) --generate-header --c-name ag $(srcdir)/ag.gresource.xml
+
+BUILT_SOURCES = \
+				ag-resources.h \
+				ag-resources.c \
+				$(NULL)
+
+EXTRA_DIST = \
+			 $(resource_files) \
+			 ag.gresource.xml \
+			 $(NULL)
+
 AM_CPPFLAGS = -DG_LOG_DOMAIN=\"Astrognome\" -DLOCALEDIR=\"$(localedir)\" -DPKGDATADIR=\"$(pkgdatadir)\"
 bin_PROGRAMS = astrognome
 
-astrognome_SOURCES = astrognome.c
+astrognome_SOURCES = ag-app.c astrognome.c $(BUILT_SOURCES)
 astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS)
 astrognome_LDFLAGS = -rdynamic
 astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) -Wall
@@ -9,4 +27,4 @@ astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) -Wall
 guidir = $(pkgdatadir)
 gui_DATA = astrognome.ui
 
-EXTRA_DIST = $(gui_DATA)
+EXTRA_DIST += $(gui_DATA)
