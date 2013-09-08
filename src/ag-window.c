@@ -1,3 +1,4 @@
+#include <string.h>
 #include <libgd/gd.h>
 
 #include "ag-app.h"
@@ -8,6 +9,10 @@ struct _AgWindowPrivate {
     GtkWidget *header_bar;
     GtkWidget *notebook;
     GtkBuilder *builder;
+
+    gint tab_chart;
+    gint tab_aspects;
+    gint tab_points;
 };
 
 G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
@@ -37,13 +42,30 @@ close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 static void
 set_tab_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
+    AgWindow *self = AG_WINDOW(user_data);
+    const gchar *target = g_variant_get_string(parameter, NULL);
+    gint target_tab = 0;
+
     g_action_change_state(G_ACTION(action), parameter);
+
+    if (strcmp(target, "chart") == 0) {
+        target_tab = self->priv->tab_chart;
+    } else if (strcmp(target, "aspects") == 0) {
+        target_tab = self->priv->tab_aspects;
+    } else if (strcmp(target, "points") == 0) {
+        target_tab = self->priv->tab_points;
+    } else {
+        g_warning("Unknown tab!");
+
+        return;
+    }
+
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(self->priv->notebook), target_tab);
 }
 
 static void
 change_tab_cb(GSimpleAction *action, GVariant *state, gpointer user_data)
 {
-    g_warning("Change to: %s", g_variant_get_string(state, NULL));
     g_simple_action_set_state(action, state);
 }
 
@@ -112,13 +134,15 @@ window_populate(AgWindow *window)
     gtk_grid_attach(GTK_GRID(priv->grid), priv->notebook, 0, 1, 1, 1);
 
     placeholder = gtk_label_new("PLACEHOLDER FOR THE CHART WEBKIT");
-    gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
+    priv->tab_chart = gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
 
     placeholder = gtk_label_new("PLACEHOLDER FOR THE ASPECTS TABLE");
-    gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
+    priv->tab_aspects = gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
 
     placeholder = gtk_label_new("PLACEHOLDER FOR THE POINTS TABLES");
-    gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
+    priv->tab_points = gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
+
+    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(priv->notebook), FALSE);
 
     gtk_widget_show_all(priv->grid);
 }
