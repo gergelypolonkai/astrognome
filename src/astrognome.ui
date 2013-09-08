@@ -28,6 +28,20 @@
       </item>
     </section>
   </menu>
+  <menu id="window-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Chart</attribute>
+        <attribute name="action">win.tab-chart</attribute>
+        <attribute name="accel">F5</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Aspects</attribute>
+        <attribute name="action">win.tab-aspects</attribute>
+        <attribute name="accel">F9</attribute>
+      </item>
+    </section>
+  </menu>
   <object class="GtkActionGroup" id="actions">
     <property name="accel_group">accels</property>
     <child>
