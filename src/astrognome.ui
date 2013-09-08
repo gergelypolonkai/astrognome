@@ -74,42 +74,6 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
-  <object class="GtkAboutDialog" id="dialog_about">
-    <property name="can_focus">False</property>
-    <property name="border_width">5</property>
-    <property name="modal">True</property>
-    <property name="window_position">center-on-parent</property>
-    <property name="type_hint">dialog</property>
-    <property name="program_name">GRadix</property>
-    <property name="version">1.0</property>
-    <property name="copyright" translatable="yes">2013 Gergely Polonkai</property>
-    <property name="website">http://gergely.polonkai.eu/astrognome/</property>
-    <property name="authors">Gergely Polonkai &lt;gergely@polonkai.eu&gt;
-Jean-André Santoni &lt;jean.andre.santoni@gmail.com&gt;</property>
-    <property name="license_type">gpl-3-0</property>
-    <child internal-child="vbox">
-      <object class="GtkBox" id="aboutdialog-vbox1">
-        <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="aboutdialog-action_area1">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
-    </child>
-  </object>
   <object class="GtkDialog" id="dialog_new">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>

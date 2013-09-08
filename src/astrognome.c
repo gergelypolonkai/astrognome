@@ -65,16 +65,6 @@ print_mirrorpoints(GsweMirrorData *mirror_data, struct print_data *data)
 }
 
 void
-action_about_activate_cb(GtkAction *action, gpointer user_data)
-{
-    GtkDialog *dialog_about = GTK_DIALOG(gtk_builder_get_object(builder, "dialog_about"));
-
-    gtk_dialog_run(dialog_about);
-
-    gtk_widget_hide(GTK_WIDGET(dialog_about));
-}
-
-void
 create_new_chart(void)
 {
     guint year,
