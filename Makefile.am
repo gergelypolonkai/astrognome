@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = libgd src po docs/reference/astrognome
+SUBDIRS = libgd src po data/icons data/geonames docs/reference/astrognome
 
 EXTRA_DIST = config.rpath m4/ChangeLog
 
