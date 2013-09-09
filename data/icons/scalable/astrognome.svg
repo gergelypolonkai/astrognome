@@ -1,0 +1,1811 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="100%"
+   height="100%"
+   version="1.0"
+   viewBox="0 0 491.1 491.1"
+   id="svg4176"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="jean-andre.svg">
+  <metadata
+     id="metadata4649">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Natal Chart of Jean-André Santoni born in Ollioules (43N00,5E00) on 6/8/1984 at 13:15GMT</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#000000"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1680"
+     inkscape:window-height="991"
+     id="namedview4647"
+     showgrid="false"
+     inkscape:snap-object-midpoints="true"
+     inkscape:zoom="4"
+     inkscape:cx="152.17792"
+     inkscape:cy="258.14217"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer6"
+     inkscape:object-nodes="true"
+     inkscape:object-paths="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <style
+     type="text/css"
+     id="style4178">
+
+/* --------------------------------- HOUSES --------------------------------- */
+
+/* Cuspids */
+#cuspids line, #Arrow {
+	fill:none;
+	stroke:#2279ab;
+	stroke-width:1;
+	stroke-linecap:round;
+	stroke-linejoin:round;
+}
+
+/* Main cuspids */
+#cuspids line.I,
+#cuspids line.IV,
+#cuspids line.VII,
+#cuspids line.X,
+#cuspids line.XIII,
+#cuspids line.XVI,
+#cuspids line.XIX,
+#cuspids line.XXII,
+#cuspids line.XXV,
+#cuspids line.XXVIII,
+#cuspids line.XXXI,
+#cuspids line.XXXIV {
+	stroke-width:2;
+}
+
+/* Center of the chart */
+#houses .origin {
+	stroke:#808080;
+	stroke-width:0.5;
+}
+
+/* Numbers */
+#cuspids text {
+	font-size:12px;
+	fill:#2279ab;
+	font-family:Georgia;
+}
+
+/* ------------------------------- ZODIAC ----------------------------------- */
+
+#zodiac&gt;#cercle&gt;path.disc {
+	fill:#f8f8c1;
+	stroke:#b58c00;
+	stroke-width:2;
+}
+
+#zodiac&gt;#cercle&gt;path {
+	stroke:#b58d00;
+	stroke-width:2;
+}
+
+/* Signs */
+#zodiac&gt;#signs path {
+	fill:#f8f8c1;
+	stroke:#71b0c7;
+	stroke-width:2;
+	stroke-linecap:round;
+	stroke-linejoin:round;
+}
+
+#ascendant {
+	font-size:16px;
+	font-style:normal;
+	font-weight:bold;
+	fill:#2279ab;
+	stroke-width:1px;
+	font-family:Georgia;
+}
+
+/* ------------------------------ ASPECTS ------------------------------------*/
+
+#aspects&gt;line {
+	stroke-linecap:round;
+}
+
+#aspects&gt;line.Opposition,
+#aspects&gt;line.Square {
+	stroke:red;
+}
+
+#aspects&gt;line.Quincunx {
+	stroke:green;
+}
+
+#aspects&gt;line.Trine,
+#aspects&gt;line.Sextile, 
+#aspects&gt;line.Semi-sextile {
+	stroke:blue;
+}
+
+#aspects path {
+	stroke:#FCC;
+	stroke-width:10;
+	fill:none;
+}
+
+/* disable aspect for nodes */
+#aspects&gt;line.TrueSouthNodeTrueNode,
+#aspects&gt;line.TrueNodeTrueSouthNode,
+#aspects&gt;line.MeanSouthNodeMeanNode,
+#aspects&gt;line.MeanNodeMeanSouthNode,
+#aspects&gt;line.TrueSouthNodeMeanNode,
+#aspects&gt;line.MeanNodeTrueSouthNode,
+#aspects&gt;line.MeanSouthNodeTrueNode,
+#aspects&gt;line.MeanNodeTrueSouthNode {
+	display:none;
+}
+
+/* ------------------------------ BODIES ------------------------------------ */
+
+defs g *,
+#bodies use * {
+	stroke:red;
+	stroke-width:1.25;
+	fill:white;
+	stroke-linecap:round;
+}
+
+#bodies line {
+	stroke: red;
+	stroke-linecap:round;
+}
+
+#bodies text {
+	font-size:9px;
+	font-style:normal;
+	fill:red;
+	stroke:none;
+	stroke-width:1;
+	stroke-linecap:butt;
+	stroke-linejoin:miter;
+	font-family:Georgia;
+}
+
+/* Nodes and Lilith */
+defs g#OscuApogee *, 
+defs g#MeanApogee *, 
+defs g#TrueNode *, 
+defs g#MeanNode *,
+defs g#TrueSouthNode *, 
+defs g#MeanSouthNode *,
+#bodies use.OscuApogee *, 
+#bodies use.MeanApogee *, 
+#bodies use.TrueNode *, 
+#bodies use.MeanNode *,
+#bodies use.TrueSouthNode *, 
+#bodies use.MeanSouthNode *,
+#bodies line.OscuApogee, 
+#bodies line.MeanApogee, 
+#bodies line.TrueNode, 
+#bodies line.MeanNode,
+#bodies line.TrueSouthNode, 
+#bodies line.MeanSouthNode {
+	stroke:black;
+}
+
+#bodies text.OscuApogee, 
+#bodies text.MeanApogee, 
+#bodies text.TrueNode, 
+#bodies text.MeanNode,
+#bodies text.TrueSouthNode, 
+#bodies text.MeanSouthNode {
+	fill:black;
+}
+
+/* Asteroids */
+defs g#Chiron *, 
+defs g#Pholus *, 
+defs g#Ceres *,
+defs g#Pallas *,
+defs g#Juno *,
+defs g#Vesta *,
+#bodies use.Chiron *, 
+#bodies use.Pholus *, 
+#bodies use.Ceres *,
+#bodies use.Pallas *,
+#bodies use.Juno *,
+#bodies use.Vesta *,
+#bodies line.Chiron, 
+#bodies line.Pholus, 
+#bodies line.Ceres, 
+#bodies line.Pallas, 
+#bodies line.Juno, 
+#bodies line.Vesta {
+	stroke:#800;
+}
+
+#bodies text.Chiron, 
+#bodies text.Pholus, 
+#bodies text.Ceres, 
+#bodies text.Pallas, 
+#bodies text.Juno, 
+#bodies text.Vesta {
+	fill:#800;
+}
+
+/* --------------------------- ANIMATIONS ----------------------------------- */
+
+#zodiac&gt;#signs g:hover path,
+#bodies use:hover *,
+#aspects line:hover {
+	stroke-width: 0.2em;
+}
+
+#aspects path:hover {
+	stroke:#DAA;
+	stroke-width: 20;
+}
+
+#houses path {
+	stroke:transparent;
+	stroke-opacity:0.5;
+	stroke-width:90;
+	fill:none;
+}
+
+#houses path:hover {
+	stroke:#CCF;
+}
+
+#zodiac&gt;#signs g path.zone {
+	stroke:#b58c00;
+	fill:#f8f8c1;
+}
+
+  </style>
+  <title
+     id="title4180">Natal Chart of Jean-André Santoni born in Ollioules (43N00,5E00) on 6/8/1984 at 13:15GMT</title>
+  <defs
+     id="defs4182">
+    <marker
+       id="Arrow"
+       viewBox="-2 -2 14 14"
+       refX="5"
+       refY="5"
+       markerUnits="strokeWidth"
+       markerWidth="14"
+       markerHeight="14"
+       orient="auto"
+       style="fill:none;stroke:#2279ab;stroke-width:1;stroke-linecap:round;stroke-linejoin:round">
+      <path
+         d="M 0,0 5,5 0,10"
+         id="path4185"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <g
+       id="Sun">
+      <circle
+         cx="0"
+         cy="0"
+         r="9"
+         id="circle4188"
+         d="M 9,0 C 9,4.9705627 4.9705627,9 0,9 -4.9705627,9 -9,4.9705627 -9,0 c 0,-4.9705627 4.0294373,-9 9,-9 4.9705627,0 9,4.0294373 9,9 z"
+         sodipodi:cx="0"
+         sodipodi:cy="0"
+         sodipodi:rx="9"
+         sodipodi:ry="9"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="0"
+         cy="0"
+         r="1"
+         id="circle4190"
+         d="M 1,0 C 1,0.55228475 0.55228475,1 0,1 -0.55228475,1 -1,0.55228475 -1,0 c 0,-0.55228475 0.44771525,-1 1,-1 0.55228475,0 1,0.44771525 1,1 z"
+         sodipodi:cx="0"
+         sodipodi:cy="0"
+         sodipodi:rx="1"
+         sodipodi:ry="1"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Moon">
+      <path
+         d="m -6.3,-6.7 c 3.6,-3.65 9.5,-3.6 13.057,0.1 C 10.3,-3 10.3,3 6.6,6.7 3,10.3 -2.8,10.3 -6.4,6.6 c 0,0 7.8,-0.3 7.8,-6.6 0,-6.2 -7.7,-6.7 -7.7,-6.7 z"
+         id="path4193"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Mercury">
+      <path
+         d="m -4,-9 a 4,4 0 1 0 8,0"
+         id="path4196"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="0"
+         cy="-1"
+         r="4"
+         id="circle4198"
+         d="M 4,-1 C 4,1.209139 2.209139,3 0,3 -2.209139,3 -4,1.209139 -4,-1 c 0,-2.209139 1.790861,-4 4,-4 2.209139,0 4,1.790861 4,4 z"
+         sodipodi:cx="0"
+         sodipodi:cy="-1"
+         sodipodi:rx="4"
+         sodipodi:ry="4"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="0"
+         y1="3"
+         x2="0"
+         y2="9.5"
+         id="line4200"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-3.5"
+         y1="6"
+         x2="3.5"
+         y2="6"
+         id="line4202"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Venus">
+      <circle
+         cx="0"
+         cy="-2.5"
+         r="5"
+         id="circle4205"
+         d="m 5,-2.5 c 0,2.76142375 -2.2385763,5 -5,5 -2.7614237,0 -5,-2.23857625 -5,-5 0,-2.7614237 2.2385763,-5 5,-5 2.7614237,0 5,2.2385763 5,5 z"
+         sodipodi:cx="0"
+         sodipodi:cy="-2.5"
+         sodipodi:rx="5"
+         sodipodi:ry="5"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="0"
+         y1="2.5"
+         x2="0"
+         y2="9"
+         id="line4207"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-3.5"
+         y1="5.5"
+         x2="3.5"
+         y2="5.5"
+         id="line4209"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Mars">
+      <circle
+         cx="-1.5"
+         cy="1.5"
+         r="5.5"
+         id="circle4212"
+         d="M 4,1.5 C 4,4.5375661 1.5375661,7 -1.5,7 -4.5375661,7 -7,4.5375661 -7,1.5 -7,-1.5375661 -4.5375661,-4 -1.5,-4 1.5375661,-4 4,-1.5375661 4,1.5 z"
+         sodipodi:cx="-1.5"
+         sodipodi:cy="1.5"
+         sodipodi:rx="5.5"
+         sodipodi:ry="5.5"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="m 3,-7 4,0 0,4"
+         id="path4214"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="7"
+         y1="-7"
+         x2="2.5"
+         y2="-2.5"
+         id="line4216"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Jupiter">
+      <path
+         d="M 6.5,4 -5,4 c 11.2,-5.4 4,-14.4 0,-8.5"
+         id="path4219"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="3"
+         y1="0.5"
+         x2="3"
+         y2="7.5"
+         id="line4221"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Saturn">
+      <path
+         d="M 0,7.7 C 10.2,3 3.75,-5 0,0"
+         id="path4224"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="m 0,-7.5 0,8"
+         id="path4226"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="m -3.5,-4.5 7,0"
+         id="path4228"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Uranus">
+      <circle
+         cx="0"
+         cy="5"
+         r="4"
+         id="circle4231"
+         d="M 4,5 C 4,7.209139 2.209139,9 0,9 -2.209139,9 -4,7.209139 -4,5 -4,2.790861 -2.209139,1 0,1 2.209139,1 4,2.790861 4,5 z"
+         sodipodi:cx="0"
+         sodipodi:cy="5"
+         sodipodi:rx="4"
+         sodipodi:ry="4"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="m 0,-5.5 0,6"
+         id="path4233"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="m 2.5,-3.5 -5,0"
+         id="path4235"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="m -5.6,-7.4 a 3.75,3.75 0 0 1 0,7.4"
+         id="path4237"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M 5.6,-7.4 A 3.75,3.75 0 0 0 5.6,0"
+         id="path4239"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Neptune">
+      <path
+         d="m -5.5,-7 0,2.5 c 0,0 0,0 0,0 0,3 2.5,5.5 5.5,5.5 3,0 5.5,-2.5 5.5,-5.5 l 0,-2.5"
+         id="path4242"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="0"
+         y1="7.5"
+         x2="0"
+         y2="-7"
+         id="line4244"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-3"
+         y1="4"
+         x2="3"
+         y2="4"
+         id="line4246"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Pluto">
+      <circle
+         cx="0"
+         cy="4"
+         r="4"
+         id="circle4249"
+         d="M 4,4 C 4,6.209139 2.209139,8 0,8 -2.209139,8 -4,6.209139 -4,4 -4,1.790861 -2.209139,0 0,0 2.209139,0 4,1.790861 4,4 z"
+         sodipodi:cx="0"
+         sodipodi:cy="4"
+         sodipodi:rx="4"
+         sodipodi:ry="4"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M 0,-7 0,0"
+         id="path4251"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="m 2.5,-2.5 -5,0"
+         id="path4253"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="m -4,-9 a 4,4 0 1 0 8,0"
+         id="path4255"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="MeanNode">
+      <path
+         d="M -3,6 A 6,6 1 1 1 3,6"
+         id="path4258"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="-4"
+         cy="8"
+         r="2"
+         id="circle4260"
+         sodipodi:cx="-4"
+         sodipodi:cy="8"
+         sodipodi:rx="2"
+         sodipodi:ry="2"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="4"
+         cy="8"
+         r="2"
+         id="circle4262"
+         sodipodi:cx="4"
+         sodipodi:cy="8"
+         sodipodi:rx="2"
+         sodipodi:ry="2"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="TrueNode">
+      <path
+         d="M -3,6 A 6,6 1 1 1 3,6"
+         id="path4265"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="-4"
+         cy="8"
+         r="2"
+         id="circle4267"
+         sodipodi:cx="-4"
+         sodipodi:cy="8"
+         sodipodi:rx="2"
+         sodipodi:ry="2"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="4"
+         cy="8"
+         r="2"
+         id="circle4269"
+         sodipodi:cx="4"
+         sodipodi:cy="8"
+         sodipodi:rx="2"
+         sodipodi:ry="2"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="MeanSouthNode">
+      <path
+         d="m -3,-6 a 6,6 1 1 0 6,0"
+         id="path4272"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="-4"
+         cy="-8"
+         r="2"
+         id="circle4274"
+         sodipodi:cx="-4"
+         sodipodi:cy="-8"
+         sodipodi:rx="2"
+         sodipodi:ry="2"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="4"
+         cy="-8"
+         r="2"
+         id="circle4276"
+         sodipodi:cx="4"
+         sodipodi:cy="-8"
+         sodipodi:rx="2"
+         sodipodi:ry="2"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="TrueSouthNode">
+      <path
+         d="m -3,-6 a 6,6 1 1 0 6,0"
+         id="path4279"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="-4"
+         cy="-8"
+         r="2"
+         id="circle4281"
+         sodipodi:cx="-4"
+         sodipodi:cy="-8"
+         sodipodi:rx="2"
+         sodipodi:ry="2"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="4"
+         cy="-8"
+         r="2"
+         id="circle4283"
+         sodipodi:cx="4"
+         sodipodi:cy="-8"
+         sodipodi:rx="2"
+         sodipodi:ry="2"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="MeanApogee">
+      <path
+         d="M -4.25,-7 C -2.25,-9 1,-9 3,-7 5,-5 5,-1.66 3,0.33 1,2.3 -2.3,2.3 -4.3,0.3 -4.3,0.3 0,0.1 0,-3.35 0,-6.75 -4.3,-7 -4.25,-7 z"
+         id="path4286"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M 0,8 0,2"
+         id="path4288"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M -3,5 3,5"
+         id="path4290"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="OscuApogee">
+      <path
+         d="M -4.25,-7 C -2.25,-9 1,-9 3,-7 5,-5 5,-1.66 3,0.33 1,2.3 -2.3,2.3 -4.3,0.3 -4.3,0.3 0,0.1 0,-3.35 0,-6.75 -4.3,-7 -4.25,-7 z"
+         id="path4293"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M 0,8 0,2"
+         id="path4295"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M -3,5 3,5"
+         id="path4297"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#000000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Earth">
+      <circle
+         cx="0"
+         cy="0"
+         r="7"
+         id="circle4300"
+         sodipodi:cx="0"
+         sodipodi:cy="0"
+         sodipodi:rx="7"
+         sodipodi:ry="7"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="0"
+         y1="-7"
+         x2="0"
+         y2="7"
+         id="line4302"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-7"
+         y1="0"
+         x2="7"
+         y2="0"
+         id="line4304"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Chiron">
+      <circle
+         cx="0"
+         cy="5"
+         r="4"
+         id="circle4307"
+         sodipodi:cx="0"
+         sodipodi:cy="5"
+         sodipodi:rx="4"
+         sodipodi:ry="4"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M -2,-9 -2,1"
+         id="path4309"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M 3,-7 -0.5,-4 3,-1"
+         id="path4311"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Pholus">
+      <path
+         d="m 0,2.5 5,-5 -5,-5 -5,5 z"
+         id="path4314"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="0"
+         y1="2.5"
+         x2="0"
+         y2="9"
+         id="line4316"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M -6,9 -3,5 0,9 3,5 6,9"
+         id="path4318"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Ceres">
+      <path
+         d="m 0,2.5 a 5,5 1 1 0 -5,-5"
+         id="path4321"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="0"
+         y1="2.5"
+         x2="0"
+         y2="9"
+         id="line4323"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-3.5"
+         y1="5.5"
+         x2="3.5"
+         y2="5.5"
+         id="line4325"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Pallas">
+      <path
+         d="m 0,2.5 5,-5 -5,-5 -5,5 z"
+         id="path4328"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="0"
+         y1="2.5"
+         x2="0"
+         y2="9"
+         id="line4330"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-3.5"
+         y1="5.5"
+         x2="3.5"
+         y2="5.5"
+         id="line4332"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Juno">
+      <line
+         x1="0"
+         y1="-7.5"
+         x2="0"
+         y2="9"
+         id="line4335"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-3.5"
+         y1="5.5"
+         x2="3.5"
+         y2="5.5"
+         id="line4337"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-5"
+         y1="-2.5"
+         x2="5"
+         y2="-2.5"
+         id="line4339"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-4"
+         y1="-6.5"
+         x2="4"
+         y2="1.5"
+         id="line4341"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <line
+         x1="-4"
+         y1="1.5"
+         x2="4"
+         y2="-6.5"
+         id="line4343"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="Vesta">
+      <path
+         d="M -8,0 -5,0 0,8 5,0 8,0"
+         id="path4346"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="M -3,-2 0,3 3,-2"
+         id="path4348"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+      <path
+         d="m 0,-5 0,3"
+         id="path4350"
+         inkscape:connector-curvature="0"
+         style="fill:none;stroke:#880000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="InterpretedApogee">
+      <circle
+         cx="0"
+         cy="0"
+         r="7"
+         id="circle4353"
+         sodipodi:cx="0"
+         sodipodi:cy="0"
+         sodipodi:rx="7"
+         sodipodi:ry="7"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="0"
+         cy="0"
+         r="3"
+         id="circle4355"
+         sodipodi:cx="0"
+         sodipodi:cy="0"
+         sodipodi:rx="3"
+         sodipodi:ry="3"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+    <g
+       id="InterpretedPerigee">
+      <circle
+         cx="0"
+         cy="0"
+         r="7"
+         id="circle4358"
+         sodipodi:cx="0"
+         sodipodi:cy="0"
+         sodipodi:rx="7"
+         sodipodi:ry="7"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+      <circle
+         cx="0"
+         cy="0"
+         r="3"
+         id="circle4360"
+         sodipodi:cx="0"
+         sodipodi:cy="0"
+         sodipodi:rx="3"
+         sodipodi:ry="3"
+         style="fill:none;stroke:#ff0000;stroke-width:1.25;stroke-linecap:round" />
+    </g>
+  </defs>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Házsarkak"
+     style="display:inline"
+     transform="translate(-57.091007,-52.330608)">
+    <line
+       x1="199.99518"
+       y1="300"
+       x2="60"
+       y2="300"
+       class="House I"
+       title="House I"
+       id="line4424"
+       style="fill:none;stroke:#2279ab;stroke-width:5.99999993;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow)"
+       inkscape:transform-center-x="303.32289"
+       inkscape:transform-center-y="-0.97371373" />
+    <line
+       x1="450"
+       y1="300"
+       x2="540"
+       y2="300"
+       class="House VII"
+       title="House VII"
+       id="line4448"
+       style="fill:none;stroke:#2279ab;stroke-width:5.99999993;stroke-linecap:round;stroke-linejoin:round;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none"
+       inkscape:transform-center-x="-195"
+       inkscape:transform-center-y="-0.62598038" />
+    <line
+       inkscape:transform-center-y="-60.860388"
+       inkscape:transform-center-x="158.49448"
+       style="fill:none;stroke:#2279ab;stroke-width:2.99999996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none"
+       id="line6439"
+       title="House VII"
+       class="House VII"
+       y2="231.65839"
+       x2="123.02443"
+       y1="245.74185"
+       x1="159.9866" />
+    <line
+       inkscape:transform-center-y="192.51161"
+       inkscape:transform-center-x="-31.05917"
+       style="fill:none;stroke:#2279ab;stroke-width:5.99999993;stroke-linecap:round;stroke-linejoin:round;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none"
+       id="line6453"
+       title="House VII"
+       class="House VII"
+       y2="537.58588"
+       x2="338.08398"
+       y1="448.6893"
+       x1="324.03436" />
+    <line
+       inkscape:transform-center-y="-298.40875"
+       inkscape:transform-center-x="52.619449"
+       style="fill:none;stroke:#2279ab;stroke-width:5.99999993;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow)"
+       id="line6455"
+       title="House I"
+       class="House I"
+       y2="63.470623"
+       x2="263.15265"
+       y1="201.12785"
+       x1="284.90863" />
+    <line
+       x1="167.19055"
+       y1="369.28741"
+       x2="132.22342"
+       y2="387.77655"
+       class="House VII"
+       title="House VII"
+       id="line6457"
+       style="fill:none;stroke:#2279ab;stroke-width:2.99999996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none"
+       inkscape:transform-center-x="150.29301"
+       inkscape:transform-center-y="78.97147" />
+    <line
+       x1="228.44917"
+       y1="431.3963"
+       x2="209.68353"
+       y2="466.21579"
+       class="House VII"
+       title="House VII"
+       id="line6465"
+       style="fill:none;stroke:#2279ab;stroke-width:2.99999996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none"
+       inkscape:transform-center-x="80.933643"
+       inkscape:transform-center-y="149.24554" />
+    <line
+       inkscape:transform-center-y="-78.971473"
+       inkscape:transform-center-x="-150.29302"
+       style="fill:none;stroke:#2279ab;stroke-width:2.99999996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none"
+       id="line6467"
+       title="House VII"
+       class="House VII"
+       y2="211.34447"
+       x2="467.77658"
+       y1="229.83362"
+       x1="432.80945" />
+    <line
+       inkscape:transform-center-y="-149.24553"
+       inkscape:transform-center-x="-80.933644"
+       style="fill:none;stroke:#2279ab;stroke-width:2.99999996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none"
+       id="line6469"
+       title="House VII"
+       class="House VII"
+       y2="132.90521"
+       x2="390.31647"
+       y1="167.72473"
+       x1="371.55081" />
+    <line
+       x1="199.04163"
+       y1="188.62088"
+       x2="172.33385"
+       y2="159.44482"
+       class="House VII"
+       title="House VII"
+       id="line6471"
+       style="fill:none;stroke:#2279ab;stroke-width:2.99999996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none"
+       inkscape:transform-center-x="114.31226"
+       inkscape:transform-center-y="-125.52766" />
+    <line
+       x1="440.0134"
+       y1="353.37915"
+       x2="476.97556"
+       y2="367.46262"
+       class="House VII"
+       title="House VII"
+       id="line6473"
+       style="fill:none;stroke:#2279ab;stroke-width:2.99999996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none"
+       inkscape:transform-center-x="-158.49448"
+       inkscape:transform-center-y="60.860376" />
+    <line
+       inkscape:transform-center-y="125.52767"
+       inkscape:transform-center-x="-114.31226"
+       style="fill:none;stroke:#2279ab;stroke-width:2.99999996;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;marker-end:none"
+       id="line6475"
+       title="House VII"
+       class="House VII"
+       y2="439.67621"
+       x2="427.66614"
+       y1="410.50015"
+       x1="400.95837" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer6"
+     inkscape:label="Házszámok"
+     style="display:none">
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="55.913273"
+       y="325.91739"
+       class="House I"
+       title="House I"
+       id="text4426"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="242.3172"
+       inkscape:transform-center-y="20.917385">I</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="90.028137"
+       y="429.84604"
+       class="House II"
+       title="House II"
+       id="text4430"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="206.4328"
+       inkscape:transform-center-y="124.84604">II</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="183.25099"
+       y="517.39624"
+       class="House III"
+       title="House III"
+       id="text4434"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="111.44042"
+       inkscape:transform-center-y="212.39624">III</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="322.40164"
+       y="543.4306"
+       class="House IV"
+       title="House IV"
+       id="text4438"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="-28.814725"
+       inkscape:transform-center-y="238.4306">IV</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="450.47498"
+       y="487.832"
+       class="House V"
+       title="House V"
+       id="text4442"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="-154.57654"
+       inkscape:transform-center-y="182.832">V</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="520.78015"
+       y="386.38376"
+       class="House VI"
+       title="House VI"
+       id="text4446"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="-226.10925"
+       inkscape:transform-center-y="81.383755">VI</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="534.08673"
+       y="284.08261"
+       class="House VII"
+       title="House VII"
+       id="text4450"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="-241.18536"
+       inkscape:transform-center-y="-20.917393">VII</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="499.97186"
+       y="180.15396"
+       class="House VIII"
+       title="House VIII"
+       id="text4454"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="-208.84002"
+       inkscape:transform-center-y="-124.84604">VIII</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="406.74902"
+       y="92.603767"
+       class="House IX"
+       title="House IX"
+       id="text4458"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="-113.03027"
+       inkscape:transform-center-y="-212.39624">IX</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="267.59836"
+       y="66.569405"
+       class="House X"
+       title="House X"
+       id="text4462"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="28.300082"
+       inkscape:transform-center-y="-238.4306">X</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="139.52504"
+       y="122.16801"
+       class="House XI"
+       title="House XI"
+       id="text4466"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="155.00231"
+       inkscape:transform-center-y="-182.832">XI</text>
+    <text
+       transform="translate(-57.091008,-52.330609)"
+       x="69.219833"
+       y="223.61624"
+       class="House XII"
+       title="House XII"
+       id="text4470"
+       style="font-size:12px;fill:#2279ab;display:inline;font-family:Georgia"
+       inkscape:transform-center-x="223.53798"
+       inkscape:transform-center-y="-81.383762">XII</text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Bolygók"
+     style="display:none"
+     transform="translate(-57.091007,-52.330608)"
+     sodipodi:insensitive="true">
+    <use
+       style="fill:none"
+       transform="matrix(-0.99999807,-0.00196737,0.00196737,-0.99999807,599.61335,608.4582)"
+       x="115.48185"
+       y="313.34363"
+       xlink:href="#Moon"
+       class="Moon"
+       title="Moon"
+       id="use4475"
+       width="600"
+       height="600" />
+    <use
+       style="fill:none"
+       transform="matrix(0.99984489,0.01761303,-0.01761303,0.99984489,107.43113,102.62835)"
+       x="127.46518"
+       y="366.75879"
+       xlink:href="#Pluto"
+       class="Pluto"
+       title="Pluto"
+       id="use4481"
+       width="600"
+       height="600" />
+    <use
+       style="fill:none"
+       transform="matrix(0.99988828,0.01494815,-0.01494815,0.99988828,-22.783793,-90.037617)"
+       x="143.49261"
+       y="398.64297"
+       xlink:href="#Saturn"
+       class="Saturn"
+       title="Saturn"
+       id="use4487"
+       width="600"
+       height="600" />
+    <use
+       style="fill:none"
+       transform="matrix(0.99834365,-0.05753229,0.05753229,0.99834365,219.63901,-293.68403)"
+       x="130.31973"
+       y="415.03741"
+       xlink:href="#Mars"
+       class="Mars"
+       title="Mars"
+       id="use4493"
+       width="600"
+       height="600" />
+    <use
+       style="fill:none"
+       transform="matrix(0.99999692,0.00248403,-0.00248403,0.99999692,258.9974,-102.88382)"
+       x="215.64792"
+       y="464.65033"
+       xlink:href="#Uranus"
+       class="Uranus"
+       title="Uranus"
+       id="use4505"
+       width="600"
+       height="600" />
+    <use
+       style="fill:none"
+       transform="matrix(0.99999892,-0.00147038,0.00147038,0.99999892,125.14838,-28.020979)"
+       x="274.15012"
+       y="483.18512"
+       xlink:href="#Neptune"
+       class="Neptune"
+       title="Neptune"
+       id="use4511"
+       width="600"
+       height="600" />
+    <use
+       style="fill:none"
+       transform="matrix(0.9999912,-0.00419197,0.00419197,0.9999912,65.928809,-351.97717)"
+       x="307.1572"
+       y="484.86151"
+       xlink:href="#Jupiter"
+       class="Jupiter"
+       title="Jupiter"
+       id="use4517"
+       width="600"
+       height="600" />
+    <use
+       style="fill:none"
+       transform="matrix(0.9999983,0.00184061,-0.00184061,0.9999983,-63.173957,-26.543775)"
+       x="410.77966"
+       y="151.83501"
+       xlink:href="#Mercury"
+       class="Mercury"
+       title="Mercury"
+       id="use4529"
+       width="600"
+       height="600" />
+    <use
+       style="fill:none"
+       transform="matrix(0.99995186,0.00981217,-0.00981217,0.99995186,-178.21115,17.509984)"
+       x="370.86453"
+       y="129.1105"
+       xlink:href="#Venus"
+       class="Venus"
+       title="Venus"
+       id="use4541"
+       width="600"
+       height="600" />
+    <use
+       style="fill:none;stroke:#ff0000;stroke-opacity:1"
+       transform="matrix(0.90426735,-0.42696669,0.42696669,0.90426735,-96.586755,179.27083)"
+       x="371.81375"
+       y="107.99014"
+       xlink:href="#Sun"
+       class="Sun"
+       title="Sun"
+       id="use4547"
+       width="600"
+       height="600" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="Bolygópozíciók"
+     sodipodi:insensitive="true">
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="399.94482"
+       y1="297.30206"
+       x2="469.93811"
+       y2="295.41257"
+       class="Moon"
+       id="line4473"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="261.82516"
+       y1="392.44604"
+       x2="235.11441"
+       y2="457.13007"
+       class="Pluto"
+       id="line4479"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="200.17628"
+       y1="305.60858"
+       x2="130.26767"
+       y2="309.53632"
+       class="Saturn"
+       id="line4485"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="336.03882"
+       y1="206.73987"
+       x2="361.27744"
+       y2="141.42801"
+       class="Mars"
+       id="line4491"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="394.39243"
+       y1="333.06793"
+       x2="460.43973"
+       y2="356.20581"
+       class="Uranus"
+       id="line4503"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="354.23099"
+       y1="384.03845"
+       x2="392.17685"
+       y2="442.84058"
+       class="Neptune"
+       id="line4509"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="341.4263"
+       y1="208.96519"
+       x2="370.0365"
+       y2="145.86279"
+       class="Jupiter"
+       id="line4515"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="325.08606"
+       y1="203.1788"
+       x2="341.90012"
+       y2="142.3416"
+       class="Mercury"
+       id="line4527"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="240.76994"
+       y1="219.4068"
+       x2="199.32625"
+       y2="163.01535"
+       class="Venus"
+       id="line4539"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+    <line
+       transform="translate(-57.091008,-52.330609)"
+       x1="291.68484"
+       y1="200.32857"
+       x2="285.86679"
+       y2="130.58852"
+       class="Sun"
+       id="line4545"
+       style="stroke:#ff0000;stroke-width:2.99999996;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;display:inline" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Fényszögek"
+     style="display:none"
+     transform="translate(-57.091007,-52.330608)"
+     sodipodi:insensitive="true">
+    <line
+       x1="247.04053"
+       y1="383.64386"
+       x2="352.95947"
+       y2="216.35614"
+       class="Opposition MeanSouthNode MeanNode MeanSouthNodeMeanNode"
+       title="Opposition between MeanSouthNode and MeanNode"
+       id="line4376"
+       style="stroke:#ff0000;stroke-linecap:round;display:none" />
+    <g
+       id="g6568"
+       style="stroke:#000043;stroke-opacity:1">
+      <path
+         inkscape:connector-curvature="0"
+         id="path6479"
+         d="M 399.94483,297.30205 199.99518,300"
+         style="fill:none;stroke:#000043;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6493"
+         d="m 399.94483,297.30205 -199.76855,8.30654"
+         style="fill:none;stroke:#000043;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6507"
+         d="M 240.76994,219.4068 354.23099,384.03846"
+         style="fill:none;stroke:#000043;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6513"
+         d="M 336.03883,206.73987 261.82517,392.44604"
+         style="fill:none;stroke:#000043;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6519"
+         d="M 341.4263,208.96519 261.82517,392.44604"
+         style="fill:none;stroke:#000043;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <g
+       id="g6547"
+       style="stroke:#00aa00;stroke-opacity:1">
+      <path
+         inkscape:connector-curvature="0"
+         id="path6491"
+         d="M 399.94483,297.30205 341.4263,208.96519"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6517"
+         d="m 341.4263,208.96519 12.80469,175.07327"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6481"
+         d="M 284.90863,201.12785 394.39241,333.06793"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6487"
+         d="M 291.68485,200.32857 394.39241,333.06793"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6489"
+         d="M 399.94483,297.30205 240.76994,219.4068"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6495"
+         d="m 399.94483,297.30205 -45.71384,86.73641"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6501"
+         d="m 240.76994,219.4068 95.26889,-12.66693"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6503"
+         d="M 240.76994,219.4068 341.4263,208.96519"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6505"
+         d="m 240.76994,219.4068 -40.59366,86.20179"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6509"
+         d="m 240.76994,219.4068 21.05523,173.03924"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6515"
+         d="m 341.4263,208.96519 -141.25002,96.6434"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6521"
+         d="m 200.17628,305.60859 154.05471,78.42987"
+         style="fill:none;stroke:#00aa00;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <g
+       id="g6561"
+       style="stroke:#b40000;stroke-opacity:1">
+      <path
+         inkscape:connector-curvature="0"
+         id="path6483"
+         d="m 291.68485,200.32857 108.25998,96.97348"
+         style="fill:none;stroke:#b40000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6485"
+         d="M 291.68485,200.32857 200.17628,305.60859"
+         style="fill:none;stroke:#b40000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6499"
+         d="m 325.08605,203.17881 69.30636,129.88912"
+         style="fill:none;stroke:#b40000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6511"
+         d="m 336.03883,206.73987 58.35358,126.32806"
+         style="fill:none;stroke:#b40000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path6523"
+         d="M 394.39241,333.06793 261.82517,392.44604"
+         style="fill:none;stroke:#b40000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer1"
+     inkscape:label="Karika"
+     style="display:inline"
+     sodipodi:insensitive="true"
+     transform="translate(-57.091007,-52.330608)">
+    <g
+       id="houses">
+      <path
+         style="fill:none;stroke:#808080;stroke-width:0.5;stroke-opacity:0.5"
+         inkscape:connector-curvature="0"
+         id="path4419"
+         class="origin"
+         d="m 300,295 0,10" />
+      <path
+         style="fill:none;stroke:#808080;stroke-width:0.5;stroke-opacity:0.5"
+         inkscape:connector-curvature="0"
+         id="path4421"
+         class="origin"
+         d="m 295,300 10,0" />
+    </g>
+    <g
+       transform="matrix(0.84989431,0.5269532,-0.5269532,0.84989431,203.11767,-113.05425)"
+       id="zodiac">
+      <g
+         id="cercle">
+        <path
+           style="fill:#f8f8c1;stroke:#b58c00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4553"
+           class="disc"
+           d="M 429.9,375 C 471.3,303.3 446.7,211.5 375,170.1 303.3,128.7 211.5,153.3 170.1,225 128.7,296.7 153.3,388.5 225,429.9 296.7,471.3 388.5,446.7 429.9,375 z M 386.6,350 C 359,397.79972 297.8,414.2 250,386.6 202.2,359 185.8,297.8 213.4,250 241,202.2 302.2,185.8 350,213.4 397.8,241 414.2,302.2 386.6,350 z" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4555"
+           d="m 375,170 -25,43.4" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4557"
+           d="m 170,225 43.4,25" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4559"
+           d="m 225,430 25,-43.4" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4561"
+           d="M 430,375 386.6,350" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4563"
+           d="m 430,225 -43.4,25" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4565"
+           d="m 225,170 25,43.4" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4567"
+           d="m 170,375 43.4,-25" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4569"
+           d="M 375,430 350,386.6" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4571"
+           d="m 450,300 -50,0" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4573"
+           d="m 300,150 0,50" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4575"
+           d="m 150,300 50,0" />
+        <path
+           style="stroke:#b58d00;stroke-width:2"
+           inkscape:connector-curvature="0"
+           id="path4577"
+           d="m 300,450 0,-50" />
+      </g>
+      <g
+         id="signs">
+        <g
+           title="Aries"
+           id="aries">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             d="m 418.5,254.8 c 15.8,4.2 -1.8,28.6 -9.2,15.8 0,-14.6 27.5,-2.4 15.9,9.2"
+             id="path4581" />
+        </g>
+        <g
+           title="Taurus"
+           id="taurus">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4584"
+             d="m 393.41654,214.16277 a 7.181555,7.181555 0 1 1 -14.36311,0 7.181555,7.181555 0 1 1 14.36311,0 z" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4586"
+             d="M 402.05659,210.54049 A 9.7227182,9.7227182 0 0 1 389.46264,197.63936" />
+        </g>
+        <g
+           title="Gemini"
+           id="gemini">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4589"
+             d="m 327.9,170.6 c -3.1,4.1 14.9,9 13.6,3.6 -3.1,-3.2 -9.9,17.6 -4.6,17.2 2.9,-3.6 -14.1,-8.9 -13.6,-3.6 4.2,2.8 9.52,-18.3 4.6,-17.2 z" />
+        </g>
+        <g
+           title="Cancer"
+           id="cancer">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4592"
+             d="m 257.73779,179.06185 c 3.61737,-7.29805 11.11818,-9.09157 18.51105,-5.21095" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4594"
+             d="m 263.2647,180.14136 a 2.8586366,2.8586366 0 1 1 -5.71727,0 2.8586366,2.8586366 0 1 1 5.71727,0 z" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4596"
+             d="m 278.21129,181.17486 c -3.61739,7.29806 -11.11821,9.09156 -18.51105,5.21096" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4598"
+             d="m 278.35113,180.14136 a 2.8586366,2.8586366 0 1 1 -5.71727,0 2.8586366,2.8586366 0 1 1 5.71727,0 z" />
+        </g>
+        <g
+           title="Leo"
+           id="leo">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4601"
+             d="m 212.353,218.36121 a 2.4969709,2.4969709 0 1 1 -4.99394,0 2.4969709,2.4969709 0 1 1 4.99394,0 z" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4603"
+             d="m 211.83845,217.04038 c 0.0532,-1.31162 -9.19226,-4.29881 -9.23578,-7.92691 -0.048,-4.00141 3.56116,-8.2318 8.30124,-7.78292 4.68025,0.44321 7.28932,18.56522 12.80713,9.01272" />
+        </g>
+        <g
+           title="Virgo"
+           id="virgo">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4606"
+             d="m 178.73092,259.25192 c 0,0 -6.11285,-2.4911 -4.84908,-5.32637 4.02941,-9.04001 20.71271,16.3661 24.03856,12.60783" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4608"
+             d="m 168.07132,279.54282 c -2.35619,-8.50803 10.29046,-3.45002 17.25158,-1.58479 -0.0716,0.0649 -16.80264,-4.02278 -15.44941,-9.07307 0.90267,-3.36883 17.4865,0.93611 17.60774,1.01799 0,0 -16.58113,-4.45613 -15.30514,-9.21823 1.23294,-4.60144 20.79325,2.8922 22.49284,-3.45079" />
+        </g>
+        <g
+           title="Libra"
+           id="libra">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4611"
+             d="m 190.1,341.8 -6.5,-24" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4613"
+             d="m 185.3,343.1 -2.4,-8.7" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4615"
+             d="m 181.2,327.9 -2.4,-8.8" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4617"
+             d="m 183,334.5 a 6.7,6.7 0 1 1 -1.8,-6.7" />
+        </g>
+        <g
+           title="Capricorn"
+           id="capricorn">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4620"
+             d="m 342,412.1 c -2.8,3.2 -3.3,8.3 -2.9,14.15 l -7.9,-11.55 c -19.2,27.7 19.6,17.4 -9.4,3 -8.2,-4.1 -1.7,-12.3 4.9,-11" />
+        </g>
+        <g
+           title="Aquarius"
+           id="aquarius">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4623"
+             d="m 397.2,381.5 c 0,0 1.2,4 -0.2,5.4 -1.4,1.4 -4,-1.2 -5.3,0.2 -1.4,1.4 1.2,4 -0.2,5.4 -1.4,1.4 -4,-1.2 -5.4,0.2 -1.4,1.4 1.2,3.9 -0.2,5.3 -1.4,1.4 -5.4,0.2 -5.4,0.2" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4625"
+             d="m 391.6,375.9 c 0,0 1.2,4 -0.2,5.4 -1.4,1.4 -4,-1.2 -5.4,0.2 -1.4,1.4 1.2,4 -0.2,5.3 -1.4,1.4 -3.9,-1.2 -5.3,0.2 -1.4,1.4 1.2,4 -0.2,5.4 -1.4,1.4 -5.33,0.2 -5.4,0.2" />
+        </g>
+        <g
+           title="Pisces"
+           id="pisces">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4628"
+             d="m 431.3,325.4 a 8.9,8.9 0 0 1 -16.8,-4.5" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4630"
+             d="m 410,338.2 a 8.7,8.7 0 0 1 16.6,4.5" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4632"
+             d="m 421.9,327 -2.6,9.7" />
+        </g>
+        <g
+           title="Sagittarius"
+           id="sagittarius">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4635"
+             d="m 259.9,426.5 -5,-1.4 1.4,-4.9" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4637"
+             d="m 278.5,411.5 -23.7,13.8" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4639"
+             d="m 268.9,422.4 -4.6,-8" />
+        </g>
+        <g
+           title="Scorpio"
+           id="scorpio">
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4642"
+             d="m 217.8,404.7 c -8.5,-2.1 2.4,-10.7 7.6,-15.9 0,0.1 -12.3,12.9 -15.8,9.2 -3.3,-3.8 9.8,-14.9 10,-15 0,0 -12.35,12.3 -15.8,8.9 -4.6,-4.4 11.7,-12.6 6.7,-17.6 -3.7,-3.6 -13.3,-1.1 -14.3,8.1" />
+          <path
+             style="fill:#f8f8c1;stroke:#71b0c7;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"
+             inkscape:connector-curvature="0"
+             id="path4644"
+             d="m 200.4,381.2 -3.8,3.5 -3.5,-3.8" />
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
