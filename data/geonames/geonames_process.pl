@@ -20,7 +20,7 @@ while (<TIMEZONES>) {
 }
 close(TIMEZONES);
 
-open(COUNTRIES, 'countryInfo.txt') or die("Cannot open timeZones.txt: $!\n");
+open(COUNTRIES, 'countryInfo.txt') or die("Cannot open countryInfo.txt: $!\n");
 while (<COUNTRIES>) {
     my ($country_code, $iso3, $iso_numeric, $fips, $name, $capital, $area, $population, $continent, $tld, $currency_code, $currency_name, $phone, $postal_code_format, $postal_code_regex, $languages, $geonameid, $neighbours, $equivalent_fips_code) = split(/\t/, $_);
 
@@ -30,6 +30,8 @@ while (<COUNTRIES>) {
 }
 close(COUNTRIES);
 
+open(GEONAMES, "HU.txt") or die("Cannot open HU.txt: $!\n");
+
 my $xml_file = IO::File->new('>geodata.xml');
 my $writer = XML::Writer->new(OUTPUT => $xml_file, NEWLINES => 0);
 
@@ -37,7 +39,6 @@ $writer->xmlDecl('utf-8');
 $writer->startTag('geodata');
 
 # TODO: process all files, not just HU.txt!
-open(GEONAMES, "HU.txt") or die("Cannot open timeZones.txt: $!\n");
 while (<GEONAMES>) {
     my ($geonameid, $name, $asciiname, $alternatenames, $latitude, $longitude, $feature_class, $feature_code, $country_code, $alt_country_code, $admin1, $admin2, $admin3, $admin4, $population, $elevation, $dem, $timezone, $mod_date) = split(/\t/, $_);
 
