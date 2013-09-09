@@ -37,6 +37,7 @@ Makefile.in
 
 # Geonames related things
 /data/geonames/*.txt
+/data/geonames/*.zip
 /data/geonames/geodata.xml
 
 # Translation related files

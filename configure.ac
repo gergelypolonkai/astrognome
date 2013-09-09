@@ -13,6 +13,9 @@ AM_PROG_CC_C_O
 AM_PROG_AR
 AC_PROG_LIBTOOL
 AC_PATH_PROGS(PERL, [perl5 perl])
+AC_PATH_PROGS(WGET, [wget])
+AC_PATH_PROGS(CURL, [curl])
+AC_PATH_PROGS(UNZIP, [unzip])
 have_geonames_perl_modules=no
 AX_PROG_PERL_MODULES([XML::Writer IO::File], [have_geonames_perl_modules=yes], AC_MSG_WARN([XML::Writer and IO::File perl modules are required if you want to regenerate geodata.xml!]))
 AC_SUBST([have_geonames_perl_modules])
