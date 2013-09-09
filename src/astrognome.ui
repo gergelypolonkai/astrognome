@@ -48,6 +48,12 @@
         <attribute name="target">points</attribute>
         <attribute name="accel">F8</attribute>
       </item>
+      <item>
+        <attribute name="label" translatable="yes">Edit chart</attribute>
+        <attribute name="action">win.tab-change</attribute>
+        <attribute name="target">edit</attribute>
+        <attribute name="accel">&lt;Shift&gt;F3</attribute>
+      </item>
     </section>
   </menu>
 </interface>
