@@ -42,25 +42,25 @@ close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 static void
 set_tab_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    AgWindow *self = AG_WINDOW(user_data);
+    AgWindow *window = AG_WINDOW(user_data);
     const gchar *target = g_variant_get_string(parameter, NULL);
     gint target_tab = 0;
 
     g_action_change_state(G_ACTION(action), parameter);
 
     if (strcmp(target, "chart") == 0) {
-        target_tab = self->priv->tab_chart;
+        target_tab = window->priv->tab_chart;
     } else if (strcmp(target, "aspects") == 0) {
-        target_tab = self->priv->tab_aspects;
+        target_tab = window->priv->tab_aspects;
     } else if (strcmp(target, "points") == 0) {
-        target_tab = self->priv->tab_points;
+        target_tab = window->priv->tab_points;
     } else {
         g_warning("Unknown tab!");
 
         return;
     }
 
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(self->priv->notebook), target_tab);
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(window->priv->notebook), target_tab);
 }
 
 static void
