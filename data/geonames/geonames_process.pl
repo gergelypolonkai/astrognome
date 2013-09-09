@@ -12,7 +12,7 @@ use XML::Writer;
 my %time_zones = ();
 my %countries = ();
 
-open(TIMEZONES, 'timeZones.txt');
+open(TIMEZONES, 'timeZones.txt') or die("Cannot open timeZones.txt: $!\n");
 while (<TIMEZONES>) {
     my ($country_code, $timezone_id, $gmt_offset_january, $gmt_offset_july, $gmt_offset_raw) = split(/\t/, $_);
 
@@ -20,7 +20,7 @@ while (<TIMEZONES>) {
 }
 close(TIMEZONES);
 
-open(COUNTRIES, 'countryInfo.txt');
+open(COUNTRIES, 'countryInfo.txt') or die("Cannot open timeZones.txt: $!\n");
 while (<COUNTRIES>) {
     my ($country_code, $iso3, $iso_numeric, $fips, $name, $capital, $area, $population, $continent, $tld, $currency_code, $currency_name, $phone, $postal_code_format, $postal_code_regex, $languages, $geonameid, $neighbours, $equivalent_fips_code) = split(/\t/, $_);
 
@@ -37,7 +37,7 @@ $writer->xmlDecl('utf-8');
 $writer->startTag('geodata');
 
 # TODO: process all files, not just HU.txt!
-open(GEONAMES, "HU.txt");
+open(GEONAMES, "HU.txt") or die("Cannot open timeZones.txt: $!\n");
 while (<GEONAMES>) {
     my ($geonameid, $name, $asciiname, $alternatenames, $latitude, $longitude, $feature_class, $feature_code, $country_code, $alt_country_code, $admin1, $admin2, $admin3, $admin4, $population, $elevation, $dem, $timezone, $mod_date) = split(/\t/, $_);
 
