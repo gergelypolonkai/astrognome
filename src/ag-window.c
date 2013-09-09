@@ -30,6 +30,7 @@ struct _AgWindowPrivate {
     gint tab_aspects;
     gint tab_points;
     gint tab_edit;
+    gint current_tab;
 
     GsweTimestamp *timestamp;
     GsweMoment *moment;
@@ -60,6 +61,50 @@ close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
+moment_changed(GsweMoment *moment, gpointer user_data)
+{
+    g_warning("Moment changed!");
+}
+
+static void
+recalculate_chart(AgWindow *window)
+{
+    AgWindowPrivate *priv = window->priv;
+    gint year   = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->year)),
+         month  = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->month)),
+         day    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->day)),
+         hour   = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->hour)),
+         minute = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->minute)),
+         second = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->second));
+    gdouble longitude = gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->longitude)),
+            latitude  = gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->latitude));
+    gdouble south = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->south_lat)),
+            west  = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->west_long));
+
+    if (south) {
+        latitude = 0 - latitude;
+    }
+
+    if (west) {
+        longitude = 0 - longitude;
+    }
+
+    // TODO: Set timezone according to the city selected!
+    if (priv->timestamp == NULL) {
+        priv->timestamp = gswe_timestamp_new_from_gregorian_full(year, month, day, hour, minute, second, 0, 1.0);
+    } else {
+        gswe_timestamp_set_gregorian_full(priv->timestamp, year, month, day, hour, minute, second, 0, 1.0);
+    }
+
+    if (priv->moment == NULL) {
+        // TODO: moke house system configurable
+        priv->moment = gswe_moment_new_full(priv->timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
+        g_signal_connect(priv->moment, "changed", G_CALLBACK(moment_changed), NULL);
+        moment_changed(priv->moment, NULL);
+    }
+}
+
+static void
 set_tab_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
@@ -81,6 +126,12 @@ set_tab_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 
         return;
     }
+
+    if ((window->priv->current_tab == window->priv->tab_edit) && (target_tab != window->priv->tab_edit)) {
+        recalculate_chart(window);
+    }
+
+    window->priv->current_tab = target_tab;
 
     gtk_notebook_set_current_page(GTK_NOTEBOOK(window->priv->notebook), target_tab);
 }
