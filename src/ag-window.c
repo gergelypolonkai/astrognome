@@ -2,6 +2,8 @@
 #include <glib/gi18n.h>
 #include <libgd/gd.h>
 
+#include <swe-glib.h>
+
 #include "ag-app.h"
 #include "ag-window.h"
 
@@ -28,6 +30,9 @@ struct _AgWindowPrivate {
     gint tab_aspects;
     gint tab_points;
     gint tab_edit;
+
+    GsweTimestamp *timestamp;
+    GsweMoment *moment;
 };
 
 G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
@@ -100,6 +105,9 @@ ag_window_init(AgWindow *window)
     GError *err = NULL;
 
     window->priv = priv = GET_PRIVATE(window);
+
+    priv->timestamp = NULL;
+    priv->moment = NULL;
 
     gtk_window_set_hide_titlebar_when_maximized(GTK_WINDOW(window), TRUE);
 
