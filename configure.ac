@@ -22,6 +22,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [GETTEXT package name])
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 LT_INIT
+YELP_HELP_INIT
 GTK_DOC_CHECK([1.19], [--flavour no-tmpl])
 PKG_PROG_PKG_CONFIG
 GLIB_GSETTINGS
@@ -44,6 +45,7 @@ AC_CONFIG_FILES([
     Makefile
     libgd/Makefile
     src/Makefile
+    help/Makefile
     po/Makefile.in
     data/Makefile
     data/astrognome.desktop.in
