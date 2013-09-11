@@ -26,6 +26,7 @@ AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", [GETTEXT package name])
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.17])
 LT_INIT
+YELP_HELP_INIT
 AC_CHECK_LIB([m], [sincos])
 AC_CHECK_LIB([m], [atan2])
 AC_CHECK_LIB([m], [fmod])
@@ -64,6 +65,7 @@ AC_CONFIG_FILES([
     Makefile
     libgd/Makefile
     src/Makefile
+    help/Makefile
     po/Makefile.in
     data/Makefile
     data/geonames/Makefile
