@@ -93,7 +93,7 @@ recalculate_chart(AgWindow *window)
     if (priv->timestamp == NULL) {
         priv->timestamp = gswe_timestamp_new_from_gregorian_full(year, month, day, hour, minute, second, 0, 1.0);
     } else {
-        gswe_timestamp_set_gregorian_full(priv->timestamp, year, month, day, hour, minute, second, 0, 1.0);
+        gswe_timestamp_set_gregorian_full(priv->timestamp, year, month, day, hour, minute, second, 0, 1.0, NULL);
     }
 
     if (priv->moment == NULL) {
