@@ -45,9 +45,9 @@ AC_CHECK_LIB([m], [floor])
 GTK_DOC_CHECK([1.19], [--flavour no-tmpl])
 PKG_PROG_PKG_CONFIG
 AC_PATH_PROG([GLIB_MKENUMS], [glib-mkenums])
-PKG_CHECK_MODULES([GLIB], [glib-2.0])
+PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.30])
 PKG_CHECK_MODULES([GOBJECT], [gobject-2.0])
-PKG_CHECK_MODULES([GTK], [gtk+-3.0])
+PKG_CHECK_MODULES([GTK], [gtk+-3.0 >= 3.8])
 PKG_CHECK_MODULES([SWE_GLIB], [swe-glib])
 AC_CONFIG_MACRO_DIR([m4])
 
