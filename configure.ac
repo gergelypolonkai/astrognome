@@ -53,6 +53,7 @@ AC_CONFIG_MACRO_DIR([m4])
 
 LIBGD_INIT([
     header-bar
+    stack
     static
 ])
 
