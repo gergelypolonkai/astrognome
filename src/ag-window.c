@@ -10,7 +10,8 @@
 struct _AgWindowPrivate {
     GtkWidget *grid;
     GtkWidget *header_bar;
-    GtkWidget *notebook;
+    GtkWidget *stack;
+    GtkWidget *stack_switcher;
     GtkWidget *name;
     GtkWidget *north_lat;
     GtkWidget *south_lat;
@@ -26,11 +27,11 @@ struct _AgWindowPrivate {
     GtkWidget *second;
     GtkBuilder *builder;
 
-    gint tab_chart;
-    gint tab_aspects;
-    gint tab_points;
-    gint tab_edit;
-    gint current_tab;
+    GtkWidget *tab_chart;
+    GtkWidget *tab_aspects;
+    GtkWidget *tab_points;
+    GtkWidget *tab_edit;
+    GtkWidget *current_tab;
 
     GsweTimestamp *timestamp;
     GsweMoment *moment;
@@ -105,47 +106,28 @@ recalculate_chart(AgWindow *window)
 }
 
 static void
-set_tab_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
 {
-    AgWindow *window = AG_WINDOW(user_data);
-    const gchar *target = g_variant_get_string(parameter, NULL);
-    gint target_tab = 0;
+    const gchar *active_tab_name = gd_stack_get_visible_child_name(stack);
 
-    g_action_change_state(G_ACTION(action), parameter);
+    g_debug("Active tab changed: %s", active_tab_name);
 
-    if (strcmp(target, "chart") == 0) {
-        target_tab = window->priv->tab_chart;
-    } else if (strcmp(target, "aspects") == 0) {
-        target_tab = window->priv->tab_aspects;
-    } else if (strcmp(target, "points") == 0) {
-        target_tab = window->priv->tab_points;
-    } else if (strcmp(target, "edit") == 0) {
-        target_tab = window->priv->tab_edit;
-    } else {
-        g_warning("Unknown tab!");
-
+    if (active_tab_name == NULL) {
         return;
     }
 
-    if ((window->priv->current_tab == window->priv->tab_edit) && (target_tab != window->priv->tab_edit)) {
+    // Note that priv->current_tab is actually the previously selected tab, not the real active one!
+    if (window->priv->current_tab == window->priv->tab_edit) {
+        g_debug("Recalculating chart data");
         recalculate_chart(window);
     }
 
-    window->priv->current_tab = target_tab;
-
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(window->priv->notebook), target_tab);
-}
-
-static void
-change_tab_cb(GSimpleAction *action, GVariant *state, gpointer user_data)
-{
-    g_simple_action_set_state(action, state);
+    window->priv->current_tab = gd_stack_get_visible_child(stack);
 }
 
 static GActionEntry win_entries[] = {
     { "close",      close_cb,     NULL, NULL,      NULL },
     { "gear-menu",  gear_menu_cb, NULL, "false",   NULL },
-    { "tab-change", set_tab_cb,   "s",  "'edit'", change_tab_cb },
 };
 
 static void
@@ -287,8 +269,6 @@ window_populate(AgWindow *window)
     AgWindowPrivate *priv = window->priv;
     GtkWidget *menu_button;
     GObject *menu;
-    GtkWidget *placeholder;
-    GtkWidget *tab;
 
     priv->header_bar = gd_header_bar_new();
     menu_button = gd_header_menu_button_new();
@@ -302,24 +282,30 @@ window_populate(AgWindow *window)
     menu = gtk_builder_get_object(priv->builder, "window-menu");
     gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menu_button), G_MENU_MODEL(menu));
 
-    priv->notebook = gtk_notebook_new();
-    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(priv->notebook), FALSE);
-    gtk_grid_attach(GTK_GRID(priv->grid), priv->notebook, 0, 1, 1, 1);
+    priv->stack = gd_stack_new();
+    gtk_grid_attach(GTK_GRID(priv->grid), priv->stack, 0, 1, 1, 1);
+    g_signal_connect(priv->stack, "notify::visible-child", G_CALLBACK(tab_changed_cb), window);
 
-    tab = notebook_edit(window);
-    priv->tab_edit = gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), tab, NULL);
+    priv->stack_switcher = gd_stack_switcher_new();
+    gd_stack_switcher_set_stack(GD_STACK_SWITCHER(priv->stack_switcher), GD_STACK(priv->stack));
 
-    placeholder = gtk_label_new("PLACEHOLDER FOR THE CHART WEBKIT");
-    priv->tab_chart = gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
+    priv->tab_edit = notebook_edit(window);
+    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_edit, "edit", _("Edit"));
 
-    placeholder = gtk_label_new("PLACEHOLDER FOR THE ASPECTS TABLE");
-    priv->tab_aspects = gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
+    priv->tab_chart = gtk_label_new("PLACEHOLDER FOR THE CHART WEBKIT");
+    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_chart, "chart", _("Chart"));
 
-    placeholder = gtk_label_new("PLACEHOLDER FOR THE POINTS TABLES");
-    priv->tab_points = gtk_notebook_append_page(GTK_NOTEBOOK(priv->notebook), placeholder, NULL);
+    priv->tab_aspects = gtk_label_new("PLACEHOLDER FOR THE ASPECTS TABLE");
+    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_aspects, "aspects", _("Aspects"));
+
+    priv->tab_points = gtk_label_new("PLACEHOLDER FOR THE POINTS TABLES");
+    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_points, "points", _("Points"));
 
     /* TODO: change to the Chart tab if we are opening an existing chart! */
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(priv->notebook), priv->tab_edit);
+    gd_stack_set_visible_child_name(GD_STACK(priv->stack), "edit");
+    priv->current_tab = priv->tab_edit;
+
+    gd_header_bar_set_custom_title(GD_HEADER_BAR(priv->header_bar), priv->stack_switcher);
 
     gtk_widget_show_all(priv->grid);
 }
