@@ -11,6 +11,13 @@ BUILT_SOURCES = \
 				ag-resources.c \
 				$(NULL)
 
+astrognome_source_files = \
+						  ag-app.c     \
+						  ag-window.c  \
+						  ag-chart.c   \
+						  astrognome.c \
+						  $(NULL)
+
 EXTRA_DIST = \
 			 $(resource_files) \
 			 ag.gresource.xml \
@@ -19,7 +26,7 @@ EXTRA_DIST = \
 AM_CPPFLAGS = -DG_LOG_DOMAIN=\"Astrognome\" -DLOCALEDIR=\"$(localedir)\" -DPKGDATADIR=\"$(pkgdatadir)\"
 bin_PROGRAMS = astrognome
 
-astrognome_SOURCES = ag-app.c ag-window.c astrognome.c $(BUILT_SOURCES)
+astrognome_SOURCES = $(astrognome_source_files) $(BUILT_SOURCES)
 astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS) $(top_builddir)/libgd/libgd.la
 astrognome_LDFLAGS = -rdynamic
 astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) -Wall -I$(top_srcdir)/libgd
