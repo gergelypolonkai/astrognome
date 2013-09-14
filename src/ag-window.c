@@ -6,6 +6,7 @@
 
 #include "ag-app.h"
 #include "ag-window.h"
+#include "ag-chart.h"
 
 struct _AgWindowPrivate {
     GtkWidget *grid;
@@ -34,7 +35,7 @@ struct _AgWindowPrivate {
     GtkWidget *current_tab;
 
     GsweTimestamp *timestamp;
-    GsweMoment *moment;
+    AgChart *chart;
 };
 
 G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
@@ -62,9 +63,9 @@ close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
-moment_changed(GsweMoment *moment, gpointer user_data)
+chart_changed(AgChart *chart, gpointer user_data)
 {
-    g_warning("Moment changed!");
+    g_warning("Chart changed!");
 }
 
 static void
@@ -97,11 +98,11 @@ recalculate_chart(AgWindow *window)
         gswe_timestamp_set_gregorian_full(priv->timestamp, year, month, day, hour, minute, second, 0, 1.0, NULL);
     }
 
-    if (priv->moment == NULL) {
+    if (priv->chart == NULL) {
         // TODO: moke house system configurable
-        priv->moment = gswe_moment_new_full(priv->timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
-        g_signal_connect(priv->moment, "changed", G_CALLBACK(moment_changed), NULL);
-        moment_changed(priv->moment, NULL);
+        priv->chart = ag_chart_new_full(priv->timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
+        g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), NULL);
+        chart_changed(priv->chart, NULL);
     }
 }
 
@@ -140,7 +141,7 @@ ag_window_init(AgWindow *window)
     window->priv = priv = GET_PRIVATE(window);
 
     priv->timestamp = NULL;
-    priv->moment = NULL;
+    priv->chart = NULL;
 
     gtk_window_set_hide_titlebar_when_maximized(GTK_WINDOW(window), TRUE);
 
