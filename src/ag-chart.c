@@ -21,8 +21,23 @@ ag_chart_init(AgChart *chart)
 }
 
 AgChart *
-ag_chart_new(void)
+ag_chart_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude, gdouble altitude, GsweHouseSystem house_system)
 {
-    return NULL;
+    AgChart *ret;
+    GsweCoordinates *coords = g_new0(GsweCoordinates, 1);
+
+    coords->longitude = longitude;
+    coords->latitude = latitude;
+    coords->altitude = altitude;
+
+    ret = AG_CHART(g_object_new(AG_TYPE_CHART,
+            "timestamp",    timestamp,
+            "coordinates",  coords,
+            "house-system", house_system,
+            NULL));
+
+    g_free(coords);
+
+    return ret;
 }
 
