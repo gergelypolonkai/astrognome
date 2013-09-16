@@ -64,6 +64,5 @@ AC_CONFIG_FILES([
     po/Makefile.in
     data/geonames/Makefile
     data/icons/Makefile
-    docs/reference/astrognome/Makefile
 ])
 AC_OUTPUT

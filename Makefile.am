@@ -1,9 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = libgd src po data/icons data/geonames docs/reference/astrognome
+SUBDIRS = libgd src po data/icons data/geonames
 
 EXTRA_DIST = config.rpath ChangeLog
-
-DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc
 
 MAINTAINERCLEANFILES = ChangeLog
 
