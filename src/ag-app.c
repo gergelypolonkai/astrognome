@@ -10,47 +10,47 @@ struct _AgAppPrivate {
 G_DEFINE_TYPE(AgApp, ag_app, GTK_TYPE_APPLICATION);
 
 GtkWindow *
-ag_app_peek_first_window(AgApp *self)
+ag_app_peek_first_window(AgApp *app)
 {
     GList *l;
 
-    for (l = gtk_application_get_windows(GTK_APPLICATION(self)); l; l = g_list_next(l)) {
+    for (l = gtk_application_get_windows(GTK_APPLICATION(app)); l; l = g_list_next(l)) {
         if (GTK_IS_WINDOW(l->data)) {
             return (GTK_WINDOW(l->data));
         }
     }
 
-    ag_app_new_window(self);
+    ag_app_new_window(app);
 
-    return ag_app_peek_first_window(self);
+    return ag_app_peek_first_window(app);
 }
 
 void
-ag_app_new_window(AgApp *self)
+ag_app_new_window(AgApp *app)
 {
-    g_action_group_activate_action(G_ACTION_GROUP(self), "new-window", NULL);
+    g_action_group_activate_action(G_ACTION_GROUP(app), "new-window", NULL);
 }
 
 void
-ag_app_quit(AgApp *self)
+ag_app_quit(AgApp *app)
 {
-    g_action_group_activate_action(G_ACTION_GROUP(self), "quit", NULL);
+    g_action_group_activate_action(G_ACTION_GROUP(app), "quit", NULL);
 }
 
 void
-ag_app_raise(AgApp *self)
+ag_app_raise(AgApp *app)
 {
-    g_action_group_activate_action(G_ACTION_GROUP(self), "raise", NULL);
+    g_action_group_activate_action(G_ACTION_GROUP(app), "raise", NULL);
 }
 
 static void
 new_window_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    AgApp *self = AG_APP(user_data);
+    AgApp *app = AG_APP(user_data);
     GtkWidget *window;
 
-    window = ag_window_new(self);
-    gtk_application_add_window(GTK_APPLICATION(self), GTK_WINDOW(window));
+    window = ag_window_new(app);
+    gtk_application_add_window(GTK_APPLICATION(app), GTK_WINDOW(window));
     gtk_widget_show_all(window);
 }
 
@@ -89,21 +89,20 @@ about_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 static void
 quit_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    AgApp *self = AG_APP(user_data);
     GList *l;
 
-    while ((l = gtk_application_get_windows(GTK_APPLICATION(self)))) {
-        gtk_application_remove_window(GTK_APPLICATION(self), GTK_WINDOW(l->data));
+    while ((l = gtk_application_get_windows(GTK_APPLICATION(user_data)))) {
+        gtk_application_remove_window(GTK_APPLICATION(user_data), GTK_WINDOW(l->data));
     }
 }
 
 static void
 raise_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    AgApp *self = AG_APP(user_data);
+    AgApp *app = AG_APP(user_data);
     GtkWindow *window;
 
-    window = ag_app_peek_first_window(self);
+    window = ag_app_peek_first_window(app);
     gtk_window_present(window);
 }
 
@@ -116,20 +115,20 @@ static GActionEntry app_entries[] = {
 };
 
 static void
-setup_actions(AgApp *self)
+setup_actions(AgApp *app)
 {
-    g_action_map_add_action_entries(G_ACTION_MAP(self), app_entries, G_N_ELEMENTS(app_entries), self);
+    g_action_map_add_action_entries(G_ACTION_MAP(app), app_entries, G_N_ELEMENTS(app_entries), app);
 }
 
 static void
-setup_accelerators(AgApp *self)
+setup_accelerators(AgApp *app)
 {
-    gtk_application_add_accelerator(GTK_APPLICATION(self), "<Primary>w", "win.close",     NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(self), "F10",        "win.gear-menu", NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>w", "win.close",     NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "F10",        "win.gear-menu", NULL);
 }
 
 static void
-setup_menu(AgApp *self)
+setup_menu(AgApp *app)
 {
     GtkBuilder *builder;
     GMenuModel *model;
@@ -142,21 +141,21 @@ setup_menu(AgApp *self)
     }
 
     model = G_MENU_MODEL(gtk_builder_get_object(builder, "app-menu"));
-    gtk_application_set_app_menu(GTK_APPLICATION(self), model);
+    gtk_application_set_app_menu(GTK_APPLICATION(app), model);
 
     g_object_unref(builder);
 }
 
 static void
-startup(GApplication *app)
+startup(GApplication *gapp)
 {
-    AgApp *self = AG_APP(app);
+    AgApp *app = AG_APP(gapp);
 
-    G_APPLICATION_CLASS(ag_app_parent_class)->startup(app);
+    G_APPLICATION_CLASS(ag_app_parent_class)->startup(gapp);
 
-    setup_actions(self);
-    setup_menu(self);
-    setup_accelerators(self);
+    setup_actions(app);
+    setup_menu(app);
+    setup_accelerators(app);
 }
 
 AgApp *
@@ -177,7 +176,7 @@ ag_app_new(void)
 }
 
 static void
-ag_app_init(AgApp *self)
+ag_app_init(AgApp *app)
 {
 }
 
