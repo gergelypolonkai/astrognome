@@ -5,6 +5,7 @@
 
 #include "ag-app.h"
 #include "ag-window.h"
+#include "ag-chart.h"
 #include "config.h"
 #include "astrognome.h"
 
@@ -203,7 +204,11 @@ ag_app_open_chart(AgApp *app, GFile *file)
              *day,
              *hour,
              *minute,
-             *second;
+             *second,
+             *timezone;
+    GtkWidget *window;
+    AgChart *chart;
+    GsweTimestamp *timestamp;
 
     uri = g_file_get_uri(file);
 
@@ -247,6 +252,26 @@ ag_app_open_chart(AgApp *app, GFile *file)
     hour = get_by_xpath(xpathCtx, "/chartinfo/data/time/hour/text()", XML_CONVERT_INT);
     minute = get_by_xpath(xpathCtx, "/chartinfo/data/time/minute/text()", XML_CONVERT_INT);
     second = get_by_xpath(xpathCtx, "/chartinfo/data/time/second/text()", XML_CONVERT_INT);
+    timezone = get_by_xpath(xpathCtx, "/chartinfo/data/time/timezone/text()", XML_CONVERT_DOUBLE);
+
+    window = ag_app_create_window(app);
+    timestamp = gswe_timestamp_new_from_gregorian_full(
+            g_variant_get_int32(year),
+            g_variant_get_int32(month),
+            g_variant_get_int32(day),
+            g_variant_get_int32(hour),
+            g_variant_get_int32(minute),
+            g_variant_get_int32(second),
+            0,
+            g_variant_get_double(timezone)
+        );
+    // TODO: Make house system configurable (and saveable)
+    chart = ag_chart_new_full(timestamp, g_variant_get_double(longitude), g_variant_get_double(latitude), g_variant_get_double(altitude), GSWE_HOUSE_SYSTEM_PLACIDUS);
+    ag_chart_set_name(chart, g_variant_get_string(chart_name, NULL));
+    ag_chart_set_country(chart, g_variant_get_string(country, NULL));
+    ag_chart_set_city(chart, g_variant_get_string(city, NULL));
+    ag_window_set_chart(AG_WINDOW(window), chart);
+    ag_window_update_from_chart(AG_WINDOW(window));
 
     g_variant_unref(chart_name);
     g_variant_unref(country);
