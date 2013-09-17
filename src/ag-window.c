@@ -135,8 +135,10 @@ recalculate_chart(AgWindow *window)
     if (priv->chart == NULL) {
         // TODO: make house system configurable
         priv->chart = ag_chart_new_full(priv->timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
-        g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), NULL);
-        chart_changed(priv->chart, NULL);
+        g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), window);
+        ag_window_update_from_chart(window);
+    } else {
+        gswe_moment_set_timestamp(GSWE_MOMENT(priv->chart), priv->timestamp);
     }
 }
 
