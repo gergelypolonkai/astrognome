@@ -130,6 +130,14 @@ get_by_xpath(xmlXPathContextPtr ctx, const gchar *xpath, XmlConvertType type)
         return NULL;
     }
 
+    if (xpathObj->nodesetval == NULL) {
+        // TODO: Warn with a popup or similar way
+        g_warning("Required element not found. This is not a valid save file!");
+        xmlXPathFreeObject(xpathObj);
+
+        return NULL;
+    }
+
     if (xpathObj->nodesetval->nodeNr > 1) {
         // TODO: Warn with a popup or similar way
         g_warning("Too many elements. This is not a valid save file!");
