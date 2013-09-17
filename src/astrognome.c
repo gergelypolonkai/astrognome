@@ -15,10 +15,12 @@
 GtkBuilder *builder;
 static gboolean option_quit;
 static gboolean option_version;
+static gboolean option_new_window;
 
 static GOptionEntry options[] = {
-    { "version", 'v', 0, G_OPTION_ARG_NONE, &option_version, N_("Display version and exit"),    NULL },
-    { "quit",    'q', 0, G_OPTION_ARG_NONE, &option_quit,    N_("Quit any running Astrognome"), NULL },
+    { "new-window", 'n', 0, G_OPTION_ARG_NONE, &option_new_window, N_("Opens a new Astrognome window"), NULL },
+    { "version",    'v', 0, G_OPTION_ARG_NONE, &option_version,    N_("Display version and exit"),      NULL },
+    { "quit",       'q', 0, G_OPTION_ARG_NONE, &option_quit,       N_("Quit any running Astrognome"),   NULL },
     { NULL }
 };
 
@@ -42,7 +44,11 @@ struct print_data {
 static void
 run_action(AgApp *app, gboolean is_remote)
 {
-    if (option_quit) {
+    if (option_new_window) {
+        if (is_remote) {
+            ag_app_new_window(app);
+        }
+    } else if (option_quit) {
         ag_app_quit(app);
     } else if (is_remote) {
         ag_app_raise(app);
