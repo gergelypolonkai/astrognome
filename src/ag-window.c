@@ -73,9 +73,9 @@ ag_window_redraw_chart(AgWindow *window)
 }
 
 static void
-chart_changed(AgChart *chart, gpointer user_data)
+chart_changed(AgChart *chart, AgWindow *window)
 {
-    g_warning("Chart changed!");
+    ag_window_redraw_chart(window);
 }
 
 static void
