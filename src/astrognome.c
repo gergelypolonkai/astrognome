@@ -29,11 +29,6 @@ const char *moonStateName[] = {
     "Dark Moon"
 };
 
-struct print_data {
-    GString *line;
-    GswePlanet planet;
-};
-
 static void
 run_action(AgApp *app, gboolean is_remote)
 {
