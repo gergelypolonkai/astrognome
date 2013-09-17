@@ -76,7 +76,7 @@ main(int argc, char *argv[])
     option_quit = FALSE,
     option_new_window = FALSE;
 
-    if (!gtk_init_with_args(&argc, &argv, NULL, options, GETTEXT_PACKAGE, &err)) {
+    if (!gtk_init_with_args(&argc, &argv, _("[FILE…]"), options, GETTEXT_PACKAGE, &err)) {
         g_printerr("%s\n", err->message);
 
         return EXIT_FAILURE;

@@ -165,6 +165,15 @@ startup(GApplication *gapp)
     setup_accelerators(app);
 }
 
+static void
+ag_app_open(GApplication *gapp, GFile **files, gint n_files, const gchar *hint)
+{
+    gint i;
+
+    for (i = 0; i < n_files; i++) {
+    }
+}
+
 AgApp *
 ag_app_new(void)
 {
@@ -175,7 +184,7 @@ ag_app_new(void)
 
     app = g_object_new(AG_TYPE_APP,
             "application-id",   "eu.polonkai.gergely.Astrognome",
-            "flags",            G_APPLICATION_FLAGS_NONE,
+            "flags",            G_APPLICATION_HANDLES_OPEN,
             "register-session", TRUE,
             NULL);
 
@@ -193,5 +202,6 @@ ag_app_class_init(AgAppClass *klass)
     GApplicationClass *application_class = G_APPLICATION_CLASS(klass);
 
     application_class->startup = startup;
+    application_class->open = ag_app_open;
 }
 
