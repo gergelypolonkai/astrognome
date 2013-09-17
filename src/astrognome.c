@@ -2,6 +2,7 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
+#include <libxml/xmlversion.h>
 
 #include <libgd/gd.h>
 
@@ -86,6 +87,7 @@ main(int argc, char *argv[])
     textdomain(GETTEXT_PACKAGE);
 #endif
 
+    LIBXML_TEST_VERSION;
     gswe_init();
 
     option_version = FALSE,
