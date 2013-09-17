@@ -187,7 +187,8 @@ static void
 ag_app_open_chart(AgApp *app, GFile *file)
 {
     GError *err = NULL;
-    gchar *xml;
+    gchar *uri,
+          *xml;
     guint length;
     xmlDocPtr doc;
     xmlXPathContextPtr xpathCtx;
@@ -204,10 +205,13 @@ ag_app_open_chart(AgApp *app, GFile *file)
              *minute,
              *second;
 
+    uri = g_file_get_uri(file);
+
     if (!g_file_load_contents(file, NULL, &xml, &length, NULL, &err)) {
         // TODO: Warn with a popup or similar way
         g_warning("Could not open file '%s': %s", uri, err->message);
         g_clear_error(&err);
+        g_free(uri);
 
         return;
     }
@@ -215,6 +219,7 @@ ag_app_open_chart(AgApp *app, GFile *file)
     if ((doc = xmlReadMemory(xml, length, "chart.xml", NULL, 0)) == NULL) {
         // TODO: Warn with a popup or similar way
         g_warning("Saved chart is corrupt (or not a saved chart at all)");
+        g_free(uri);
 
         return;
     }
@@ -223,6 +228,7 @@ ag_app_open_chart(AgApp *app, GFile *file)
         // TODO: Warn with a popup or similar way
         g_warning("Could not initialize XPath");
         xmlFreeDoc(doc);
+        g_free(uri);
 
         return;
     }
@@ -253,6 +259,7 @@ ag_app_open_chart(AgApp *app, GFile *file)
     g_variant_unref(minute);
     g_variant_unref(second);
 
+    g_free(uri);
     xmlXPathFreeContext(xpathCtx);
     xmlFreeDoc(doc);
 }
