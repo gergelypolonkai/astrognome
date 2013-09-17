@@ -32,6 +32,13 @@ AgChart *ag_chart_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble 
 void ag_chart_load_from_file(const gchar *path, GError **err);
 void ag_chart_save_to_file(const gchar *path, GError **err);
 
+void ag_chart_set_name(AgChart *chart, const gchar *name);
+gchar *ag_chart_get_name(AgChart *chart);
+void ag_chart_set_country(AgChart *chart, const gchar *country);
+gchar *ag_chart_get_country(AgChart *chart);
+void ag_chart_set_city(AgChart *chart, const gchar *city);
+gchar *ag_chart_get_city(AgChart *chart);
+
 G_END_DECLS
 
 #endif /* __AG_CHART_H__ */
