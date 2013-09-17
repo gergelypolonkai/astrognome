@@ -63,10 +63,11 @@ main(int argc, char *argv[])
     AgApp *app;
     GError *err = NULL;
 
-    setlocale(LC_ALL, "");
+#ifdef ENABLE_NLS
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
     textdomain(GETTEXT_PACKAGE);
+#endif
 
     gswe_init();
 
