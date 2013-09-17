@@ -16,6 +16,7 @@
             <hour>11</hour>
             <minute>54</minute>
             <second>45</second>
+            <timezone>1.0</timezone>
         </time>
     </data>
 </chartinfo>
