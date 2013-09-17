@@ -336,8 +336,13 @@ ag_window_new(AgApp *app)
 void
 ag_window_set_chart(AgWindow *window, AgChart *chart)
 {
-    g_object_unref(window->priv->chart);
+    if (window->priv->chart != NULL) {
+        g_signal_handlers_disconnect_by_func(window->priv->chart, chart_changed, window);
+        g_object_unref(window->priv->chart);
+    }
+
     window->priv->chart = chart;
+    g_signal_connect(window->priv->chart, "changed", G_CALLBACK(chart_changed), window);
     g_object_ref(chart);
 }
 
