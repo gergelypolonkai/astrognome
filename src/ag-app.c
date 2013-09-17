@@ -43,15 +43,22 @@ ag_app_raise(AgApp *app)
     g_action_group_activate_action(G_ACTION_GROUP(app), "raise", NULL);
 }
 
-static void
-new_window_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+static GtkWidget *
+ag_app_create_window(AgApp *app)
 {
-    AgApp *app = AG_APP(user_data);
     GtkWidget *window;
 
     window = ag_window_new(app);
     gtk_application_add_window(GTK_APPLICATION(app), GTK_WINDOW(window));
     gtk_widget_show_all(window);
+
+    return window;
+}
+
+static void
+new_window_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+    ag_app_create_window(AG_APP(user_data));
 }
 
 static void
