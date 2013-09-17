@@ -105,6 +105,11 @@ quit_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
+ag_app_open_chart(AgApp *app, GFile *file)
+{
+}
+
+static void
 open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     gint response;
@@ -135,17 +140,14 @@ open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 
         for (l = filenames; l; l = g_slist_next(l)) {
             GFile *file;
-            char *data = l->data,
-                 *uri;
+            char *data = l->data;
 
             if (data == NULL) {
                 continue;
             }
 
             file = g_file_new_for_commandline_arg(data);
-
-            uri = g_file_get_uri(file);
-            g_free(uri);
+            ag_app_open_chart(AG_APP(user_data), file);
         }
     }
 
@@ -222,6 +224,7 @@ ag_app_open(GApplication *gapp, GFile **files, gint n_files, const gchar *hint)
     gint i;
 
     for (i = 0; i < n_files; i++) {
+        ag_app_open_chart(AG_APP(gapp), files[i]);
     }
 }
 
