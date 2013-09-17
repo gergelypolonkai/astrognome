@@ -1,3 +1,5 @@
+#include <swe-glib.h>
+
 #include "ag-chart.h"
 
 struct _AgChartPrivate {
@@ -37,6 +39,8 @@ ag_chart_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude,
             NULL));
 
     g_free(coords);
+
+    gswe_moment_add_all_planets(GSWE_MOMENT(chart));
 
     return chart;
 }
