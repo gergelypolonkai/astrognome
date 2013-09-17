@@ -44,10 +44,10 @@ run_action(AgApp *app, gboolean is_remote)
 }
 
 static void
-application_activate_cb(GtkApplication *app, gpointer user_data)
+application_activate_cb(AgApp *app, gpointer user_data)
 {
-    ag_app_new_window(AG_APP(app));
-    run_action(AG_APP(app), FALSE);
+    ag_app_new_window(app);
+    run_action(app, FALSE);
 }
 
 int
