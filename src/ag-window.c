@@ -67,6 +67,11 @@ save_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
 }
 
+void
+ag_window_redraw_chart(AgWindow *window)
+{
+}
+
 static void
 chart_changed(AgChart *chart, gpointer user_data)
 {
