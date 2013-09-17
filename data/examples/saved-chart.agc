@@ -7,6 +7,7 @@
             <city>Budapest</city>
             <longitude>47.49801</longitude>
             <latitude>19.03991</latitude>
+            <altitude>280.0</altitude>
         </place>
         <time>
             <year>1983</year>
