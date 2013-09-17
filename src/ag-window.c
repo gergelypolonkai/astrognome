@@ -104,7 +104,7 @@ recalculate_chart(AgWindow *window)
     }
 
     if (priv->chart == NULL) {
-        // TODO: moke house system configurable
+        // TODO: make house system configurable
         priv->chart = ag_chart_new_full(priv->timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
         g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), NULL);
         chart_changed(priv->chart, NULL);
