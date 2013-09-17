@@ -1,6 +1,8 @@
 #include <string.h>
 #include <glib/gi18n.h>
 #include <libgd/gd.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 #include <swe-glib.h>
 
@@ -42,6 +44,8 @@ G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
 #define GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE((instance), AG_TYPE_WINDOW, AgWindowPrivate))
 
+static void recalculate_chart(AgWindow *window);
+
 static void
 gear_menu_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
@@ -65,6 +69,101 @@ close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 static void
 save_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
+    xmlDocPtr doc = NULL;
+    xmlNodePtr root_node = NULL,
+               data_node = NULL,
+               place_node = NULL,
+               time_node = NULL;
+    gchar *value;
+    GsweCoordinates *coordinates;
+    GsweTimestamp *timestamp;
+    AgWindow *window = user_data;
+
+    recalculate_chart(window);
+
+    doc = xmlNewDoc(BAD_CAST "1.0");
+    root_node = xmlNewNode(NULL, BAD_CAST "chartinfo");
+    xmlDocSetRootElement(doc, root_node);
+
+    // Begin <data> node
+    data_node = xmlNewChild(root_node, NULL, BAD_CAST "data", NULL);
+
+    value = ag_chart_get_name(window->priv->chart);
+    xmlNewChild(data_node, NULL, BAD_CAST "name", BAD_CAST value);
+    g_free(value);
+
+    // Begin <place> node
+    place_node = xmlNewChild(data_node, NULL, BAD_CAST "place", NULL);
+
+    value = ag_chart_get_country(window->priv->chart);
+    xmlNewChild(place_node, NULL, BAD_CAST "country", BAD_CAST value);
+    g_free(value);
+
+    value = ag_chart_get_city(window->priv->chart);
+    xmlNewChild(place_node, NULL, BAD_CAST "city", BAD_CAST value);
+    g_free(value);
+
+    coordinates = gswe_moment_get_coordinates(GSWE_MOMENT(window->priv->chart));
+
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, coordinates->longitude);
+    xmlNewChild(place_node, NULL, BAD_CAST "longitude", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, coordinates->latitude);
+    xmlNewChild(place_node, NULL, BAD_CAST "latitude", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, coordinates->altitude);
+    xmlNewChild(place_node, NULL, BAD_CAST "altitude", BAD_CAST value);
+    g_free(value);
+
+    g_free(coordinates);
+
+    // Begin <time> node
+    time_node = xmlNewChild(root_node, NULL, BAD_CAST "time", NULL);
+
+    timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(window->priv->chart));
+
+    value = g_malloc0(10);
+    g_ascii_dtostr(value, 10, gswe_timestamp_get_gregorian_year(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "year", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_month(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "month", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_day(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "year", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_hour(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "hour", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_minute(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "minute", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_second(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "year", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(7);
+    g_ascii_dtostr(value, 7, gswe_timestamp_get_gregorian_timezone(timestamp));
+    xmlNewChild(time_node, NULL, BAD_CAST "timezone", BAD_CAST value);
+    g_free(value);
+
+    xmlSaveFormatFileEnc("-", doc, "UTF-8", 1);
+    xmlFreeDoc(doc);
 }
 
 void
