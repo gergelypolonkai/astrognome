@@ -8,6 +8,11 @@
         <attribute name="action">app.new-window</attribute>
         <attribute name="accel">&lt;Primary&gt;n</attribute>
       </item>
+      <item>
+        <attribute name="label" translatable="yes">Open</attribute>
+        <attribute name="action">app.open</attribute>
+        <attribute name="accel">&lt;Primary&gt;o</attribute>
+      </item>
     </section>
     <section>
       <item>
@@ -29,5 +34,10 @@
     </section>
   </menu>
   <menu id="window-menu">
+    <item>
+      <attribute name="label" translatable="yes">Save</attribute>
+      <attribute name="action">win.save</attribute>
+      <attribute name="accel">&lt;Primary&gt;s</attribute>
+    </item>
   </menu>
 </interface>

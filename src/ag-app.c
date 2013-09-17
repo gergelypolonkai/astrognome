@@ -104,6 +104,11 @@ quit_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
+open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+}
+
+static void
 raise_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     AgApp *app = AG_APP(user_data);
@@ -119,6 +124,7 @@ static GActionEntry app_entries[] = {
     { "about",       about_cb,       NULL, NULL, NULL },
     { "quit",        quit_cb,        NULL, NULL, NULL },
     { "raise",       raise_cb,       NULL, NULL, NULL },
+    { "open",        open_cb,        NULL, NULL, NULL },
 };
 
 static void
@@ -131,6 +137,7 @@ static void
 setup_accelerators(AgApp *app)
 {
     gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>w", "win.close",     NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>s", "win.save",      NULL);
     gtk_application_add_accelerator(GTK_APPLICATION(app), "F10",        "win.gear-menu", NULL);
 }
 

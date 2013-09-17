@@ -63,6 +63,11 @@ close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
+save_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+}
+
+static void
 chart_changed(AgChart *chart, gpointer user_data)
 {
     g_warning("Chart changed!");
@@ -128,6 +133,7 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
 
 static GActionEntry win_entries[] = {
     { "close",      close_cb,     NULL, NULL,      NULL },
+    { "save",       save_cb,      NULL, NULL,      NULL },
     { "gear-menu",  gear_menu_cb, NULL, "false",   NULL },
 };
 
