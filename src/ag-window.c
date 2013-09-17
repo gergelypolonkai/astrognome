@@ -72,6 +72,30 @@ ag_window_redraw_chart(AgWindow *window)
 {
 }
 
+void
+ag_window_update_from_chart(AgWindow *window)
+{
+    GsweTimestamp *timestamp;
+    GsweCoordinates *coordinates;
+
+    timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(window->priv->chart));
+    coordinates = gswe_moment_get_coordinates(GSWE_MOMENT(window->priv->chart));
+
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->year), gswe_timestamp_get_gregorian_year(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->month), gswe_timestamp_get_gregorian_month(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->day), gswe_timestamp_get_gregorian_day(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->hour), gswe_timestamp_get_gregorian_hour(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->minute), gswe_timestamp_get_gregorian_minute(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->second), gswe_timestamp_get_gregorian_second(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->longitude), coordinates->longitude);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->latitude), coordinates->latitude);
+    gtk_entry_set_text(GTK_ENTRY(window->priv->name), ag_chart_get_name(window->priv->chart));
+
+    g_free(coordinates);
+
+    ag_window_redraw_chart(window);
+}
+
 static void
 chart_changed(AgChart *chart, AgWindow *window)
 {

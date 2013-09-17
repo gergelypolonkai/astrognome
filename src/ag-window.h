@@ -31,6 +31,7 @@ GType ag_window_get_type(void) G_GNUC_CONST;
 GtkWidget *ag_window_new(AgApp *app);
 void ag_window_set_chart(AgWindow *window, AgChart *chart);
 AgChart *ag_window_get_chart(AgWindow *window);
+void ag_window_update_from_chart(AgWindow *window);
 
 G_END_DECLS
 
