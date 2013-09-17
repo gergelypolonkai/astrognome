@@ -3,6 +3,7 @@
 #include "ag-app.h"
 #include "ag-window.h"
 #include "config.h"
+#include "astrognome.h"
 
 struct _AgAppPrivate {
 };
@@ -106,6 +107,49 @@ quit_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 static void
 open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
+    gint response;
+    GtkWidget *fs;
+    GSList *filenames = NULL;
+
+    fs = gtk_file_chooser_dialog_new(_("Select charts"),
+       NULL,
+       GTK_FILE_CHOOSER_ACTION_OPEN,
+       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+       GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+       NULL);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_all);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_chart);
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(fs), filter_chart);
+    gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
+    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(fs), TRUE);
+    gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
+
+    response = gtk_dialog_run(GTK_DIALOG(fs));
+
+    if (response == GTK_RESPONSE_ACCEPT) {
+        filenames = gtk_file_chooser_get_uris(GTK_FILE_CHOOSER(fs));
+    }
+
+    if (filenames != NULL) {
+        GSList *l;
+
+        for (l = filenames; l; l = g_slist_next(l)) {
+            GFile *file;
+            char *data = l->data,
+                 *uri;
+
+            if (data == NULL) {
+                continue;
+            }
+
+            file = g_file_new_for_commandline_arg(data);
+
+            uri = g_file_get_uri(file);
+            g_free(uri);
+        }
+    }
+
+    gtk_widget_destroy(fs);
 }
 
 static void
