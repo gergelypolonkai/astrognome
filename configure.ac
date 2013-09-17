@@ -1,4 +1,4 @@
-AC_INIT([astrognome], [0.1], [gergely@polonkai.eu])
+AC_INIT([Astrognome], [0.1], [gergely@polonkai.eu], [astrognome])
 AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([-Wall foreign])
 AM_SILENT_RULES([yes])
