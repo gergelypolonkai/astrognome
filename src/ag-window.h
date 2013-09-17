@@ -3,6 +3,7 @@
 
 #include <gtk/gtk.h>
 #include "ag-app.h"
+#include "ag-chart.h"
 
 G_BEGIN_DECLS
 
@@ -28,6 +29,8 @@ struct _AgWindowClass {
 
 GType ag_window_get_type(void) G_GNUC_CONST;
 GtkWidget *ag_window_new(AgApp *app);
+void ag_window_set_chart(AgWindow *window, AgChart *chart);
+AgChart *ag_window_get_chart(AgWindow *window);
 
 G_END_DECLS
 

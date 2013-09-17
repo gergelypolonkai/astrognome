@@ -333,3 +333,17 @@ ag_window_new(AgApp *app)
     return GTK_WIDGET(window);
 }
 
+void
+ag_window_set_chart(AgWindow *window, AgChart *chart)
+{
+    g_object_unref(window->priv->chart);
+    window->priv->chart = chart;
+    g_object_ref(chart);
+}
+
+AgChart *
+ag_window_get_chart(AgWindow *window)
+{
+    return window->priv->chart;
+}
+
