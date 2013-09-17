@@ -16,6 +16,8 @@ GtkBuilder *builder;
 static gboolean option_version,
                 option_quit,
                 option_new_window;
+GtkFileFilter *filter_all = NULL,
+              *filter_chart = NULL;
 
 const char *moonStateName[] = {
     "New Moon",
@@ -48,6 +50,20 @@ application_activate_cb(AgApp *app, gpointer user_data)
 {
     ag_app_new_window(app);
     run_action(app, FALSE);
+}
+
+void
+init_filters(void)
+{
+    filter_all = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_all, _("All files"));
+    gtk_file_filter_add_pattern(filter_all, "*");
+    g_object_ref_sink(filter_all);
+
+    filter_chart = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_chart, _("Astrognome charts"));
+    gtk_file_filter_add_pattern(filter_chart, "*.agc");
+    g_object_ref_sink(filter_chart);
 }
 
 int
@@ -87,6 +103,8 @@ main(int argc, char *argv[])
 
         return EXIT_SUCCESS;
     }
+
+    init_filters();
 
     app = ag_app_new();
     g_signal_connect(app, "activate", G_CALLBACK(application_activate_cb), NULL);
