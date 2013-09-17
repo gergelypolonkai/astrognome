@@ -109,6 +109,7 @@ save_as_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 void
 ag_window_redraw_chart(AgWindow *window)
 {
+    ag_chart_create_svg(window->priv->chart);
 }
 
 void

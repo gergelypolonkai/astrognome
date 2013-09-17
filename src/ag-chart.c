@@ -2,6 +2,7 @@
 #include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
+#include <libxml/tree.h>
 #include <swe-glib.h>
 
 #include "ag-chart.h"
@@ -650,5 +651,105 @@ ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
     g_file_replace_contents(file, (const gchar *)content, length, NULL, FALSE, G_FILE_CREATE_NONE, NULL, NULL, err);
 
     xmlFreeDoc(save_doc);
+}
+
+void
+ag_chart_create_svg(AgChart *chart)
+{
+    xmlDocPtr doc = create_save_doc(chart);
+    xmlNodePtr root_node = NULL,
+               ascmcs_node = NULL,
+               houses_node = NULL,
+               bodies_node = NULL,
+               node = NULL;
+    gchar *value;
+    GList *houses,
+          *house,
+          *planets,
+          *planet;
+    GError *err = NULL;
+    const GswePlanetData *planet_data;
+
+    root_node = xmlDocGetRootElement(doc);
+
+    // gswe_moment_get_house_cusps() also calculates ascmcs data, so call it this early
+    houses = gswe_moment_get_house_cusps(GSWE_MOMENT(chart), NULL);
+
+    // Begin <ascmcs> node
+    ascmcs_node = xmlNewChild(root_node, NULL, BAD_CAST "ascmcs", NULL);
+
+    node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "ascendant", NULL);
+
+    planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_ASCENDENT, NULL);
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, planet_data->position);
+    xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
+    g_free(value);
+
+    node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "mc", NULL);
+
+    planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_MC, NULL);
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, planet_data->position);
+    xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
+    g_free(value);
+
+    node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "vertex", NULL);
+
+    planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_VERTEX, NULL);
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, planet_data->position);
+    xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
+    g_free(value);
+
+    // Begin <houses> node
+    houses_node = xmlNewChild(root_node, NULL, BAD_CAST "houses", NULL);
+
+    for (house = houses; house; house = g_list_next(house)) {
+        GsweHouseData *house_data = house->data;
+
+        node = xmlNewChild(houses_node, NULL, BAD_CAST "house", NULL);
+
+        value = g_malloc0(3);
+        g_ascii_dtostr(value, 3, house_data->house);
+        xmlNewProp(node, BAD_CAST "number", BAD_CAST value);
+        g_free(value);
+
+        value = g_malloc0(12);
+        g_ascii_dtostr(value, 12, house_data->cusp_position);
+        xmlNewProp(node, BAD_CAST "degree", BAD_CAST value);
+        g_free(value);
+    }
+
+    // Begin <bodies> node
+    bodies_node = xmlNewChild(root_node, NULL, BAD_CAST "bodies", NULL);
+
+    planets = gswe_moment_get_all_planets(GSWE_MOMENT(chart));
+
+    for (planet = planets; planet; planet = g_list_next(planet)) {
+        planet_data = planet->data;
+        // TODO: HACK HACK HACK! SWE-GLib has a HUGE mistake here!
+        planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), planet_data->planet_id, &err);
+
+        if (
+                (planet_data->planet_id == GSWE_PLANET_ASCENDENT)
+                || (planet_data->planet_id == GSWE_PLANET_MC)
+                || (planet_data->planet_id == GSWE_PLANET_VERTEX)
+        ) {
+            continue;
+        }
+
+        node = xmlNewChild(bodies_node, NULL, BAD_CAST "body", NULL);
+
+        xmlNewProp(node, BAD_CAST "name", BAD_CAST planet_data->planet_info->name);
+
+        value = g_malloc0(12);
+        g_ascii_dtostr(value, 12, planet_data->position);
+        xmlNewProp(node, BAD_CAST "degree", BAD_CAST value);
+        g_free(value);
+    }
+
+    xmlSaveFormatFileEnc("-", doc, "UTF-8", 1);
+    xmlFreeDoc(doc);
 }
 
