@@ -38,7 +38,7 @@ run_action(AgApp *app, gboolean is_remote)
         }
     } else if (option_quit) {
         ag_app_quit(app);
-    } else if (is_remote) {
+    } else if (is_remote) { // Keep this option the last one!
         ag_app_raise(app);
     }
 }
