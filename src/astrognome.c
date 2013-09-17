@@ -13,16 +13,9 @@
 #define UI_FILE PKGDATADIR "/astrognome.ui"
 
 GtkBuilder *builder;
-static gboolean option_quit;
-static gboolean option_version;
-static gboolean option_new_window;
-
-static GOptionEntry options[] = {
-    { "new-window", 'n', 0, G_OPTION_ARG_NONE, &option_new_window, N_("Opens a new Astrognome window"), NULL },
-    { "version",    'v', 0, G_OPTION_ARG_NONE, &option_version,    N_("Display version and exit"),      NULL },
-    { "quit",       'q', 0, G_OPTION_ARG_NONE, &option_quit,       N_("Quit any running Astrognome"),   NULL },
-    { NULL }
-};
+static gboolean option_version,
+                option_quit,
+                option_new_window;
 
 const char *moonStateName[] = {
     "New Moon",
@@ -69,6 +62,13 @@ main(int argc, char *argv[])
     AgApp *app;
     GError *err = NULL;
 
+    GOptionEntry options[] = {
+        { "new-window", 'n', 0, G_OPTION_ARG_NONE, &option_new_window, N_("Opens a new Astrognome window"), NULL },
+        { "version",    'v', 0, G_OPTION_ARG_NONE, &option_version,    N_("Display version and exit"),      NULL },
+        { "quit",       'q', 0, G_OPTION_ARG_NONE, &option_quit,       N_("Quit any running Astrognome"),   NULL },
+        { NULL }
+    };
+
 #ifdef ENABLE_NLS
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
@@ -76,6 +76,10 @@ main(int argc, char *argv[])
 #endif
 
     gswe_init();
+
+    option_version = FALSE,
+    option_quit = FALSE,
+    option_new_window = FALSE;
 
     if (!gtk_init_with_args(&argc, &argv, NULL, options, GETTEXT_PACKAGE, &err)) {
         g_printerr("%s\n", err->message);
