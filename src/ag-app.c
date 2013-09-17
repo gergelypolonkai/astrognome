@@ -1,9 +1,18 @@
 #include <glib/gi18n.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
+#include <errno.h>
 
 #include "ag-app.h"
 #include "ag-window.h"
 #include "config.h"
 #include "astrognome.h"
+
+typedef enum {
+    XML_CONVERT_STRING,
+    XML_CONVERT_DOUBLE,
+    XML_CONVERT_INT
+} XmlConvertType;
 
 struct _AgAppPrivate {
 };
@@ -104,9 +113,140 @@ quit_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     }
 }
 
+GVariant *
+get_by_xpath(xmlXPathContextPtr ctx, const gchar *xpath, XmlConvertType type)
+{
+    xmlXPathObjectPtr xpathObj;
+    const gchar *text;
+    char *endptr;
+    GVariant *ret = NULL;
+    gdouble d;
+    gint i;
+
+    if ((xpathObj = xmlXPathEvalExpression((const xmlChar *)xpath, ctx)) == NULL) {
+        // TODO: Warn with a popup or similar way
+        g_warning("Could not initialize XPath");
+
+        return NULL;
+    }
+
+    if (xpathObj->nodesetval->nodeNr > 1) {
+        // TODO: Warn with a popup or similar way
+        g_warning("Too many elements. This is not a valid save file!");
+        xmlXPathFreeObject(xpathObj);
+
+        return NULL;
+    }
+
+    text = (const gchar *)xpathObj->nodesetval->nodeTab[0]->content;
+
+    switch (type) {
+        case XML_CONVERT_STRING:
+            ret = g_variant_new_string(text);
+
+            break;
+
+        case XML_CONVERT_DOUBLE:
+            d = g_ascii_strtod(text, &endptr);
+
+            if ((*endptr != 0) || (errno != 0)) {
+                ret = NULL;
+            } else {
+                ret = g_variant_new_double(d);
+            }
+
+            break;
+
+        case XML_CONVERT_INT:
+            i = strtol(text, &endptr, 10);
+
+            if ((*endptr != 0) || (errno != 0)) {
+                ret = NULL;
+            } else {
+                ret = g_variant_new_int32(i);
+            }
+
+            break;
+
+    }
+
+    xmlXPathFreeObject(xpathObj);
+
+    return ret;
+}
+
 static void
 ag_app_open_chart(AgApp *app, GFile *file)
 {
+    GError *err = NULL;
+    gchar *xml;
+    guint length;
+    xmlDocPtr doc;
+    xmlXPathContextPtr xpathCtx;
+    GVariant *chart_name,
+             *country,
+             *city,
+             *longitude,
+             *latitude,
+             *altitude,
+             *year,
+             *month,
+             *day,
+             *hour,
+             *minute,
+             *second;
+
+    if (!g_file_load_contents(file, NULL, &xml, &length, NULL, &err)) {
+        // TODO: Warn with a popup or similar way
+        g_warning("Could not open file '%s': %s", uri, err->message);
+        g_clear_error(&err);
+
+        return;
+    }
+
+    if ((doc = xmlReadMemory(xml, length, "chart.xml", NULL, 0)) == NULL) {
+        // TODO: Warn with a popup or similar way
+        g_warning("Saved chart is corrupt (or not a saved chart at all)");
+
+        return;
+    }
+
+    if ((xpathCtx = xmlXPathNewContext(doc)) == NULL) {
+        // TODO: Warn with a popup or similar way
+        g_warning("Could not initialize XPath");
+        xmlFreeDoc(doc);
+
+        return;
+    }
+
+    chart_name = get_by_xpath(xpathCtx, "/chartinfo/data/name/text()", XML_CONVERT_STRING);
+    country = get_by_xpath(xpathCtx, "/chartinfo/data/place/country/text()", XML_CONVERT_STRING);
+    city = get_by_xpath(xpathCtx, "/chartinfo/data/place/city/text()", XML_CONVERT_STRING);
+    longitude = get_by_xpath(xpathCtx, "/chartinfo/data/place/longitude/text()", XML_CONVERT_DOUBLE);
+    latitude = get_by_xpath(xpathCtx, "/chartinfo/data/place/latitude/text()", XML_CONVERT_DOUBLE);
+    altitude = get_by_xpath(xpathCtx, "/chartinfo/data/place/altitude/text()", XML_CONVERT_DOUBLE);
+    year = get_by_xpath(xpathCtx, "/chartinfo/data/time/year/text()", XML_CONVERT_INT);
+    month = get_by_xpath(xpathCtx, "/chartinfo/data/time/month/text()", XML_CONVERT_INT);
+    day = get_by_xpath(xpathCtx, "/chartinfo/data/time/day/text()", XML_CONVERT_INT);
+    hour = get_by_xpath(xpathCtx, "/chartinfo/data/time/hour/text()", XML_CONVERT_INT);
+    minute = get_by_xpath(xpathCtx, "/chartinfo/data/time/minute/text()", XML_CONVERT_INT);
+    second = get_by_xpath(xpathCtx, "/chartinfo/data/time/second/text()", XML_CONVERT_INT);
+
+    g_variant_unref(chart_name);
+    g_variant_unref(country);
+    g_variant_unref(city);
+    g_variant_unref(longitude);
+    g_variant_unref(latitude);
+    g_variant_unref(altitude);
+    g_variant_unref(year);
+    g_variant_unref(month);
+    g_variant_unref(day);
+    g_variant_unref(hour);
+    g_variant_unref(minute);
+    g_variant_unref(second);
+
+    xmlXPathFreeContext(xpathCtx);
+    xmlFreeDoc(doc);
 }
 
 static void
