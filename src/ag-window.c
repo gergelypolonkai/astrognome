@@ -38,6 +38,7 @@ struct _AgWindowPrivate {
 
     GsweTimestamp *timestamp;
     AgChart *chart;
+    gchar *uri;
 };
 
 G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
@@ -285,6 +286,7 @@ ag_window_init(AgWindow *window)
 
     priv->timestamp = NULL;
     priv->chart = NULL;
+    priv->uri = NULL;
 
     gtk_window_set_hide_titlebar_when_maximized(GTK_WINDOW(window), TRUE);
 
@@ -487,5 +489,21 @@ AgChart *
 ag_window_get_chart(AgWindow *window)
 {
     return window->priv->chart;
+}
+
+void
+ag_window_set_uri(AgWindow *window, const gchar *uri)
+{
+    if (window->priv->uri != NULL) {
+        g_free(window->priv->uri);
+    }
+
+    window->priv->uri = g_strdup(uri);
+}
+
+gchar *
+ag_window_get_uri(AgWindow *window)
+{
+    return g_strdup(window->priv->uri);
 }
 
