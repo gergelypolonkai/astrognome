@@ -33,8 +33,8 @@ struct _AgChartClass {
 
 GType ag_chart_get_type(void) G_GNUC_CONST;
 AgChart *ag_chart_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude, gdouble altitude, GsweHouseSystem house_system);
+AgChart *ag_chart_load_from_file(GFile *file, GError **err);
 
-void ag_chart_load_from_file(const gchar *path, GError **err);
 void ag_chart_save_to_file(const gchar *path, GError **err);
 
 void ag_chart_set_name(AgChart *chart, const gchar *name);
