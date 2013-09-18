@@ -1,6 +1,8 @@
 #include <string.h>
 #include <glib/gi18n.h>
 #include <libgd/gd.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 #include <swe-glib.h>
 
@@ -36,11 +38,14 @@ struct _AgWindowPrivate {
 
     GsweTimestamp *timestamp;
     AgChart *chart;
+    gchar *uri;
 };
 
 G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
 #define GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE((instance), AG_TYPE_WINDOW, AgWindowPrivate))
+
+static void recalculate_chart(AgWindow *window);
 
 static void
 gear_menu_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
@@ -63,8 +68,42 @@ close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
+ag_window_save_as(AgWindow *window, GError **err)
+{
+}
+
+static void
 save_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
+    AgWindow *window = AG_WINDOW(user_data);
+    GError *err = NULL;
+    gchar *uri;
+
+    recalculate_chart(window);
+    uri = ag_window_get_uri(window);
+
+    if (uri != NULL) {
+        GFile *file = g_file_new_for_uri(uri);
+        g_free(uri);
+
+        ag_chart_save_to_file(window->priv->chart, file, &err);
+    } else {
+        ag_window_save_as(window, &err);
+    }
+
+    // TODO: Check err!
+}
+
+static void
+save_as_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+    AgWindow *window = AG_WINDOW(user_data);
+    GError *err = NULL;
+
+    recalculate_chart(window);
+    ag_window_save_as(window, &err);
+
+    // TODO: Check err!
 }
 
 void
@@ -135,6 +174,7 @@ recalculate_chart(AgWindow *window)
     if (priv->chart == NULL) {
         // TODO: make house system configurable
         priv->chart = ag_chart_new_full(priv->timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
+        ag_chart_set_name(priv->chart, gtk_entry_get_text(GTK_ENTRY(priv->name)));
         g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), window);
         ag_window_update_from_chart(window);
     } else {
@@ -165,6 +205,7 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
 static GActionEntry win_entries[] = {
     { "close",      close_cb,     NULL, NULL,      NULL },
     { "save",       save_cb,      NULL, NULL,      NULL },
+    { "save-as",    save_as_cb,   NULL, NULL,      NULL },
     { "gear-menu",  gear_menu_cb, NULL, "false",   NULL },
 };
 
@@ -179,6 +220,7 @@ ag_window_init(AgWindow *window)
 
     priv->timestamp = NULL;
     priv->chart = NULL;
+    priv->uri = NULL;
 
     gtk_window_set_hide_titlebar_when_maximized(GTK_WINDOW(window), TRUE);
 
@@ -381,5 +423,21 @@ AgChart *
 ag_window_get_chart(AgWindow *window)
 {
     return window->priv->chart;
+}
+
+void
+ag_window_set_uri(AgWindow *window, const gchar *uri)
+{
+    if (window->priv->uri != NULL) {
+        g_free(window->priv->uri);
+    }
+
+    window->priv->uri = g_strdup(uri);
+}
+
+gchar *
+ag_window_get_uri(AgWindow *window)
+{
+    return g_strdup(window->priv->uri);
 }
 

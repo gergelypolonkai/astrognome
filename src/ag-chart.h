@@ -6,6 +6,11 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+    AG_CHART_ERROR_LIBXML,
+    AG_CHART_ERROR_CORRUPT_FILE,
+} AgChartError;
+
 #define AG_TYPE_CHART         (ag_chart_get_type())
 #define AG_CHART(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), AG_TYPE_CHART, AgChart))
 #define AG_CHART_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), AG_TYPE_CHART, AgChartClass))
@@ -28,9 +33,8 @@ struct _AgChartClass {
 
 GType ag_chart_get_type(void) G_GNUC_CONST;
 AgChart *ag_chart_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude, gdouble altitude, GsweHouseSystem house_system);
-
-void ag_chart_load_from_file(const gchar *path, GError **err);
-void ag_chart_save_to_file(const gchar *path, GError **err);
+AgChart *ag_chart_load_from_file(GFile *file, GError **err);
+void ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err);
 
 void ag_chart_set_name(AgChart *chart, const gchar *name);
 gchar *ag_chart_get_name(AgChart *chart);
@@ -38,6 +42,9 @@ void ag_chart_set_country(AgChart *chart, const gchar *country);
 gchar *ag_chart_get_country(AgChart *chart);
 void ag_chart_set_city(AgChart *chart, const gchar *city);
 gchar *ag_chart_get_city(AgChart *chart);
+
+#define AG_CHART_ERROR (ag_chart_error_quark())
+GQuark ag_chart_error_quark(void);
 
 G_END_DECLS
 

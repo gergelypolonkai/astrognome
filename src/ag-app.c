@@ -1,19 +1,9 @@
 #include <glib/gi18n.h>
-#include <libxml/parser.h>
-#include <libxml/xpath.h>
-#include <errno.h>
-
 #include "ag-app.h"
 #include "ag-window.h"
 #include "ag-chart.h"
 #include "config.h"
 #include "astrognome.h"
-
-typedef enum {
-    XML_CONVERT_STRING,
-    XML_CONVERT_DOUBLE,
-    XML_CONVERT_INT
-} XmlConvertType;
 
 struct _AgAppPrivate {
 };
@@ -114,182 +104,21 @@ quit_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     }
 }
 
-GVariant *
-get_by_xpath(xmlXPathContextPtr ctx, const gchar *xpath, XmlConvertType type)
-{
-    xmlXPathObjectPtr xpathObj;
-    const gchar *text;
-    char *endptr;
-    GVariant *ret = NULL;
-    gdouble d;
-    gint i;
-
-    if ((xpathObj = xmlXPathEvalExpression((const xmlChar *)xpath, ctx)) == NULL) {
-        // TODO: Warn with a popup or similar way
-        g_warning("Could not initialize XPath");
-
-        return NULL;
-    }
-
-    if (xpathObj->nodesetval == NULL) {
-        // TODO: Warn with a popup or similar way
-        g_warning("Required element not found. This is not a valid save file!");
-        xmlXPathFreeObject(xpathObj);
-
-        return NULL;
-    }
-
-    if (xpathObj->nodesetval->nodeNr > 1) {
-        // TODO: Warn with a popup or similar way
-        g_warning("Too many elements. This is not a valid save file!");
-        xmlXPathFreeObject(xpathObj);
-
-        return NULL;
-    }
-
-    text = (const gchar *)xpathObj->nodesetval->nodeTab[0]->content;
-
-    switch (type) {
-        case XML_CONVERT_STRING:
-            ret = g_variant_new_string(text);
-
-            break;
-
-        case XML_CONVERT_DOUBLE:
-            d = g_ascii_strtod(text, &endptr);
-
-            if ((*endptr != 0) || (errno != 0)) {
-                ret = NULL;
-            } else {
-                ret = g_variant_new_double(d);
-            }
-
-            break;
-
-        case XML_CONVERT_INT:
-            i = strtol(text, &endptr, 10);
-
-            if ((*endptr != 0) || (errno != 0)) {
-                ret = NULL;
-            } else {
-                ret = g_variant_new_int32(i);
-            }
-
-            break;
-
-    }
-
-    xmlXPathFreeObject(xpathObj);
-
-    return ret;
-}
-
 static void
 ag_app_open_chart(AgApp *app, GFile *file)
 {
-    GError *err = NULL;
-    gchar *uri,
-          *xml;
-    guint length;
-    xmlDocPtr doc;
-    xmlXPathContextPtr xpathCtx;
-    GVariant *chart_name,
-             *country,
-             *city,
-             *longitude,
-             *latitude,
-             *altitude,
-             *year,
-             *month,
-             *day,
-             *hour,
-             *minute,
-             *second,
-             *timezone;
     GtkWidget *window;
     AgChart *chart;
-    GsweTimestamp *timestamp;
+    GError *err = NULL;
+    gchar *uri;
 
-    uri = g_file_get_uri(file);
-
-    if (!g_file_load_contents(file, NULL, &xml, &length, NULL, &err)) {
-        // TODO: Warn with a popup or similar way
-        g_warning("Could not open file '%s': %s", uri, err->message);
-        g_clear_error(&err);
-        g_free(uri);
-
-        return;
-    }
-
-    if ((doc = xmlReadMemory(xml, length, "chart.xml", NULL, 0)) == NULL) {
-        // TODO: Warn with a popup or similar way
-        g_warning("Saved chart is corrupt (or not a saved chart at all)");
-        g_free(xml);
-        g_free(uri);
-
-        return;
-    }
-
-    if ((xpathCtx = xmlXPathNewContext(doc)) == NULL) {
-        // TODO: Warn with a popup or similar way
-        g_warning("Could not initialize XPath");
-        xmlFreeDoc(doc);
-        g_free(xml);
-        g_free(uri);
-
-        return;
-    }
-
-    chart_name = get_by_xpath(xpathCtx, "/chartinfo/data/name/text()", XML_CONVERT_STRING);
-    country = get_by_xpath(xpathCtx, "/chartinfo/data/place/country/text()", XML_CONVERT_STRING);
-    city = get_by_xpath(xpathCtx, "/chartinfo/data/place/city/text()", XML_CONVERT_STRING);
-    longitude = get_by_xpath(xpathCtx, "/chartinfo/data/place/longitude/text()", XML_CONVERT_DOUBLE);
-    latitude = get_by_xpath(xpathCtx, "/chartinfo/data/place/latitude/text()", XML_CONVERT_DOUBLE);
-    altitude = get_by_xpath(xpathCtx, "/chartinfo/data/place/altitude/text()", XML_CONVERT_DOUBLE);
-    year = get_by_xpath(xpathCtx, "/chartinfo/data/time/year/text()", XML_CONVERT_INT);
-    month = get_by_xpath(xpathCtx, "/chartinfo/data/time/month/text()", XML_CONVERT_INT);
-    day = get_by_xpath(xpathCtx, "/chartinfo/data/time/day/text()", XML_CONVERT_INT);
-    hour = get_by_xpath(xpathCtx, "/chartinfo/data/time/hour/text()", XML_CONVERT_INT);
-    minute = get_by_xpath(xpathCtx, "/chartinfo/data/time/minute/text()", XML_CONVERT_INT);
-    second = get_by_xpath(xpathCtx, "/chartinfo/data/time/second/text()", XML_CONVERT_INT);
-    timezone = get_by_xpath(xpathCtx, "/chartinfo/data/time/timezone/text()", XML_CONVERT_DOUBLE);
-
+    chart = ag_chart_load_from_file(file, &err);
     window = ag_app_create_window(app);
-    timestamp = gswe_timestamp_new_from_gregorian_full(
-            g_variant_get_int32(year),
-            g_variant_get_int32(month),
-            g_variant_get_int32(day),
-            g_variant_get_int32(hour),
-            g_variant_get_int32(minute),
-            g_variant_get_int32(second),
-            0,
-            g_variant_get_double(timezone)
-        );
-    // TODO: Make house system configurable (and saveable)
-    chart = ag_chart_new_full(timestamp, g_variant_get_double(longitude), g_variant_get_double(latitude), g_variant_get_double(altitude), GSWE_HOUSE_SYSTEM_PLACIDUS);
-    ag_chart_set_name(chart, g_variant_get_string(chart_name, NULL));
-    ag_chart_set_country(chart, g_variant_get_string(country, NULL));
-    ag_chart_set_city(chart, g_variant_get_string(city, NULL));
     ag_window_set_chart(AG_WINDOW(window), chart);
     ag_window_update_from_chart(AG_WINDOW(window));
-
-    g_variant_unref(chart_name);
-    g_variant_unref(country);
-    g_variant_unref(city);
-    g_variant_unref(longitude);
-    g_variant_unref(latitude);
-    g_variant_unref(altitude);
-    g_variant_unref(year);
-    g_variant_unref(month);
-    g_variant_unref(day);
-    g_variant_unref(hour);
-    g_variant_unref(minute);
-    g_variant_unref(second);
-
-    g_free(xml);
+    uri = g_file_get_uri(file);
+    ag_window_set_uri(AG_WINDOW(window), uri);
     g_free(uri);
-    xmlXPathFreeContext(xpathCtx);
-    xmlFreeDoc(doc);
 }
 
 static void
@@ -365,9 +194,10 @@ setup_actions(AgApp *app)
 static void
 setup_accelerators(AgApp *app)
 {
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>w", "win.close",     NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>s", "win.save",      NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "F10",        "win.gear-menu", NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>w",        "win.close",     NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>s",        "win.save",      NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary><Shift>s", "win.save-as",   NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "F10",               "win.gear-menu", NULL);
 }
 
 static void

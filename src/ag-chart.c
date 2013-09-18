@@ -1,3 +1,7 @@
+#include <errno.h>
+#include <gio/gio.h>
+#include <libxml/parser.h>
+#include <libxml/xpath.h>
 #include <swe-glib.h>
 
 #include "ag-chart.h"
@@ -15,6 +19,14 @@ enum {
     PROP_COUNTRY,
     PROP_CITY
 };
+
+typedef enum {
+    XML_CONVERT_STRING,
+    XML_CONVERT_DOUBLE,
+    XML_CONVERT_INT
+} XmlConvertType;
+
+G_DEFINE_QUARK(ag-chart-error-quark, ag_chart_error);
 
 G_DEFINE_TYPE(AgChart, ag_chart, GSWE_TYPE_MOMENT);
 
@@ -184,5 +196,459 @@ gchar *
 ag_chart_get_city(AgChart *chart)
 {
     return g_strdup(chart->priv->city);
+}
+
+static GVariant *
+get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xpath, XmlConvertType type, GError **err)
+{
+    xmlXPathObjectPtr xpathObj;
+    const gchar *text;
+    char *endptr;
+    GVariant *ret = NULL;
+    gdouble d;
+    gint i;
+
+    if ((xpathObj = xmlXPathEvalExpression((const xmlChar *)xpath, xpath_context)) == NULL) {
+        g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_LIBXML, "File '%s' could not be parsed due to internal XML error.", uri);
+
+        return NULL;
+    }
+
+    if (xpathObj->nodesetval == NULL) {
+        g_debug("No such node '%s'", xpath);
+        g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' doesn't look like a valid saved chart.", uri);
+        xmlXPathFreeObject(xpathObj);
+
+        return NULL;
+    }
+
+    if (xpathObj->nodesetval->nodeNr > 1) {
+        g_debug("Too many '%s' nodes", xpath);
+        g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' doesn't look like a valid saved chart.", uri);
+        xmlXPathFreeObject(xpathObj);
+
+        return NULL;
+    }
+
+    text = (const gchar *)xpathObj->nodesetval->nodeTab[0]->content;
+
+    switch (type) {
+        case XML_CONVERT_STRING:
+            ret = g_variant_new_string(text);
+
+            break;
+
+        case XML_CONVERT_DOUBLE:
+            d = g_ascii_strtod(text, &endptr);
+
+            if ((*endptr != 0) || (errno != 0)) {
+                g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' doesn't look like a valid saved chart.", uri);
+                ret = NULL;
+            } else {
+                ret = g_variant_new_double(d);
+            }
+
+            break;
+
+        case XML_CONVERT_INT:
+            i = strtol(text, &endptr, 10);
+
+            if ((*endptr != 0) || (errno != 0)) {
+                g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' doesn't look like a valid saved chart.", uri);
+                ret = NULL;
+            } else {
+                ret = g_variant_new_int32(i);
+            }
+
+            break;
+
+    }
+
+    xmlXPathFreeObject(xpathObj);
+
+    return ret;
+}
+
+AgChart *
+ag_chart_load_from_file(GFile *file, GError **err)
+{
+    AgChart *chart = NULL;
+    gchar *uri,
+          *xml = NULL;
+    guint length;
+    xmlDocPtr doc;
+    xmlXPathContextPtr xpath_context;
+    GVariant *chart_name,
+             *country,
+             *city,
+             *longitude,
+             *latitude,
+             *altitude,
+             *year,
+             *month,
+             *day,
+             *hour,
+             *minute,
+             *second,
+             *timezone;
+    GsweTimestamp *timestamp;
+
+    uri = g_file_get_uri(file);
+
+    if (!g_file_load_contents(file, NULL, &xml, &length, NULL, err)) {
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((doc = xmlReadMemory(xml, length, "chart.xml", NULL, 0)) == NULL) {
+        g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' can not be read. Maybe it is corrupt, or not a save file at all", uri);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((xpath_context = xmlXPathNewContext(doc)) == NULL) {
+        g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_LIBXML, "File '%s' could not be loaded due to internal LibXML error", uri);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((chart_name = get_by_xpath(xpath_context, uri, "/chartinfo/data/name/text()", XML_CONVERT_STRING, err)) == NULL) {
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((country = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/country/text()", XML_CONVERT_STRING, err)) == NULL) {
+        g_variant_unref(chart_name);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((city = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/city/text()", XML_CONVERT_STRING, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        xmlFreeDoc(doc);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((longitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/longitude/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((latitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/latitude/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((altitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/altitude/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((year = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/year/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((month = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/month/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((day = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/day/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((hour = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/hour/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        g_variant_unref(day);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((minute = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/minute/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        g_variant_unref(day);
+        g_variant_unref(hour);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((second = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/second/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        g_variant_unref(day);
+        g_variant_unref(hour);
+        g_variant_unref(minute);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((timezone = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/timezone/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        g_variant_unref(day);
+        g_variant_unref(hour);
+        g_variant_unref(minute);
+        g_variant_unref(second);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    timestamp = gswe_timestamp_new_from_gregorian_full(
+            g_variant_get_int32(year),
+            g_variant_get_int32(month),
+            g_variant_get_int32(day),
+            g_variant_get_int32(hour),
+            g_variant_get_int32(minute),
+            g_variant_get_int32(second),
+            0,
+            g_variant_get_double(timezone)
+        );
+    g_variant_unref(year);
+    g_variant_unref(month);
+    g_variant_unref(day);
+    g_variant_unref(hour);
+    g_variant_unref(minute);
+    g_variant_unref(second);
+    g_variant_unref(timezone);
+
+    // TODO: Make house system configurable (and saveable)
+    chart = ag_chart_new_full(timestamp, g_variant_get_double(longitude), g_variant_get_double(latitude), g_variant_get_double(altitude), GSWE_HOUSE_SYSTEM_PLACIDUS);
+    g_variant_unref(longitude);
+    g_variant_unref(latitude);
+    g_variant_unref(altitude);
+
+    ag_chart_set_name(chart, g_variant_get_string(chart_name, NULL));
+    g_variant_unref(chart_name);
+
+    ag_chart_set_country(chart, g_variant_get_string(country, NULL));
+    g_variant_unref(country);
+
+    ag_chart_set_city(chart, g_variant_get_string(city, NULL));
+    g_variant_unref(city);
+
+    g_free(xml);
+    g_free(uri);
+    xmlXPathFreeContext(xpath_context);
+    xmlFreeDoc(doc);
+
+    return chart;
+}
+
+static xmlDocPtr
+create_save_doc(AgChart *chart)
+{
+    xmlDocPtr doc = NULL;
+    xmlNodePtr root_node = NULL,
+               data_node = NULL,
+               place_node = NULL,
+               time_node = NULL;
+    gchar *value;
+    GsweCoordinates *coordinates;
+    GsweTimestamp *timestamp;
+
+    doc = xmlNewDoc(BAD_CAST "1.0");
+    root_node = xmlNewNode(NULL, BAD_CAST "chartinfo");
+    xmlDocSetRootElement(doc, root_node);
+
+    // Begin <data> node
+    data_node = xmlNewChild(root_node, NULL, BAD_CAST "data", NULL);
+
+    value = ag_chart_get_name(chart);
+    xmlNewChild(data_node, NULL, BAD_CAST "name", BAD_CAST value);
+    g_free(value);
+
+    // Begin <place> node
+    place_node = xmlNewChild(data_node, NULL, BAD_CAST "place", NULL);
+
+    value = ag_chart_get_country(chart);
+    xmlNewChild(place_node, NULL, BAD_CAST "country", BAD_CAST value);
+    g_free(value);
+
+    value = ag_chart_get_city(chart);
+    xmlNewChild(place_node, NULL, BAD_CAST "city", BAD_CAST value);
+    g_free(value);
+
+    coordinates = gswe_moment_get_coordinates(GSWE_MOMENT(chart));
+
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, coordinates->longitude);
+    xmlNewChild(place_node, NULL, BAD_CAST "longitude", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, coordinates->latitude);
+    xmlNewChild(place_node, NULL, BAD_CAST "latitude", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, coordinates->altitude);
+    xmlNewChild(place_node, NULL, BAD_CAST "altitude", BAD_CAST value);
+    g_free(value);
+
+    g_free(coordinates);
+
+    // Begin <time> node
+    time_node = xmlNewChild(data_node, NULL, BAD_CAST "time", NULL);
+
+    timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
+
+    value = g_malloc0(10);
+    g_ascii_dtostr(value, 10, gswe_timestamp_get_gregorian_year(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "year", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_month(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "month", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_day(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "day", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_hour(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "hour", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_minute(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "minute", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_second(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "second", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(7);
+    g_ascii_dtostr(value, 7, gswe_timestamp_get_gregorian_timezone(timestamp));
+    xmlNewChild(time_node, NULL, BAD_CAST "timezone", BAD_CAST value);
+    g_free(value);
+
+    return doc;
+}
+
+void
+ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
+{
+    xmlChar *content = NULL;
+    int length;
+    xmlDocPtr save_doc = create_save_doc(chart);
+
+    xmlDocDumpFormatMemoryEnc(save_doc, &content, &length, "UTF-8", 1);
+
+    g_file_replace_contents(file, (const gchar *)content, length, NULL, FALSE, G_FILE_CREATE_NONE, NULL, NULL, err);
+
+    xmlFreeDoc(save_doc);
 }
 

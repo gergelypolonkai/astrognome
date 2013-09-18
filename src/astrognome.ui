@@ -39,5 +39,10 @@
       <attribute name="action">win.save</attribute>
       <attribute name="accel">&lt;Primary&gt;s</attribute>
     </item>
+    <item>
+        <attribute name="label" translatable="yes">Save as…</attribute>
+        <attribute name="action">win.save-as</attribute>
+        <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;s</attribute>
+    </item>
   </menu>
 </interface>
