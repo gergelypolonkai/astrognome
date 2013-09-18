@@ -542,6 +542,102 @@ ag_chart_load_from_file(GFile *file, GError **err)
     return chart;
 }
 
+static xmlDocPtr
+create_save_doc(AgChart *chart)
+{
+    xmlDocPtr doc = NULL;
+    xmlNodePtr root_node = NULL,
+               data_node = NULL,
+               place_node = NULL,
+               time_node = NULL;
+    gchar *value;
+    GsweCoordinates *coordinates;
+    GsweTimestamp *timestamp;
+
+    doc = xmlNewDoc(BAD_CAST "1.0");
+    root_node = xmlNewNode(NULL, BAD_CAST "chartinfo");
+    xmlDocSetRootElement(doc, root_node);
+
+    // Begin <data> node
+    data_node = xmlNewChild(root_node, NULL, BAD_CAST "data", NULL);
+
+    value = ag_chart_get_name(chart);
+    xmlNewChild(data_node, NULL, BAD_CAST "name", BAD_CAST value);
+    g_free(value);
+
+    // Begin <place> node
+    place_node = xmlNewChild(data_node, NULL, BAD_CAST "place", NULL);
+
+    value = ag_chart_get_country(chart);
+    xmlNewChild(place_node, NULL, BAD_CAST "country", BAD_CAST value);
+    g_free(value);
+
+    value = ag_chart_get_city(chart);
+    xmlNewChild(place_node, NULL, BAD_CAST "city", BAD_CAST value);
+    g_free(value);
+
+    coordinates = gswe_moment_get_coordinates(GSWE_MOMENT(chart));
+
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, coordinates->longitude);
+    xmlNewChild(place_node, NULL, BAD_CAST "longitude", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, coordinates->latitude);
+    xmlNewChild(place_node, NULL, BAD_CAST "latitude", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, coordinates->altitude);
+    xmlNewChild(place_node, NULL, BAD_CAST "altitude", BAD_CAST value);
+    g_free(value);
+
+    g_free(coordinates);
+
+    // Begin <time> node
+    time_node = xmlNewChild(data_node, NULL, BAD_CAST "time", NULL);
+
+    timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
+
+    value = g_malloc0(10);
+    g_ascii_dtostr(value, 10, gswe_timestamp_get_gregorian_year(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "year", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_month(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "month", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_day(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "day", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_hour(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "hour", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_minute(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "minute", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(3);
+    g_ascii_dtostr(value, 3, gswe_timestamp_get_gregorian_second(timestamp, NULL));
+    xmlNewChild(time_node, NULL, BAD_CAST "second", BAD_CAST value);
+    g_free(value);
+
+    value = g_malloc0(7);
+    g_ascii_dtostr(value, 7, gswe_timestamp_get_gregorian_timezone(timestamp));
+    xmlNewChild(time_node, NULL, BAD_CAST "timezone", BAD_CAST value);
+    g_free(value);
+
+    return doc;
+}
+
 void
 ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
 {
