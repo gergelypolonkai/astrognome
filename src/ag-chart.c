@@ -641,5 +641,14 @@ create_save_doc(AgChart *chart)
 void
 ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
 {
+    xmlChar *content = NULL;
+    int length;
+    xmlDocPtr save_doc = create_save_doc(chart);
+
+    xmlDocDumpFormatMemoryEnc(save_doc, &content, &length, "UTF-8", 1);
+
+    g_file_replace_contents(file, (const gchar *)content, length, NULL, FALSE, G_FILE_CREATE_NONE, NULL, NULL, err);
+
+    xmlFreeDoc(save_doc);
 }
 
