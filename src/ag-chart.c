@@ -215,6 +215,7 @@ get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xp
     }
 
     if (xpathObj->nodesetval == NULL) {
+        g_debug("No such node '%s'", xpath);
         g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' doesn't look like a valid saved chart.", uri);
         xmlXPathFreeObject(xpathObj);
 
@@ -222,6 +223,7 @@ get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xp
     }
 
     if (xpathObj->nodesetval->nodeNr > 1) {
+        g_debug("Too many '%s' nodes", xpath);
         g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' doesn't look like a valid saved chart.", uri);
         xmlXPathFreeObject(xpathObj);
 
@@ -316,19 +318,188 @@ ag_chart_load_from_file(GFile *file, GError **err)
         return NULL;
     }
 
-    chart_name = get_by_xpath(xpath_context, uri, "/chartinfo/data/name/text()", XML_CONVERT_STRING, err);
-    country = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/country/text()", XML_CONVERT_STRING, err);
-    city = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/city/text()", XML_CONVERT_STRING, err);
-    longitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/longitude/text()", XML_CONVERT_DOUBLE, err);
-    latitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/latitude/text()", XML_CONVERT_DOUBLE, err);
-    altitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/altitude/text()", XML_CONVERT_DOUBLE, err);
-    year = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/year/text()", XML_CONVERT_INT, err);
-    month = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/month/text()", XML_CONVERT_INT, err);
-    day = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/day/text()", XML_CONVERT_INT, err);
-    hour = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/hour/text()", XML_CONVERT_INT, err);
-    minute = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/minute/text()", XML_CONVERT_INT, err);
-    second = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/second/text()", XML_CONVERT_INT, err);
-    timezone = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/timezone/text()", XML_CONVERT_DOUBLE, err);
+    if ((chart_name = get_by_xpath(xpath_context, uri, "/chartinfo/data/name/text()", XML_CONVERT_STRING, err)) == NULL) {
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((country = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/country/text()", XML_CONVERT_STRING, err)) == NULL) {
+        g_variant_unref(chart_name);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((city = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/city/text()", XML_CONVERT_STRING, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        xmlFreeDoc(doc);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((longitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/longitude/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((latitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/latitude/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((altitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/altitude/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((year = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/year/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((month = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/month/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((day = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/day/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((hour = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/hour/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        g_variant_unref(day);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((minute = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/minute/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        g_variant_unref(day);
+        g_variant_unref(hour);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((second = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/second/text()", XML_CONVERT_INT, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        g_variant_unref(day);
+        g_variant_unref(hour);
+        g_variant_unref(minute);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
+
+    if ((timezone = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/timezone/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(year);
+        g_variant_unref(month);
+        g_variant_unref(day);
+        g_variant_unref(hour);
+        g_variant_unref(minute);
+        g_variant_unref(second);
+        xmlFreeDoc(doc);
+        g_free(xml);
+        g_free(uri);
+
+        return NULL;
+    }
 
     timestamp = gswe_timestamp_new_from_gregorian_full(
             g_variant_get_int32(year),
