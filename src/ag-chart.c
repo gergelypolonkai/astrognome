@@ -371,3 +371,8 @@ ag_chart_load_from_file(GFile *file, GError **err)
     return chart;
 }
 
+void
+ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
+{
+}
+
