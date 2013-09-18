@@ -166,6 +166,11 @@ save_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     xmlFreeDoc(doc);
 }
 
+static void
+save_as_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+}
+
 void
 ag_window_redraw_chart(AgWindow *window)
 {
@@ -265,6 +270,7 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
 static GActionEntry win_entries[] = {
     { "close",      close_cb,     NULL, NULL,      NULL },
     { "save",       save_cb,      NULL, NULL,      NULL },
+    { "save-as",    save_as_cb,   NULL, NULL,      NULL },
     { "gear-menu",  gear_menu_cb, NULL, "false",   NULL },
 };
 
