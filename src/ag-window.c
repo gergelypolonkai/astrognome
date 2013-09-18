@@ -36,7 +36,6 @@ struct _AgWindowPrivate {
     GtkWidget *tab_edit;
     GtkWidget *current_tab;
 
-    GsweTimestamp *timestamp;
     AgChart *chart;
     gchar *uri;
 };
@@ -145,42 +144,50 @@ chart_changed(AgChart *chart, AgWindow *window)
 static void
 recalculate_chart(AgWindow *window)
 {
-    AgWindowPrivate *priv = window->priv;
-    gint year   = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->year)),
-         month  = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->month)),
-         day    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->day)),
-         hour   = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->hour)),
-         minute = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->minute)),
-         second = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->second));
-    gdouble longitude = gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->longitude)),
-            latitude  = gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->latitude));
-    gdouble south = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->south_lat)),
-            west  = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->west_long));
+    gint year,
+         month,
+         day,
+         hour,
+         minute,
+         second;
+    gdouble longitude,
+            latitude;
+    gboolean south,
+             west;
+    GsweTimestamp *timestamp;
 
-    if (south) {
+    g_debug("Recalculating chart data");
+
+    year = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->year));
+    month = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->month));
+    day = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->day));
+    hour = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->hour));
+    minute = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->minute));
+    second = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->second));
+    longitude = gtk_spin_button_get_value(GTK_SPIN_BUTTON(window->priv->longitude));
+    latitude = gtk_spin_button_get_value(GTK_SPIN_BUTTON(window->priv->latitude));
+
+    if ((south = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(window->priv->south_lat)))) {
         latitude = 0 - latitude;
     }
 
-    if (west) {
+    if ((west = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(window->priv->west_long)))) {
         longitude = 0 - longitude;
     }
 
     // TODO: Set timezone according to the city selected!
-    if (priv->timestamp == NULL) {
-        priv->timestamp = gswe_timestamp_new_from_gregorian_full(year, month, day, hour, minute, second, 0, 1.0);
+    if (window->priv->chart == NULL) {
+        timestamp = gswe_timestamp_new_from_gregorian_full(year, month, day, hour, minute, second, 0, 1.0);
+        // TODO: make house system configurable
+        window->priv->chart = ag_chart_new_full(timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
+        g_signal_connect(window->priv->chart, "changed", G_CALLBACK(chart_changed), window);
     } else {
-        gswe_timestamp_set_gregorian_full(priv->timestamp, year, month, day, hour, minute, second, 0, 1.0, NULL);
+        timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(window->priv->chart));
+        gswe_timestamp_set_gregorian_full(timestamp, year, month, day, hour, minute, second, 0, 1.0, NULL);
     }
 
-    if (priv->chart == NULL) {
-        // TODO: make house system configurable
-        priv->chart = ag_chart_new_full(priv->timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
-        ag_chart_set_name(priv->chart, gtk_entry_get_text(GTK_ENTRY(priv->name)));
-        g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), window);
-        ag_window_update_from_chart(window);
-    } else {
-        gswe_moment_set_timestamp(GSWE_MOMENT(priv->chart), priv->timestamp);
-    }
+    ag_chart_set_name(window->priv->chart, gtk_entry_get_text(GTK_ENTRY(window->priv->name)));
+    ag_window_redraw_chart(window);
 }
 
 static void
@@ -196,7 +203,6 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
 
     // Note that priv->current_tab is actually the previously selected tab, not the real active one!
     if (window->priv->current_tab == window->priv->tab_edit) {
-        g_debug("Recalculating chart data");
         recalculate_chart(window);
     }
 
@@ -219,7 +225,6 @@ ag_window_init(AgWindow *window)
 
     window->priv = priv = GET_PRIVATE(window);
 
-    priv->timestamp = NULL;
     priv->chart = NULL;
     priv->uri = NULL;
 
