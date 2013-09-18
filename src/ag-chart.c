@@ -16,6 +16,8 @@ enum {
     PROP_CITY
 };
 
+G_DEFINE_QUARK(ag-chart-error-quark, ag_chart_error);
+
 G_DEFINE_TYPE(AgChart, ag_chart, GSWE_TYPE_MOMENT);
 
 #define GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE((instance), AG_TYPE_CHART, AgChartPrivate))
