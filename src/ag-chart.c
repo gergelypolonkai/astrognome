@@ -661,14 +661,20 @@ ag_chart_create_svg(AgChart *chart)
                ascmcs_node = NULL,
                houses_node = NULL,
                bodies_node = NULL,
+               aspects_node = NULL,
+               antiscia_node = NULL,
                node = NULL;
     gchar *value;
     GList *houses,
           *house,
-          *planets,
-          *planet;
-    GError *err = NULL;
+          *planet,
+          *aspect,
+          *antiscion;
     const GswePlanetData *planet_data;
+    const GsweAspectData *aspect_data;
+    GEnumClass *planets_class,
+               *aspects_class,
+               *antiscia_class;
 
     root_node = xmlDocGetRootElement(doc);
 
@@ -724,12 +730,11 @@ ag_chart_create_svg(AgChart *chart)
     // Begin <bodies> node
     bodies_node = xmlNewChild(root_node, NULL, BAD_CAST "bodies", NULL);
 
-    planets = gswe_moment_get_all_planets(GSWE_MOMENT(chart));
+    planets_class = g_type_class_ref(GSWE_TYPE_PLANET);
 
-    for (planet = planets; planet; planet = g_list_next(planet)) {
+    for (planet = gswe_moment_get_all_planets(GSWE_MOMENT(chart)); planet; planet = g_list_next(planet)) {
         planet_data = planet->data;
-        // TODO: HACK HACK HACK! SWE-GLib has a HUGE mistake here!
-        planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), planet_data->planet_id, &err);
+        GEnumValue *enum_value;
 
         if (
                 (planet_data->planet_id == GSWE_PLANET_ASCENDENT)
@@ -741,7 +746,8 @@ ag_chart_create_svg(AgChart *chart)
 
         node = xmlNewChild(bodies_node, NULL, BAD_CAST "body", NULL);
 
-        xmlNewProp(node, BAD_CAST "name", BAD_CAST planet_data->planet_info->name);
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), planet_data->planet_id);
+        xmlNewProp(node, BAD_CAST "name", BAD_CAST enum_value->value_name);
 
         value = g_malloc0(12);
         g_ascii_dtostr(value, 12, planet_data->position);
@@ -749,6 +755,62 @@ ag_chart_create_svg(AgChart *chart)
         g_free(value);
     }
 
+    g_debug("Generating aspects table");
+
+    // Begin <aspects> node
+    aspects_node = xmlNewChild(root_node, NULL, BAD_CAST "aspects", NULL);
+
+    aspects_class = g_type_class_ref(GSWE_TYPE_ASPECT);
+
+    for (aspect = gswe_moment_get_all_aspects(GSWE_MOMENT(chart)); aspect; aspect = g_list_next(aspect)) {
+        GEnumValue *enum_value;
+        aspect_data = aspect->data;
+
+        if (aspect_data->aspect == GSWE_ASPECT_NONE) {
+            continue;
+        }
+
+        node = xmlNewChild(aspects_node, NULL, BAD_CAST "aspect", NULL);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), aspect_data->planet1->planet_id);
+        xmlNewProp(node, BAD_CAST "body1", BAD_CAST enum_value->value_name);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), aspect_data->planet2->planet_id);
+        xmlNewProp(node, BAD_CAST "body2", BAD_CAST enum_value->value_name);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(aspects_class), aspect_data->aspect);
+        xmlNewProp(node, BAD_CAST "type", BAD_CAST enum_value->value_name);
+    }
+
+    g_type_class_unref(aspects_class);
+
+    g_debug("Generating antiscia table");
+
+    // Begin <antiscia> node
+    antiscia_node = xmlNewChild(root_node, NULL, BAD_CAST "antiscia", NULL);
+    antiscia_class = g_type_class_ref(GSWE_TYPE_ANTISCION_AXIS);
+
+    for (antiscion = gswe_moment_get_all_antiscia(GSWE_MOMENT(chart)); antiscion; antiscion = g_list_next(antiscion)) {
+        GsweAntiscionData *antiscion_data = antiscion->data;
+        GEnumValue *enum_value;
+
+        if (antiscion_data->axis == GSWE_ANTISCION_AXIS_NONE) {
+            continue;
+        }
+
+        node = xmlNewChild(antiscia_node, NULL, BAD_CAST "antiscia", NULL);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), antiscion_data->planet1->planet_id);
+        xmlNewProp(node, BAD_CAST "body1", BAD_CAST enum_value->value_name);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), antiscion_data->planet2->planet_id);
+        xmlNewProp(node, BAD_CAST "body2", BAD_CAST enum_value->value_name);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(antiscia_class), antiscion_data->axis);
+        xmlNewProp(node, BAD_CAST "axis", BAD_CAST enum_value->value_name);
+    }
+
+    g_type_class_unref(planets_class);
     xmlSaveFormatFileEnc("-", doc, "UTF-8", 1);
     xmlFreeDoc(doc);
 }
