@@ -3,6 +3,7 @@
 #include <libgd/gd.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include <webkit/webkit.h>
 
 #include <swe-glib.h>
 
@@ -116,6 +117,7 @@ ag_window_redraw_chart(AgWindow *window)
     if (svg_content == NULL) {
         g_warning("%s", err->message);
     } else {
+        webkit_web_view_load_string(WEBKIT_WEB_VIEW(window->priv->tab_chart), svg_content, "image/svg+xml", "UTF-8", NULL);
         g_free(svg_content);
     }
 }
@@ -362,7 +364,8 @@ static void
 window_populate(AgWindow *window)
 {
     AgWindowPrivate *priv = window->priv;
-    GtkWidget *menu_button;
+    GtkWidget *menu_button,
+              *scroll;
     GObject *menu;
 
     priv->header_bar = gd_header_bar_new();
@@ -387,8 +390,14 @@ window_populate(AgWindow *window)
     priv->tab_edit = notebook_edit(window);
     gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_edit, "edit", _("Edit"));
 
-    priv->tab_chart = gtk_label_new("PLACEHOLDER FOR THE CHART WEBKIT");
-    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_chart, "chart", _("Chart"));
+    scroll = gtk_scrolled_window_new(NULL, NULL);
+    g_object_set(scroll, "shadow-type", GTK_SHADOW_IN, NULL);
+    gd_stack_add_titled(GD_STACK(priv->stack), scroll, "chart", _("Chart"));
+
+    priv->tab_chart = webkit_web_view_new();
+    gtk_container_add(GTK_CONTAINER(scroll), priv->tab_chart);
+    webkit_web_view_load_string(WEBKIT_WEB_VIEW(priv->tab_chart), "<html><head><title>No Chart</title></head><body><h1>No Chart</h1><p>No chart is loaded. Create one on the edit view, or open one from the application menu!</p></body></html>", "text/html", "UTF-8", NULL);
+    gtk_widget_set_size_request(priv->tab_chart, 600, 600);
 
     priv->tab_aspects = gtk_label_new("PLACEHOLDER FOR THE ASPECTS TABLE");
     gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_aspects, "aspects", _("Aspects"));
