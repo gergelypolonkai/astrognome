@@ -5,8 +5,8 @@
     <place>
       <country>Hungary</country>
       <city>Budapest</city>
-      <longitude>47.49801000</longitude>
-      <latitude>19.03990999</latitude>
+      <longitude>19.03990999</longitude>
+      <latitude>47.49801000</latitude>
       <altitude>280</altitude>
     </place>
     <time>
