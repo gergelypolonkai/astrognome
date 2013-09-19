@@ -2,7 +2,11 @@
 #include <gio/gio.h>
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
+#include <libxml/tree.h>
+#include <libxslt/xsltInternals.h>
+#include <libxslt/transform.h>
 #include <swe-glib.h>
+#include <locale.h>
 
 #include "ag-chart.h"
 
@@ -650,5 +654,253 @@ ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
     g_file_replace_contents(file, (const gchar *)content, length, NULL, FALSE, G_FILE_CREATE_NONE, NULL, NULL, err);
 
     xmlFreeDoc(save_doc);
+}
+
+gchar *
+ag_chart_create_svg(AgChart *chart, GError **err)
+{
+    xmlDocPtr doc = create_save_doc(chart),
+              xslt_doc,
+              svg_doc;
+    xmlNodePtr root_node = NULL,
+               ascmcs_node = NULL,
+               houses_node = NULL,
+               bodies_node = NULL,
+               aspects_node = NULL,
+               antiscia_node = NULL,
+               node = NULL;
+    gchar *value,
+          *stylesheet_path,
+          *css_path,
+          *xslt,
+          *save_content = NULL,
+          *css_uri,
+          *css_final_uri,
+          **params;
+    GList *houses,
+          *house,
+          *planet,
+          *aspect,
+          *antiscion;
+    const GswePlanetData *planet_data;
+    const GsweAspectData *aspect_data;
+    GEnumClass *planets_class,
+               *aspects_class,
+               *antiscia_class;
+    guint xslt_length;
+    gint save_length;
+    GFile *xslt_file,
+          *css_file;
+    xsltStylesheetPtr xslt_proc;
+    locale_t current_locale;
+
+    root_node = xmlDocGetRootElement(doc);
+
+    // gswe_moment_get_house_cusps() also calculates ascmcs data, so call it this early
+    houses = gswe_moment_get_house_cusps(GSWE_MOMENT(chart), NULL);
+
+    // Begin <ascmcs> node
+    g_debug("Generating theoretical points table");
+    ascmcs_node = xmlNewChild(root_node, NULL, BAD_CAST "ascmcs", NULL);
+
+    node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "ascendant", NULL);
+
+    planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_ASCENDENT, NULL);
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, planet_data->position);
+    xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
+    g_free(value);
+
+    node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "mc", NULL);
+
+    planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_MC, NULL);
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, planet_data->position);
+    xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
+    g_free(value);
+
+    node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "vertex", NULL);
+
+    planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_VERTEX, NULL);
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, planet_data->position);
+    xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
+    g_free(value);
+
+    // Begin <houses> node
+    g_debug("Generating houses table");
+    houses_node = xmlNewChild(root_node, NULL, BAD_CAST "houses", NULL);
+
+    for (house = houses; house; house = g_list_next(house)) {
+        GsweHouseData *house_data = house->data;
+
+        node = xmlNewChild(houses_node, NULL, BAD_CAST "house", NULL);
+
+        value = g_malloc0(3);
+        g_ascii_dtostr(value, 3, house_data->house);
+        xmlNewProp(node, BAD_CAST "number", BAD_CAST value);
+        g_free(value);
+
+        value = g_malloc0(12);
+        g_ascii_dtostr(value, 12, house_data->cusp_position);
+        xmlNewProp(node, BAD_CAST "degree", BAD_CAST value);
+        g_free(value);
+    }
+
+    // Begin <bodies> node
+    g_debug("Generating bodies table");
+    bodies_node = xmlNewChild(root_node, NULL, BAD_CAST "bodies", NULL);
+
+    planets_class = g_type_class_ref(GSWE_TYPE_PLANET);
+
+    for (planet = gswe_moment_get_all_planets(GSWE_MOMENT(chart)); planet; planet = g_list_next(planet)) {
+        planet_data = planet->data;
+        GEnumValue *enum_value;
+
+        if (
+                (planet_data->planet_id == GSWE_PLANET_ASCENDENT)
+                || (planet_data->planet_id == GSWE_PLANET_MC)
+                || (planet_data->planet_id == GSWE_PLANET_VERTEX)
+        ) {
+            continue;
+        }
+
+        node = xmlNewChild(bodies_node, NULL, BAD_CAST "body", NULL);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), planet_data->planet_id);
+        xmlNewProp(node, BAD_CAST "name", BAD_CAST enum_value->value_name);
+
+        value = g_malloc0(12);
+        g_ascii_dtostr(value, 12, planet_data->position);
+        xmlNewProp(node, BAD_CAST "degree", BAD_CAST value);
+        g_free(value);
+    }
+
+    // Begin <aspects> node
+    g_debug("Generating aspects table");
+    aspects_node = xmlNewChild(root_node, NULL, BAD_CAST "aspects", NULL);
+
+    aspects_class = g_type_class_ref(GSWE_TYPE_ASPECT);
+
+    for (aspect = gswe_moment_get_all_aspects(GSWE_MOMENT(chart)); aspect; aspect = g_list_next(aspect)) {
+        GEnumValue *enum_value;
+        aspect_data = aspect->data;
+
+        if (aspect_data->aspect == GSWE_ASPECT_NONE) {
+            continue;
+        }
+
+        node = xmlNewChild(aspects_node, NULL, BAD_CAST "aspect", NULL);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), aspect_data->planet1->planet_id);
+        xmlNewProp(node, BAD_CAST "body1", BAD_CAST enum_value->value_name);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), aspect_data->planet2->planet_id);
+        xmlNewProp(node, BAD_CAST "body2", BAD_CAST enum_value->value_name);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(aspects_class), aspect_data->aspect);
+        xmlNewProp(node, BAD_CAST "type", BAD_CAST enum_value->value_name);
+    }
+
+    g_type_class_unref(aspects_class);
+
+    // Begin <antiscia> node
+    g_debug("Generating antiscia table");
+    antiscia_node = xmlNewChild(root_node, NULL, BAD_CAST "antiscia", NULL);
+    antiscia_class = g_type_class_ref(GSWE_TYPE_ANTISCION_AXIS);
+
+    for (antiscion = gswe_moment_get_all_antiscia(GSWE_MOMENT(chart)); antiscion; antiscion = g_list_next(antiscion)) {
+        GsweAntiscionData *antiscion_data = antiscion->data;
+        GEnumValue *enum_value;
+
+        if (antiscion_data->axis == GSWE_ANTISCION_AXIS_NONE) {
+            continue;
+        }
+
+        node = xmlNewChild(antiscia_node, NULL, BAD_CAST "antiscia", NULL);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), antiscion_data->planet1->planet_id);
+        xmlNewProp(node, BAD_CAST "body1", BAD_CAST enum_value->value_name);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), antiscion_data->planet2->planet_id);
+        xmlNewProp(node, BAD_CAST "body2", BAD_CAST enum_value->value_name);
+
+        enum_value = g_enum_get_value(G_ENUM_CLASS(antiscia_class), antiscion_data->axis);
+        xmlNewProp(node, BAD_CAST "axis", BAD_CAST enum_value->value_name);
+    }
+
+    g_type_class_unref(planets_class);
+
+    // Now, doc contains the generated XML tree
+
+    // Now let's load the style sheet
+    stylesheet_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.xsl");
+    g_debug("Opening %s as a stylesheet", stylesheet_path);
+    xslt_file = g_file_new_for_path(stylesheet_path);
+    if (!g_file_load_contents(xslt_file, NULL, &xslt, &xslt_length, NULL, err)) {
+        g_free(stylesheet_path);
+        xmlFreeDoc(doc);
+
+        return NULL;
+    }
+
+    css_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.css");
+    g_debug("Using %s as a CSS stylesheet", css_path);
+    css_file = g_file_new_for_path(css_path);
+    css_uri = g_file_get_uri(css_file);
+
+    if ((xslt_doc = xmlReadMemory(xslt, xslt_length, "chart.xsl", NULL, 0)) == NULL) {
+        g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' can not be parsed as a stylesheet file.", stylesheet_path);
+        g_free(stylesheet_path);
+        g_free(css_path);
+        g_free(css_uri);
+        g_object_unref(css_file);
+        g_object_unref(xslt_file);
+        g_free(xslt);
+        xmlFreeDoc(doc);
+
+        return NULL;
+    }
+
+    if ((xslt_proc = xsltParseStylesheetDoc(xslt_doc)) == NULL) {
+        g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' can not be parsed as a stylesheet file.", stylesheet_path);
+        g_free(stylesheet_path);
+        g_free(css_path);
+        g_free(xslt);
+        g_free(css_uri);
+        g_object_unref(xslt_file);
+        g_object_unref(css_file);
+        xmlFreeDoc(xslt_doc);
+        xmlFreeDoc(doc);
+
+        return NULL;
+    }
+
+    css_final_uri = g_strdup_printf("'%s'", css_uri);
+    g_free(css_uri);
+    params = g_new0(gchar *, 3);
+    params[0] = "css_file";
+    params[1] = css_final_uri;
+    // libxml2 messes up the output, as it prints decimal floating point
+    // numbers in a localized format. It is not good in locales that use a
+    // character for decimal separator other than a dot. So let's just use the
+    // C locale until the SVG is generated.
+    current_locale = uselocale(newlocale(LC_ALL, "C", 0));
+    svg_doc = xsltApplyStylesheet(xslt_proc, doc, (const char **)params);
+    uselocale(current_locale);
+    g_free(stylesheet_path);
+    g_free(css_path);
+    g_object_unref(xslt_file);
+    g_object_unref(css_file);
+    g_free(params);
+    xsltFreeStylesheet(xslt_proc);
+    xmlFreeDoc(doc);
+
+    // Now, svg_doc contains the generated SVG file
+
+    xmlDocDumpFormatMemoryEnc(svg_doc, (xmlChar **)&save_content, &save_length, "UTF-8", 1);
+    xmlFreeDoc(svg_doc);
+
+    return save_content;
 }
 
