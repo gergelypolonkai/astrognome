@@ -615,7 +615,7 @@
                             </xsl:for-each>
                         </g>
 
-                        <g id="aspects" style="visibility:hidden">
+                        <g id="aspects">
                             <xsl:for-each select="chartinfo/aspects/aspect">
                                 <xsl:variable name="planet1" select="@body1"/>
                                 <xsl:variable name="deg1">
@@ -668,7 +668,7 @@
                             </xsl:for-each>
                         </g>
 
-                        <g id="antiscia">
+                        <g id="antiscia" style="visibility:hidden">
                             <xsl:for-each select="chartinfo/antiscia/antiscia">
                                 <xsl:variable name="planet1" select="@body1"/>
                                 <xsl:variable name="deg1">
