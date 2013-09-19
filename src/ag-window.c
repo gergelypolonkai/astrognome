@@ -205,6 +205,7 @@ static void
 tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
 {
     const gchar *active_tab_name = gd_stack_get_visible_child_name(stack);
+    GtkWidget *active_tab;
 
     g_debug("Active tab changed: %s", active_tab_name);
 
@@ -212,12 +213,18 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
         return;
     }
 
+    active_tab = gd_stack_get_visible_child(stack);
+
+    if (strcmp("chart", active_tab_name) == 0) {
+        gtk_widget_set_size_request(active_tab, 600, 600);
+    }
+
     // Note that priv->current_tab is actually the previously selected tab, not the real active one!
     if (window->priv->current_tab == window->priv->tab_edit) {
         recalculate_chart(window);
     }
 
-    window->priv->current_tab = gd_stack_get_visible_child(stack);
+    window->priv->current_tab = active_tab;
 }
 
 static GActionEntry win_entries[] = {
