@@ -6,6 +6,7 @@
 #include <libxslt/xsltInternals.h>
 #include <libxslt/transform.h>
 #include <swe-glib.h>
+#include <locale.h>
 
 #include "ag-chart.h"
 
@@ -686,6 +687,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     gint save_length;
     GFile *xslt_file;
     xsltStylesheetPtr xslt_proc;
+    locale_t current_locale;
 
     root_node = xmlDocGetRootElement(doc);
 
@@ -855,7 +857,13 @@ ag_chart_create_svg(AgChart *chart, GError **err)
         return NULL;
     }
 
+    // libxml2 messes up the output, as it prints decimal floating point
+    // numbers in a localized format. It is not good in locales that use a
+    // character for decimal separator other than a dot. So let's just use the
+    // C locale until the SVG is generated.
+    current_locale = uselocale(newlocale(LC_ALL, "C", 0));
     svg_doc = xsltApplyStylesheet(xslt_proc, doc, NULL);
+    uselocale(current_locale);
     g_free(stylesheet_path);
     xsltFreeStylesheet(xslt_proc);
     xmlFreeDoc(doc);
