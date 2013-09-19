@@ -55,6 +55,12 @@ Makefile.in
 /po/quot.sed
 /po/remove-potcdate.sin
 
+# Yelp related files
+/help/*/*.mo
+/help/*/*.stamp
+/help/*/*.page
+!/help/C/*.page
+
 #Documentation related files
 /docs/reference/*/*.args
 /docs/reference/*/*.hierarchy
