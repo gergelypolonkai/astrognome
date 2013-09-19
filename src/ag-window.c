@@ -72,6 +72,54 @@ close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 static void
 ag_window_save_as(AgWindow *window, GError **err)
 {
+    gchar *name,
+          *file_name;
+    GtkWidget *fs;
+    gint response;
+
+    recalculate_chart(window);
+
+    // We should never enter here, but who knows...
+    if (window->priv->chart == NULL) {
+        g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART, "Chart is empty");
+
+        return;
+    }
+
+    name = ag_chart_get_name(window->priv->chart);
+
+    if ((name == NULL) || (*name == 0)) {
+        g_free(name);
+        g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME, "No name specified");
+
+        return;
+    }
+
+    file_name = g_strdup_printf("%s.agc", name);
+    g_free(name);
+
+    fs = gtk_file_chooser_dialog_new(_("Save Chart"),
+            GTK_WINDOW(window),
+            GTK_FILE_CHOOSER_ACTION_SAVE,
+            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+            NULL);
+    gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
+    gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), TRUE);
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fs), file_name);
+    g_free(file_name);
+
+    response = gtk_dialog_run(GTK_DIALOG(fs));
+    gtk_widget_hide(fs);
+
+    if (response == GTK_RESPONSE_ACCEPT) {
+        GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
+
+        ag_chart_save_to_file(window->priv->chart, file, err);
+    }
+
+    gtk_widget_destroy(fs);
 }
 
 static void
