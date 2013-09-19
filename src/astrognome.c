@@ -3,6 +3,8 @@
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 #include <libxml/xmlversion.h>
+#include <libxml/parser.h>
+#include <libexslt/exslt.h>
 
 #include <libgd/gd.h>
 
@@ -88,6 +90,9 @@ main(int argc, char *argv[])
 #endif
 
     LIBXML_TEST_VERSION;
+    xmlSubstituteEntitiesDefault(1);
+    xmlLoadExtDtdDefaultValue = 1;
+    exsltRegisterAll();
     gswe_init();
 
     option_version = FALSE,
