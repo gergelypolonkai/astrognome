@@ -41,6 +41,8 @@ struct _AgWindowPrivate {
     gchar *uri;
 };
 
+G_DEFINE_QUARK(ag-window-error-quark, ag_window_error);
+
 G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
 #define GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE((instance), AG_TYPE_WINDOW, AgWindowPrivate))

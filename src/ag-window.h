@@ -7,6 +7,11 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+    AG_WINDOW_ERROR_EMPTY_CHART,
+    AG_WINDOW_ERROR_NO_NAME,
+} AgWindowError;
+
 #define AG_TYPE_WINDOW         (ag_window_get_type())
 #define AG_WINDOW(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), AG_TYPE_WINDOW, AgWindow))
 #define AG_WINDOW_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), AG_TYPE_WINDOW, AgWindowClass))
@@ -34,6 +39,9 @@ AgChart *ag_window_get_chart(AgWindow *window);
 void ag_window_update_from_chart(AgWindow *window);
 void ag_window_set_uri(AgWindow *window, const gchar *uri);
 gchar *ag_window_get_uri(AgWindow *window);
+
+#define AG_WINDOW_ERROR (ag_window_error_quark())
+GQuark ag_window_error_quark(void);
 
 G_END_DECLS
 
