@@ -42,7 +42,7 @@ void ag_chart_set_country(AgChart *chart, const gchar *country);
 gchar *ag_chart_get_country(AgChart *chart);
 void ag_chart_set_city(AgChart *chart, const gchar *city);
 gchar *ag_chart_get_city(AgChart *chart);
-void ag_chart_create_svg(AgChart *chart);
+gchar *ag_chart_create_svg(AgChart *chart, GError **err);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);

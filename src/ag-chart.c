@@ -3,6 +3,8 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
+#include <libxslt/xsltInternals.h>
+#include <libxslt/transform.h>
 #include <swe-glib.h>
 
 #include "ag-chart.h"
@@ -653,10 +655,12 @@ ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
     xmlFreeDoc(save_doc);
 }
 
-void
-ag_chart_create_svg(AgChart *chart)
+gchar *
+ag_chart_create_svg(AgChart *chart, GError **err)
 {
-    xmlDocPtr doc = create_save_doc(chart);
+    xmlDocPtr doc = create_save_doc(chart),
+              xslt_doc,
+              svg_doc;
     xmlNodePtr root_node = NULL,
                ascmcs_node = NULL,
                houses_node = NULL,
@@ -664,7 +668,10 @@ ag_chart_create_svg(AgChart *chart)
                aspects_node = NULL,
                antiscia_node = NULL,
                node = NULL;
-    gchar *value;
+    gchar *value,
+          *stylesheet_path,
+          *xslt,
+          *save_content = NULL;
     GList *houses,
           *house,
           *planet,
@@ -675,6 +682,10 @@ ag_chart_create_svg(AgChart *chart)
     GEnumClass *planets_class,
                *aspects_class,
                *antiscia_class;
+    guint xslt_length;
+    gint save_length;
+    GFile *xslt_file;
+    xsltStylesheetPtr xslt_proc;
 
     root_node = xmlDocGetRootElement(doc);
 
@@ -682,6 +693,7 @@ ag_chart_create_svg(AgChart *chart)
     houses = gswe_moment_get_house_cusps(GSWE_MOMENT(chart), NULL);
 
     // Begin <ascmcs> node
+    g_debug("Generating theoretical points table");
     ascmcs_node = xmlNewChild(root_node, NULL, BAD_CAST "ascmcs", NULL);
 
     node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "ascendant", NULL);
@@ -709,6 +721,7 @@ ag_chart_create_svg(AgChart *chart)
     g_free(value);
 
     // Begin <houses> node
+    g_debug("Generating houses table");
     houses_node = xmlNewChild(root_node, NULL, BAD_CAST "houses", NULL);
 
     for (house = houses; house; house = g_list_next(house)) {
@@ -728,6 +741,7 @@ ag_chart_create_svg(AgChart *chart)
     }
 
     // Begin <bodies> node
+    g_debug("Generating bodies table");
     bodies_node = xmlNewChild(root_node, NULL, BAD_CAST "bodies", NULL);
 
     planets_class = g_type_class_ref(GSWE_TYPE_PLANET);
@@ -755,9 +769,8 @@ ag_chart_create_svg(AgChart *chart)
         g_free(value);
     }
 
-    g_debug("Generating aspects table");
-
     // Begin <aspects> node
+    g_debug("Generating aspects table");
     aspects_node = xmlNewChild(root_node, NULL, BAD_CAST "aspects", NULL);
 
     aspects_class = g_type_class_ref(GSWE_TYPE_ASPECT);
@@ -784,9 +797,8 @@ ag_chart_create_svg(AgChart *chart)
 
     g_type_class_unref(aspects_class);
 
-    g_debug("Generating antiscia table");
-
     // Begin <antiscia> node
+    g_debug("Generating antiscia table");
     antiscia_node = xmlNewChild(root_node, NULL, BAD_CAST "antiscia", NULL);
     antiscia_class = g_type_class_ref(GSWE_TYPE_ANTISCION_AXIS);
 
@@ -811,7 +823,48 @@ ag_chart_create_svg(AgChart *chart)
     }
 
     g_type_class_unref(planets_class);
-    xmlSaveFormatFileEnc("-", doc, "UTF-8", 1);
+
+    // Now, doc contains the generated XML tree
+
+    // Now let's load the style sheet
+    stylesheet_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.xsl");
+    g_debug("Opening %s as a stylesheet", stylesheet_path);
+    xslt_file = g_file_new_for_path(stylesheet_path);
+    if (!g_file_load_contents(xslt_file, NULL, &xslt, &xslt_length, NULL, err)) {
+        xmlFreeDoc(doc);
+
+        return NULL;
+    }
+
+    if ((xslt_doc = xmlReadMemory(xslt, xslt_length, "chart.xsl", NULL, 0)) == NULL) {
+        g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' can not be parsed as a stylesheet file.", stylesheet_path);
+        g_free(stylesheet_path);
+        g_free(xslt);
+        xmlFreeDoc(doc);
+
+        return NULL;
+    }
+
+    if ((xslt_proc = xsltParseStylesheetDoc(xslt_doc)) == NULL) {
+        g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' can not be parsed as a stylesheet file.", stylesheet_path);
+        g_free(stylesheet_path);
+        g_free(xslt);
+        xmlFreeDoc(xslt_doc);
+        xmlFreeDoc(doc);
+
+        return NULL;
+    }
+
+    svg_doc = xsltApplyStylesheet(xslt_proc, doc, NULL);
+    g_free(stylesheet_path);
+    xsltFreeStylesheet(xslt_proc);
     xmlFreeDoc(doc);
+
+    // Now, svg_doc contains the generated SVG file
+
+    xmlDocDumpFormatMemoryEnc(svg_doc, (xmlChar **)&save_content, &save_length, "UTF-8", 1);
+    xmlFreeDoc(svg_doc);
+
+    return save_content;
 }
 
