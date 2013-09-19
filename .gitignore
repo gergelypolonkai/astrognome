@@ -59,6 +59,12 @@ Makefile.in
 /po/remove-potcdate.sin
 /po/.intltool-merge-cache
 
+# Yelp related files
+/help/*/*.mo
+/help/*/*.stamp
+/help/*/*.page
+!/help/C/*.page
+
 #Documentation related files
 /docs/reference/*/*.args
 /docs/reference/*/*.hierarchy
