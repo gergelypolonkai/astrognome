@@ -117,7 +117,7 @@ ag_window_redraw_chart(AgWindow *window)
     if (svg_content == NULL) {
         g_warning("%s", err->message);
     } else {
-        webkit_web_view_load_string(WEBKIT_WEB_VIEW(window->priv->tab_chart), svg_content, "image/svg+xml", "UTF-8", NULL);
+        webkit_web_view_load_string(WEBKIT_WEB_VIEW(window->priv->tab_chart), svg_content, "image/svg+xml", "UTF-8", "file://");
         g_free(svg_content);
     }
 }
