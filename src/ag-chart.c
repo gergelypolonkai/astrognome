@@ -838,6 +838,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     g_debug("Opening %s as a stylesheet", stylesheet_path);
     xslt_file = g_file_new_for_path(stylesheet_path);
     if (!g_file_load_contents(xslt_file, NULL, &xslt, &xslt_length, NULL, err)) {
+        g_free(stylesheet_path);
         xmlFreeDoc(doc);
 
         return NULL;
@@ -854,6 +855,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
         g_free(css_path);
         g_free(css_uri);
         g_object_unref(css_file);
+        g_object_unref(xslt_file);
         g_free(xslt);
         xmlFreeDoc(doc);
 
@@ -866,6 +868,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
         g_free(css_path);
         g_free(xslt);
         g_free(css_uri);
+        g_object_unref(xslt_file);
         g_object_unref(css_file);
         xmlFreeDoc(xslt_doc);
         xmlFreeDoc(doc);
@@ -887,6 +890,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     uselocale(current_locale);
     g_free(stylesheet_path);
     g_free(css_path);
+    g_object_unref(xslt_file);
     g_object_unref(css_file);
     g_free(params);
     xsltFreeStylesheet(xslt_proc);
