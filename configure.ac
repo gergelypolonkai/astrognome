@@ -65,6 +65,7 @@ AC_CONFIG_FILES([
     libgd/Makefile
     src/Makefile
     po/Makefile.in
+    data/Makefile
     data/geonames/Makefile
     data/icons/Makefile
 ])
