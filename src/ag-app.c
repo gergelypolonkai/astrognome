@@ -198,6 +198,8 @@ setup_accelerators(AgApp *app)
     gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>s",        "win.save",       NULL);
     gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary><Shift>s", "win.save-as",    NULL);
     gtk_application_add_accelerator(GTK_APPLICATION(app), "F10",               "win.gear-menu",  NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "F5",                "win.change-tab", g_variant_new_string("chart"));
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "F9",                "win.change-tab", g_variant_new_string("aspects"));
 }
 
 static void

@@ -277,11 +277,22 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
     window->priv->current_tab = active_tab;
 }
 
+static void
+ag_window_change_tab_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+    AgWindow *window = user_data;
+    const gchar *target_tab = g_variant_get_string(parameter, NULL);
+
+    gd_stack_set_visible_child_name(GD_STACK(window->priv->stack), target_tab);
+    g_action_change_state(G_ACTION(action), parameter);
+}
+
 static GActionEntry win_entries[] = {
     { "close",      ag_window_close_action,      NULL, NULL,      NULL },
     { "save",       ag_window_save_action,       NULL, NULL,      NULL },
     { "save-as",    ag_window_save_as_action,    NULL, NULL,      NULL },
     { "gear-menu",  ag_window_gear_menu_action,  NULL, "false",   NULL },
+    { "change-tab", ag_window_change_tab_action, "s",  "'edit'",  NULL },
 };
 
 static void
