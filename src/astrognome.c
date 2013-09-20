@@ -5,6 +5,7 @@
 #include <libxml/xmlversion.h>
 #include <libxml/parser.h>
 #include <libxslt/xslt.h>
+#include <libxslt/transform.h>
 #include <libexslt/exslt.h>
 
 #include <libgd/gd.h>
@@ -94,6 +95,7 @@ main(int argc, char *argv[])
     xmlSubstituteEntitiesDefault(1);
     xmlLoadExtDtdDefaultValue = 1;
     xsltInit();
+    xsltSetXIncludeDefault(1);
     exsltRegisterAll();
     gswe_init();
 

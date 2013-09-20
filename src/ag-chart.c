@@ -3,6 +3,7 @@
 #include <libxml/parser.h>
 #include <libxml/xpath.h>
 #include <libxml/tree.h>
+#include <libxml/xinclude.h>
 #include <libxslt/xsltInternals.h>
 #include <libxslt/transform.h>
 #include <swe-glib.h>
@@ -861,6 +862,12 @@ ag_chart_create_svg(AgChart *chart, GError **err)
 
         return NULL;
     }
+
+#if LIBXML_VERSION >= 20603
+    xmlXIncludeProcessFlags(xslt_doc, XSLT_PARSE_OPTIONS);
+#else
+    xmlXIncludeProcess(xslt_doc);
+#endif
 
     if ((xslt_proc = xsltParseStylesheetDoc(xslt_doc)) == NULL) {
         g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' can not be parsed as a stylesheet file.", stylesheet_path);
