@@ -18,9 +18,6 @@
 #define UI_FILE PKGDATADIR "/astrognome.ui"
 
 GtkBuilder *builder;
-static gboolean option_version,
-                option_quit,
-                option_new_window;
 GtkFileFilter *filter_all = NULL,
               *filter_chart = NULL;
 
@@ -35,27 +32,6 @@ const char *moonStateName[] = {
     "Waning Crescent Moon",
     "Dark Moon"
 };
-
-static void
-run_action(AgApp *app, gboolean is_remote)
-{
-    if (option_new_window) {
-        if (is_remote) {
-            ag_app_new_window(app);
-        }
-    } else if (option_quit) {
-        ag_app_quit(app);
-    } else if (is_remote) { // Keep this option the last one!
-        ag_app_raise(app);
-    }
-}
-
-static void
-application_activate_cb(AgApp *app, gpointer user_data)
-{
-    ag_app_new_window(app);
-    run_action(app, FALSE);
-}
 
 void
 init_filters(void)
@@ -77,11 +53,12 @@ main(int argc, char *argv[])
     gint status;
     AgApp *app;
     GError *err = NULL;
+    AstrognomeOptions options;
 
-    GOptionEntry options[] = {
-        { "new-window", 'n', 0, G_OPTION_ARG_NONE, &option_new_window, N_("Opens a new Astrognome window"), NULL },
-        { "version",    'v', 0, G_OPTION_ARG_NONE, &option_version,    N_("Display version and exit"),      NULL },
-        { "quit",       'q', 0, G_OPTION_ARG_NONE, &option_quit,       N_("Quit any running Astrognome"),   NULL },
+    GOptionEntry option_entries[] = {
+        { "new-window", 'n', 0, G_OPTION_ARG_NONE, &(options.new_window), N_("Opens a new Astrognome window"), NULL },
+        { "version",    'v', 0, G_OPTION_ARG_NONE, &(options.version),    N_("Display version and exit"),      NULL },
+        { "quit",       'q', 0, G_OPTION_ARG_NONE, &(options.quit),       N_("Quit any running Astrognome"),   NULL },
         { NULL }
     };
 
@@ -99,17 +76,15 @@ main(int argc, char *argv[])
     exsltRegisterAll();
     gswe_init();
 
-    option_version = FALSE,
-    option_quit = FALSE,
-    option_new_window = FALSE;
+    memset(&options, 0, sizeof(AstrognomeOptions));
 
-    if (!gtk_init_with_args(&argc, &argv, _("[FILE…]"), options, GETTEXT_PACKAGE, &err)) {
+    if (!gtk_init_with_args(&argc, &argv, _("[FILE…]"), option_entries, GETTEXT_PACKAGE, &err)) {
         g_printerr("%s\n", err->message);
 
         return EXIT_FAILURE;
     }
 
-    if (option_version) {
+    if (options.version) {
         g_print("%s\n", PACKAGE_STRING);
 
         return EXIT_SUCCESS;
@@ -118,7 +93,6 @@ main(int argc, char *argv[])
     init_filters();
 
     app = ag_app_new();
-    g_signal_connect(app, "activate", G_CALLBACK(application_activate_cb), NULL);
     g_application_set_default(G_APPLICATION(app));
 
     if (!g_application_register(G_APPLICATION(app), NULL, &err)) {
@@ -129,7 +103,7 @@ main(int argc, char *argv[])
     }
 
     if (g_application_get_is_remote(G_APPLICATION(app))) {
-        run_action(app, TRUE);
+        ag_app_run_action(app, TRUE, (const AstrognomeOptions *)&options);
         g_object_unref(app);
 
         return EXIT_SUCCESS;

@@ -3,6 +3,8 @@
 
 #include <gtk/gtk.h>
 
+#include "astrognome.h"
+
 G_BEGIN_DECLS
 
 #define AG_TYPE_APP         (ag_app_get_type())
@@ -34,6 +36,7 @@ GtkWindow *ag_app_peek_first_window(AgApp *self);
 void ag_app_new_window(AgApp *self);
 void ag_app_quit(AgApp *self);
 void ag_app_raise(AgApp *self);
+void ag_app_run_action(AgApp *app, gboolean is_remote, const AstrognomeOptions *options);
 
 G_END_DECLS
 

@@ -241,6 +241,27 @@ ag_app_open(GApplication *gapp, GFile **files, gint n_files, const gchar *hint)
     }
 }
 
+void
+ag_app_run_action(AgApp *app, gboolean is_remote, const AstrognomeOptions *options)
+{
+    if (options && options->new_window) {
+        if (is_remote) {
+            ag_app_new_window(app);
+        }
+    } else if (options && options->quit) {
+        ag_app_quit(app);
+    } else if (is_remote) { // Keep this option the last one!
+        ag_app_raise(app);
+    }
+}
+
+static void
+application_activate_cb(AgApp *app, gpointer user_data)
+{
+    ag_app_new_window(app);
+    ag_app_run_action(app, FALSE, NULL);
+}
+
 AgApp *
 ag_app_new(void)
 {
@@ -254,6 +275,7 @@ ag_app_new(void)
             "flags",            G_APPLICATION_HANDLES_OPEN,
             "register-session", TRUE,
             NULL);
+    g_signal_connect(app, "activate", G_CALLBACK(application_activate_cb), NULL);
 
     return app;
 }
