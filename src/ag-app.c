@@ -194,10 +194,10 @@ setup_actions(AgApp *app)
 static void
 setup_accelerators(AgApp *app)
 {
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>w",        "win.close",     NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>s",        "win.save",      NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary><Shift>s", "win.save-as",   NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "F10",               "win.gear-menu", NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>w",        "win.close",      NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>s",        "win.save",       NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary><Shift>s", "win.save-as",    NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "F10",               "win.gear-menu",  NULL);
 }
 
 static void

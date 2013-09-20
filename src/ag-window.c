@@ -50,7 +50,7 @@ G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 static void recalculate_chart(AgWindow *window);
 
 static void
-gear_menu_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+ag_window_gear_menu_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     GVariant *state;
 
@@ -61,7 +61,7 @@ gear_menu_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
-close_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+ag_window_close_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     AgWindow *window = user_data;
 
@@ -123,7 +123,7 @@ ag_window_save_as(AgWindow *window, GError **err)
 }
 
 static void
-save_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+ag_window_save_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
     GError *err = NULL;
@@ -145,7 +145,7 @@ save_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
-save_as_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+ag_window_save_as_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
     GError *err = NULL;
@@ -278,10 +278,10 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
 }
 
 static GActionEntry win_entries[] = {
-    { "close",      close_cb,     NULL, NULL,      NULL },
-    { "save",       save_cb,      NULL, NULL,      NULL },
-    { "save-as",    save_as_cb,   NULL, NULL,      NULL },
-    { "gear-menu",  gear_menu_cb, NULL, "false",   NULL },
+    { "close",      ag_window_close_action,      NULL, NULL,      NULL },
+    { "save",       ag_window_save_action,       NULL, NULL,      NULL },
+    { "save-as",    ag_window_save_as_action,    NULL, NULL,      NULL },
+    { "gear-menu",  ag_window_gear_menu_action,  NULL, "false",   NULL },
 };
 
 static void
