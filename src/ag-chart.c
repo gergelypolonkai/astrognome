@@ -673,7 +673,6 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     gchar *value,
           *stylesheet_path,
           *css_path,
-          *xslt,
           *save_content = NULL,
           *css_uri,
           *css_final_uri,
@@ -688,10 +687,8 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     GEnumClass *planets_class,
                *aspects_class,
                *antiscia_class;
-    guint xslt_length;
     gint save_length;
-    GFile *xslt_file,
-          *css_file;
+    GFile *css_file;
     xsltStylesheetPtr xslt_proc;
     locale_t current_locale;
 
@@ -834,30 +831,19 @@ ag_chart_create_svg(AgChart *chart, GError **err)
 
     // Now, doc contains the generated XML tree
 
-    // Now let's load the style sheet
-    stylesheet_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.xsl");
-    g_debug("Opening %s as a stylesheet", stylesheet_path);
-    xslt_file = g_file_new_for_path(stylesheet_path);
-    if (!g_file_load_contents(xslt_file, NULL, &xslt, &xslt_length, NULL, err)) {
-        g_free(stylesheet_path);
-        xmlFreeDoc(doc);
-
-        return NULL;
-    }
-
     css_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.css");
     g_debug("Using %s as a CSS stylesheet", css_path);
     css_file = g_file_new_for_path(css_path);
     css_uri = g_file_get_uri(css_file);
 
-    if ((xslt_doc = xmlReadMemory(xslt, xslt_length, "chart.xsl", NULL, 0)) == NULL) {
+    stylesheet_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.xsl");
+    g_debug("Opening %s as a stylesheet", stylesheet_path);
+    if ((xslt_doc = xmlReadFile(stylesheet_path, "UTF-8", 0)) == NULL) {
         g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' can not be parsed as a stylesheet file.", stylesheet_path);
         g_free(stylesheet_path);
         g_free(css_path);
         g_free(css_uri);
         g_object_unref(css_file);
-        g_object_unref(xslt_file);
-        g_free(xslt);
         xmlFreeDoc(doc);
 
         return NULL;
@@ -873,9 +859,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
         g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' can not be parsed as a stylesheet file.", stylesheet_path);
         g_free(stylesheet_path);
         g_free(css_path);
-        g_free(xslt);
         g_free(css_uri);
-        g_object_unref(xslt_file);
         g_object_unref(css_file);
         xmlFreeDoc(xslt_doc);
         xmlFreeDoc(doc);
@@ -897,7 +881,6 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     uselocale(current_locale);
     g_free(stylesheet_path);
     g_free(css_path);
-    g_object_unref(xslt_file);
     g_object_unref(css_file);
     g_free(params);
     xsltFreeStylesheet(xslt_proc);
