@@ -317,6 +317,7 @@ ag_window_init(AgWindow *window)
     }
 
     priv->grid = gtk_grid_new();
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(priv->grid), GTK_ORIENTATION_VERTICAL);
     gtk_widget_show(priv->grid);
 
     gtk_container_add(GTK_CONTAINER(window), priv->grid);
@@ -437,6 +438,7 @@ window_populate(AgWindow *window)
     GObject *menu;
 
     priv->header_bar = gd_header_bar_new();
+    gtk_widget_set_hexpand(priv->header_bar, TRUE);
     menu_button = gd_header_menu_button_new();
     gd_header_button_set_symbolic_icon_name(GD_HEADER_BUTTON(menu_button), "emblem-system-symbolic");
     gtk_actionable_set_action_name(GTK_ACTIONABLE(menu_button), "win.gear-menu");
@@ -449,6 +451,8 @@ window_populate(AgWindow *window)
     gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menu_button), G_MENU_MODEL(menu));
 
     priv->stack = gd_stack_new();
+    gtk_widget_set_hexpand(priv->stack, TRUE);
+    gtk_widget_set_vexpand(priv->stack, TRUE);
     gtk_grid_attach(GTK_GRID(priv->grid), priv->stack, 0, 1, 1, 1);
     g_signal_connect(priv->stack, "notify::visible-child", G_CALLBACK(tab_changed_cb), window);
 
