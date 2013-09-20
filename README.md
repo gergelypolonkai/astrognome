@@ -5,12 +5,12 @@
 The features below are already implemented.
 
 * Calculate planetary positions for any date, time and place on Earth, their aspects and mirrorpoints
+* Create natal charts for any date, time and place on earth, with exact planetary locations and their aspects
 
 ## Upcoming features
 
 The features below will be implemented in the first release of Astrognome.
 
-* Create natal charts for any date, time and place on earth, with exact planetary locations and their aspects
 * Optionally include dwarf planets and comets: Chiron, Pallas, Ceres, Juno and Vesta
 * Optionally include Vertex
 * Time stepping
