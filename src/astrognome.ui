@@ -46,5 +46,12 @@
                 <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;s</attribute>
             </item>
         </section>
+        <section>
+            <item>
+                <attribute name="label" translatable="yes">Close</attribute>
+                <attribute name="action">win.close</attribute>
+                <attribute name="accel">&lt;Primary&gt;w</attribute>
+            </item>
+        </section>
     </menu>
 </interface>
