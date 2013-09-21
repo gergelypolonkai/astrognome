@@ -503,6 +503,16 @@ window_populate(AgWindow *window)
     gtk_widget_show_all(priv->grid);
 }
 
+static gboolean
+ag_window_configure_event_cb(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
+{
+    AgWindow *window = AG_WINDOW(widget);
+
+    ag_window_settings_save(GTK_WINDOW(window), ag_settings_peek_window_settings(window->priv->settings));
+
+    return FALSE;
+}
+
 GtkWidget *
 ag_window_new(AgApp *app)
 {
@@ -515,6 +525,7 @@ ag_window_new(AgApp *app)
     window_populate(window);
 
     gtk_window_set_icon_name(GTK_WINDOW(window), "astrognome");
+    g_signal_connect(window, "configure-event", G_CALLBACK(ag_window_configure_event_cb), NULL);
 
     ag_window_settings_restore(GTK_WINDOW(window), ag_settings_peek_window_settings(window->priv->settings));
 
@@ -585,5 +596,23 @@ ag_window_settings_restore(GtkWindow *window, GSettings *settings)
     if (maximized) {
         gtk_window_maximize(window);
     }
+}
+
+void
+ag_window_settings_save(GtkWindow *window, GSettings *settings)
+{
+    GdkWindowState state;
+    gint           width,
+                   height;
+    gboolean       maximized;
+
+    state     = gdk_window_get_state(gtk_widget_get_window(GTK_WIDGET(window)));
+    maximized = ((state & GDK_WINDOW_STATE_MAXIMIZED) == GDK_WINDOW_STATE_MAXIMIZED);
+
+    g_settings_set_boolean(settings, "maximized", maximized);
+
+    gtk_window_get_size(window, &width, &height);
+    g_settings_set_int(settings, "width", width);
+    g_settings_set_int(settings, "height", height);
 }
 
