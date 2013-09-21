@@ -20,7 +20,7 @@ typedef struct _AgAppPrivate AgAppPrivate;
 
 struct _AgApp {
     GtkApplication parent_instance;
-    AgAppPrivate *priv;
+    AgAppPrivate   *priv;
 };
 
 struct _AgAppClass {
@@ -36,7 +36,9 @@ GtkWindow *ag_app_peek_first_window(AgApp *self);
 void ag_app_new_window(AgApp *self);
 void ag_app_quit(AgApp *self);
 void ag_app_raise(AgApp *self);
-void ag_app_run_action(AgApp *app, gboolean is_remote, const AstrognomeOptions *options);
+void ag_app_run_action(AgApp                   *app,
+                       gboolean                is_remote,
+                       const AstrognomeOptions *options);
 
 G_END_DECLS
 

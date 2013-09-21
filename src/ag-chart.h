@@ -18,12 +18,12 @@ typedef enum {
 #define AG_IS_CHART_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), AG_TYPE_CHART))
 #define AG_CHART_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), AG_TYPE_CHART, AgChartClass))
 
-typedef struct _AgChart AgChart;
-typedef struct _AgChartClass AgChartClass;
+typedef struct _AgChart        AgChart;
+typedef struct _AgChartClass   AgChartClass;
 typedef struct _AgChartPrivate AgChartPrivate;
 
 struct _AgChart {
-    GsweMoment parent_instance;
+    GsweMoment     parent_instance;
     AgChartPrivate *priv;
 };
 
@@ -32,17 +32,28 @@ struct _AgChartClass {
 };
 
 GType ag_chart_get_type(void) G_GNUC_CONST;
-AgChart *ag_chart_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude, gdouble altitude, GsweHouseSystem house_system);
-AgChart *ag_chart_load_from_file(GFile *file, GError **err);
-void ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err);
+AgChart *ag_chart_new_full(GsweTimestamp   *timestamp,
+                           gdouble         longitude,
+                           gdouble         latitude,
+                           gdouble         altitude,
+                           GsweHouseSystem house_system);
+AgChart *ag_chart_load_from_file(GFile  *file,
+                                 GError **err);
+void ag_chart_save_to_file(AgChart *chart,
+                           GFile   *file,
+                           GError  **err);
 
-void ag_chart_set_name(AgChart *chart, const gchar *name);
+void ag_chart_set_name(AgChart     *chart,
+                       const gchar *name);
 gchar *ag_chart_get_name(AgChart *chart);
-void ag_chart_set_country(AgChart *chart, const gchar *country);
+void ag_chart_set_country(AgChart     *chart,
+                          const gchar *country);
 gchar *ag_chart_get_country(AgChart *chart);
-void ag_chart_set_city(AgChart *chart, const gchar *city);
+void ag_chart_set_city(AgChart     *chart,
+                       const gchar *city);
 gchar *ag_chart_get_city(AgChart *chart);
-gchar *ag_chart_create_svg(AgChart *chart, GError **err);
+gchar *ag_chart_create_svg(AgChart *chart,
+                           GError  **err);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);

@@ -12,36 +12,36 @@
 #include "ag-chart.h"
 
 struct _AgWindowPrivate {
-    GtkWidget *grid;
-    GtkWidget *header_bar;
-    GtkWidget *stack;
-    GtkWidget *stack_switcher;
-    GtkWidget *name;
-    GtkWidget *north_lat;
-    GtkWidget *south_lat;
-    GtkWidget *latitude;
-    GtkWidget *east_long;
-    GtkWidget *west_long;
-    GtkWidget *longitude;
-    GtkWidget *year;
-    GtkWidget *month;
-    GtkWidget *day;
-    GtkWidget *hour;
-    GtkWidget *minute;
-    GtkWidget *second;
+    GtkWidget  *grid;
+    GtkWidget  *header_bar;
+    GtkWidget  *stack;
+    GtkWidget  *stack_switcher;
+    GtkWidget  *name;
+    GtkWidget  *north_lat;
+    GtkWidget  *south_lat;
+    GtkWidget  *latitude;
+    GtkWidget  *east_long;
+    GtkWidget  *west_long;
+    GtkWidget  *longitude;
+    GtkWidget  *year;
+    GtkWidget  *month;
+    GtkWidget  *day;
+    GtkWidget  *hour;
+    GtkWidget  *minute;
+    GtkWidget  *second;
     GtkBuilder *builder;
 
-    GtkWidget *tab_chart;
-    GtkWidget *tab_aspects;
-    GtkWidget *tab_points;
-    GtkWidget *tab_edit;
-    GtkWidget *current_tab;
+    GtkWidget  *tab_chart;
+    GtkWidget  *tab_aspects;
+    GtkWidget  *tab_points;
+    GtkWidget  *tab_edit;
+    GtkWidget  *current_tab;
 
-    AgChart *chart;
-    gchar *uri;
+    AgChart    *chart;
+    gchar      *uri;
 };
 
-G_DEFINE_QUARK(ag-window-error-quark, ag_window_error);
+G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
 
 G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
@@ -72,10 +72,10 @@ ag_window_close_action(GSimpleAction *action, GVariant *parameter, gpointer user
 static void
 ag_window_save_as(AgWindow *window, GError **err)
 {
-    gchar *name,
-          *file_name;
+    gchar     *name;
+    gchar     *file_name;
     GtkWidget *fs;
-    gint response;
+    gint      response;
 
     recalculate_chart(window);
 
@@ -99,11 +99,11 @@ ag_window_save_as(AgWindow *window, GError **err)
     g_free(name);
 
     fs = gtk_file_chooser_dialog_new(_("Save Chart"),
-            GTK_WINDOW(window),
-            GTK_FILE_CHOOSER_ACTION_SAVE,
-            GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-            GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
-            NULL);
+                                     GTK_WINDOW(window),
+                                     GTK_FILE_CHOOSER_ACTION_SAVE,
+                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+                                     NULL);
     gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
     gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
     gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), TRUE);
@@ -126,8 +126,8 @@ static void
 ag_window_save_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
-    GError *err = NULL;
-    gchar *uri;
+    GError   *err    = NULL;
+    gchar    *uri;
 
     recalculate_chart(window);
     uri = ag_window_get_uri(window);
@@ -148,7 +148,7 @@ static void
 ag_window_save_as_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
-    GError *err = NULL;
+    GError   *err    = NULL;
 
     recalculate_chart(window);
     ag_window_save_as(window, &err);
@@ -160,7 +160,7 @@ void
 ag_window_redraw_chart(AgWindow *window)
 {
     GError *err = NULL;
-    gchar *svg_content;
+    gchar  *svg_content;
 
     svg_content = ag_chart_create_svg(window->priv->chart, &err);
 
@@ -175,10 +175,10 @@ ag_window_redraw_chart(AgWindow *window)
 void
 ag_window_update_from_chart(AgWindow *window)
 {
-    GsweTimestamp *timestamp;
+    GsweTimestamp   *timestamp;
     GsweCoordinates *coordinates;
 
-    timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(window->priv->chart));
+    timestamp   = gswe_moment_get_timestamp(GSWE_MOMENT(window->priv->chart));
     coordinates = gswe_moment_get_coordinates(GSWE_MOMENT(window->priv->chart));
 
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->year), gswe_timestamp_get_gregorian_year(timestamp, NULL));
@@ -211,22 +211,22 @@ recalculate_chart(AgWindow *window)
          hour,
          minute,
          second;
-    gdouble longitude,
-            latitude;
-    gboolean south,
-             west;
+    gdouble       longitude,
+                  latitude;
+    gboolean      south,
+                  west;
     GsweTimestamp *timestamp;
 
     g_debug("Recalculating chart data");
 
-    year = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->year));
-    month = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->month));
-    day = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->day));
-    hour = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->hour));
-    minute = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->minute));
-    second = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->second));
+    year      = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->year));
+    month     = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->month));
+    day       = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->day));
+    hour      = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->hour));
+    minute    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->minute));
+    second    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->second));
     longitude = gtk_spin_button_get_value(GTK_SPIN_BUTTON(window->priv->longitude));
-    latitude = gtk_spin_button_get_value(GTK_SPIN_BUTTON(window->priv->latitude));
+    latitude  = gtk_spin_button_get_value(GTK_SPIN_BUTTON(window->priv->latitude));
 
     if ((south = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(window->priv->south_lat)))) {
         latitude = 0 - latitude;
@@ -255,7 +255,7 @@ static void
 tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
 {
     const gchar *active_tab_name = gd_stack_get_visible_child_name(stack);
-    GtkWidget *active_tab;
+    GtkWidget   *active_tab;
 
     g_debug("Active tab changed: %s", active_tab_name);
 
@@ -280,7 +280,7 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
 static void
 ag_window_change_tab_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    AgWindow *window = user_data;
+    AgWindow    *window     = user_data;
     const gchar *target_tab = g_variant_get_string(parameter, NULL);
 
     gd_stack_set_visible_child_name(GD_STACK(window->priv->stack), target_tab);
@@ -299,13 +299,13 @@ static void
 ag_window_init(AgWindow *window)
 {
     AgWindowPrivate *priv;
-    GtkAccelGroup *accel_group;
-    GError *err = NULL;
+    GtkAccelGroup   *accel_group;
+    GError          *err = NULL;
 
     window->priv = priv = GET_PRIVATE(window);
 
     priv->chart = NULL;
-    priv->uri = NULL;
+    priv->uri   = NULL;
 
     gtk_window_set_hide_titlebar_when_maximized(GTK_WINDOW(window), TRUE);
 
@@ -350,8 +350,8 @@ ag_window_class_init(AgWindowClass *klass)
 static GtkWidget *
 notebook_edit(AgWindow *window)
 {
-    GtkWidget *grid;
-    GtkWidget *label;
+    GtkWidget       *grid;
+    GtkWidget       *label;
     AgWindowPrivate *priv = window->priv;
 
     grid = gtk_grid_new();
@@ -446,9 +446,9 @@ static void
 window_populate(AgWindow *window)
 {
     AgWindowPrivate *priv = window->priv;
-    GtkWidget *menu_button,
-              *scroll;
-    GObject *menu;
+    GtkWidget       *menu_button;
+    GtkWidget       *scroll;
+    GObject         *menu;
 
     priv->header_bar = gd_header_bar_new();
     gtk_widget_set_hexpand(priv->header_bar, TRUE);

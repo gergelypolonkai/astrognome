@@ -31,17 +31,24 @@ typedef enum {
     XML_CONVERT_INT
 } XmlConvertType;
 
-G_DEFINE_QUARK(ag-chart-error-quark, ag_chart_error);
+G_DEFINE_QUARK(ag_chart_error_quark, ag_chart_error);
 
 G_DEFINE_TYPE(AgChart, ag_chart, GSWE_TYPE_MOMENT);
 
 #define GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE((instance), AG_TYPE_CHART, AgChartPrivate))
-#define ag_g_variant_unref(v) if ((v) != NULL) { \
-                                    g_variant_unref((v)); \
-                                }
+#define ag_g_variant_unref(v) \
+    if ((v) != NULL) { \
+        g_variant_unref((v)); \
+    }
 
-static void ag_chart_set_property(GObject *gobject, guint prop_id, const GValue *value, GParamSpec *param_spec);
-static void ag_chart_get_property(GObject *gobject, guint prop_id, GValue *value, GParamSpec *param_spec);
+static void ag_chart_set_property(GObject      *gobject,
+                                  guint        prop_id,
+                                  const GValue *value,
+                                  GParamSpec   *param_spec);
+static void ag_chart_get_property(GObject    *gobject,
+                                  guint      prop_id,
+                                  GValue     *value,
+                                  GParamSpec *param_spec);
 static void ag_chart_finalize(GObject *gobject);
 
 static void
@@ -53,7 +60,7 @@ ag_chart_class_init(AgChartClass *klass)
 
     gobject_class->set_property = ag_chart_set_property;
     gobject_class->get_property = ag_chart_get_property;
-    gobject_class->finalize = ag_chart_finalize;
+    gobject_class->finalize     = ag_chart_finalize;
 
     g_object_class_install_property(gobject_class, PROP_NAME, g_param_spec_string("name", "Chart name", "Name of the person on this chart", NULL, G_PARAM_READWRITE));
     g_object_class_install_property(gobject_class, PROP_COUNTRY, g_param_spec_string("country", "Country name", "Name of the country of birth", NULL, G_PARAM_READWRITE));
@@ -63,10 +70,10 @@ ag_chart_class_init(AgChartClass *klass)
 static void
 ag_chart_init(AgChart *chart)
 {
-    chart->priv = GET_PRIVATE(chart);
-    chart->priv->name = NULL;
-    chart->priv->country = NULL;
-    chart->priv->city = NULL;
+    chart->priv              = GET_PRIVATE(chart);
+    chart->priv->name        = NULL;
+    chart->priv->country     = NULL;
+    chart->priv->city        = NULL;
     chart->priv->save_buffer = NULL;
 }
 
@@ -138,18 +145,18 @@ ag_chart_finalize(GObject *gobject)
 AgChart *
 ag_chart_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude, gdouble altitude, GsweHouseSystem house_system)
 {
-    AgChart *chart;
+    AgChart         *chart;
     GsweCoordinates *coords = g_new0(GsweCoordinates, 1);
 
     coords->longitude = longitude;
-    coords->latitude = latitude;
-    coords->altitude = altitude;
+    coords->latitude  = latitude;
+    coords->altitude  = altitude;
 
     chart = AG_CHART(g_object_new(AG_TYPE_CHART,
-            "timestamp",    timestamp,
-            "coordinates",  coords,
-            "house-system", house_system,
-            NULL));
+                                  "timestamp",    timestamp,
+                                  "coordinates",  coords,
+                                  "house-system", house_system,
+                                  NULL));
 
     g_free(coords);
 
@@ -223,11 +230,11 @@ static GVariant *
 get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xpath, gboolean value_required, XmlConvertType type, GError **err)
 {
     xmlXPathObjectPtr xpathObj;
-    const gchar *text;
-    char *endptr;
-    GVariant *ret = NULL;
-    gdouble d;
-    gint i;
+    const gchar       *text;
+    char              *endptr;
+    GVariant          *ret = NULL;
+    gdouble           d;
+    gint              i;
 
     if ((xpathObj = xmlXPathEvalExpression((const xmlChar *)xpath, xpath_context)) == NULL) {
         g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_LIBXML, "File '%s' could not be parsed due to internal XML error.", uri);
@@ -324,29 +331,29 @@ get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xp
 AgChart *
 ag_chart_load_from_file(GFile *file, GError **err)
 {
-    AgChart *chart = NULL;
-    gchar *uri,
-          *xml = NULL,
-          *country_name,
-          *city_name;
-    guint length;
-    xmlDocPtr doc;
+    AgChart            *chart = NULL;
+    gchar              *uri;
+    gchar              *xml = NULL;
+    gchar              *country_name;
+    gchar              *city_name;
+    guint              length;
+    xmlDocPtr          doc;
     xmlXPathContextPtr xpath_context;
-    GVariant *chart_name,
-             *country,
-             *city,
-             *longitude,
-             *latitude,
-             *altitude,
-             *year,
-             *month,
-             *day,
-             *hour,
-             *minute,
-             *second,
-             *timezone;
-    GsweTimestamp *timestamp;
-    gboolean found_error = FALSE;
+    GVariant           *chart_name;
+    GVariant           *country;
+    GVariant           *city;
+    GVariant           *longitude;
+    GVariant           *latitude;
+    GVariant           *altitude;
+    GVariant           *year;
+    GVariant           *month;
+    GVariant           *day;
+    GVariant           *hour;
+    GVariant           *minute;
+    GVariant           *second;
+    GVariant           *timezone;
+    GsweTimestamp      *timestamp;
+    gboolean           found_error = FALSE;
 
     uri = g_file_get_uri(file);
 
@@ -447,15 +454,15 @@ ag_chart_load_from_file(GFile *file, GError **err)
     }
 
     timestamp = gswe_timestamp_new_from_gregorian_full(
-            g_variant_get_int32(year),
-            g_variant_get_int32(month),
-            g_variant_get_int32(day),
-            g_variant_get_int32(hour),
-            g_variant_get_int32(minute),
-            g_variant_get_int32(second),
-            0,
-            g_variant_get_double(timezone)
-        );
+        g_variant_get_int32(year),
+        g_variant_get_int32(month),
+        g_variant_get_int32(day),
+        g_variant_get_int32(hour),
+        g_variant_get_int32(minute),
+        g_variant_get_int32(second),
+        0,
+        g_variant_get_double(timezone)
+                                                      );
     g_variant_unref(year);
     g_variant_unref(month);
     g_variant_unref(day);
@@ -494,16 +501,16 @@ ag_chart_load_from_file(GFile *file, GError **err)
 static xmlDocPtr
 create_save_doc(AgChart *chart)
 {
-    xmlDocPtr doc = NULL;
-    xmlNodePtr root_node = NULL,
-               data_node = NULL,
+    xmlDocPtr  doc        = NULL;
+    xmlNodePtr root_node  = NULL,
+               data_node  = NULL,
                place_node = NULL,
-               time_node = NULL;
-    gchar *value;
+               time_node  = NULL;
+    gchar           *value;
     GsweCoordinates *coordinates;
-    GsweTimestamp *timestamp;
+    GsweTimestamp   *timestamp;
 
-    doc = xmlNewDoc(BAD_CAST "1.0");
+    doc       = xmlNewDoc(BAD_CAST "1.0");
     root_node = xmlNewNode(NULL, BAD_CAST "chartinfo");
     xmlDocSetRootElement(doc, root_node);
 
@@ -590,8 +597,8 @@ create_save_doc(AgChart *chart)
 void
 ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
 {
-    xmlChar *content = NULL;
-    int length;
+    xmlChar   *content = NULL;
+    int       length;
     xmlDocPtr save_doc = create_save_doc(chart);
 
     xmlDocDumpFormatMemoryEnc(save_doc, &content, &length, "UTF-8", 1);
@@ -604,37 +611,37 @@ ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
 gchar *
 ag_chart_create_svg(AgChart *chart, GError **err)
 {
-    xmlDocPtr doc = create_save_doc(chart),
-              xslt_doc,
-              svg_doc;
-    xmlNodePtr root_node = NULL,
-               ascmcs_node = NULL,
-               houses_node = NULL,
-               bodies_node = NULL,
-               aspects_node = NULL,
-               antiscia_node = NULL,
-               node = NULL;
-    gchar *value,
-          *stylesheet_path,
-          *css_path,
-          *save_content = NULL,
-          *css_uri,
-          *css_final_uri,
-          **params;
-    GList *houses,
-          *house,
-          *planet,
-          *aspect,
-          *antiscion;
+    xmlDocPtr            doc = create_save_doc(chart);
+    xmlDocPtr            xslt_doc;
+    xmlDocPtr            svg_doc;
+    xmlNodePtr           root_node     = NULL;
+    xmlNodePtr           ascmcs_node   = NULL;
+    xmlNodePtr           houses_node   = NULL;
+    xmlNodePtr           bodies_node   = NULL;
+    xmlNodePtr           aspects_node  = NULL;
+    xmlNodePtr           antiscia_node = NULL;
+    xmlNodePtr           node          = NULL;
+    gchar                *value;
+    gchar                *stylesheet_path;
+    gchar                *css_path;
+    gchar                *save_content = NULL;
+    gchar                *css_uri;
+    gchar                *css_final_uri;
+    gchar                **params;
+    GList                *houses;
+    GList                *house;
+    GList                *planet;
+    GList                *aspect;
+    GList                *antiscion;
     const GswePlanetData *planet_data;
     const GsweAspectData *aspect_data;
-    GEnumClass *planets_class,
-               *aspects_class,
-               *antiscia_class;
-    gint save_length;
-    GFile *css_file;
-    xsltStylesheetPtr xslt_proc;
-    locale_t current_locale;
+    GEnumClass           *planets_class;
+    GEnumClass           *aspects_class;
+    GEnumClass           *antiscia_class;
+    gint                 save_length;
+    GFile                *css_file;
+    xsltStylesheetPtr    xslt_proc;
+    locale_t             current_locale;
 
     root_node = xmlDocGetRootElement(doc);
 
@@ -648,7 +655,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "ascendant", NULL);
 
     planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_ASCENDENT, NULL);
-    value = g_malloc0(12);
+    value       = g_malloc0(12);
     g_ascii_dtostr(value, 12, planet_data->position);
     xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
     g_free(value);
@@ -656,7 +663,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "mc", NULL);
 
     planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_MC, NULL);
-    value = g_malloc0(12);
+    value       = g_malloc0(12);
     g_ascii_dtostr(value, 12, planet_data->position);
     xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
     g_free(value);
@@ -664,7 +671,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "vertex", NULL);
 
     planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_VERTEX, NULL);
-    value = g_malloc0(12);
+    value       = g_malloc0(12);
     g_ascii_dtostr(value, 12, planet_data->position);
     xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
     g_free(value);
@@ -700,10 +707,10 @@ ag_chart_create_svg(AgChart *chart, GError **err)
         GEnumValue *enum_value;
 
         if (
-                (planet_data->planet_id == GSWE_PLANET_ASCENDENT)
-                || (planet_data->planet_id == GSWE_PLANET_MC)
-                || (planet_data->planet_id == GSWE_PLANET_VERTEX)
-        ) {
+            (planet_data->planet_id == GSWE_PLANET_ASCENDENT) ||
+            (planet_data->planet_id == GSWE_PLANET_MC) ||
+            (planet_data->planet_id == GSWE_PLANET_VERTEX)
+           ) {
             continue;
         }
 
@@ -748,12 +755,12 @@ ag_chart_create_svg(AgChart *chart, GError **err)
 
     // Begin <antiscia> node
     g_debug("Generating antiscia table");
-    antiscia_node = xmlNewChild(root_node, NULL, BAD_CAST "antiscia", NULL);
+    antiscia_node  = xmlNewChild(root_node, NULL, BAD_CAST "antiscia", NULL);
     antiscia_class = g_type_class_ref(GSWE_TYPE_ANTISCION_AXIS);
 
     for (antiscion = gswe_moment_get_all_antiscia(GSWE_MOMENT(chart)); antiscion; antiscion = g_list_next(antiscion)) {
         GsweAntiscionData *antiscion_data = antiscion->data;
-        GEnumValue *enum_value;
+        GEnumValue        *enum_value;
 
         if (antiscion_data->axis == GSWE_ANTISCION_AXIS_NONE) {
             continue;
@@ -778,7 +785,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     css_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.css");
     g_debug("Using %s as a CSS stylesheet", css_path);
     css_file = g_file_new_for_path(css_path);
-    css_uri = g_file_get_uri(css_file);
+    css_uri  = g_file_get_uri(css_file);
 
     stylesheet_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.xsl");
     g_debug("Opening %s as a stylesheet", stylesheet_path);
@@ -813,7 +820,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
 
     css_final_uri = g_strdup_printf("'%s'", css_uri);
     g_free(css_uri);
-    params = g_new0(gchar *, 3);
+    params    = g_new0(gchar *, 3);
     params[0] = "css_file";
     params[1] = css_final_uri;
     // libxml2 messes up the output, as it prints decimal floating point
@@ -821,7 +828,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     // character for decimal separator other than a dot. So let's just use the
     // C locale until the SVG is generated.
     current_locale = uselocale(newlocale(LC_ALL, "C", 0));
-    svg_doc = xsltApplyStylesheet(xslt_proc, doc, (const char **)params);
+    svg_doc        = xsltApplyStylesheet(xslt_proc, doc, (const char **)params);
     uselocale(current_locale);
     g_free(stylesheet_path);
     g_free(css_path);

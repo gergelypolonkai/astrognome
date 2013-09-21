@@ -47,6 +47,8 @@ The project is currently hosted on [GitHub](https://github.com/gergelypolonkai/a
 
 The entire project is written in C, utilizing GTK+ (3.8 currently, but the final version may come only with 3.10) and SWE-GLib (which is used for the calculations part).
 
+Astrognome follows a well-defined coding style. If you contribute, please follow that by looking at existing sources, or use [Uncrustify](http://uncrustify.sourceforge.net/) with the config file under docs/. The only thing it messes up currently is the alignment of object type #definitions.
+
 ## !!!WARNING!!!
 -------------
 

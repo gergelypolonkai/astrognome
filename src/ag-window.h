@@ -19,13 +19,13 @@ typedef enum {
 #define AG_IS_WINDOW_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), AG_TYPE_WINDOW))
 #define AG_WINDOW_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), AG_TYPE_WINDOW, AgWindowClass))
 
-typedef struct _AgWindow AgWindow;
-typedef struct _AgWindowClass AgWindowClass;
+typedef struct _AgWindow        AgWindow;
+typedef struct _AgWindowClass   AgWindowClass;
 typedef struct _AgWindowPrivate AgWindowPrivate;
 
 struct _AgWindow {
     GtkApplicationWindow parent_instance;
-    AgWindowPrivate *priv;
+    AgWindowPrivate      *priv;
 };
 
 struct _AgWindowClass {
@@ -34,10 +34,12 @@ struct _AgWindowClass {
 
 GType ag_window_get_type(void) G_GNUC_CONST;
 GtkWidget *ag_window_new(AgApp *app);
-void ag_window_set_chart(AgWindow *window, AgChart *chart);
+void ag_window_set_chart(AgWindow *window,
+                         AgChart  *chart);
 AgChart *ag_window_get_chart(AgWindow *window);
 void ag_window_update_from_chart(AgWindow *window);
-void ag_window_set_uri(AgWindow *window, const gchar *uri);
+void ag_window_set_uri(AgWindow    *window,
+                       const gchar *uri);
 gchar *ag_window_get_uri(AgWindow *window);
 
 #define AG_WINDOW_ERROR (ag_window_error_quark())

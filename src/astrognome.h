@@ -7,8 +7,8 @@ typedef struct {
     gboolean new_window;
 } AstrognomeOptions;
 
-extern GtkFileFilter *filter_all,
-                     *filter_chart;
+extern GtkFileFilter *filter_all;
+extern GtkFileFilter *filter_chart;
 
 #endif /* __ASTROGNOME_H__ */
 

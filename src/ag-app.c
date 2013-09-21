@@ -17,7 +17,7 @@ ag_app_peek_first_window(AgApp *app)
 
     for (l = gtk_application_get_windows(GTK_APPLICATION(app)); l; l = g_list_next(l)) {
         if (GTK_IS_WINDOW(l->data)) {
-            return (GTK_WINDOW(l->data));
+            return GTK_WINDOW(l->data);
         }
     }
 
@@ -77,21 +77,21 @@ about_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
         NULL
     };
 
-    const gchar **documentors = NULL;
+    const gchar **documentors       = NULL;
     const gchar *translator_credits = _("translator_credits");
 
     /* i18n: Please don't translate "Astrognome" (it's marked as translatable for transliteration only */
     gtk_show_about_dialog(NULL,
-            "name", _("Astrognome"),
-            "version", PACKAGE_VERSION,
-            "comments", _("Astrologers' software for GNOME"),
-            "authors", authors,
-            "documentors", documentors,
-            "translator_credits", ((strcmp(translator_credits, "translator_credits") != 0) ? translator_credits : NULL),
-            "website", PACKAGE_URL,
-            "website-label", _("Astrognome Website"),
-            "logo-icon-name", PACKAGE_TARNAME,
-            NULL);
+                          "name", _("Astrognome"),
+                          "version", PACKAGE_VERSION,
+                          "comments", _("Astrologers' software for GNOME"),
+                          "authors", authors,
+                          "documentors", documentors,
+                          "translator_credits", ((strcmp(translator_credits, "translator_credits") != 0) ? translator_credits : NULL),
+                          "website", PACKAGE_URL,
+                          "website-label", _("Astrognome Website"),
+                          "logo-icon-name", PACKAGE_TARNAME,
+                          NULL);
 }
 
 static void
@@ -108,11 +108,11 @@ static void
 ag_app_open_chart(AgApp *app, GFile *file)
 {
     GtkWidget *window;
-    AgChart *chart;
-    GError *err = NULL;
-    gchar *uri;
+    AgChart   *chart;
+    GError    *err = NULL;
+    gchar     *uri;
 
-    chart = ag_chart_load_from_file(file, &err);
+    chart  = ag_chart_load_from_file(file, &err);
     window = ag_app_create_window(app);
     ag_window_set_chart(AG_WINDOW(window), chart);
     ag_window_update_from_chart(AG_WINDOW(window));
@@ -124,16 +124,16 @@ ag_app_open_chart(AgApp *app, GFile *file)
 static void
 open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    gint response;
+    gint      response;
     GtkWidget *fs;
-    GSList *filenames = NULL;
+    GSList    *filenames = NULL;
 
     fs = gtk_file_chooser_dialog_new(_("Select charts"),
-       NULL,
-       GTK_FILE_CHOOSER_ACTION_OPEN,
-       GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-       GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
-       NULL);
+                                     NULL,
+                                     GTK_FILE_CHOOSER_ACTION_OPEN,
+                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                     GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                     NULL);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_all);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_chart);
     gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(fs), filter_chart);
@@ -152,7 +152,7 @@ open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 
         for (l = filenames; l; l = g_slist_next(l)) {
             GFile *file;
-            char *data = l->data;
+            char  *data = l->data;
 
             if (data == NULL) {
                 continue;
@@ -169,7 +169,7 @@ open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 static void
 raise_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    AgApp *app = AG_APP(user_data);
+    AgApp     *app = AG_APP(user_data);
     GtkWindow *window;
 
     window = ag_app_peek_first_window(app);
@@ -207,7 +207,7 @@ setup_menu(AgApp *app)
 {
     GtkBuilder *builder;
     GMenuModel *model;
-    GError *err = NULL;
+    GError     *err = NULL;
 
     builder = gtk_builder_new();
 
@@ -273,10 +273,10 @@ ag_app_new(void)
     g_set_application_name(_("Astrognome"));
 
     app = g_object_new(AG_TYPE_APP,
-            "application-id",   "eu.polonkai.gergely.Astrognome",
-            "flags",            G_APPLICATION_HANDLES_OPEN,
-            "register-session", TRUE,
-            NULL);
+                       "application-id",   "eu.polonkai.gergely.Astrognome",
+                       "flags",            G_APPLICATION_HANDLES_OPEN,
+                       "register-session", TRUE,
+                       NULL);
     g_signal_connect(app, "activate", G_CALLBACK(application_activate_cb), NULL);
 
     return app;
@@ -293,6 +293,6 @@ ag_app_class_init(AgAppClass *klass)
     GApplicationClass *application_class = G_APPLICATION_CLASS(klass);
 
     application_class->startup = startup;
-    application_class->open = ag_app_open;
+    application_class->open    = ag_app_open;
 }
 

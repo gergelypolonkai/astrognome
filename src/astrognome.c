@@ -17,11 +17,11 @@
 
 #define UI_FILE PKGDATADIR "/astrognome.ui"
 
-GtkBuilder *builder;
-GtkFileFilter *filter_all = NULL,
-              *filter_chart = NULL;
+GtkBuilder    *builder;
+GtkFileFilter *filter_all   = NULL;
+GtkFileFilter *filter_chart = NULL;
 
-const char *moonStateName[] = {
+const char    *moonStateName[] = {
     "New Moon",
     "Waxing Crescent Moon",
     "Waxing Half Moon",
@@ -50,12 +50,12 @@ init_filters(void)
 int
 main(int argc, char *argv[])
 {
-    gint status;
-    AgApp *app;
-    GError *err = NULL;
+    gint              status;
+    AgApp             *app;
+    GError            *err = NULL;
     AstrognomeOptions options;
 
-    GOptionEntry option_entries[] = {
+    GOptionEntry      option_entries[] = {
         { "new-window", 'n', 0, G_OPTION_ARG_NONE, &(options.new_window), N_("Opens a new Astrognome window"), NULL },
         { "version",    'v', 0, G_OPTION_ARG_NONE, &(options.version),    N_("Display version and exit"),      NULL },
         { "quit",       'q', 0, G_OPTION_ARG_NONE, &(options.quit),       N_("Quit any running Astrognome"),   NULL },
