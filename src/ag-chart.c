@@ -326,7 +326,9 @@ ag_chart_load_from_file(GFile *file, GError **err)
 {
     AgChart *chart = NULL;
     gchar *uri,
-          *xml = NULL;
+          *xml = NULL,
+          *country_name,
+          *city_name;
     guint length;
     xmlDocPtr doc;
     xmlXPathContextPtr xpath_context;
@@ -471,11 +473,15 @@ ag_chart_load_from_file(GFile *file, GError **err)
     ag_chart_set_name(chart, g_variant_get_string(chart_name, NULL));
     g_variant_unref(chart_name);
 
-    ag_chart_set_country(chart, g_variant_get_string(country, NULL));
+    g_variant_get(country, "ms", &country_name);
     g_variant_unref(country);
+    ag_chart_set_country(chart, country_name);
+    g_free(country_name);
 
-    ag_chart_set_city(chart, g_variant_get_string(city, NULL));
+    g_variant_get(city, "ms", &city_name);
     g_variant_unref(city);
+    ag_chart_set_city(chart, city_name);
+    g_free(city_name);
 
     g_free(xml);
     g_free(uri);
