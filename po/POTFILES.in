@@ -1,6 +1,6 @@
 # List of source files containing traslatable strings.
 
-src/astrognome.c
 src/ag-app.c
 src/ag-window.c
+src/astrognome.c
 [type: gettext/glade]src/astrognome.ui
