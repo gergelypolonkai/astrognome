@@ -1,0 +1,171 @@
+# Hungarian translation for Astrognome
+# Copyright (C) 2013 Gergely Polonkai
+# This file is distributed under the same license as the astrognome package.
+# Gergely Polonkai <gergely@polonkai.eu>, 2013.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: astrognome master\n"
+"Report-Msgid-Bugs-To: gergely@polonkai.eu\n"
+"POT-Creation-Date: 2013-09-21 20:34+0200\n"
+"PO-Revision-Date: 2013-09-21 20:17+0200\n"
+"Last-Translator: Gergely Polonkai <gergely@polonkai.eu>\n"
+"Language-Team: Hungarian <gergely@polonkai.eu>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../src/astrognome.c:40
+msgid "All files"
+msgstr "Minden fájl"
+
+#: ../src/astrognome.c:45
+msgid "Astrognome charts"
+msgstr "Astrognome képletek"
+
+#: ../src/astrognome.c:59
+msgid "Opens a new Astrognome window"
+msgstr "Új Astrognome ablakot nyit meg"
+
+#: ../src/astrognome.c:60
+msgid "Display version and exit"
+msgstr "Megjeleníti a verziószámot, majd kilép"
+
+#: ../src/astrognome.c:61
+msgid "Quit any running Astrognome"
+msgstr "Minden Astrognome ablak bezárása"
+
+#: ../src/astrognome.c:81
+msgid "[FILE…]"
+msgstr "[FÁJL…]"
+
+#: ../src/ag-app.c:81
+msgid "translator_credits"
+msgstr "Polonkai Gergely <gergely kukac polonkai pont eu>"
+
+#. i18n: Please don't translate "Astrognome" (it's marked as translatable for transliteration only
+#: ../src/ag-app.c:85 ../src/ag-app.c:273
+msgid "Astrognome"
+msgstr "Astrognome"
+
+#: ../src/ag-app.c:87
+msgid "Astrologers' software for GNOME"
+msgstr "Asztrológiai szoftver a GNOME-hoz"
+
+#: ../src/ag-app.c:92
+msgid "Astrognome Website"
+msgstr "Astrognome weboldal"
+
+#: ../src/ag-app.c:131
+msgid "Select charts"
+msgstr "Válasszon ki mentett képleteket"
+
+#: ../src/ag-window.c:103
+msgid "Save Chart"
+msgstr "Képlet mentése"
+
+#: ../src/ag-window.c:363
+msgid "Name"
+msgstr "Név"
+
+#: ../src/ag-window.c:369
+msgid "Country"
+msgstr "Ország"
+
+#: ../src/ag-window.c:372
+msgid "City"
+msgstr "Város"
+
+#: ../src/ag-window.c:375
+msgid "Latitude"
+msgstr "Szélességi fok"
+
+#: ../src/ag-window.c:378
+msgid "North"
+msgstr "Észak"
+
+#: ../src/ag-window.c:381
+msgid "South"
+msgstr "Dél"
+
+#: ../src/ag-window.c:388
+msgid "Longitude"
+msgstr "Hosszúsági fok"
+
+#: ../src/ag-window.c:391
+msgid "East"
+msgstr "Kelet"
+
+#: ../src/ag-window.c:394
+msgid "West"
+msgstr "Nyugat"
+
+#: ../src/ag-window.c:401
+msgid "Year"
+msgstr "Év"
+
+#: ../src/ag-window.c:409
+msgid "Month"
+msgstr "Hónap"
+
+#: ../src/ag-window.c:416
+msgid "Day"
+msgstr "Nap"
+
+#: ../src/ag-window.c:423
+msgid "Hour"
+msgstr "Óra"
+
+#: ../src/ag-window.c:430
+msgid "Minute"
+msgstr "Perc"
+
+#: ../src/ag-window.c:437
+msgid "Second"
+msgstr "Másodperc"
+
+#: ../src/ag-window.c:480
+msgid "Edit"
+msgstr "Szerkesztés"
+
+#: ../src/ag-window.c:484
+msgid "Chart"
+msgstr "Képlet"
+
+#: ../src/ag-window.c:492
+msgid "Aspects"
+msgstr "Fényszögek"
+
+#: ../src/ag-window.c:495
+msgid "Points"
+msgstr "Pont-táblázatok"
+
+#: ../src/astrognome.ui.h:1
+msgid "New window"
+msgstr "Új ablak"
+
+#: ../src/astrognome.ui.h:2
+msgid "Open"
+msgstr "Megnyitás"
+
+#: ../src/astrognome.ui.h:3
+msgid "Preferences"
+msgstr "Beállítások"
+
+#: ../src/astrognome.ui.h:4
+msgid "About Astrognome"
+msgstr "Az Astrognome névjegye"
+
+#: ../src/astrognome.ui.h:5
+msgid "Quit"
+msgstr "Kilépés"
+
+#: ../src/astrognome.ui.h:6
+msgid "Save"
+msgstr "Mentés"
+
+#: ../src/astrognome.ui.h:7
+msgid "Save as…"
+msgstr "Mentés másként…"
