@@ -15,5 +15,10 @@ chartdata_DATA = chart.xsl            \
 				 sign_pisces.xml      \
 				 $(NULL)
 
+gsettings_SCHEMAS = \
+					eu.polonkai.gergely.astrognome.gschema.xml \
+					$(NULL)
+@GSETTINGS_RULES@
+
 EXTRA_DIST = \
 			 $(chartdata_DATA)

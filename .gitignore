@@ -30,6 +30,7 @@ Makefile.in
 /libtool
 /compile
 /tags
+/data/*.gschema.valid
 
 # Generated files
 /src/ag-resources.c

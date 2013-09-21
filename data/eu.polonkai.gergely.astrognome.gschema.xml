@@ -1,0 +1,33 @@
+<schemalist gettext-domain="astrognome">
+    <schema id="eu.polonkai.gergely.Astrognome" path="/eu/polonkai/gergely/Astrognome/">
+        <child name="state" schema="eu.polonkai.gergely.Astrognome.state" />
+    </schema>
+    <schema id="eu.polonkai.gergely.Astrognome.state" path="/eu/polonkai/gergely/Astrognome/state/">
+        <child name="window" schema="eu.polonkai.gergely.Astrognome.state.window" />
+        <child name="chart" schema="eu.polonkai.gergely.Astrognome.state.chart" />
+    </schema>
+    <schema id="eu.polonkai.gergely.Astrognome.state.window" path="/eu/polonkai/gergely/Astrognome/state/window/">
+        <key name="maximized" type="b">
+            <default>false</default>
+            <summary>New window maximized state</summary>
+            <description>Whether a new window should open maximized.</description>
+        </key>
+        <key name="width" type="i">
+            <default>600</default>
+            <summary>Width of new windows</summary>
+            <description>The width of newly created windows.</description>
+        </key>
+        <key name="height" type="i">
+            <default>600</default>
+            <summary>Height of new windows</summary>
+            <description>The height of newly created windows.</description>
+        </key>
+    </schema>
+    <schema id="eu.polonkai.gergely.Astrognome.state.chart" path="/eu/polonkai/gergely/Astrognome/state/chart/">
+        <key name="classic-only" type="b">
+            <default>false</default>
+            <summary>Use the classical view</summary>
+            <description>Use the classical view: planets only between Sun and Saturn, only Ptolemaic aspects, no antiscia.</description>
+        </key>
+    </schema>
+</schemalist>
