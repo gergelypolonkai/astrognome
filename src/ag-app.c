@@ -2,6 +2,7 @@
 #include "ag-app.h"
 #include "ag-window.h"
 #include "ag-chart.h"
+#include "ag-preferences.h"
 #include "config.h"
 #include "astrognome.h"
 
@@ -65,7 +66,7 @@ new_window_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 static void
 preferences_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    //ag_preferences_show_dialog();
+   ag_preferences_show_dialog();
 }
 
 static void
