@@ -13,8 +13,8 @@ G_BEGIN_DECLS
 #define AG_IS_SETTINGS_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), AG_TYPE_SETTINGS))
 #define AG_SETTINGS_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), AG_TYPE_SETTINGS, AgSettingsClass))
 
-typedef struct _AgSettings AgSettings;
-typedef struct _AgSettingsClass AgSettingsClass;
+typedef struct _AgSettings        AgSettings;
+typedef struct _AgSettingsClass   AgSettingsClass;
 typedef struct _AgSettingsPrivate AgSettingsPrivate;
 
 struct _AgSettings {
