@@ -306,9 +306,9 @@ ag_window_init(AgWindow *window)
 
     window->priv = priv = GET_PRIVATE(window);
 
-    priv->chart   = NULL;
-    priv->uri     = NULL;
-    priv->setting = ag_settings_get();
+    priv->chart    = NULL;
+    priv->uri      = NULL;
+    priv->settings = ag_settings_get();
 
     gtk_window_set_hide_titlebar_when_maximized(GTK_WINDOW(window), TRUE);
 
