@@ -10,6 +10,7 @@
 #include "ag-app.h"
 #include "ag-window.h"
 #include "ag-chart.h"
+#include "ag-settings.h"
 
 struct _AgWindowPrivate {
     GtkWidget  *grid;
@@ -37,6 +38,7 @@ struct _AgWindowPrivate {
     GtkWidget  *tab_edit;
     GtkWidget  *current_tab;
 
+    AgSettings *settings;
     AgChart    *chart;
     gchar      *uri;
 };
@@ -304,8 +306,9 @@ ag_window_init(AgWindow *window)
 
     window->priv = priv = GET_PRIVATE(window);
 
-    priv->chart = NULL;
-    priv->uri   = NULL;
+    priv->chart   = NULL;
+    priv->uri     = NULL;
+    priv->setting = ag_settings_get();
 
     gtk_window_set_hide_titlebar_when_maximized(GTK_WINDOW(window), TRUE);
 
@@ -333,6 +336,7 @@ ag_window_dispose(GObject *gobject)
 {
     AgWindow *window = AG_WINDOW(gobject);
 
+    g_clear_object(&window->priv->settings);
     g_clear_object(&window->priv->builder);
 
     G_OBJECT_CLASS(ag_window_parent_class)->dispose(gobject);
@@ -512,6 +516,8 @@ ag_window_new(AgApp *app)
 
     gtk_window_set_icon_name(GTK_WINDOW(window), "astrognome");
 
+    ag_window_settings_restore(GTK_WINDOW(window), ag_settings_peek_window_settings(window->priv->settings));
+
     return GTK_WIDGET(window);
 }
 
@@ -548,5 +554,36 @@ gchar *
 ag_window_get_uri(AgWindow *window)
 {
     return g_strdup(window->priv->uri);
+}
+
+void
+ag_window_settings_restore(GtkWindow *window, GSettings *settings)
+{
+    gint width,
+         height;
+    gboolean maximized;
+    GdkScreen *screen;
+
+    width = g_settings_get_int(settings, "width");
+    height = g_settings_get_int(settings, "height");
+    maximized = g_settings_get_boolean(settings, "maximized");
+
+    if ((width > 1) && (height > 1)) {
+        gint max_width,
+             max_height;
+
+        screen = gtk_widget_get_screen(GTK_WIDGET(window));
+        max_width = gdk_screen_get_width(screen);
+        max_height = gdk_screen_get_height(screen);
+
+        width = CLAMP(width, 0, max_width);
+        height = CLAMP(height, 0, max_height);
+
+        gtk_window_set_default_size(window, width, height);
+    }
+
+    if (maximized) {
+        gtk_window_maximize(window);
+    }
 }
 
