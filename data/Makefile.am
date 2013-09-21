@@ -1,3 +1,4 @@
+SUBDIRS = icons geonames
 chartdatadir = $(pkgdatadir)
 chartdata_DATA = chart.xsl            \
 				 chart.css            \

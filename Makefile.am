@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-SUBDIRS = libgd src po data data/icons data/geonames
+SUBDIRS = libgd src po data
 
 EXTRA_DIST = config.rpath ChangeLog
 
