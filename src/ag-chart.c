@@ -206,8 +206,21 @@ ag_chart_get_city(AgChart *chart)
     return g_strdup(chart->priv->city);
 }
 
+/**
+ * get_by_xpath:
+ * @xpath_context: an XPath context
+ * @uri: the name of the file currently being processed. Used in error messages only
+ * @xpath: an XPath expression
+ * @value_required: marks the value as required. Although the XML tags must be present, some values (like country or city name) may be omitted
+ * @type: the type of the variable to return
+ * @err: a GError
+ *
+ * Get the value of an XML tag via XPath.
+ *
+ * Returns: (transfer container): a GVariant with the requested value
+ */
 static GVariant *
-get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xpath, XmlConvertType type, GError **err)
+get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xpath, gboolean value_required, XmlConvertType type, GError **err)
 {
     xmlXPathObjectPtr xpathObj;
     const gchar *text;
@@ -236,6 +249,37 @@ get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xp
         xmlXPathFreeObject(xpathObj);
 
         return NULL;
+    }
+
+    if (xpathObj->nodesetval->nodeNr == 0) {
+        if (value_required) {
+            g_debug("Too many '%s' nodes", xpath);
+            g_set_error(err, AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE, "File '%s' doesn't look like a valid saved chart.", uri);
+            xmlXPathFreeObject(xpathObj);
+
+            return NULL;
+        } else {
+            GVariant *ret = NULL;
+
+            switch (type) {
+                case XML_CONVERT_STRING:
+                    ret = g_variant_new("ms", NULL);
+
+                    break;
+
+                case XML_CONVERT_DOUBLE:
+                    ret = g_variant_new("md", FALSE, 0);
+
+                    break;
+
+                case XML_CONVERT_INT:
+                    ret = g_variant_new("mi", FALSE, 0);
+
+                    break;
+            }
+
+            return ret;
+        }
     }
 
     text = (const gchar *)xpathObj->nodesetval->nodeTab[0]->content;
@@ -327,55 +371,55 @@ ag_chart_load_from_file(GFile *file, GError **err)
         return NULL;
     }
 
-    if ((chart_name = get_by_xpath(xpath_context, uri, "/chartinfo/data/name/text()", XML_CONVERT_STRING, err)) == NULL) {
+    if ((chart_name = get_by_xpath(xpath_context, uri, "/chartinfo/data/name/text()", TRUE, XML_CONVERT_STRING, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((country = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/country/text()", XML_CONVERT_STRING, err)) == NULL) {
+    if ((country = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/country/text()", FALSE, XML_CONVERT_STRING, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((city = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/city/text()", XML_CONVERT_STRING, err)) == NULL) {
+    if ((city = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/city/text()", FALSE, XML_CONVERT_STRING, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((longitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/longitude/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+    if ((longitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/longitude/text()", TRUE, XML_CONVERT_DOUBLE, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((latitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/latitude/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+    if ((latitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/latitude/text()", TRUE, XML_CONVERT_DOUBLE, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((altitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/altitude/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+    if ((altitude = get_by_xpath(xpath_context, uri, "/chartinfo/data/place/altitude/text()", TRUE, XML_CONVERT_DOUBLE, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((year = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/year/text()", XML_CONVERT_INT, err)) == NULL) {
+    if ((year = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/year/text()", TRUE, XML_CONVERT_INT, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((month = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/month/text()", XML_CONVERT_INT, err)) == NULL) {
+    if ((month = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/month/text()", TRUE, XML_CONVERT_INT, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((day = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/day/text()", XML_CONVERT_INT, err)) == NULL) {
+    if ((day = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/day/text()", TRUE, XML_CONVERT_INT, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((hour = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/hour/text()", XML_CONVERT_INT, err)) == NULL) {
+    if ((hour = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/hour/text()", TRUE, XML_CONVERT_INT, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((minute = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/minute/text()", XML_CONVERT_INT, err)) == NULL) {
+    if ((minute = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/minute/text()", TRUE, XML_CONVERT_INT, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((second = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/second/text()", XML_CONVERT_INT, err)) == NULL) {
+    if ((second = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/second/text()", TRUE, XML_CONVERT_INT, err)) == NULL) {
         found_error = TRUE;
     }
 
-    if ((timezone = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/timezone/text()", XML_CONVERT_DOUBLE, err)) == NULL) {
+    if ((timezone = get_by_xpath(xpath_context, uri, "/chartinfo/data/time/timezone/text()", TRUE, XML_CONVERT_DOUBLE, err)) == NULL) {
         found_error = TRUE;
     }
 
