@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.0" />
-  <menu id="app-menu">
-    <section>
-      <item>
-        <attribute name="label" translatable="yes">New window</attribute>
-        <attribute name="action">app.new-window</attribute>
-        <attribute name="accel">&lt;Primary&gt;n</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Open</attribute>
-        <attribute name="action">app.open</attribute>
-        <attribute name="accel">&lt;Primary&gt;o</attribute>
-      </item>
-    </section>
-    <section>
-      <item>
-        <attribute name="label" translatable="yes">Preferences</attribute>
-        <attribute name="action">app.preferences</attribute>
-        <attribute name="accel">&lt;Primary&gt;p</attribute>
-      </item>
-    </section>
-    <section>
-      <item>
-        <attribute name="label" translatable="yes">About Astrognome</attribute>
-        <attribute name="action">app.about</attribute>
-      </item>
-      <item>
-        <attribute name="label" translatable="yes">Quit</attribute>
-        <attribute name="action">app.quit</attribute>
-        <attribute name="accel">&lt;Primary&gt;q</attribute>
-      </item>
-    </section>
-  </menu>
-  <menu id="window-menu">
-    <item>
-      <attribute name="label" translatable="yes">Save</attribute>
-      <attribute name="action">win.save</attribute>
-      <attribute name="accel">&lt;Primary&gt;s</attribute>
-    </item>
-    <item>
-        <attribute name="label" translatable="yes">Save as…</attribute>
-        <attribute name="action">win.save-as</attribute>
-        <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;s</attribute>
-    </item>
-  </menu>
+    <requires lib="gtk+" version="3.0" />
+    <menu id="app-menu">
+        <section>
+            <item>
+                <attribute name="label" translatable="yes">New window</attribute>
+                <attribute name="action">app.new-window</attribute>
+                <attribute name="accel">&lt;Primary&gt;n</attribute>
+            </item>
+            <item>
+                <attribute name="label" translatable="yes">Open</attribute>
+                <attribute name="action">app.open</attribute>
+                <attribute name="accel">&lt;Primary&gt;o</attribute>
+            </item>
+        </section>
+        <section>
+            <item>
+                <attribute name="label" translatable="yes">Preferences</attribute>
+                <attribute name="action">app.preferences</attribute>
+                <attribute name="accel">&lt;Primary&gt;p</attribute>
+            </item>
+        </section>
+        <section>
+            <item>
+                <attribute name="label" translatable="yes">About Astrognome</attribute>
+                <attribute name="action">app.about</attribute>
+            </item>
+            <item>
+                <attribute name="label" translatable="yes">Quit</attribute>
+                <attribute name="action">app.quit</attribute>
+                <attribute name="accel">&lt;Primary&gt;q</attribute>
+            </item>
+        </section>
+    </menu>
+    <menu id="window-menu">
+        <item>
+            <attribute name="label" translatable="yes">Save</attribute>
+            <attribute name="action">win.save</attribute>
+            <attribute name="accel">&lt;Primary&gt;s</attribute>
+        </item>
+        <item>
+            <attribute name="label" translatable="yes">Save as…</attribute>
+            <attribute name="action">win.save-as</attribute>
+            <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;s</attribute>
+        </item>
+    </menu>
 </interface>
