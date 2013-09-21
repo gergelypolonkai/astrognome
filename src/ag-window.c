@@ -329,9 +329,22 @@ ag_window_init(AgWindow *window)
 }
 
 static void
+ag_window_dispose(GObject *gobject)
+{
+    AgWindow *window = AG_WINDOW(gobject);
+
+    g_clear_object(&window->priv->builder);
+
+    G_OBJECT_CLASS(ag_window_parent_class)->dispose(gobject);
+}
+
+static void
 ag_window_class_init(AgWindowClass *klass)
 {
+    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+
     g_type_class_add_private(klass, sizeof(AgWindowPrivate));
+    gobject_class->dispose = ag_window_dispose;
 }
 
 static GtkWidget *
