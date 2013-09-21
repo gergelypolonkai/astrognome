@@ -1,0 +1,11 @@
+[Desktop Entry]
+_Name=Astrognome
+_Comment=Create natal charts
+_GenericName=Astrologers' software
+_Keywords=astrology;natal;chart;birth;horoscope;
+Exec=astrognome
+Terminal=false
+Type=Application
+Icon=astrognome
+Categories=GNOME;GTK;Utility;Science;
+StartupNotify=TRUE

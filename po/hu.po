@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: astrognome master\n"
 "Report-Msgid-Bugs-To: gergely@polonkai.eu\n"
-"POT-Creation-Date: 2013-09-21 20:34+0200\n"
+"POT-Creation-Date: 2013-09-21 22:17+0200\n"
 "PO-Revision-Date: 2013-09-21 20:17+0200\n"
 "Last-Translator: Gergely Polonkai <gergely@polonkai.eu>\n"
 "Language-Team: Hungarian <gergely@polonkai.eu>\n"
@@ -17,38 +17,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../src/astrognome.c:40
-msgid "All files"
-msgstr "Minden fájl"
+#. i18n: Please don't translate "Astrognome" (it's marked as translatable for transliteration only
+#: ../data/astrognome.desktop.in.in.h:1 ../src/ag-app.c:85 ../src/ag-app.c:273
+msgid "Astrognome"
+msgstr "Astrognome"
 
-#: ../src/astrognome.c:45
-msgid "Astrognome charts"
-msgstr "Astrognome képletek"
+#: ../data/astrognome.desktop.in.in.h:2
+msgid "Create natal charts"
+msgstr "Készítsen születési képleteket"
 
-#: ../src/astrognome.c:59
-msgid "Opens a new Astrognome window"
-msgstr "Új Astrognome ablakot nyit meg"
+#: ../data/astrognome.desktop.in.in.h:3
+msgid "Astrologers' software"
+msgstr "Asztrológiai szoftver"
 
-#: ../src/astrognome.c:60
-msgid "Display version and exit"
-msgstr "Megjeleníti a verziószámot, majd kilép"
-
-#: ../src/astrognome.c:61
-msgid "Quit any running Astrognome"
-msgstr "Minden Astrognome ablak bezárása"
-
-#: ../src/astrognome.c:81
-msgid "[FILE…]"
-msgstr "[FÁJL…]"
+#: ../data/astrognome.desktop.in.in.h:4
+msgid "astrology;natal;chart;birth;horoscope;"
+msgstr "asztrológia;képlet;születési;horoszkóp;"
 
 #: ../src/ag-app.c:81
 msgid "translator_credits"
 msgstr "Polonkai Gergely <gergely kukac polonkai pont eu>"
-
-#. i18n: Please don't translate "Astrognome" (it's marked as translatable for transliteration only
-#: ../src/ag-app.c:85 ../src/ag-app.c:273
-msgid "Astrognome"
-msgstr "Astrognome"
 
 #: ../src/ag-app.c:87
 msgid "Astrologers' software for GNOME"
@@ -142,6 +130,30 @@ msgstr "Fényszögek"
 msgid "Points"
 msgstr "Pont-táblázatok"
 
+#: ../src/astrognome.c:40
+msgid "All files"
+msgstr "Minden fájl"
+
+#: ../src/astrognome.c:45
+msgid "Astrognome charts"
+msgstr "Astrognome képletek"
+
+#: ../src/astrognome.c:59
+msgid "Opens a new Astrognome window"
+msgstr "Új Astrognome ablakot nyit meg"
+
+#: ../src/astrognome.c:60
+msgid "Display version and exit"
+msgstr "Megjeleníti a verziószámot, majd kilép"
+
+#: ../src/astrognome.c:61
+msgid "Quit any running Astrognome"
+msgstr "Minden Astrognome ablak bezárása"
+
+#: ../src/astrognome.c:81
+msgid "[FILE…]"
+msgstr "[FÁJL…]"
+
 #: ../src/astrognome.ui.h:1
 msgid "New window"
 msgstr "Új ablak"
@@ -169,3 +181,7 @@ msgstr "Mentés"
 #: ../src/astrognome.ui.h:7
 msgid "Save as…"
 msgstr "Mentés másként…"
+
+#: ../src/astrognome.ui.h:8
+msgid "Close"
+msgstr "Bezárás"

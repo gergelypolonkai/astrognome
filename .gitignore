@@ -31,6 +31,8 @@ Makefile.in
 /compile
 /tags
 /data/*.gschema.valid
+/data/astrognome.desktop
+/data/astrognome.desktop.in
 
 # Generated files
 /src/ag-resources.c
@@ -55,6 +57,7 @@ Makefile.in
 /po/insert-header.sin
 /po/quot.sed
 /po/remove-potcdate.sin
+/po/.intltool-merge-cache
 
 #Documentation related files
 /docs/reference/*/*.args
