@@ -12,11 +12,12 @@ BUILT_SOURCES = \
 				$(NULL)
 
 astrognome_source_files = \
-						  ag-app.c      \
-						  ag-window.c   \
-						  ag-chart.c    \
-						  ag-settings.c \
-						  astrognome.c  \
+						  ag-app.c         \
+						  ag-window.c      \
+						  ag-chart.c       \
+						  ag-settings.c    \
+						  ag-preferences.c \
+						  astrognome.c     \
 						  $(NULL)
 
 EXTRA_DIST = \
