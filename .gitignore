@@ -67,6 +67,12 @@ Makefile.in
 /help/*/legal.xml
 !/help/C/legal.xml
 
+# Yelp related files
+/help/*/*.mo
+/help/*/*.stamp
+/help/*/*.page
+!/help/C/*.page
+
 #Documentation related files
 /docs/reference/*/*.args
 /docs/reference/*/*.hierarchy
