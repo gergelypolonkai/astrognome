@@ -1,4 +1,4 @@
-# Hungarian translation of gnome-terminal help
+# Hungarian translation of astrognome help
 # Copyright (C) 2013. Free Software Foundation, Inc.
 # This file is distributed under the same license as the gnome-terminal help.
  
