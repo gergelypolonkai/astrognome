@@ -64,6 +64,8 @@ Makefile.in
 /help/*/*.stamp
 /help/*/*.page
 !/help/C/*.page
+/help/*/legal.xml
+!/help/C/legal.xml
 
 #Documentation related files
 /docs/reference/*/*.args
