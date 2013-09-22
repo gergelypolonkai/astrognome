@@ -1,12 +1,12 @@
 <page xmlns="http://projectmallard.org/1.0/"
       xmlns:its="http://www.w3.org/2005/11/its"
       xmlns:xi="http://www.w3.org/2001/XInclude"
-      type="guide" style="2column task"
-      id="index">
+      type="guide"
+      id="introduction">
     <info>
-        <revision version="0.1" date="2013-09-11" status="candidate" />
-        <title type="link">Astrognome</title>
-        <title type="text">Astrognome</title>
+        <revision version="0.1" date="2013-09-22" status="candidate" />
+        <link type="guide" xref="index" />
+        <link type="seealso" xref="overview" />
 
         <credit type="author copyright">
             <name>Gergely Polonkai</name>
@@ -16,8 +16,10 @@
 
         <xi:include href="legal.xml" />
 
-        <desc>Astrologers' software</desc>
+        <desc>What is <app>Astrognome</app>?</desc>
     </info>
 
-    <title>Astrognome Help</title>
+    <title>Introduction</title>
+
+    <p><app>Astrognome</app> is an astrologers' software for the GNOME Desktop.</p>
 </page>

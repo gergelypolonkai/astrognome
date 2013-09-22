@@ -7,7 +7,9 @@ HELP_ID = astrognome
 HELP_MEDIA = $(NULL)
 
 HELP_FILES = \
-	index.page \
+	index.page        \
+	introduction.page \
+	legal.xml         \
 	$(NULL)
 
 HELP_LINGUAS = hu
