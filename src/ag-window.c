@@ -446,6 +446,12 @@ notebook_edit(AgWindow *window)
     return grid;
 }
 
+static gboolean
+ag_window_chart_context_cb(WebKitWebView *web_view, GtkWidget *default_menu, WebKitHitTestResult *hit_test_result, gboolean triggered_with_keyboard, gpointer user_data)
+{
+    return TRUE;
+}
+
 static void
 window_populate(AgWindow *window)
 {
@@ -484,6 +490,7 @@ window_populate(AgWindow *window)
     gd_stack_add_titled(GD_STACK(priv->stack), scroll, "chart", _("Chart"));
 
     priv->tab_chart = webkit_web_view_new();
+    g_signal_connect(priv->tab_chart, "context-menu", G_CALLBACK(ag_window_chart_context_cb), NULL);
     gtk_container_add(GTK_CONTAINER(scroll), priv->tab_chart);
     webkit_web_view_load_string(WEBKIT_WEB_VIEW(priv->tab_chart), "<html><head><title>No Chart</title></head><body><h1>No Chart</h1><p>No chart is loaded. Create one on the edit view, or open one from the application menu!</p></body></html>", "text/html", "UTF-8", NULL);
     gtk_widget_set_size_request(priv->tab_chart, 600, 600);
