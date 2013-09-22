@@ -176,6 +176,38 @@ raise_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     gtk_window_present(window);
 }
 
+static void
+show_help(const gchar *topic, GtkWindow *parent)
+{
+    gchar     *uri;
+    GdkScreen *screen;
+    GError    *err = NULL;
+
+    if (topic) {
+        uri = g_strdup_printf("help:astrognome/%s", topic);
+    } else {
+        uri = g_strdup("help:astrognome");
+    }
+
+    if (parent) {
+        screen = gtk_widget_get_screen(GTK_WIDGET(parent));
+    } else {
+        screen = gdk_screen_get_default();
+    }
+
+    if (!gtk_show_uri(screen, uri, gtk_get_current_event_time(), &err)) {
+        g_warning("Unable to display help: %s", err->message);
+    }
+
+    g_free(uri);
+}
+
+static void
+help_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+    show_help(NULL, NULL);
+}
+
 static GActionEntry app_entries[] = {
     { "new-window",  new_window_cb,  NULL, NULL, NULL },
     { "preferences", preferences_cb, NULL, NULL, NULL },
@@ -183,6 +215,7 @@ static GActionEntry app_entries[] = {
     { "quit",        quit_cb,        NULL, NULL, NULL },
     { "raise",       raise_cb,       NULL, NULL, NULL },
     { "open",        open_cb,        NULL, NULL, NULL },
+    { "help",        help_cb,        NULL, NULL, NULL },
 };
 
 static void
@@ -198,6 +231,7 @@ setup_accelerators(AgApp *app)
     gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>s",        "win.save",       NULL);
     gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary><Shift>s", "win.save-as",    NULL);
     gtk_application_add_accelerator(GTK_APPLICATION(app), "F10",               "win.gear-menu",  NULL);
+    gtk_application_add_accelerator(GTK_APPLICATION(app), "F1",                "app.help",       NULL);
     gtk_application_add_accelerator(GTK_APPLICATION(app), "F5",                "win.change-tab", g_variant_new_string("chart"));
     gtk_application_add_accelerator(GTK_APPLICATION(app), "F9",                "win.change-tab", g_variant_new_string("aspects"));
 }
