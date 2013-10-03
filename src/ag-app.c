@@ -112,7 +112,12 @@ ag_app_open_chart(AgApp *app, GFile *file)
     GError    *err = NULL;
     gchar     *uri;
 
-    chart  = ag_chart_load_from_file(file, &err);
+    if ((chart = ag_chart_load_from_file(file, &err)) == NULL) {
+        g_print("Error: '%s'\n", err->message);
+
+        return;
+    }
+
     window = ag_app_create_window(app);
     ag_window_set_chart(AG_WINDOW(window), chart);
     ag_window_update_from_chart(AG_WINDOW(window));

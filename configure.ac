@@ -33,7 +33,7 @@ PKG_CHECK_MODULES([GTK], [gtk+-3.0 >= 3.8])
 PKG_CHECK_MODULES([LIBXML], [libxml-2.0])
 PKG_CHECK_MODULES([LIBXSLT], [libexslt])
 PKG_CHECK_MODULES([WEBKIT], [webkitgtk-3.0])
-PKG_CHECK_MODULES([SWE_GLIB], [swe-glib])
+PKG_CHECK_MODULES([SWE_GLIB], [swe-glib >= 2.0.0])
 
 LIBGD_INIT([
     header-bar
