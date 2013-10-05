@@ -293,7 +293,7 @@ get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xp
 
     switch (type) {
         case XML_CONVERT_STRING:
-            ret = g_variant_new_string(text);
+            ret = g_variant_new("ms", text);
 
             break;
 
@@ -334,9 +334,10 @@ ag_chart_load_from_file(GFile *file, GError **err)
     AgChart            *chart = NULL;
     gchar              *uri;
     gchar              *xml = NULL;
+    gchar              *name;
     gchar              *country_name;
     gchar              *city_name;
-    guint              length;
+    gsize              length;
     xmlDocPtr          doc;
     xmlXPathContextPtr xpath_context;
     GVariant           *chart_name;
@@ -477,8 +478,10 @@ ag_chart_load_from_file(GFile *file, GError **err)
     g_variant_unref(latitude);
     g_variant_unref(altitude);
 
-    ag_chart_set_name(chart, g_variant_get_string(chart_name, NULL));
+    g_variant_get(chart_name, "ms", &name);
     g_variant_unref(chart_name);
+    ag_chart_set_name(chart, name);
+    g_free(name);
 
     g_variant_get(country, "ms", &country_name);
     g_variant_unref(country);
