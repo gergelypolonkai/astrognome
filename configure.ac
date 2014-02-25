@@ -35,15 +35,8 @@ PKG_CHECK_MODULES([LIBXSLT], [libexslt])
 PKG_CHECK_MODULES([WEBKIT], [webkitgtk-3.0])
 PKG_CHECK_MODULES([SWE_GLIB], [swe-glib >= 2.0.0])
 
-LIBGD_INIT([
-    header-bar
-    stack
-    static
-])
-
 AC_CONFIG_FILES([
     Makefile
-    libgd/Makefile
     src/Makefile
     help/Makefile
     po/Makefile.in

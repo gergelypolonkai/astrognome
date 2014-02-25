@@ -1,6 +1,5 @@
 #include <string.h>
 #include <glib/gi18n.h>
-#include <libgd/gd.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <webkit/webkit.h>
@@ -254,9 +253,9 @@ recalculate_chart(AgWindow *window)
 }
 
 static void
-tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
+tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 {
-    const gchar *active_tab_name = gd_stack_get_visible_child_name(stack);
+    const gchar *active_tab_name = gtk_stack_get_visible_child_name(stack);
     GtkWidget   *active_tab;
 
     g_debug("Active tab changed: %s", active_tab_name);
@@ -265,7 +264,7 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
         return;
     }
 
-    active_tab = gd_stack_get_visible_child(stack);
+    active_tab = gtk_stack_get_visible_child(stack);
 
     if (strcmp("chart", active_tab_name) == 0) {
         gtk_widget_set_size_request(active_tab, 600, 600);
@@ -285,7 +284,7 @@ ag_window_change_tab_action(GSimpleAction *action, GVariant *parameter, gpointer
     AgWindow    *window     = user_data;
     const gchar *target_tab = g_variant_get_string(parameter, NULL);
 
-    gd_stack_set_visible_child_name(GD_STACK(window->priv->stack), target_tab);
+    gtk_stack_set_visible_child_name(GTK_STACK(window->priv->stack), target_tab);
     g_action_change_state(G_ACTION(action), parameter);
 }
 
@@ -460,34 +459,33 @@ window_populate(AgWindow *window)
     GtkWidget       *scroll;
     GObject         *menu;
 
-    priv->header_bar = gd_header_bar_new();
+    priv->header_bar = gtk_header_bar_new();
     gtk_widget_set_hexpand(priv->header_bar, TRUE);
-    menu_button = gd_header_menu_button_new();
-    gd_header_button_set_symbolic_icon_name(GD_HEADER_BUTTON(menu_button), "emblem-system-symbolic");
+    menu_button = gtk_menu_button_new();
     gtk_actionable_set_action_name(GTK_ACTIONABLE(menu_button), "win.gear-menu");
 
-    gd_header_bar_pack_end(GD_HEADER_BAR(priv->header_bar), menu_button);
+    gtk_header_bar_pack_end(GTK_HEADER_BAR(priv->header_bar), menu_button);
 
     gtk_grid_attach(GTK_GRID(priv->grid), priv->header_bar, 0, 0, 1, 1);
 
     menu = gtk_builder_get_object(priv->builder, "window-menu");
     gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menu_button), G_MENU_MODEL(menu));
 
-    priv->stack = gd_stack_new();
+    priv->stack = gtk_stack_new();
     gtk_widget_set_hexpand(priv->stack, TRUE);
     gtk_widget_set_vexpand(priv->stack, TRUE);
     gtk_grid_attach(GTK_GRID(priv->grid), priv->stack, 0, 1, 1, 1);
     g_signal_connect(priv->stack, "notify::visible-child", G_CALLBACK(tab_changed_cb), window);
 
-    priv->stack_switcher = gd_stack_switcher_new();
-    gd_stack_switcher_set_stack(GD_STACK_SWITCHER(priv->stack_switcher), GD_STACK(priv->stack));
+    priv->stack_switcher = gtk_stack_switcher_new();
+    gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(priv->stack_switcher), GTK_STACK(priv->stack));
 
     priv->tab_edit = notebook_edit(window);
-    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_edit, "edit", _("Edit"));
+    gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_edit, "edit", _("Edit"));
 
     scroll = gtk_scrolled_window_new(NULL, NULL);
     g_object_set(scroll, "shadow-type", GTK_SHADOW_IN, NULL);
-    gd_stack_add_titled(GD_STACK(priv->stack), scroll, "chart", _("Chart"));
+    gtk_stack_add_titled(GTK_STACK(priv->stack), scroll, "chart", _("Chart"));
 
     priv->tab_chart = webkit_web_view_new();
     g_signal_connect(priv->tab_chart, "context-menu", G_CALLBACK(ag_window_chart_context_cb), NULL);
@@ -496,16 +494,16 @@ window_populate(AgWindow *window)
     gtk_widget_set_size_request(priv->tab_chart, 600, 600);
 
     priv->tab_aspects = gtk_label_new("PLACEHOLDER FOR THE ASPECTS TABLE");
-    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_aspects, "aspects", _("Aspects"));
+    gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_aspects, "aspects", _("Aspects"));
 
     priv->tab_points = gtk_label_new("PLACEHOLDER FOR THE POINTS TABLES");
-    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_points, "points", _("Points"));
+    gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_points, "points", _("Points"));
 
     /* TODO: change to the Chart tab if we are opening an existing chart! */
-    gd_stack_set_visible_child_name(GD_STACK(priv->stack), "edit");
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
     priv->current_tab = priv->tab_edit;
 
-    gd_header_bar_set_custom_title(GD_HEADER_BAR(priv->header_bar), priv->stack_switcher);
+    gtk_header_bar_set_custom_title(GTK_HEADER_BAR(priv->header_bar), priv->stack_switcher);
 
     gtk_widget_show_all(priv->grid);
 }

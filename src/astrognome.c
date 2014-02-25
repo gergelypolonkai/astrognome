@@ -8,9 +8,9 @@
 #include <libxslt/transform.h>
 #include <libexslt/exslt.h>
 
-#include <libgd/gd.h>
-
 #include <swe-glib.h>
+
+#include "config.h"
 
 #include "ag-app.h"
 #include "ag-window.h"
