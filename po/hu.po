@@ -58,6 +58,14 @@ msgstr "_Mégsem"
 msgid "_Open"
 msgstr "M_egnyitás"
 
+#: ../src/ag-window.c:89
+msgid "Chart cannot be calculated."
+msgstr ""
+
+#: ../src/ag-window.c:104
+msgid "You must enter a name before saving a chart."
+msgstr ""
+
 #: ../src/ag-window.c:115
 msgid "Save Chart"
 msgstr "Képlet mentése"
