@@ -201,7 +201,11 @@ show_help(const gchar *topic, GtkWindow *parent)
     }
 
     if (!gtk_show_uri(screen, uri, gtk_get_current_event_time(), &err)) {
-        g_warning("Unable to display help: %s", err->message);
+        GtkWidget *dialog;
+
+        dialog = gtk_message_dialog_new(parent, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "Unable to display help: %s", err->message);
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
     }
 
     g_free(uri);

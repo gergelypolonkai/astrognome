@@ -179,7 +179,11 @@ ag_window_redraw_chart(AgWindow *window)
     svg_content = ag_chart_create_svg(window->priv->chart, &err);
 
     if (svg_content == NULL) {
-        g_warning("%s", err->message);
+        GtkWidget *dialog;
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "Unable to draw chart: %s", err->message);
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
     } else {
         webkit_web_view_load_string(WEBKIT_WEB_VIEW(window->priv->tab_chart), svg_content, "image/svg+xml", "UTF-8", "file://");
         g_free(svg_content);
