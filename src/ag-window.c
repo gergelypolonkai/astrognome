@@ -82,6 +82,11 @@ ag_window_save_as(AgWindow *window, GError **err)
 
     // We should never enter here, but who knows...
     if (window->priv->chart == NULL) {
+        GtkWidget *dialog;
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("Chart cannot be calculated."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
         g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART, "Chart is empty");
 
         return;
@@ -90,7 +95,13 @@ ag_window_save_as(AgWindow *window, GError **err)
     name = ag_chart_get_name(window->priv->chart);
 
     if ((name == NULL) || (*name == 0)) {
+        GtkWidget *dialog;
+
         g_free(name);
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("You must enter a name before saving a chart."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
         g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME, "No name specified");
 
         return;
