@@ -1,3 +1,4 @@
+#include <math.h>
 #include <string.h>
 #include <glib/gi18n.h>
 #include <libxml/parser.h>
@@ -199,8 +200,18 @@ ag_window_update_from_chart(AgWindow *window)
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->hour), gswe_timestamp_get_gregorian_hour(timestamp, NULL));
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->minute), gswe_timestamp_get_gregorian_minute(timestamp, NULL));
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->second), gswe_timestamp_get_gregorian_second(timestamp, NULL));
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->longitude), coordinates->longitude);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->latitude), coordinates->latitude);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->longitude), fabs(coordinates->longitude));
+
+    if (coordinates->longitude < 0.0) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(window->priv->west_long), TRUE);
+    }
+
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->latitude), fabs(coordinates->latitude));
+
+    if (coordinates->latitude < 0.0) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(window->priv->south_lat), TRUE);
+    }
+
     gtk_entry_set_text(GTK_ENTRY(window->priv->name), ag_chart_get_name(window->priv->chart));
 
     g_free(coordinates);
