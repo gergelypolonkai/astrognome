@@ -243,13 +243,13 @@ recalculate_chart(AgWindow *window)
         // TODO: make house system configurable
         window->priv->chart = ag_chart_new_full(timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
         g_signal_connect(window->priv->chart, "changed", G_CALLBACK(chart_changed), window);
+        ag_window_redraw_chart(window);
     } else {
         timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(window->priv->chart));
         gswe_timestamp_set_gregorian_full(timestamp, year, month, day, hour, minute, second, 0, 1.0, NULL);
     }
 
     ag_chart_set_name(window->priv->chart, gtk_entry_get_text(GTK_ENTRY(window->priv->name)));
-    ag_window_redraw_chart(window);
 }
 
 static void
@@ -270,6 +270,7 @@ tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
         gtk_widget_set_size_request(active_tab, 600, 600);
     }
 
+    // If we are coming from the Edit tab, let’s assume the chart data has changed
     // Note that priv->current_tab is actually the previously selected tab, not the real active one!
     if (window->priv->current_tab == window->priv->tab_edit) {
         recalculate_chart(window);
