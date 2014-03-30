@@ -134,6 +134,10 @@ msgstr "Perc"
 msgid "Second"
 msgstr "Másodperc"
 
+#: ../src/ag-window.c:467
+msgid "Timezone"
+msgstr ""
+
 #: ../src/ag-window.c:516
 msgid "Edit"
 msgstr "Szerkesztés"

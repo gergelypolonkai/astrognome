@@ -30,6 +30,7 @@ struct _AgWindowPrivate {
     GtkWidget  *hour;
     GtkWidget  *minute;
     GtkWidget  *second;
+    GtkWidget  *timezone;
     GtkBuilder *builder;
 
     GtkWidget  *tab_chart;
@@ -200,6 +201,7 @@ ag_window_update_from_chart(AgWindow *window)
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->hour), gswe_timestamp_get_gregorian_hour(timestamp, NULL));
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->minute), gswe_timestamp_get_gregorian_minute(timestamp, NULL));
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->second), gswe_timestamp_get_gregorian_second(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->timezone), gswe_timestamp_get_gregorian_timezone(timestamp));
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->longitude), fabs(coordinates->longitude));
 
     if (coordinates->longitude < 0.0) {
@@ -462,6 +464,14 @@ notebook_edit(AgWindow *window)
     priv->second = gtk_spin_button_new_with_range(0, 61, 1);
     gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->second), 0);
     gtk_grid_attach(GTK_GRID(grid), priv->second, 6, 4, 1, 1);
+
+    label = gtk_label_new(_("Timezone"));
+    gtk_grid_attach(GTK_GRID(grid), label, 4, 5, 1, 1);
+
+    priv->timezone = gtk_spin_button_new_with_range(-12.0, 12.0, 1.0);
+    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->timezone), 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->timezone), 0.0);
+    gtk_grid_attach(GTK_GRID(grid), priv->timezone, 5, 5, 1, 1);
 
     gtk_widget_show_all(grid);
 
