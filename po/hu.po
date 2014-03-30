@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: astrognome master\n"
 "Report-Msgid-Bugs-To: gergely@polonkai.eu\n"
-"POT-Creation-Date: 2013-09-21 22:17+0200\n"
+"POT-Creation-Date: 2014-03-30 17:25+0200\n"
 "PO-Revision-Date: 2013-09-21 20:17+0200\n"
 "Last-Translator: Gergely Polonkai <gergely@polonkai.eu>\n"
 "Language-Team: Hungarian <gergely@polonkai.eu>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. i18n: Please don't translate "Astrognome" (it's marked as translatable for transliteration only
-#: ../data/astrognome.desktop.in.in.h:1 ../src/ag-app.c:85 ../src/ag-app.c:273
+#: ../data/astrognome.desktop.in.in.h:1 ../src/ag-app.c:85 ../src/ag-app.c:312
 msgid "Astrognome"
 msgstr "Astrognome"
 
@@ -46,8 +46,11 @@ msgstr "Asztrológiai szoftver a GNOME-hoz"
 msgid "Astrognome Website"
 msgstr "Astrognome weboldal"
 
-#: ../src/ag-app.c:139
-#: ../src/ag-window.c:105
+#: ../src/ag-app.c:136
+msgid "Select charts"
+msgstr "Válasszon ki mentett képleteket"
+
+#: ../src/ag-app.c:139 ../src/ag-window.c:118
 msgid "_Cancel"
 msgstr "_Mégsem"
 
@@ -55,91 +58,87 @@ msgstr "_Mégsem"
 msgid "_Open"
 msgstr "M_egnyitás"
 
-#: ../src/ag-app.c:131
-msgid "Select charts"
-msgstr "Válasszon ki mentett képleteket"
-
-#: ../src/ag-window.c:103
+#: ../src/ag-window.c:115
 msgid "Save Chart"
 msgstr "Képlet mentése"
 
-#: ../src/ag-window.c:105
+#: ../src/ag-window.c:119
 msgid "_Save"
 msgstr "M_entés"
 
-#: ../src/ag-window.c:363
+#: ../src/ag-window.c:386
 msgid "Name"
 msgstr "Név"
 
-#: ../src/ag-window.c:369
+#: ../src/ag-window.c:392
 msgid "Country"
 msgstr "Ország"
 
-#: ../src/ag-window.c:372
+#: ../src/ag-window.c:395
 msgid "City"
 msgstr "Város"
 
-#: ../src/ag-window.c:375
+#: ../src/ag-window.c:398
 msgid "Latitude"
 msgstr "Szélességi fok"
 
-#: ../src/ag-window.c:378
+#: ../src/ag-window.c:401
 msgid "North"
 msgstr "Észak"
 
-#: ../src/ag-window.c:381
+#: ../src/ag-window.c:404
 msgid "South"
 msgstr "Dél"
 
-#: ../src/ag-window.c:388
+#: ../src/ag-window.c:411
 msgid "Longitude"
 msgstr "Hosszúsági fok"
 
-#: ../src/ag-window.c:391
+#: ../src/ag-window.c:414
 msgid "East"
 msgstr "Kelet"
 
-#: ../src/ag-window.c:394
+#: ../src/ag-window.c:417
 msgid "West"
 msgstr "Nyugat"
 
-#: ../src/ag-window.c:401
+#: ../src/ag-window.c:424
 msgid "Year"
 msgstr "Év"
 
-#: ../src/ag-window.c:409
+#: ../src/ag-window.c:432
 msgid "Month"
 msgstr "Hónap"
 
-#: ../src/ag-window.c:416
+#: ../src/ag-window.c:439
 msgid "Day"
 msgstr "Nap"
 
-#: ../src/ag-window.c:423
+#: ../src/ag-window.c:446
 msgid "Hour"
 msgstr "Óra"
 
-#: ../src/ag-window.c:430
+#: ../src/ag-window.c:453
 msgid "Minute"
 msgstr "Perc"
 
-#: ../src/ag-window.c:437
+#: ../src/ag-window.c:460
 msgid "Second"
 msgstr "Másodperc"
 
-#: ../src/ag-window.c:480
+#: ../src/ag-window.c:516
 msgid "Edit"
 msgstr "Szerkesztés"
 
-#: ../src/ag-window.c:484
+#: ../src/ag-window.c:520
 msgid "Chart"
 msgstr "Képlet"
 
-#: ../src/ag-window.c:492
+#: ../src/ag-window.c:529
 msgid "Aspects"
 msgstr "Fényszögek"
 
-#: ../src/ag-window.c:495
+#: ../src/ag-window.c:532
 msgid "Points"
 msgstr "Pont-táblázatok"
 
