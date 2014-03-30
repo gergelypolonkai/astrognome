@@ -136,8 +136,8 @@ open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     fs = gtk_file_chooser_dialog_new(_("Select charts"),
                                      NULL,
                                      GTK_FILE_CHOOSER_ACTION_OPEN,
-                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                     GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                     _("_Open"), GTK_RESPONSE_ACCEPT,
                                      NULL);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_all);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_chart);

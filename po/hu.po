@@ -46,6 +46,15 @@ msgstr "Asztrológiai szoftver a GNOME-hoz"
 msgid "Astrognome Website"
 msgstr "Astrognome weboldal"
 
+#: ../src/ag-app.c:139
+#: ../src/ag-window.c:105
+msgid "_Cancel"
+msgstr "_Mégsem"
+
+#: ../src/ag-app.c:140
+msgid "_Open"
+msgstr "M_egnyitás"
+
 #: ../src/ag-app.c:131
 msgid "Select charts"
 msgstr "Válasszon ki mentett képleteket"
@@ -53,6 +62,10 @@ msgstr "Válasszon ki mentett képleteket"
 #: ../src/ag-window.c:103
 msgid "Save Chart"
 msgstr "Képlet mentése"
+
+#: ../src/ag-window.c:105
+msgid "_Save"
+msgstr "M_entés"
 
 #: ../src/ag-window.c:363
 msgid "Name"
