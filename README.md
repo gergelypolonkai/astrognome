@@ -43,13 +43,9 @@ Astrognome was originally created by Jean-André Santoni, and was hosted on [Goo
 
 ## Hacking
 
-The project is currently hosted on [GitHub](https://github.com/gergelypolonkai/astrognome). Just fork the repo, make your changes and issue a pull request. Don't like GitHub? That's fine with me; in this case, clone the repo, and send your changes, and send me your modifications at gergely@polonkai.eu as a git-bundle or a patch (in this latter case, you should also mention which commit is your base).
+The project is currently hosted on [GitHub](https://github.com/gergelypolonkai/astrognome). Just fork the repo, make your changes and issue a pull request. Don’t like GitHub? That’s fine with me; in this case, clone the repo, and send your changes, and send me your modifications at gergely@polonkai.eu as a git-bundle or a patch (in this latter case, you should also mention which commit is your base).
 
-The entire project is written in C, utilizing GTK+ (3.8 currently, but the final version may come only with 3.10) and SWE-GLib (which is used for the calculations part).
+The entire project is written in C, utilizing GTK+ 3.10 (or anything later in the 3.x series) and SWE-GLib 2.0 (which is used for the calculations part). I’m testing my code under Fedora, so even testers from other distributions are welcome!
 
 Astrognome follows a well-defined coding style. If you contribute, please follow that by looking at existing sources, or use [Uncrustify](http://uncrustify.sourceforge.net/) with the config file under docs/. The only thing it messes up currently is the alignment of object type #definitions.
 
-## !!!WARNING!!!
--------------
-
-The code is a bit messy yet, and displays calculated data only in a textual form. Graphics will be added later.
