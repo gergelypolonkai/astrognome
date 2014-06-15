@@ -59,6 +59,7 @@ gchar *ag_chart_get_city(AgChart *chart);
 gchar *ag_chart_create_svg(AgChart *chart,
                            gsize   *length,
                            GError  **err);
+GList *ag_chart_get_planets(AgChart *chart);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);

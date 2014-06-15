@@ -931,6 +931,12 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
     return save_content;
 }
 
+GList *
+ag_chart_get_planets(AgChart *chart)
+{
+    return chart->priv->planet_list;
+}
+
 void
 ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
 {
