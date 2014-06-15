@@ -371,8 +371,12 @@ tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
         gtk_widget_set_size_request(active_tab, 600, 600);
     }
 
-    // If we are coming from the Edit tab, let’s assume the chart data has changed
-    // Note that priv->current_tab is actually the previously selected tab, not the real active one!
+    // If we are coming from the Edit tab, let’s assume the chart data has
+    // changed. This is a bad idea, though, it should be checked instead!
+    // (TODO)
+
+    // Note that priv->current_tab is actually the previously selected tab, not
+    // the real active one!
     if (window->priv->current_tab == window->priv->tab_edit) {
         recalculate_chart(window);
     }
