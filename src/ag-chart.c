@@ -736,7 +736,8 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
 
     for (aspect = gswe_moment_get_all_aspects(GSWE_MOMENT(chart)); aspect; aspect = g_list_next(aspect)) {
         GswePlanetData *planet_data;
-        GEnumValue *enum_value;
+        GEnumValue     *enum_value;
+
         aspect_data = aspect->data;
 
         if (gswe_aspect_data_get_aspect(aspect_data) == GSWE_ASPECT_NONE) {
@@ -746,11 +747,11 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
         node = xmlNewChild(aspects_node, NULL, BAD_CAST "aspect", NULL);
 
         planet_data = gswe_aspect_data_get_planet1(aspect_data);
-        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
+        enum_value  = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
         xmlNewProp(node, BAD_CAST "body1", BAD_CAST enum_value->value_name);
 
         planet_data = gswe_aspect_data_get_planet2(aspect_data);
-        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
+        enum_value  = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
         xmlNewProp(node, BAD_CAST "body2", BAD_CAST enum_value->value_name);
 
         enum_value = g_enum_get_value(G_ENUM_CLASS(aspects_class), gswe_aspect_data_get_aspect(aspect_data));
@@ -765,7 +766,7 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
     antiscia_class = g_type_class_ref(GSWE_TYPE_ANTISCION_AXIS);
 
     for (antiscion = gswe_moment_get_all_antiscia(GSWE_MOMENT(chart)); antiscion; antiscion = g_list_next(antiscion)) {
-        GswePlanetData *planet_data;
+        GswePlanetData    *planet_data;
         GsweAntiscionData *antiscion_data = antiscion->data;
         GEnumValue        *enum_value;
 
@@ -776,11 +777,11 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
         node = xmlNewChild(antiscia_node, NULL, BAD_CAST "antiscia", NULL);
 
         planet_data = gswe_antiscion_data_get_planet1(antiscion_data);
-        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
+        enum_value  = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
         xmlNewProp(node, BAD_CAST "body1", BAD_CAST enum_value->value_name);
 
         planet_data = gswe_antiscion_data_get_planet2(antiscion_data);
-        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
+        enum_value  = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
         xmlNewProp(node, BAD_CAST "body2", BAD_CAST enum_value->value_name);
 
         enum_value = g_enum_get_value(G_ENUM_CLASS(antiscia_class), gswe_antiscion_data_get_axis(antiscion_data));
