@@ -42,6 +42,7 @@ struct _AgWindowPrivate {
     AgSettings *settings;
     AgChart    *chart;
     gchar      *uri;
+    gboolean   aspect_table_populated;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -248,6 +249,11 @@ ag_window_redraw_chart(AgWindow *window)
 {
     GError *err = NULL;
     gchar  *svg_content;
+    GList  *planet_list,
+           *planet1,
+           *planet2;
+    guint  i,
+           j;
 
     svg_content = ag_chart_create_svg(window->priv->chart, NULL, &err);
 
@@ -261,6 +267,73 @@ ag_window_redraw_chart(AgWindow *window)
         webkit_web_view_load_string(WEBKIT_WEB_VIEW(window->priv->tab_chart), svg_content, "image/svg+xml", "UTF-8", "file://");
         g_free(svg_content);
     }
+
+    planet_list = ag_chart_get_planets(window->priv->chart);
+
+    if (window->priv->aspect_table_populated == FALSE) {
+        GList *planet;
+        guint i;
+
+        for (planet = planet_list, i = 0; planet; planet = g_list_next(planet), i++) {
+            GtkWidget *label_hor,
+                      *label_ver;
+            GswePlanet planet_id;
+            GswePlanetData *planet_data;
+            GswePlanetInfo *planet_info;
+
+            planet_id = GPOINTER_TO_INT(planet->data);
+            planet_data = gswe_moment_get_planet(GSWE_MOMENT(window->priv->chart), planet_id, NULL);
+            planet_info = gswe_planet_data_get_planet_info(planet_data);
+
+            label_hor = gtk_label_new(gswe_planet_info_get_name(planet_info));
+            gtk_grid_attach(GTK_GRID(window->priv->tab_aspects), label_hor, i + 1, i, 1, 1);
+
+            if (i > 0) {
+                label_ver = gtk_label_new(gswe_planet_info_get_name(planet_info));
+                gtk_grid_attach(GTK_GRID(window->priv->tab_aspects), label_ver, 0, i, 1, 1);
+            }
+        }
+
+        window->priv->aspect_table_populated = TRUE;
+    }
+
+    for (planet1 = planet_list, i = 0; planet1; planet1 = g_list_next(planet1), i++) {
+        for (planet2 = planet_list, j = 0; planet2; planet2 = g_list_next(planet2), j++) {
+            GsweAspectData *aspect;
+            GError *err = NULL;
+
+            if (GPOINTER_TO_INT(planet1->data) == GPOINTER_TO_INT(planet2->data)) {
+                break;
+            }
+
+            if ((aspect = gswe_moment_get_aspect_by_planets(GSWE_MOMENT(window->priv->chart), GPOINTER_TO_INT(planet1->data), GPOINTER_TO_INT(planet2->data), &err)) != NULL) {
+                GsweAspectInfo *aspect_info;
+                GtkWidget      *aspect_label;
+
+                aspect_info = gswe_aspect_data_get_aspect_info(aspect);
+                aspect_label = gtk_grid_get_child_at(GTK_GRID(window->priv->tab_aspects), j + 1, i);
+
+                if (gswe_aspect_data_get_aspect(aspect) == GSWE_ASPECT_NONE) {
+                    if (aspect_label != NULL) {
+                        gtk_container_remove(GTK_CONTAINER(window->priv->tab_aspects), aspect_label);
+                    }
+                } else {
+                    if (aspect_label == NULL) {
+                        aspect_label = gtk_label_new(gswe_aspect_info_get_name(aspect_info));
+                        gtk_grid_attach(GTK_GRID(window->priv->tab_aspects), aspect_label, j + 1, i, 1, 1);
+                    } else {
+                        gtk_label_set_label(GTK_LABEL(aspect_label), gswe_aspect_info_get_name(aspect_info));
+                    }
+                }
+            } else if (err) {
+                g_warning("%s\n", err->message);
+            } else {
+                g_error("No aspect is returned between two planets. This is a bug in SWE-GLib!\n");
+            }
+        }
+    }
+
+    gtk_widget_show_all(window->priv->tab_aspects);
 }
 
 void
@@ -569,8 +642,8 @@ static void
 window_populate(AgWindow *window)
 {
     AgWindowPrivate *priv = window->priv;
-    GtkWidget       *menu_button;
-    GtkWidget       *scroll;
+    GtkWidget       *menu_button,
+                    *scroll;
     GObject         *menu;
 
     priv->header_bar = gtk_header_bar_new();
@@ -608,8 +681,12 @@ window_populate(AgWindow *window)
     webkit_web_view_load_string(WEBKIT_WEB_VIEW(priv->tab_chart), "<html><head><title>No Chart</title></head><body><h1>No Chart</h1><p>No chart is loaded. Create one on the edit view, or open one from the application menu!</p></body></html>", "text/html", "UTF-8", NULL);
     gtk_widget_set_size_request(priv->tab_chart, 600, 600);
 
-    priv->tab_aspects = gtk_label_new("PLACEHOLDER FOR THE ASPECTS TABLE");
-    gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_aspects, "aspects", _("Aspects"));
+    scroll = gtk_scrolled_window_new(NULL, NULL);
+    g_object_set(scroll, "shadow-type", GTK_SHADOW_NONE, NULL);
+    gtk_stack_add_titled(GTK_STACK(priv->stack), scroll, "aspects", _("Aspects"));
+
+    priv->tab_aspects = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(scroll), priv->tab_aspects);
 
     priv->tab_points = gtk_label_new("PLACEHOLDER FOR THE POINTS TABLES");
     gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_points, "points", _("Points"));
