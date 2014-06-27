@@ -53,6 +53,7 @@ void ag_chart_set_city(AgChart     *chart,
                        const gchar *city);
 gchar *ag_chart_get_city(AgChart *chart);
 gchar *ag_chart_create_svg(AgChart *chart,
+                           gsize   *length,
                            GError  **err);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())

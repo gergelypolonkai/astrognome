@@ -612,7 +612,7 @@ ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
 }
 
 gchar *
-ag_chart_create_svg(AgChart *chart, GError **err)
+ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
 {
     xmlDocPtr         doc = create_save_doc(chart);
     xmlDocPtr         xslt_doc;
@@ -850,6 +850,10 @@ ag_chart_create_svg(AgChart *chart, GError **err)
 
     xmlDocDumpFormatMemoryEnc(svg_doc, (xmlChar **)&save_content, &save_length, "UTF-8", 1);
     xmlFreeDoc(svg_doc);
+
+    if (length != NULL) {
+        *length = save_length;
+    }
 
     return save_content;
 }

@@ -176,7 +176,7 @@ ag_window_redraw_chart(AgWindow *window)
     GError *err = NULL;
     gchar  *svg_content;
 
-    svg_content = ag_chart_create_svg(window->priv->chart, &err);
+    svg_content = ag_chart_create_svg(window->priv->chart, NULL, &err);
 
     if (svg_content == NULL) {
         GtkWidget *dialog;
