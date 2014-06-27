@@ -858,3 +858,15 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
     return save_content;
 }
 
+void
+ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
+{
+    gchar *svg;
+    gsize length;
+
+    if ((svg = ag_chart_create_svg(chart, &length, err)) == NULL) {
+        return;
+    }
+
+    g_file_replace_contents(file, (const gchar *)svg, length, NULL, FALSE, G_FILE_CREATE_NONE, NULL, NULL, err);
+}

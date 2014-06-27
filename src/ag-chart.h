@@ -43,6 +43,10 @@ void ag_chart_save_to_file(AgChart *chart,
                            GFile   *file,
                            GError  **err);
 
+void ag_chart_export_svg_to_file(AgChart *chart,
+                                 GFile   *file,
+                                 GError  **err);
+
 void ag_chart_set_name(AgChart     *chart,
                        const gchar *name);
 gchar *ag_chart_get_name(AgChart *chart);

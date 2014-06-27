@@ -170,6 +170,81 @@ ag_window_save_as_action(GSimpleAction *action, GVariant *parameter, gpointer us
     // TODO: Check err!
 }
 
+static void
+ag_window_export_svg(AgWindow *window, GError **err)
+{
+    gchar     *name;
+    gchar     *file_name;
+    GtkWidget *fs;
+    gint      response;
+
+    recalculate_chart(window);
+
+    // We should never enter here, but who knows...
+    if (window->priv->chart == NULL) {
+        GtkWidget *dialog;
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("Chart cannot be calculated."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+        g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART, "Chart is empty");
+
+        return;
+    }
+
+    name = ag_chart_get_name(window->priv->chart);
+
+    if ((name == NULL) || (*name == 0)) {
+        GtkWidget *dialog;
+
+        g_free(name);
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("You must enter a name before saving a chart."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+        g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME, "No name specified");
+
+        return;
+    }
+
+    file_name = g_strdup_printf("%s.svg", name);
+    g_free(name);
+
+    fs = gtk_file_chooser_dialog_new(_("Export Chart as SVG"),
+                                     GTK_WINDOW(window),
+                                     GTK_FILE_CHOOSER_ACTION_SAVE,
+                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                     _("_Save"), GTK_RESPONSE_ACCEPT,
+                                     NULL);
+    gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
+    gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), TRUE);
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fs), file_name);
+    g_free(file_name);
+
+    response = gtk_dialog_run(GTK_DIALOG(fs));
+    gtk_widget_hide(fs);
+
+    if (response == GTK_RESPONSE_ACCEPT) {
+        GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
+
+        ag_chart_export_svg_to_file(window->priv->chart, file, err);
+    }
+
+    gtk_widget_destroy(fs);
+}
+
+static void
+ag_window_export_svg_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+    AgWindow *window = AG_WINDOW(user_data);
+    GError *err = NULL;
+
+    ag_window_export_svg(window, &err);
+
+    // TODO: Check err!
+}
+
 void
 ag_window_redraw_chart(AgWindow *window)
 {
@@ -321,6 +396,7 @@ static GActionEntry win_entries[] = {
     { "close",      ag_window_close_action,      NULL, NULL,      NULL },
     { "save",       ag_window_save_action,       NULL, NULL,      NULL },
     { "save-as",    ag_window_save_as_action,    NULL, NULL,      NULL },
+    { "export-svg", ag_window_export_svg_action, NULL, NULL,      NULL },
     { "gear-menu",  ag_window_gear_menu_action,  NULL, "false",   NULL },
     { "change-tab", ag_window_change_tab_action, "s",  "'edit'",  NULL },
 };
