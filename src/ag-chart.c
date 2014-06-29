@@ -33,9 +33,8 @@ typedef enum {
 
 G_DEFINE_QUARK(ag_chart_error_quark, ag_chart_error);
 
-G_DEFINE_TYPE(AgChart, ag_chart, GSWE_TYPE_MOMENT);
+G_DEFINE_TYPE_WITH_PRIVATE(AgChart, ag_chart, GSWE_TYPE_MOMENT);
 
-#define GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE((instance), AG_TYPE_CHART, AgChartPrivate))
 #define ag_g_variant_unref(v) \
     if ((v) != NULL) { \
         g_variant_unref((v)); \
@@ -56,8 +55,6 @@ ag_chart_class_init(AgChartClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-    g_type_class_add_private(klass, sizeof(AgChartPrivate));
-
     gobject_class->set_property = ag_chart_set_property;
     gobject_class->get_property = ag_chart_get_property;
     gobject_class->finalize     = ag_chart_finalize;
@@ -70,7 +67,7 @@ ag_chart_class_init(AgChartClass *klass)
 static void
 ag_chart_init(AgChart *chart)
 {
-    chart->priv              = GET_PRIVATE(chart);
+    chart->priv              = ag_chart_get_instance_private(chart);
     chart->priv->name        = NULL;
     chart->priv->country     = NULL;
     chart->priv->city        = NULL;

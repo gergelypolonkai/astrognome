@@ -46,9 +46,7 @@ struct _AgWindowPrivate {
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
 
-G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
-
-#define GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE((instance), AG_TYPE_WINDOW, AgWindowPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
 static void recalculate_chart(AgWindow *window);
 
@@ -408,7 +406,7 @@ ag_window_init(AgWindow *window)
     GtkAccelGroup   *accel_group;
     GError          *err = NULL;
 
-    window->priv = priv = GET_PRIVATE(window);
+    window->priv = priv = ag_window_get_instance_private(window);
 
     priv->chart    = NULL;
     priv->uri      = NULL;
@@ -451,7 +449,6 @@ ag_window_class_init(AgWindowClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-    g_type_class_add_private(klass, sizeof(AgWindowPrivate));
     gobject_class->dispose = ag_window_dispose;
 }
 

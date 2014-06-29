@@ -5,9 +5,6 @@
 #include "config.h"
 #include "astrognome.h"
 
-struct _AgAppPrivate {
-};
-
 G_DEFINE_TYPE(AgApp, ag_app, GTK_TYPE_APPLICATION);
 
 GtkWindow *
