@@ -600,6 +600,7 @@ window_populate(AgWindow *window)
     priv->tab_chart = webkit_web_view_new();
     g_signal_connect(priv->tab_chart, "context-menu", G_CALLBACK(ag_window_chart_context_cb), NULL);
     gtk_container_add(GTK_CONTAINER(scroll), priv->tab_chart);
+    // TODO: Although this is never shown to the user, it should be translatable!
     webkit_web_view_load_string(WEBKIT_WEB_VIEW(priv->tab_chart), "<html><head><title>No Chart</title></head><body><h1>No Chart</h1><p>No chart is loaded. Create one on the edit view, or open one from the application menu!</p></body></html>", "text/html", "UTF-8", NULL);
     gtk_widget_set_size_request(priv->tab_chart, 600, 600);
 
