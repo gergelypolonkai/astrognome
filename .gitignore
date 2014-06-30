@@ -74,6 +74,9 @@ Makefile.in
 /help/*/*.page
 !/help/C/*.page
 
+/.anjuta*
+/*.anjuta
+
 #Documentation related files
 /docs/reference/*/*.args
 /docs/reference/*/*.hierarchy
