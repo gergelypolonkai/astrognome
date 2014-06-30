@@ -4,48 +4,19 @@
 
 The features below are already implemented.
 
-* Calculate planetary positions for any date, time and place on Earth, their aspects and mirrorpoints
-* Create natal charts for any date, time and place on earth, with exact planetary locations and their aspects
-
-## Upcoming features
-
-The features below will be implemented in the first release of Astrognome.
-
-* Optionally include dwarf planets and comets: Chiron, Pallas, Ceres, Juno and Vesta
-* Optionally include Vertex
-* Time stepping
-* Application settings
-  * Default display properties (can be overridden per window)
-    * Traditional view (personal planets and Ptolemaic aspects only)
-    * Display major (Ptolemaic) aspects
-    * Display minor aspects
-    * Display antiscia/contra-antiscia
-    * Display personal planets
-    * Display outer planets
-    * Display dwarf planets and asteroids
-    * Display fixed stars
-    * Display hidden ascendent
-    * Display Vertex/anti-Vertex
-  * Symbol of Uranus and Pluto to use in charts
-
-## Later features
-
-The features below will become part of Astrognome in later versions.
-
-* Custom location database
-* Synastries (Composite charts)
-* Transits
-* Progression
+* Calculate planetary positions for any date, time and place on Earth, their
+  aspects and mirrorpoints
+* Create natal charts for any date, time and place on earth, with exact
+  planetary locations and their aspects (although it is very messy right now).
 
 ## Credits
 
-Astrognome was originally created by Jean-André Santoni, and was hosted on [Google Code](https://code.google.com/p/astrognome/). The original project is now rewrote from scratch, using the [SWE-GLib](http://github.com/gergelypolonkai/swe-glib) library (which is actually a wrapper around [Swiss Ephemeris library](http://www.astro.com/swisseph/)). Several ideas come from the original project, and from others like [Placidus](http://placidus.hu/) and [Aquarius2Go](https://play.google.com/store/apps/details?id=net.wilfinger.aquarius2go).
-
-## Hacking
-
-The project is currently hosted on [GitHub](https://github.com/gergelypolonkai/astrognome). Just fork the repo, make your changes and issue a pull request. Don’t like GitHub? That’s fine with me; in this case, clone the repo, and send your changes, and send me your modifications at gergely@polonkai.eu as a git-bundle or a patch (in this latter case, you should also mention which commit is your base).
-
-The entire project is written in C, utilizing GTK+ 3.10 (or anything later in the 3.x series) and SWE-GLib 2.0 (which is used for the calculations part). I’m testing my code under Fedora, so even testers from other distributions are welcome!
-
-Astrognome follows a well-defined coding style. If you contribute, please follow that by looking at existing sources, or use [Uncrustify](http://uncrustify.sourceforge.net/) with the config file under docs/. The only thing it messes up currently is the alignment of object type #definitions.
+Astrognome was originally created by Jean-André Santoni in Mono, and was hosted
+on [Google Code](https://code.google.com/p/astrognome/). The original project
+is now rewrote from scratch, using the
+[SWE-GLib](https://github.com/gergelypolonkai/swe-glib) library (which is
+actually a wrapper around the [Swiss Ephemeris
+library](http://www.astro.com/swisseph/)). Several ideas come from the original
+project, and from others like [Placidus](http://placidus.hu/) and
+[Aquarius2Go](https://play.google.com/store/apps/details?id=net.wilfinger.aquarius2go).
 
