@@ -16,11 +16,9 @@ G_BEGIN_DECLS
 
 typedef struct _AgApp        AgApp;
 typedef struct _AgAppClass   AgAppClass;
-typedef struct _AgAppPrivate AgAppPrivate;
 
 struct _AgApp {
     GtkApplication parent_instance;
-    AgAppPrivate   *priv;
 };
 
 struct _AgAppClass {

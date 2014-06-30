@@ -16,6 +16,7 @@ struct _AgChartPrivate {
     gchar *country;
     gchar *city;
     gchar *save_buffer;
+    GList *planet_list;
 };
 
 enum {
@@ -33,9 +34,8 @@ typedef enum {
 
 G_DEFINE_QUARK(ag_chart_error_quark, ag_chart_error);
 
-G_DEFINE_TYPE(AgChart, ag_chart, GSWE_TYPE_MOMENT);
+G_DEFINE_TYPE_WITH_PRIVATE(AgChart, ag_chart, GSWE_TYPE_MOMENT);
 
-#define GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE((instance), AG_TYPE_CHART, AgChartPrivate))
 #define ag_g_variant_unref(v) \
     if ((v) != NULL) { \
         g_variant_unref((v)); \
@@ -56,8 +56,6 @@ ag_chart_class_init(AgChartClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-    g_type_class_add_private(klass, sizeof(AgChartPrivate));
-
     gobject_class->set_property = ag_chart_set_property;
     gobject_class->get_property = ag_chart_get_property;
     gobject_class->finalize     = ag_chart_finalize;
@@ -70,11 +68,12 @@ ag_chart_class_init(AgChartClass *klass)
 static void
 ag_chart_init(AgChart *chart)
 {
-    chart->priv              = GET_PRIVATE(chart);
+    chart->priv              = ag_chart_get_instance_private(chart);
     chart->priv->name        = NULL;
     chart->priv->country     = NULL;
     chart->priv->city        = NULL;
     chart->priv->save_buffer = NULL;
+    chart->priv->planet_list = NULL;
 }
 
 static void
@@ -142,6 +141,79 @@ ag_chart_finalize(GObject *gobject)
     }
 }
 
+void
+ag_chart_add_planets(AgChart *chart)
+{
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_CHARIKLO, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_CHARIKLO));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_VESTA, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_VESTA));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_JUNO, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_JUNO));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_PALLAS, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_PALLAS));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_CERES, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_CERES));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_NESSUS, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_NESSUS));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_PHOLUS, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_PHOLUS));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_CHIRON, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_CHIRON));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MOON_APOGEE, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_MOON_APOGEE));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MOON_NODE, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_MOON_NODE));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_PLUTO, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_PLUTO));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_NEPTUNE, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_NEPTUNE));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_URANUS, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_URANUS));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_SATURN, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_SATURN));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_JUPITER, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_JUPITER));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MARS, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_MARS));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_VENUS, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_VENUS));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MERCURY, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_MERCURY));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MOON, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_MOON));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_SUN, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_SUN));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_VERTEX, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_VERTEX));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_ASCENDANT, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_ASCENDANT));
+
+    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MC, NULL);
+    chart->priv->planet_list = g_list_prepend(chart->priv->planet_list, GINT_TO_POINTER(GSWE_PLANET_MC));
+}
+
 AgChart *
 ag_chart_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude, gdouble altitude, GsweHouseSystem house_system)
 {
@@ -160,7 +232,7 @@ ag_chart_new_full(GsweTimestamp *timestamp, gdouble longitude, gdouble latitude,
 
     g_free(coords);
 
-    gswe_moment_add_all_planets(GSWE_MOMENT(chart));
+    ag_chart_add_planets(chart);
 
     return chart;
 }
@@ -293,7 +365,7 @@ get_by_xpath(xmlXPathContextPtr xpath_context, const gchar *uri, const gchar *xp
 
     switch (type) {
         case XML_CONVERT_STRING:
-            ret = g_variant_new_string(text);
+            ret = g_variant_new("ms", text);
 
             break;
 
@@ -334,9 +406,10 @@ ag_chart_load_from_file(GFile *file, GError **err)
     AgChart            *chart = NULL;
     gchar              *uri;
     gchar              *xml = NULL;
+    gchar              *name;
     gchar              *country_name;
     gchar              *city_name;
-    guint              length;
+    gsize              length;
     xmlDocPtr          doc;
     xmlXPathContextPtr xpath_context;
     GVariant           *chart_name;
@@ -477,8 +550,10 @@ ag_chart_load_from_file(GFile *file, GError **err)
     g_variant_unref(latitude);
     g_variant_unref(altitude);
 
-    ag_chart_set_name(chart, g_variant_get_string(chart_name, NULL));
+    g_variant_get(chart_name, "ms", &name);
     g_variant_unref(chart_name);
+    ag_chart_set_name(chart, name);
+    g_free(name);
 
     g_variant_get(country, "ms", &country_name);
     g_variant_unref(country);
@@ -609,39 +684,39 @@ ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
 }
 
 gchar *
-ag_chart_create_svg(AgChart *chart, GError **err)
+ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
 {
-    xmlDocPtr            doc = create_save_doc(chart);
-    xmlDocPtr            xslt_doc;
-    xmlDocPtr            svg_doc;
-    xmlNodePtr           root_node     = NULL;
-    xmlNodePtr           ascmcs_node   = NULL;
-    xmlNodePtr           houses_node   = NULL;
-    xmlNodePtr           bodies_node   = NULL;
-    xmlNodePtr           aspects_node  = NULL;
-    xmlNodePtr           antiscia_node = NULL;
-    xmlNodePtr           node          = NULL;
-    gchar                *value;
-    gchar                *stylesheet_path;
-    gchar                *css_path;
-    gchar                *save_content = NULL;
-    gchar                *css_uri;
-    gchar                *css_final_uri;
-    gchar                **params;
-    GList                *houses;
-    GList                *house;
-    GList                *planet;
-    GList                *aspect;
-    GList                *antiscion;
-    const GswePlanetData *planet_data;
-    const GsweAspectData *aspect_data;
-    GEnumClass           *planets_class;
-    GEnumClass           *aspects_class;
-    GEnumClass           *antiscia_class;
-    gint                 save_length;
-    GFile                *css_file;
-    xsltStylesheetPtr    xslt_proc;
-    locale_t             current_locale;
+    xmlDocPtr         doc = create_save_doc(chart);
+    xmlDocPtr         xslt_doc;
+    xmlDocPtr         svg_doc;
+    xmlNodePtr        root_node     = NULL;
+    xmlNodePtr        ascmcs_node   = NULL;
+    xmlNodePtr        houses_node   = NULL;
+    xmlNodePtr        bodies_node   = NULL;
+    xmlNodePtr        aspects_node  = NULL;
+    xmlNodePtr        antiscia_node = NULL;
+    xmlNodePtr        node          = NULL;
+    gchar             *value;
+    gchar             *stylesheet_path;
+    gchar             *css_path;
+    gchar             *save_content = NULL;
+    gchar             *css_uri;
+    gchar             *css_final_uri;
+    gchar             **params;
+    GList             *houses;
+    GList             *house;
+    GList             *planet;
+    GList             *aspect;
+    GList             *antiscion;
+    GswePlanetData    *planet_data;
+    GsweAspectData    *aspect_data;
+    GEnumClass        *planets_class;
+    GEnumClass        *aspects_class;
+    GEnumClass        *antiscia_class;
+    gint              save_length;
+    GFile             *css_file;
+    xsltStylesheetPtr xslt_proc;
+    locale_t          current_locale;
 
     root_node = xmlDocGetRootElement(doc);
 
@@ -654,9 +729,9 @@ ag_chart_create_svg(AgChart *chart, GError **err)
 
     node = xmlNewChild(ascmcs_node, NULL, BAD_CAST "ascendant", NULL);
 
-    planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_ASCENDENT, NULL);
+    planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_ASCENDANT, NULL);
     value       = g_malloc0(12);
-    g_ascii_dtostr(value, 12, planet_data->position);
+    g_ascii_dtostr(value, 12, gswe_planet_data_get_position(planet_data));
     xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
     g_free(value);
 
@@ -664,7 +739,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
 
     planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_MC, NULL);
     value       = g_malloc0(12);
-    g_ascii_dtostr(value, 12, planet_data->position);
+    g_ascii_dtostr(value, 12, gswe_planet_data_get_position(planet_data));
     xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
     g_free(value);
 
@@ -672,7 +747,7 @@ ag_chart_create_svg(AgChart *chart, GError **err)
 
     planet_data = gswe_moment_get_planet(GSWE_MOMENT(chart), GSWE_PLANET_VERTEX, NULL);
     value       = g_malloc0(12);
-    g_ascii_dtostr(value, 12, planet_data->position);
+    g_ascii_dtostr(value, 12, gswe_planet_data_get_position(planet_data));
     xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
     g_free(value);
 
@@ -686,12 +761,12 @@ ag_chart_create_svg(AgChart *chart, GError **err)
         node = xmlNewChild(houses_node, NULL, BAD_CAST "house", NULL);
 
         value = g_malloc0(3);
-        g_ascii_dtostr(value, 3, house_data->house);
+        g_ascii_dtostr(value, 3, gswe_house_data_get_house(house_data));
         xmlNewProp(node, BAD_CAST "number", BAD_CAST value);
         g_free(value);
 
         value = g_malloc0(12);
-        g_ascii_dtostr(value, 12, house_data->cusp_position);
+        g_ascii_dtostr(value, 12, gswe_house_data_get_cusp_position(house_data));
         xmlNewProp(node, BAD_CAST "degree", BAD_CAST value);
         g_free(value);
     }
@@ -707,20 +782,20 @@ ag_chart_create_svg(AgChart *chart, GError **err)
         GEnumValue *enum_value;
 
         if (
-            (planet_data->planet_id == GSWE_PLANET_ASCENDENT) ||
-            (planet_data->planet_id == GSWE_PLANET_MC) ||
-            (planet_data->planet_id == GSWE_PLANET_VERTEX)
+            (gswe_planet_data_get_planet(planet_data) == GSWE_PLANET_ASCENDANT) ||
+            (gswe_planet_data_get_planet(planet_data) == GSWE_PLANET_MC) ||
+            (gswe_planet_data_get_planet(planet_data) == GSWE_PLANET_VERTEX)
            ) {
             continue;
         }
 
         node = xmlNewChild(bodies_node, NULL, BAD_CAST "body", NULL);
 
-        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), planet_data->planet_id);
+        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
         xmlNewProp(node, BAD_CAST "name", BAD_CAST enum_value->value_name);
 
         value = g_malloc0(12);
-        g_ascii_dtostr(value, 12, planet_data->position);
+        g_ascii_dtostr(value, 12, gswe_planet_data_get_position(planet_data));
         xmlNewProp(node, BAD_CAST "degree", BAD_CAST value);
         g_free(value);
     }
@@ -732,22 +807,26 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     aspects_class = g_type_class_ref(GSWE_TYPE_ASPECT);
 
     for (aspect = gswe_moment_get_all_aspects(GSWE_MOMENT(chart)); aspect; aspect = g_list_next(aspect)) {
-        GEnumValue *enum_value;
+        GswePlanetData *planet_data;
+        GEnumValue     *enum_value;
+
         aspect_data = aspect->data;
 
-        if (aspect_data->aspect == GSWE_ASPECT_NONE) {
+        if (gswe_aspect_data_get_aspect(aspect_data) == GSWE_ASPECT_NONE) {
             continue;
         }
 
         node = xmlNewChild(aspects_node, NULL, BAD_CAST "aspect", NULL);
 
-        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), aspect_data->planet1->planet_id);
+        planet_data = gswe_aspect_data_get_planet1(aspect_data);
+        enum_value  = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
         xmlNewProp(node, BAD_CAST "body1", BAD_CAST enum_value->value_name);
 
-        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), aspect_data->planet2->planet_id);
+        planet_data = gswe_aspect_data_get_planet2(aspect_data);
+        enum_value  = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
         xmlNewProp(node, BAD_CAST "body2", BAD_CAST enum_value->value_name);
 
-        enum_value = g_enum_get_value(G_ENUM_CLASS(aspects_class), aspect_data->aspect);
+        enum_value = g_enum_get_value(G_ENUM_CLASS(aspects_class), gswe_aspect_data_get_aspect(aspect_data));
         xmlNewProp(node, BAD_CAST "type", BAD_CAST enum_value->value_name);
     }
 
@@ -759,22 +838,25 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     antiscia_class = g_type_class_ref(GSWE_TYPE_ANTISCION_AXIS);
 
     for (antiscion = gswe_moment_get_all_antiscia(GSWE_MOMENT(chart)); antiscion; antiscion = g_list_next(antiscion)) {
+        GswePlanetData    *planet_data;
         GsweAntiscionData *antiscion_data = antiscion->data;
         GEnumValue        *enum_value;
 
-        if (antiscion_data->axis == GSWE_ANTISCION_AXIS_NONE) {
+        if (gswe_antiscion_data_get_axis(antiscion_data) == GSWE_ANTISCION_AXIS_NONE) {
             continue;
         }
 
         node = xmlNewChild(antiscia_node, NULL, BAD_CAST "antiscia", NULL);
 
-        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), antiscion_data->planet1->planet_id);
+        planet_data = gswe_antiscion_data_get_planet1(antiscion_data);
+        enum_value  = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
         xmlNewProp(node, BAD_CAST "body1", BAD_CAST enum_value->value_name);
 
-        enum_value = g_enum_get_value(G_ENUM_CLASS(planets_class), antiscion_data->planet2->planet_id);
+        planet_data = gswe_antiscion_data_get_planet2(antiscion_data);
+        enum_value  = g_enum_get_value(G_ENUM_CLASS(planets_class), gswe_planet_data_get_planet(planet_data));
         xmlNewProp(node, BAD_CAST "body2", BAD_CAST enum_value->value_name);
 
-        enum_value = g_enum_get_value(G_ENUM_CLASS(antiscia_class), antiscion_data->axis);
+        enum_value = g_enum_get_value(G_ENUM_CLASS(antiscia_class), gswe_antiscion_data_get_axis(antiscion_data));
         xmlNewProp(node, BAD_CAST "axis", BAD_CAST enum_value->value_name);
     }
 
@@ -842,6 +924,28 @@ ag_chart_create_svg(AgChart *chart, GError **err)
     xmlDocDumpFormatMemoryEnc(svg_doc, (xmlChar **)&save_content, &save_length, "UTF-8", 1);
     xmlFreeDoc(svg_doc);
 
+    if (length != NULL) {
+        *length = save_length;
+    }
+
     return save_content;
 }
 
+GList *
+ag_chart_get_planets(AgChart *chart)
+{
+    return chart->priv->planet_list;
+}
+
+void
+ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
+{
+    gchar *svg;
+    gsize length;
+
+    if ((svg = ag_chart_create_svg(chart, &length, err)) == NULL) {
+        return;
+    }
+
+    g_file_replace_contents(file, (const gchar *)svg, length, NULL, FALSE, G_FILE_CREATE_NONE, NULL, NULL, err);
+}

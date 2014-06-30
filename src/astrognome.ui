@@ -48,6 +48,12 @@
         </section>
         <section>
             <item>
+                <attribute name="label" translatable="yes">Export as SVG</attribute>
+                <attribute name="action">win.export-svg</attribute>
+            </item>
+        </section>
+        <section>
+            <item>
                 <attribute name="label" translatable="yes">Close</attribute>
                 <attribute name="action">win.close</attribute>
                 <attribute name="accel">&lt;Primary&gt;w</attribute>

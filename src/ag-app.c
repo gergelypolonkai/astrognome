@@ -6,9 +6,6 @@
 #include "config.h"
 #include "astrognome.h"
 
-struct _AgAppPrivate {
-};
-
 G_DEFINE_TYPE(AgApp, ag_app, GTK_TYPE_APPLICATION);
 
 GtkWindow *
@@ -113,7 +110,12 @@ ag_app_open_chart(AgApp *app, GFile *file)
     GError    *err = NULL;
     gchar     *uri;
 
-    chart  = ag_chart_load_from_file(file, &err);
+    if ((chart = ag_chart_load_from_file(file, &err)) == NULL) {
+        g_print("Error: '%s'\n", err->message);
+
+        return;
+    }
+
     window = ag_app_create_window(app);
     ag_window_set_chart(AG_WINDOW(window), chart);
     ag_window_update_from_chart(AG_WINDOW(window));
@@ -132,8 +134,8 @@ open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     fs = gtk_file_chooser_dialog_new(_("Select charts"),
                                      NULL,
                                      GTK_FILE_CHOOSER_ACTION_OPEN,
-                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                     GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                     _("_Open"), GTK_RESPONSE_ACCEPT,
                                      NULL);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_all);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_chart);
@@ -197,7 +199,11 @@ show_help(const gchar *topic, GtkWindow *parent)
     }
 
     if (!gtk_show_uri(screen, uri, gtk_get_current_event_time(), &err)) {
-        g_warning("Unable to display help: %s", err->message);
+        GtkWidget *dialog;
+
+        dialog = gtk_message_dialog_new(parent, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "Unable to display help: %s", err->message);
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
     }
 
     g_free(uri);

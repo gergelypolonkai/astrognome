@@ -1,6 +1,7 @@
 .deps/
 .libs/
 *~
+*.a
 *.o
 *.lo
 *.la
@@ -72,6 +73,9 @@ Makefile.in
 /help/*/*.stamp
 /help/*/*.page
 !/help/C/*.page
+
+/.anjuta*
+/*.anjuta
 
 #Documentation related files
 /docs/reference/*/*.args

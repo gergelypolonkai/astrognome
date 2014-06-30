@@ -1,6 +1,6 @@
+#include <math.h>
 #include <string.h>
 #include <glib/gi18n.h>
-#include <libgd/gd.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <webkit/webkit.h>
@@ -30,6 +30,7 @@ struct _AgWindowPrivate {
     GtkWidget  *hour;
     GtkWidget  *minute;
     GtkWidget  *second;
+    GtkWidget  *timezone;
     GtkBuilder *builder;
 
     GtkWidget  *tab_chart;
@@ -41,13 +42,12 @@ struct _AgWindowPrivate {
     AgSettings *settings;
     AgChart    *chart;
     gchar      *uri;
+    gboolean   aspect_table_populated;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
 
-G_DEFINE_TYPE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
-
-#define GET_PRIVATE(instance) (G_TYPE_INSTANCE_GET_PRIVATE((instance), AG_TYPE_WINDOW, AgWindowPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
 static void recalculate_chart(AgWindow *window);
 
@@ -83,6 +83,11 @@ ag_window_save_as(AgWindow *window, GError **err)
 
     // We should never enter here, but who knows...
     if (window->priv->chart == NULL) {
+        GtkWidget *dialog;
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("Chart cannot be calculated."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
         g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART, "Chart is empty");
 
         return;
@@ -91,7 +96,13 @@ ag_window_save_as(AgWindow *window, GError **err)
     name = ag_chart_get_name(window->priv->chart);
 
     if ((name == NULL) || (*name == 0)) {
+        GtkWidget *dialog;
+
         g_free(name);
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("You must enter a name before saving a chart."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
         g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME, "No name specified");
 
         return;
@@ -103,8 +114,8 @@ ag_window_save_as(AgWindow *window, GError **err)
     fs = gtk_file_chooser_dialog_new(_("Save Chart"),
                                      GTK_WINDOW(window),
                                      GTK_FILE_CHOOSER_ACTION_SAVE,
-                                     GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
-                                     GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                     _("_Save"), GTK_RESPONSE_ACCEPT,
                                      NULL);
     gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
     gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
@@ -158,20 +169,171 @@ ag_window_save_as_action(GSimpleAction *action, GVariant *parameter, gpointer us
     // TODO: Check err!
 }
 
+static void
+ag_window_export_svg(AgWindow *window, GError **err)
+{
+    gchar     *name;
+    gchar     *file_name;
+    GtkWidget *fs;
+    gint      response;
+
+    recalculate_chart(window);
+
+    // We should never enter here, but who knows...
+    if (window->priv->chart == NULL) {
+        GtkWidget *dialog;
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("Chart cannot be calculated."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+        g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART, "Chart is empty");
+
+        return;
+    }
+
+    name = ag_chart_get_name(window->priv->chart);
+
+    if ((name == NULL) || (*name == 0)) {
+        GtkWidget *dialog;
+
+        g_free(name);
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("You must enter a name before saving a chart."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+        g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME, "No name specified");
+
+        return;
+    }
+
+    file_name = g_strdup_printf("%s.svg", name);
+    g_free(name);
+
+    fs = gtk_file_chooser_dialog_new(_("Export Chart as SVG"),
+                                     GTK_WINDOW(window),
+                                     GTK_FILE_CHOOSER_ACTION_SAVE,
+                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                     _("_Save"), GTK_RESPONSE_ACCEPT,
+                                     NULL);
+    gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
+    gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), TRUE);
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fs), file_name);
+    g_free(file_name);
+
+    response = gtk_dialog_run(GTK_DIALOG(fs));
+    gtk_widget_hide(fs);
+
+    if (response == GTK_RESPONSE_ACCEPT) {
+        GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
+
+        ag_chart_export_svg_to_file(window->priv->chart, file, err);
+    }
+
+    gtk_widget_destroy(fs);
+}
+
+static void
+ag_window_export_svg_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+    AgWindow *window = AG_WINDOW(user_data);
+    GError *err = NULL;
+
+    ag_window_export_svg(window, &err);
+
+    // TODO: Check err!
+}
+
 void
 ag_window_redraw_chart(AgWindow *window)
 {
     GError *err = NULL;
     gchar  *svg_content;
+    GList  *planet_list,
+           *planet1,
+           *planet2;
+    guint  i,
+           j;
 
-    svg_content = ag_chart_create_svg(window->priv->chart, &err);
+    svg_content = ag_chart_create_svg(window->priv->chart, NULL, &err);
 
     if (svg_content == NULL) {
-        g_warning("%s", err->message);
+        GtkWidget *dialog;
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "Unable to draw chart: %s", err->message);
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
     } else {
         webkit_web_view_load_string(WEBKIT_WEB_VIEW(window->priv->tab_chart), svg_content, "image/svg+xml", "UTF-8", "file://");
         g_free(svg_content);
     }
+
+    planet_list = ag_chart_get_planets(window->priv->chart);
+
+    if (window->priv->aspect_table_populated == FALSE) {
+        GList *planet;
+        guint i;
+
+        for (planet = planet_list, i = 0; planet; planet = g_list_next(planet), i++) {
+            GtkWidget *label_hor,
+                      *label_ver;
+            GswePlanet planet_id;
+            GswePlanetData *planet_data;
+            GswePlanetInfo *planet_info;
+
+            planet_id = GPOINTER_TO_INT(planet->data);
+            planet_data = gswe_moment_get_planet(GSWE_MOMENT(window->priv->chart), planet_id, NULL);
+            planet_info = gswe_planet_data_get_planet_info(planet_data);
+
+            label_hor = gtk_label_new(gswe_planet_info_get_name(planet_info));
+            gtk_grid_attach(GTK_GRID(window->priv->tab_aspects), label_hor, i + 1, i, 1, 1);
+
+            if (i > 0) {
+                label_ver = gtk_label_new(gswe_planet_info_get_name(planet_info));
+                gtk_grid_attach(GTK_GRID(window->priv->tab_aspects), label_ver, 0, i, 1, 1);
+            }
+        }
+
+        window->priv->aspect_table_populated = TRUE;
+    }
+
+    for (planet1 = planet_list, i = 0; planet1; planet1 = g_list_next(planet1), i++) {
+        for (planet2 = planet_list, j = 0; planet2; planet2 = g_list_next(planet2), j++) {
+            GsweAspectData *aspect;
+            GError *err = NULL;
+
+            if (GPOINTER_TO_INT(planet1->data) == GPOINTER_TO_INT(planet2->data)) {
+                break;
+            }
+
+            if ((aspect = gswe_moment_get_aspect_by_planets(GSWE_MOMENT(window->priv->chart), GPOINTER_TO_INT(planet1->data), GPOINTER_TO_INT(planet2->data), &err)) != NULL) {
+                GsweAspectInfo *aspect_info;
+                GtkWidget      *aspect_label;
+
+                aspect_info = gswe_aspect_data_get_aspect_info(aspect);
+                aspect_label = gtk_grid_get_child_at(GTK_GRID(window->priv->tab_aspects), j + 1, i);
+
+                if (gswe_aspect_data_get_aspect(aspect) == GSWE_ASPECT_NONE) {
+                    if (aspect_label != NULL) {
+                        gtk_container_remove(GTK_CONTAINER(window->priv->tab_aspects), aspect_label);
+                    }
+                } else {
+                    if (aspect_label == NULL) {
+                        aspect_label = gtk_label_new(gswe_aspect_info_get_name(aspect_info));
+                        gtk_grid_attach(GTK_GRID(window->priv->tab_aspects), aspect_label, j + 1, i, 1, 1);
+                    } else {
+                        gtk_label_set_label(GTK_LABEL(aspect_label), gswe_aspect_info_get_name(aspect_info));
+                    }
+                }
+            } else if (err) {
+                g_warning("%s\n", err->message);
+            } else {
+                g_error("No aspect is returned between two planets. This is a bug in SWE-GLib!\n");
+            }
+        }
+    }
+
+    gtk_widget_show_all(window->priv->tab_aspects);
 }
 
 void
@@ -189,8 +351,19 @@ ag_window_update_from_chart(AgWindow *window)
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->hour), gswe_timestamp_get_gregorian_hour(timestamp, NULL));
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->minute), gswe_timestamp_get_gregorian_minute(timestamp, NULL));
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->second), gswe_timestamp_get_gregorian_second(timestamp, NULL));
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->longitude), coordinates->longitude);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->latitude), coordinates->latitude);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->timezone), gswe_timestamp_get_gregorian_timezone(timestamp));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->longitude), fabs(coordinates->longitude));
+
+    if (coordinates->longitude < 0.0) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(window->priv->west_long), TRUE);
+    }
+
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->latitude), fabs(coordinates->latitude));
+
+    if (coordinates->latitude < 0.0) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(window->priv->south_lat), TRUE);
+    }
+
     gtk_entry_set_text(GTK_ENTRY(window->priv->name), ag_chart_get_name(window->priv->chart));
 
     g_free(coordinates);
@@ -244,19 +417,19 @@ recalculate_chart(AgWindow *window)
         // TODO: make house system configurable
         window->priv->chart = ag_chart_new_full(timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
         g_signal_connect(window->priv->chart, "changed", G_CALLBACK(chart_changed), window);
+        ag_window_redraw_chart(window);
     } else {
         timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(window->priv->chart));
         gswe_timestamp_set_gregorian_full(timestamp, year, month, day, hour, minute, second, 0, 1.0, NULL);
     }
 
     ag_chart_set_name(window->priv->chart, gtk_entry_get_text(GTK_ENTRY(window->priv->name)));
-    ag_window_redraw_chart(window);
 }
 
 static void
-tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
+tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 {
-    const gchar *active_tab_name = gd_stack_get_visible_child_name(stack);
+    const gchar *active_tab_name = gtk_stack_get_visible_child_name(stack);
     GtkWidget   *active_tab;
 
     g_debug("Active tab changed: %s", active_tab_name);
@@ -265,13 +438,18 @@ tab_changed_cb(GdStack *stack, GParamSpec *pspec, AgWindow *window)
         return;
     }
 
-    active_tab = gd_stack_get_visible_child(stack);
+    active_tab = gtk_stack_get_visible_child(stack);
 
     if (strcmp("chart", active_tab_name) == 0) {
         gtk_widget_set_size_request(active_tab, 600, 600);
     }
 
-    // Note that priv->current_tab is actually the previously selected tab, not the real active one!
+    // If we are coming from the Edit tab, let’s assume the chart data has
+    // changed. This is a bad idea, though, it should be checked instead!
+    // (TODO)
+
+    // Note that priv->current_tab is actually the previously selected tab, not
+    // the real active one!
     if (window->priv->current_tab == window->priv->tab_edit) {
         recalculate_chart(window);
     }
@@ -285,7 +463,7 @@ ag_window_change_tab_action(GSimpleAction *action, GVariant *parameter, gpointer
     AgWindow    *window     = user_data;
     const gchar *target_tab = g_variant_get_string(parameter, NULL);
 
-    gd_stack_set_visible_child_name(GD_STACK(window->priv->stack), target_tab);
+    gtk_stack_set_visible_child_name(GTK_STACK(window->priv->stack), target_tab);
     g_action_change_state(G_ACTION(action), parameter);
 }
 
@@ -293,6 +471,7 @@ static GActionEntry win_entries[] = {
     { "close",      ag_window_close_action,      NULL, NULL,      NULL },
     { "save",       ag_window_save_action,       NULL, NULL,      NULL },
     { "save-as",    ag_window_save_as_action,    NULL, NULL,      NULL },
+    { "export-svg", ag_window_export_svg_action, NULL, NULL,      NULL },
     { "gear-menu",  ag_window_gear_menu_action,  NULL, "false",   NULL },
     { "change-tab", ag_window_change_tab_action, "s",  "'edit'",  NULL },
 };
@@ -304,7 +483,7 @@ ag_window_init(AgWindow *window)
     GtkAccelGroup   *accel_group;
     GError          *err = NULL;
 
-    window->priv = priv = GET_PRIVATE(window);
+    window->priv = priv = ag_window_get_instance_private(window);
 
     priv->chart    = NULL;
     priv->uri      = NULL;
@@ -347,7 +526,6 @@ ag_window_class_init(AgWindowClass *klass)
 {
     GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
 
-    g_type_class_add_private(klass, sizeof(AgWindowPrivate));
     gobject_class->dispose = ag_window_dispose;
 }
 
@@ -441,6 +619,14 @@ notebook_edit(AgWindow *window)
     gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->second), 0);
     gtk_grid_attach(GTK_GRID(grid), priv->second, 6, 4, 1, 1);
 
+    label = gtk_label_new(_("Timezone"));
+    gtk_grid_attach(GTK_GRID(grid), label, 4, 5, 1, 1);
+
+    priv->timezone = gtk_spin_button_new_with_range(-12.0, 12.0, 1.0);
+    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->timezone), 1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->timezone), 0.0);
+    gtk_grid_attach(GTK_GRID(grid), priv->timezone, 5, 5, 1, 1);
+
     gtk_widget_show_all(grid);
 
     return grid;
@@ -456,56 +642,60 @@ static void
 window_populate(AgWindow *window)
 {
     AgWindowPrivate *priv = window->priv;
-    GtkWidget       *menu_button;
-    GtkWidget       *scroll;
+    GtkWidget       *menu_button,
+                    *scroll;
     GObject         *menu;
 
-    priv->header_bar = gd_header_bar_new();
+    priv->header_bar = gtk_header_bar_new();
     gtk_widget_set_hexpand(priv->header_bar, TRUE);
-    menu_button = gd_header_menu_button_new();
-    gd_header_button_set_symbolic_icon_name(GD_HEADER_BUTTON(menu_button), "emblem-system-symbolic");
+    menu_button = gtk_menu_button_new();
     gtk_actionable_set_action_name(GTK_ACTIONABLE(menu_button), "win.gear-menu");
 
-    gd_header_bar_pack_end(GD_HEADER_BAR(priv->header_bar), menu_button);
+    gtk_header_bar_pack_end(GTK_HEADER_BAR(priv->header_bar), menu_button);
 
     gtk_grid_attach(GTK_GRID(priv->grid), priv->header_bar, 0, 0, 1, 1);
 
     menu = gtk_builder_get_object(priv->builder, "window-menu");
     gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menu_button), G_MENU_MODEL(menu));
 
-    priv->stack = gd_stack_new();
+    priv->stack = gtk_stack_new();
     gtk_widget_set_hexpand(priv->stack, TRUE);
     gtk_widget_set_vexpand(priv->stack, TRUE);
     gtk_grid_attach(GTK_GRID(priv->grid), priv->stack, 0, 1, 1, 1);
     g_signal_connect(priv->stack, "notify::visible-child", G_CALLBACK(tab_changed_cb), window);
 
-    priv->stack_switcher = gd_stack_switcher_new();
-    gd_stack_switcher_set_stack(GD_STACK_SWITCHER(priv->stack_switcher), GD_STACK(priv->stack));
+    priv->stack_switcher = gtk_stack_switcher_new();
+    gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(priv->stack_switcher), GTK_STACK(priv->stack));
 
     priv->tab_edit = notebook_edit(window);
-    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_edit, "edit", _("Edit"));
+    gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_edit, "edit", _("Edit"));
 
     scroll = gtk_scrolled_window_new(NULL, NULL);
     g_object_set(scroll, "shadow-type", GTK_SHADOW_IN, NULL);
-    gd_stack_add_titled(GD_STACK(priv->stack), scroll, "chart", _("Chart"));
+    gtk_stack_add_titled(GTK_STACK(priv->stack), scroll, "chart", _("Chart"));
 
     priv->tab_chart = webkit_web_view_new();
     g_signal_connect(priv->tab_chart, "context-menu", G_CALLBACK(ag_window_chart_context_cb), NULL);
     gtk_container_add(GTK_CONTAINER(scroll), priv->tab_chart);
+    // TODO: Although this is never shown to the user, it should be translatable!
     webkit_web_view_load_string(WEBKIT_WEB_VIEW(priv->tab_chart), "<html><head><title>No Chart</title></head><body><h1>No Chart</h1><p>No chart is loaded. Create one on the edit view, or open one from the application menu!</p></body></html>", "text/html", "UTF-8", NULL);
     gtk_widget_set_size_request(priv->tab_chart, 600, 600);
 
-    priv->tab_aspects = gtk_label_new("PLACEHOLDER FOR THE ASPECTS TABLE");
-    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_aspects, "aspects", _("Aspects"));
+    scroll = gtk_scrolled_window_new(NULL, NULL);
+    g_object_set(scroll, "shadow-type", GTK_SHADOW_NONE, NULL);
+    gtk_stack_add_titled(GTK_STACK(priv->stack), scroll, "aspects", _("Aspects"));
+
+    priv->tab_aspects = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(scroll), priv->tab_aspects);
 
     priv->tab_points = gtk_label_new("PLACEHOLDER FOR THE POINTS TABLES");
-    gd_stack_add_titled(GD_STACK(priv->stack), priv->tab_points, "points", _("Points"));
+    gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_points, "points", _("Points"));
 
     /* TODO: change to the Chart tab if we are opening an existing chart! */
-    gd_stack_set_visible_child_name(GD_STACK(priv->stack), "edit");
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
     priv->current_tab = priv->tab_edit;
 
-    gd_header_bar_set_custom_title(GD_HEADER_BAR(priv->header_bar), priv->stack_switcher);
+    gtk_header_bar_set_custom_title(GTK_HEADER_BAR(priv->header_bar), priv->stack_switcher);
 
     gtk_widget_show_all(priv->grid);
 }

@@ -523,7 +523,7 @@
                         <line id="descendent" x1="-320" y1="0" x2="-50" y2="0" transform="rotate(-103.432962,0,0)" class="axis">
                             <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', $asc, ')')" /></xsl:attribute>
                         </line>
-                        <line id="ascendent" x1="50" y1="0" x2="320" y2="0" class="axis axis-end">
+                        <line id="ascendant" x1="50" y1="0" x2="320" y2="0" class="axis axis-end">
                             <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', $asc, ')')" /></xsl:attribute>
                         </line>
                         <xsl:variable name="mc" select="chartinfo/ascmcs/mc/@degree_ut"/>
@@ -597,7 +597,7 @@
                                 <xsl:variable name="planet1" select="@body1"/>
                                 <xsl:variable name="deg1">
                                     <xsl:choose>
-                                        <xsl:when test="$planet1='GSWE_PLANET_ASCENDENT'">
+                                        <xsl:when test="$planet1='GSWE_PLANET_ASCENDANT'">
                                             <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
                                         </xsl:when>
                                         <xsl:when test="$planet1='GSWE_PLANET_MC'">
@@ -618,7 +618,7 @@
                                 <xsl:variable name="planet2" select="@body2"/>
                                 <xsl:variable name="deg2">
                                     <xsl:choose>
-                                        <xsl:when test="$planet2='GSWE_PLANET_ASCENDENT'">
+                                        <xsl:when test="$planet2='GSWE_PLANET_ASCENDANT'">
                                             <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
                                         </xsl:when>
                                         <xsl:when test="$planet2='GSWE_PLANET_MC'">
@@ -650,7 +650,7 @@
                                 <xsl:variable name="planet1" select="@body1"/>
                                 <xsl:variable name="deg1">
                                     <xsl:choose>
-                                        <xsl:when test="$planet1='GSWE_PLANET_ASCENDENT'">
+                                        <xsl:when test="$planet1='GSWE_PLANET_ASCENDANT'">
                                             <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
                                         </xsl:when>
                                         <xsl:when test="$planet1='GSWE_PLANET_MC'">
@@ -671,7 +671,7 @@
                                 <xsl:variable name="planet2" select="@body2"/>
                                 <xsl:variable name="deg2">
                                     <xsl:choose>
-                                        <xsl:when test="$planet2='GSWE_PLANET_ASCENDENT'">
+                                        <xsl:when test="$planet2='GSWE_PLANET_ASCENDANT'">
                                             <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
                                         </xsl:when>
                                         <xsl:when test="$planet2='GSWE_PLANET_MC'">

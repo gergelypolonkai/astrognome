@@ -27,23 +27,16 @@ GTK_DOC_CHECK([1.19], [--flavour no-tmpl])
 PKG_PROG_PKG_CONFIG
 GLIB_GSETTINGS
 AC_PATH_PROG([GLIB_MKENUMS], [glib-mkenums])
-PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.30])
+PKG_CHECK_MODULES([GLIB], [glib-2.0 >= 2.38])
 PKG_CHECK_MODULES([GOBJECT], [gobject-2.0])
 PKG_CHECK_MODULES([GTK], [gtk+-3.0 >= 3.8])
 PKG_CHECK_MODULES([LIBXML], [libxml-2.0])
 PKG_CHECK_MODULES([LIBXSLT], [libexslt])
 PKG_CHECK_MODULES([WEBKIT], [webkitgtk-3.0])
-PKG_CHECK_MODULES([SWE_GLIB], [swe-glib])
-
-LIBGD_INIT([
-    header-bar
-    stack
-    static
-])
+PKG_CHECK_MODULES([SWE_GLIB], [swe-glib >= 2.0.0])
 
 AC_CONFIG_FILES([
     Makefile
-    libgd/Makefile
     src/Makefile
     help/Makefile
     po/Makefile.in
