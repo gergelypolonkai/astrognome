@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/eu/polonkai/gergely/astrognome">
     <file>astrognome.ui</file>
+    <file>ag-preferences.ui</file>
   </gresource>
 </gresources>

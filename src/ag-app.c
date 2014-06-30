@@ -63,7 +63,11 @@ new_window_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 static void
 preferences_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-   ag_preferences_show_dialog();
+    AgApp *app = AG_APP(user_data);
+    GtkWindow *window;
+
+    window = ag_app_peek_first_window(app);
+    ag_preferences_show_dialog(window);
 }
 
 static void

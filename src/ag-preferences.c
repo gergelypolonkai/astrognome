@@ -1,43 +1,77 @@
-#include <glib.h>
 #include <gtk/gtk.h>
 
 #include "ag-settings.h"
+#include "ag-preferences.h"
 
-typedef struct {
-    GtkWidget  *dialog;
+static GtkWidget *prefs_dialog = NULL;
+
+typedef struct _AgPreferencesPrivate {
+    GtkCheckButton *maximized;
     AgSettings *settings;
-} AgPreferences;
+} AgPreferencesPrivate;
 
-static AgPreferences *prefs;
+G_DEFINE_TYPE_WITH_PRIVATE(AgPreferences, ag_preferences, GTK_TYPE_DIALOG);
 
 static void
-ag_preferences_init(void)
+ag_preferences_finalize(GObject *gobject)
 {
-    GApplication *app;
+    AgPreferencesPrivate *priv;
 
-    if (prefs) {
-        return;
-    }
+    priv = ag_preferences_get_instance_private(AG_PREFERENCES(gobject));
 
-    if ((app = g_application_get_default()) == NULL) {
-        g_warning("Cannot launch preferences: No default application found");
+    g_clear_object(&priv->settings);
 
-        return;
-    }
+    G_OBJECT_CLASS(ag_preferences_parent_class)->finalize(gobject);
+}
 
-    prefs = g_new0(AgPreferences, 1);
-    prefs->settings = ag_settings_get();
+static void
+ag_preferences_response(GtkDialog *dlg, gint response_id)
+{
+    gtk_widget_destroy(GTK_WIDGET(dlg));
+}
+
+static void
+ag_preferences_class_init(AgPreferencesClass *klass)
+{
+    GObjectClass   *object_class = G_OBJECT_CLASS(klass);
+    GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+    GtkDialogClass *dialog_class = GTK_DIALOG_CLASS(klass);
+
+    object_class->finalize = ag_preferences_finalize;
+    dialog_class->response = ag_preferences_response;
+
+    gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/astrognome/ag-preferences.ui");
+    gtk_widget_class_bind_template_child_private(widget_class, AgPreferences, maximized);
+}
+
+static void
+ag_preferences_init(AgPreferences *prefs)
+{
+    AgPreferencesPrivate *priv;
+    GSettings            *settings_window;
+
+    priv = ag_preferences_get_instance_private(prefs);
+    gtk_widget_init_template(GTK_WIDGET(prefs));
+
+    priv->settings = ag_settings_get();
+
+    settings_window = ag_settings_peek_window_settings(priv->settings);
+    g_settings_bind(settings_window, "maximized", priv->maximized, "active", G_SETTINGS_BIND_DEFAULT);
 }
 
 void
-ag_preferences_show_dialog(void)
+ag_preferences_show_dialog(GtkWindow *parent)
 {
-    ag_preferences_init();
+    g_return_if_fail(GTK_IS_WINDOW(parent));
 
-    if (prefs->dialog != NULL) {
-        gtk_window_present(GTK_WINDOW(prefs->dialog));
-
-        return;
+    if (prefs_dialog == NULL) {
+        prefs_dialog = GTK_WIDGET(g_object_new(AG_TYPE_PREFERENCES, NULL));
+        g_signal_connect(prefs_dialog, "destroy", G_CALLBACK(gtk_widget_destroyed), &prefs_dialog);
     }
-}
 
+    if (parent != gtk_window_get_transient_for(GTK_WINDOW(prefs_dialog))) {
+        gtk_window_set_transient_for(GTK_WINDOW(prefs_dialog), parent);
+    }
+
+    gtk_window_present(GTK_WINDOW(prefs_dialog));
+}
