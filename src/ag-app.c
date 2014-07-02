@@ -126,7 +126,7 @@ ag_app_open_chart(AgApp *app, GFile *file)
     uri = g_file_get_uri(file);
     ag_window_set_uri(AG_WINDOW(window), uri);
     g_free(uri);
-    ag_window_open_chart_tab(window);
+    ag_window_open_chart_tab(AG_WINDOW(window));
 }
 
 static void
