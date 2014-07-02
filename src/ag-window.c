@@ -691,7 +691,6 @@ window_populate(AgWindow *window)
     priv->tab_points = gtk_label_new("PLACEHOLDER FOR THE POINTS TABLES");
     gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_points, "points", _("Points"));
 
-    /* TODO: change to the Chart tab if we are opening an existing chart! */
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
     priv->current_tab = priv->tab_edit;
 
