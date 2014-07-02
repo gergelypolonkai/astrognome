@@ -813,3 +813,8 @@ ag_window_settings_save(GtkWindow *window, GSettings *settings)
     g_settings_set_int(settings, "height", height);
 }
 
+void
+ag_window_open_chart_tab(AgWindow *window)
+{
+    gtk_stack_set_visible_child_name(GTK_STACK(window->priv->stack), "chart");
+}
