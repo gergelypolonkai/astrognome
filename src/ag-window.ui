@@ -2,6 +2,34 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
+  <menu id="view_menu">
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Edit</attribute>
+          <attribute name="action">win.change-tab</attribute>
+          <attribute name="accel">&lt;F3&gt;</attribute>
+          <attribute name="target">edit</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Chart</attribute>
+          <attribute name="action">win.change-tab</attribute>
+          <attribute name="accel">&lt;F5&gt;</attribute>
+          <attribute name="target">chart</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Aspects</attribute>
+          <attribute name="action">win.change-tab</attribute>
+          <attribute name="accel">&lt;F6&gt;</attribute>
+          <attribute name="target">aspects</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Points</attribute>
+          <attribute name="action">win.change-tab</attribute>
+          <attribute name="accel">&lt;F7&gt;</attribute>
+          <attribute name="target">points</attribute>
+        </item>
+    </section>
+  </menu>
   <menu id="gear_menu">
     <section>
       <item>
@@ -87,7 +115,6 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="vexpand">False</property>
-        <property name="hexpand">True</property>
         <property name="show_close_button">True</property>
         <child>
           <object class="GtkBox" id="box">
@@ -97,37 +124,53 @@
             <style>
               <class name="linked"/>
             </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkMenuButton">
+            <property name="visible">True</property>
+            <property name="valign">center</property>
+            <property name="can_focus">False</property>
+            <property name="action_name">win.gear-menu</property>
+            <property name="menu_model">gear_menu</property>
+            <property name="use_popover">True</property>
+            <style>
+              <class name="image-button"/>
+            </style>
             <child>
-              <object class="GtkStackSwitcher">
+              <object class="GtkImage" id="gear_image">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="stack">stack</property>
+                <property name="icon_size">1</property>
+                <property name="icon_name">emblem-system-symbolic</property>
               </object>
-            </child>
-            <child>
-              <object class="GtkMenuButton">
-                <property name="visible">True</property>
-                <property name="valign">center</property>
-                <property name="can_focus">False</property>
-                <property name="action_name">win.gear-menu</property>
-                <property name="menu_model">gear_menu</property>
-                <property name="use_popover">True</property>
-                <style>
-                  <class name="image-button"/>
-                </style>
-                <child>
-                  <object class="GtkImage" id="gear_image">
-                    <property name="visible">True</property>
-                    <property name="icon_size">1</property>
-                    <property name="icon_name">emblem-system-symbolic</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="pack_type">end</property>
-              </packing>
             </child>
           </object>
+          <packing>
+            <property name="pack_type">end</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkMenuButton">
+            <property name="visible">True</property>
+            <property name="valign">center</property>
+            <property name="can_focus">False</property>
+            <property name="action_name">win.view-menu</property>
+            <property name="menu_model">view_menu</property>
+            <property name="use_popover">True</property>
+            <style>
+              <class name="image-button"/>
+            </style>
+            <child>
+              <object class="GtkImage" id="view_image">
+                <property name="visible">True</property>
+                <property name="icon_size">1</property>
+                <property name="icon_name">document-properties-symbolic</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="pack_type">end</property>
+          </packing>
         </child>
       </object>
     </child>
