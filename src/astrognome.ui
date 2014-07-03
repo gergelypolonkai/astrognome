@@ -33,31 +33,4 @@
             </item>
         </section>
     </menu>
-    <menu id="window-menu">
-        <section>
-            <item>
-                <attribute name="label" translatable="yes">Save</attribute>
-                <attribute name="action">win.save</attribute>
-                <attribute name="accel">&lt;Primary&gt;s</attribute>
-            </item>
-            <item>
-                <attribute name="label" translatable="yes">Save as…</attribute>
-                <attribute name="action">win.save-as</attribute>
-                <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;s</attribute>
-            </item>
-        </section>
-        <section>
-            <item>
-                <attribute name="label" translatable="yes">Export as SVG</attribute>
-                <attribute name="action">win.export-svg</attribute>
-            </item>
-        </section>
-        <section>
-            <item>
-                <attribute name="label" translatable="yes">Close</attribute>
-                <attribute name="action">win.close</attribute>
-                <attribute name="accel">&lt;Primary&gt;w</attribute>
-            </item>
-        </section>
-    </menu>
 </interface>

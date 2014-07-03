@@ -13,36 +13,39 @@
 #include "ag-settings.h"
 
 struct _AgWindowPrivate {
-    GtkWidget  *grid;
-    GtkWidget  *header_bar;
-    GtkWidget  *stack;
-    GtkWidget  *stack_switcher;
-    GtkWidget  *name;
-    GtkWidget  *north_lat;
-    GtkWidget  *south_lat;
-    GtkWidget  *latitude;
-    GtkWidget  *east_long;
-    GtkWidget  *west_long;
-    GtkWidget  *longitude;
-    GtkWidget  *year;
-    GtkWidget  *month;
-    GtkWidget  *day;
-    GtkWidget  *hour;
-    GtkWidget  *minute;
-    GtkWidget  *second;
-    GtkWidget  *timezone;
-    GtkBuilder *builder;
+    GtkWidget     *grid;
+    GtkWidget     *stack;
+    GtkWidget     *stack_switcher;
+    GtkWidget     *name;
+    GtkWidget     *north_lat;
+    GtkWidget     *south_lat;
+    GtkWidget     *latitude;
+    GtkWidget     *east_long;
+    GtkWidget     *west_long;
+    GtkWidget     *longitude;
+    GtkWidget     *year;
+    GtkWidget     *month;
+    GtkWidget     *day;
+    GtkWidget     *hour;
+    GtkWidget     *minute;
+    GtkWidget     *second;
+    GtkWidget     *timezone;
+    GtkBuilder    *builder;
 
-    GtkWidget  *tab_chart;
-    GtkWidget  *tab_aspects;
-    GtkWidget  *tab_points;
-    GtkWidget  *tab_edit;
-    GtkWidget  *current_tab;
+    GtkWidget     *tab_chart;
+    GtkWidget     *tab_aspects;
+    GtkWidget     *tab_points;
+    GtkWidget     *tab_edit;
+    GtkWidget     *current_tab;
 
-    AgSettings *settings;
-    AgChart    *chart;
-    gchar      *uri;
-    gboolean   aspect_table_populated;
+    GtkWidget     *aspect_table;
+    GtkWidget     *chart_web_view;
+    GtkAdjustment *year_adjust;
+
+    AgSettings    *settings;
+    AgChart       *chart;
+    gchar         *uri;
+    gboolean      aspect_table_populated;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -264,7 +267,7 @@ ag_window_redraw_chart(AgWindow *window)
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
     } else {
-        webkit_web_view_load_string(WEBKIT_WEB_VIEW(window->priv->tab_chart), svg_content, "image/svg+xml", "UTF-8", "file://");
+        webkit_web_view_load_string(WEBKIT_WEB_VIEW(window->priv->chart_web_view), svg_content, "image/svg+xml", "UTF-8", "file://");
         g_free(svg_content);
     }
 
@@ -286,11 +289,11 @@ ag_window_redraw_chart(AgWindow *window)
             planet_info = gswe_planet_data_get_planet_info(planet_data);
 
             label_hor = gtk_label_new(gswe_planet_info_get_name(planet_info));
-            gtk_grid_attach(GTK_GRID(window->priv->tab_aspects), label_hor, i + 1, i, 1, 1);
+            gtk_grid_attach(GTK_GRID(window->priv->aspect_table), label_hor, i + 1, i, 1, 1);
 
             if (i > 0) {
                 label_ver = gtk_label_new(gswe_planet_info_get_name(planet_info));
-                gtk_grid_attach(GTK_GRID(window->priv->tab_aspects), label_ver, 0, i, 1, 1);
+                gtk_grid_attach(GTK_GRID(window->priv->aspect_table), label_ver, 0, i, 1, 1);
             }
         }
 
@@ -311,16 +314,16 @@ ag_window_redraw_chart(AgWindow *window)
                 GtkWidget      *aspect_label;
 
                 aspect_info = gswe_aspect_data_get_aspect_info(aspect);
-                aspect_label = gtk_grid_get_child_at(GTK_GRID(window->priv->tab_aspects), j + 1, i);
+                aspect_label = gtk_grid_get_child_at(GTK_GRID(window->priv->aspect_table), j + 1, i);
 
                 if (gswe_aspect_data_get_aspect(aspect) == GSWE_ASPECT_NONE) {
                     if (aspect_label != NULL) {
-                        gtk_container_remove(GTK_CONTAINER(window->priv->tab_aspects), aspect_label);
+                        gtk_container_remove(GTK_CONTAINER(window->priv->aspect_table), aspect_label);
                     }
                 } else {
                     if (aspect_label == NULL) {
                         aspect_label = gtk_label_new(gswe_aspect_info_get_name(aspect_info));
-                        gtk_grid_attach(GTK_GRID(window->priv->tab_aspects), aspect_label, j + 1, i, 1, 1);
+                        gtk_grid_attach(GTK_GRID(window->priv->aspect_table), aspect_label, j + 1, i, 1, 1);
                     } else {
                         gtk_label_set_label(GTK_LABEL(aspect_label), gswe_aspect_info_get_name(aspect_info));
                     }
@@ -333,7 +336,7 @@ ag_window_redraw_chart(AgWindow *window)
         }
     }
 
-    gtk_widget_show_all(window->priv->tab_aspects);
+    gtk_widget_show_all(window->priv->aspect_table);
 }
 
 void
@@ -426,8 +429,8 @@ recalculate_chart(AgWindow *window)
     ag_chart_set_name(window->priv->chart, gtk_entry_get_text(GTK_ENTRY(window->priv->name)));
 }
 
-static void
-tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
+void
+ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 {
     const gchar *active_tab_name = gtk_stack_get_visible_child_name(stack);
     GtkWidget   *active_tab;
@@ -481,28 +484,34 @@ ag_window_init(AgWindow *window)
 {
     AgWindowPrivate *priv;
     GtkAccelGroup   *accel_group;
-    GError          *err = NULL;
+
+    gtk_widget_init_template(GTK_WIDGET(window));
 
     window->priv = priv = ag_window_get_instance_private(window);
+
+    webkit_web_view_load_string(
+            WEBKIT_WEB_VIEW(priv->chart_web_view),
+            "<html>" \
+                "<head>" \
+                    "<title>No Chart</title>" \
+                "</head>" \
+                "<body>" \
+                    "<h1>No Chart</h1>" \
+                    "<p>No chart is loaded. Create one on the edit view, or open one from the application menu!</p>" \
+                "</body>" \
+            "</html>",
+            "text/html", "UTF-8", NULL);
+
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
+    priv->current_tab = priv->tab_edit;
+    g_object_set(priv->year_adjust, "lower", (gdouble)G_MININT, "upper", (gdouble)G_MAXINT, NULL);
+    //TODO: gtk_header_bar_set_custom_title(GTK_HEADER_BAR(priv->header_bar), priv->stack_switcher);
 
     priv->chart    = NULL;
     priv->uri      = NULL;
     priv->settings = ag_settings_get();
 
     gtk_window_set_hide_titlebar_when_maximized(GTK_WINDOW(window), TRUE);
-
-    priv->builder = gtk_builder_new();
-
-    if (!gtk_builder_add_from_resource(priv->builder, "/eu/polonkai/gergely/astrognome/astrognome.ui", &err)) {
-        g_error("Cannot add resource to builder: '%s'", (err) ? err->message : "unknown error");
-        g_clear_error(&err);
-    }
-
-    priv->grid = gtk_grid_new();
-    gtk_orientable_set_orientation(GTK_ORIENTABLE(priv->grid), GTK_ORIENTATION_VERTICAL);
-    gtk_widget_show(priv->grid);
-
-    gtk_container_add(GTK_CONTAINER(window), priv->grid);
 
     g_action_map_add_action_entries(G_ACTION_MAP(window), win_entries, G_N_ELEMENTS(win_entries), window);
 
@@ -524,179 +533,36 @@ ag_window_dispose(GObject *gobject)
 static void
 ag_window_class_init(AgWindowClass *klass)
 {
-    GObjectClass *gobject_class = G_OBJECT_CLASS(klass);
+    GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
+    GtkWidgetClass *widget_class  = GTK_WIDGET_CLASS(klass);
 
     gobject_class->dispose = ag_window_dispose;
+
+    gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/astrognome/ag-window.ui");
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, name);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, month);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, day);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, hour);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, minute);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, second);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, timezone);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, north_lat);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, south_lat);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, east_long);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, west_long);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, latitude);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, longitude);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, chart_web_view);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, aspect_table);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year_adjust);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, stack);
 }
 
-static GtkWidget *
-notebook_edit(AgWindow *window)
-{
-    GtkWidget       *grid;
-    GtkWidget       *label;
-    AgWindowPrivate *priv = window->priv;
-
-    grid = gtk_grid_new();
-
-    label = gtk_label_new(_("Name"));
-    gtk_grid_attach(GTK_GRID(grid), label, 0, 0, 1, 1);
-
-    priv->name = gtk_entry_new();
-    gtk_grid_attach(GTK_GRID(grid), priv->name, 1, 0, 6, 1);
-
-    label = gtk_label_new(_("Country"));
-    gtk_grid_attach(GTK_GRID(grid), label, 0, 1, 1, 1);
-
-    label = gtk_label_new(_("City"));
-    gtk_grid_attach(GTK_GRID(grid), label, 0, 2, 1, 1);
-
-    label = gtk_label_new(_("Latitude"));
-    gtk_grid_attach(GTK_GRID(grid), label, 0, 3, 2, 1);
-
-    priv->north_lat = gtk_radio_button_new_with_label(NULL, _("North"));
-    gtk_grid_attach(GTK_GRID(grid), priv->north_lat, 0, 4, 1, 1);
-
-    priv->south_lat = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(priv->north_lat), _("South"));
-    gtk_grid_attach(GTK_GRID(grid), priv->south_lat, 1, 4, 1, 1);
-
-    priv->latitude = gtk_spin_button_new_with_range(0.0, 90.0, 0.1);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->latitude), 6);
-    gtk_grid_attach(GTK_GRID(grid), priv->latitude, 0, 5, 2, 1);
-
-    label = gtk_label_new(_("Longitude"));
-    gtk_grid_attach(GTK_GRID(grid), label, 2, 3, 2, 1);
-
-    priv->east_long = gtk_radio_button_new_with_label(NULL, _("East"));
-    gtk_grid_attach(GTK_GRID(grid), priv->east_long, 2, 4, 1, 1);
-
-    priv->west_long = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(priv->east_long), _("West"));
-    gtk_grid_attach(GTK_GRID(grid), priv->west_long, 3, 4, 1, 1);
-
-    priv->longitude = gtk_spin_button_new_with_range(0.0, 180.0, 0.1);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->longitude), 6);
-    gtk_grid_attach(GTK_GRID(grid), priv->longitude, 2, 5, 2, 1);
-
-    label = gtk_label_new(_("Year"));
-    gtk_grid_attach(GTK_GRID(grid), label, 4, 1, 1, 1);
-
-    priv->year = gtk_spin_button_new_with_range(G_MININT, G_MAXINT, 1);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->year), 0);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->year), 0);
-    gtk_grid_attach(GTK_GRID(grid), priv->year, 4, 2, 1, 1);
-
-    label = gtk_label_new(_("Month"));
-    gtk_grid_attach(GTK_GRID(grid), label, 5, 1, 1, 1);
-
-    priv->month = gtk_spin_button_new_with_range(1, 12, 1);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->month), 0);
-    gtk_grid_attach(GTK_GRID(grid), priv->month, 5, 2, 1, 1);
-
-    label = gtk_label_new(_("Day"));
-    gtk_grid_attach(GTK_GRID(grid), label, 6, 1, 1, 1);
-
-    priv->day = gtk_spin_button_new_with_range(1, 31, 1);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->day), 0);
-    gtk_grid_attach(GTK_GRID(grid), priv->day, 6, 2, 1, 1);
-
-    label = gtk_label_new(_("Hour"));
-    gtk_grid_attach(GTK_GRID(grid), label, 4, 3, 1, 1);
-
-    priv->hour = gtk_spin_button_new_with_range(0, 23, 1);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->hour), 0);
-    gtk_grid_attach(GTK_GRID(grid), priv->hour, 4, 4, 1, 1);
-
-    label = gtk_label_new(_("Minute"));
-    gtk_grid_attach(GTK_GRID(grid), label, 5, 3, 1, 1);
-
-    priv->minute = gtk_spin_button_new_with_range(0, 59, 1);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->minute), 0);
-    gtk_grid_attach(GTK_GRID(grid), priv->minute, 5, 4, 1, 1);
-
-    label = gtk_label_new(_("Second"));
-    gtk_grid_attach(GTK_GRID(grid), label, 6, 3, 1, 1);
-
-    priv->second = gtk_spin_button_new_with_range(0, 61, 1);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->second), 0);
-    gtk_grid_attach(GTK_GRID(grid), priv->second, 6, 4, 1, 1);
-
-    label = gtk_label_new(_("Timezone"));
-    gtk_grid_attach(GTK_GRID(grid), label, 4, 5, 1, 1);
-
-    priv->timezone = gtk_spin_button_new_with_range(-12.0, 12.0, 1.0);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(priv->timezone), 1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->timezone), 0.0);
-    gtk_grid_attach(GTK_GRID(grid), priv->timezone, 5, 5, 1, 1);
-
-    gtk_widget_show_all(grid);
-
-    return grid;
-}
-
-static gboolean
+gboolean
 ag_window_chart_context_cb(WebKitWebView *web_view, GtkWidget *default_menu, WebKitHitTestResult *hit_test_result, gboolean triggered_with_keyboard, gpointer user_data)
 {
     return TRUE;
-}
-
-static void
-window_populate(AgWindow *window)
-{
-    AgWindowPrivate *priv = window->priv;
-    GtkWidget       *menu_button,
-                    *scroll;
-    GObject         *menu;
-
-    priv->header_bar = gtk_header_bar_new();
-    gtk_widget_set_hexpand(priv->header_bar, TRUE);
-    menu_button = gtk_menu_button_new();
-    gtk_actionable_set_action_name(GTK_ACTIONABLE(menu_button), "win.gear-menu");
-
-    gtk_header_bar_pack_end(GTK_HEADER_BAR(priv->header_bar), menu_button);
-
-    gtk_grid_attach(GTK_GRID(priv->grid), priv->header_bar, 0, 0, 1, 1);
-
-    menu = gtk_builder_get_object(priv->builder, "window-menu");
-    gtk_menu_button_set_menu_model(GTK_MENU_BUTTON(menu_button), G_MENU_MODEL(menu));
-
-    priv->stack = gtk_stack_new();
-    gtk_widget_set_hexpand(priv->stack, TRUE);
-    gtk_widget_set_vexpand(priv->stack, TRUE);
-    gtk_grid_attach(GTK_GRID(priv->grid), priv->stack, 0, 1, 1, 1);
-    g_signal_connect(priv->stack, "notify::visible-child", G_CALLBACK(tab_changed_cb), window);
-
-    priv->stack_switcher = gtk_stack_switcher_new();
-    gtk_stack_switcher_set_stack(GTK_STACK_SWITCHER(priv->stack_switcher), GTK_STACK(priv->stack));
-
-    priv->tab_edit = notebook_edit(window);
-    gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_edit, "edit", _("Edit"));
-
-    scroll = gtk_scrolled_window_new(NULL, NULL);
-    g_object_set(scroll, "shadow-type", GTK_SHADOW_IN, NULL);
-    gtk_stack_add_titled(GTK_STACK(priv->stack), scroll, "chart", _("Chart"));
-
-    priv->tab_chart = webkit_web_view_new();
-    g_signal_connect(priv->tab_chart, "context-menu", G_CALLBACK(ag_window_chart_context_cb), NULL);
-    gtk_container_add(GTK_CONTAINER(scroll), priv->tab_chart);
-    // TODO: Although this is never shown to the user, it should be translatable!
-    webkit_web_view_load_string(WEBKIT_WEB_VIEW(priv->tab_chart), "<html><head><title>No Chart</title></head><body><h1>No Chart</h1><p>No chart is loaded. Create one on the edit view, or open one from the application menu!</p></body></html>", "text/html", "UTF-8", NULL);
-    gtk_widget_set_size_request(priv->tab_chart, 600, 600);
-
-    scroll = gtk_scrolled_window_new(NULL, NULL);
-    g_object_set(scroll, "shadow-type", GTK_SHADOW_NONE, NULL);
-    gtk_stack_add_titled(GTK_STACK(priv->stack), scroll, "aspects", _("Aspects"));
-
-    priv->tab_aspects = gtk_grid_new();
-    gtk_container_add(GTK_CONTAINER(scroll), priv->tab_aspects);
-
-    priv->tab_points = gtk_label_new("PLACEHOLDER FOR THE POINTS TABLES");
-    gtk_stack_add_titled(GTK_STACK(priv->stack), priv->tab_points, "points", _("Points"));
-
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
-    priv->current_tab = priv->tab_edit;
-
-    gtk_header_bar_set_custom_title(GTK_HEADER_BAR(priv->header_bar), priv->stack_switcher);
-
-    gtk_widget_show_all(priv->grid);
 }
 
 static gboolean
@@ -717,8 +583,6 @@ ag_window_new(AgApp *app)
     window = g_object_new(AG_TYPE_WINDOW, NULL);
 
     gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
-
-    window_populate(window);
 
     gtk_window_set_icon_name(GTK_WINDOW(window), "astrognome");
     g_signal_connect(window, "configure-event", G_CALLBACK(ag_window_configure_event_cb), NULL);
