@@ -13,6 +13,7 @@
 #include "ag-settings.h"
 
 struct _AgWindowPrivate {
+    GtkWidget     *header_bar;
     GtkWidget     *grid;
     GtkWidget     *stack;
     GtkWidget     *stack_switcher;
@@ -551,6 +552,7 @@ ag_window_class_init(AgWindowClass *klass)
     gobject_class->dispose = ag_window_dispose;
 
     gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/astrognome/ag-window.ui");
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, header_bar);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, name);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, month);
@@ -696,4 +698,15 @@ ag_window_change_tab(AgWindow *window, const gchar *tab_name)
             g_action_map_lookup_action(G_ACTION_MAP(window), "change-tab"),
             g_variant_new_string(tab_name)
         );
+}
+
+void
+ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
+{
+    const gchar     *name;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    name = gtk_entry_get_text(name_entry);
+
+    gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), name);
 }
