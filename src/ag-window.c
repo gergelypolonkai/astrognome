@@ -66,6 +66,17 @@ ag_window_gear_menu_action(GSimpleAction *action, GVariant *parameter, gpointer 
 }
 
 static void
+ag_window_view_menu_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+{
+    GVariant *state;
+
+    state = g_action_get_state(G_ACTION(action));
+    g_action_change_state(G_ACTION(action), g_variant_new_boolean(!g_variant_get_boolean(state)));
+
+    g_variant_unref(state);
+}
+
+static void
 ag_window_close_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     AgWindow *window = user_data;
@@ -475,6 +486,7 @@ static GActionEntry win_entries[] = {
     { "save",       ag_window_save_action,       NULL, NULL,      NULL },
     { "save-as",    ag_window_save_as_action,    NULL, NULL,      NULL },
     { "export-svg", ag_window_export_svg_action, NULL, NULL,      NULL },
+    { "view-menu",  ag_window_view_menu_action,  NULL, "false",   NULL },
     { "gear-menu",  ag_window_gear_menu_action,  NULL, "false",   NULL },
     { "change-tab", ag_window_change_tab_action, "s",  "'edit'",  NULL },
 };
@@ -677,7 +689,11 @@ ag_window_settings_save(GtkWindow *window, GSettings *settings)
 }
 
 void
-ag_window_open_chart_tab(AgWindow *window)
+ag_window_change_tab(AgWindow *window, const gchar *tab_name)
 {
-    gtk_stack_set_visible_child_name(GTK_STACK(window->priv->stack), "chart");
+    gtk_stack_set_visible_child_name(GTK_STACK(window->priv->stack), tab_name);
+    g_action_change_state(
+            g_action_map_lookup_action(G_ACTION_MAP(window), "change-tab"),
+            g_variant_new_string(tab_name)
+        );
 }
