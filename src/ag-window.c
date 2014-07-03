@@ -83,15 +83,16 @@ ag_window_close_action(GSimpleAction *action, GVariant *parameter, gpointer user
 static void
 ag_window_save_as(AgWindow *window, GError **err)
 {
-    gchar     *name;
-    gchar     *file_name;
-    GtkWidget *fs;
-    gint      response;
+    gchar           *name;
+    gchar           *file_name;
+    GtkWidget       *fs;
+    gint            response;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     recalculate_chart(window);
 
     // We should never enter here, but who knows...
-    if (window->priv->chart == NULL) {
+    if (priv->chart == NULL) {
         GtkWidget *dialog;
 
         dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("Chart cannot be calculated."));
@@ -102,7 +103,7 @@ ag_window_save_as(AgWindow *window, GError **err)
         return;
     }
 
-    name = ag_chart_get_name(window->priv->chart);
+    name = ag_chart_get_name(priv->chart);
 
     if ((name == NULL) || (*name == 0)) {
         GtkWidget *dialog;
@@ -138,7 +139,7 @@ ag_window_save_as(AgWindow *window, GError **err)
     if (response == GTK_RESPONSE_ACCEPT) {
         GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
 
-        ag_chart_save_to_file(window->priv->chart, file, err);
+        ag_chart_save_to_file(priv->chart, file, err);
     }
 
     gtk_widget_destroy(fs);
@@ -147,9 +148,10 @@ ag_window_save_as(AgWindow *window, GError **err)
 static void
 ag_window_save_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    AgWindow *window = AG_WINDOW(user_data);
-    GError   *err    = NULL;
-    gchar    *uri;
+    gchar           *uri;
+    AgWindow        *window = AG_WINDOW(user_data);
+    GError          *err    = NULL;
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
 
     recalculate_chart(window);
     uri = ag_window_get_uri(window);
@@ -158,7 +160,7 @@ ag_window_save_action(GSimpleAction *action, GVariant *parameter, gpointer user_
         GFile *file = g_file_new_for_uri(uri);
         g_free(uri);
 
-        ag_chart_save_to_file(window->priv->chart, file, &err);
+        ag_chart_save_to_file(priv->chart, file, &err);
     } else {
         ag_window_save_as(window, &err);
     }
@@ -181,15 +183,16 @@ ag_window_save_as_action(GSimpleAction *action, GVariant *parameter, gpointer us
 static void
 ag_window_export_svg(AgWindow *window, GError **err)
 {
-    gchar     *name;
-    gchar     *file_name;
-    GtkWidget *fs;
-    gint      response;
+    gchar           *name;
+    gchar           *file_name;
+    GtkWidget       *fs;
+    gint            response;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     recalculate_chart(window);
 
     // We should never enter here, but who knows...
-    if (window->priv->chart == NULL) {
+    if (priv->chart == NULL) {
         GtkWidget *dialog;
 
         dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("Chart cannot be calculated."));
@@ -200,7 +203,7 @@ ag_window_export_svg(AgWindow *window, GError **err)
         return;
     }
 
-    name = ag_chart_get_name(window->priv->chart);
+    name = ag_chart_get_name(priv->chart);
 
     if ((name == NULL) || (*name == 0)) {
         GtkWidget *dialog;
@@ -236,7 +239,7 @@ ag_window_export_svg(AgWindow *window, GError **err)
     if (response == GTK_RESPONSE_ACCEPT) {
         GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
 
-        ag_chart_export_svg_to_file(window->priv->chart, file, err);
+        ag_chart_export_svg_to_file(priv->chart, file, err);
     }
 
     gtk_widget_destroy(fs);
@@ -256,15 +259,14 @@ ag_window_export_svg_action(GSimpleAction *action, GVariant *parameter, gpointer
 void
 ag_window_redraw_chart(AgWindow *window)
 {
-    GError *err = NULL;
-    gchar  *svg_content;
-    GList  *planet_list,
-           *planet1,
-           *planet2;
-    guint  i,
-           j;
-
-    svg_content = ag_chart_create_svg(window->priv->chart, NULL, &err);
+    GList           *planet_list,
+                    *planet1,
+                    *planet2;
+    guint           i,
+                    j;
+    GError          *err         = NULL;
+    AgWindowPrivate *priv        = ag_window_get_instance_private(window);
+    gchar           *svg_content = ag_chart_create_svg(priv->chart, NULL, &err);
 
     if (svg_content == NULL) {
         GtkWidget *dialog;
@@ -273,13 +275,15 @@ ag_window_redraw_chart(AgWindow *window)
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
     } else {
-        webkit_web_view_load_string(WEBKIT_WEB_VIEW(window->priv->chart_web_view), svg_content, "image/svg+xml", "UTF-8", "file://");
+        webkit_web_view_load_string(
+                WEBKIT_WEB_VIEW(priv->chart_web_view),
+                svg_content, "image/svg+xml", "UTF-8", "file://");
         g_free(svg_content);
     }
 
-    planet_list = ag_chart_get_planets(window->priv->chart);
+    planet_list = ag_chart_get_planets(priv->chart);
 
-    if (window->priv->aspect_table_populated == FALSE) {
+    if (priv->aspect_table_populated == FALSE) {
         GList *planet;
         guint i;
 
@@ -291,19 +295,19 @@ ag_window_redraw_chart(AgWindow *window)
             GswePlanetInfo *planet_info;
 
             planet_id = GPOINTER_TO_INT(planet->data);
-            planet_data = gswe_moment_get_planet(GSWE_MOMENT(window->priv->chart), planet_id, NULL);
+            planet_data = gswe_moment_get_planet(GSWE_MOMENT(priv->chart), planet_id, NULL);
             planet_info = gswe_planet_data_get_planet_info(planet_data);
 
             label_hor = gtk_label_new(gswe_planet_info_get_name(planet_info));
-            gtk_grid_attach(GTK_GRID(window->priv->aspect_table), label_hor, i + 1, i, 1, 1);
+            gtk_grid_attach(GTK_GRID(priv->aspect_table), label_hor, i + 1, i, 1, 1);
 
             if (i > 0) {
                 label_ver = gtk_label_new(gswe_planet_info_get_name(planet_info));
-                gtk_grid_attach(GTK_GRID(window->priv->aspect_table), label_ver, 0, i, 1, 1);
+                gtk_grid_attach(GTK_GRID(priv->aspect_table), label_ver, 0, i, 1, 1);
             }
         }
 
-        window->priv->aspect_table_populated = TRUE;
+        priv->aspect_table_populated = TRUE;
     }
 
     for (planet1 = planet_list, i = 0; planet1; planet1 = g_list_next(planet1), i++) {
@@ -315,21 +319,21 @@ ag_window_redraw_chart(AgWindow *window)
                 break;
             }
 
-            if ((aspect = gswe_moment_get_aspect_by_planets(GSWE_MOMENT(window->priv->chart), GPOINTER_TO_INT(planet1->data), GPOINTER_TO_INT(planet2->data), &err)) != NULL) {
+            if ((aspect = gswe_moment_get_aspect_by_planets(GSWE_MOMENT(priv->chart), GPOINTER_TO_INT(planet1->data), GPOINTER_TO_INT(planet2->data), &err)) != NULL) {
                 GsweAspectInfo *aspect_info;
                 GtkWidget      *aspect_label;
 
                 aspect_info = gswe_aspect_data_get_aspect_info(aspect);
-                aspect_label = gtk_grid_get_child_at(GTK_GRID(window->priv->aspect_table), j + 1, i);
+                aspect_label = gtk_grid_get_child_at(GTK_GRID(priv->aspect_table), j + 1, i);
 
                 if (gswe_aspect_data_get_aspect(aspect) == GSWE_ASPECT_NONE) {
                     if (aspect_label != NULL) {
-                        gtk_container_remove(GTK_CONTAINER(window->priv->aspect_table), aspect_label);
+                        gtk_container_remove(GTK_CONTAINER(priv->aspect_table), aspect_label);
                     }
                 } else {
                     if (aspect_label == NULL) {
                         aspect_label = gtk_label_new(gswe_aspect_info_get_name(aspect_info));
-                        gtk_grid_attach(GTK_GRID(window->priv->aspect_table), aspect_label, j + 1, i, 1, 1);
+                        gtk_grid_attach(GTK_GRID(priv->aspect_table), aspect_label, j + 1, i, 1, 1);
                     } else {
                         gtk_label_set_label(GTK_LABEL(aspect_label), gswe_aspect_info_get_name(aspect_info));
                     }
@@ -342,38 +346,36 @@ ag_window_redraw_chart(AgWindow *window)
         }
     }
 
-    gtk_widget_show_all(window->priv->aspect_table);
+    gtk_widget_show_all(priv->aspect_table);
 }
 
 void
 ag_window_update_from_chart(AgWindow *window)
 {
-    GsweTimestamp   *timestamp;
-    GsweCoordinates *coordinates;
+    AgWindowPrivate *priv        = ag_window_get_instance_private(window);
+    GsweTimestamp   *timestamp   = gswe_moment_get_timestamp(GSWE_MOMENT(priv->chart));
+    GsweCoordinates *coordinates = gswe_moment_get_coordinates(GSWE_MOMENT(priv->chart));
 
-    timestamp   = gswe_moment_get_timestamp(GSWE_MOMENT(window->priv->chart));
-    coordinates = gswe_moment_get_coordinates(GSWE_MOMENT(window->priv->chart));
-
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->year), gswe_timestamp_get_gregorian_year(timestamp, NULL));
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->month), gswe_timestamp_get_gregorian_month(timestamp, NULL));
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->day), gswe_timestamp_get_gregorian_day(timestamp, NULL));
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->hour), gswe_timestamp_get_gregorian_hour(timestamp, NULL));
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->minute), gswe_timestamp_get_gregorian_minute(timestamp, NULL));
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->second), gswe_timestamp_get_gregorian_second(timestamp, NULL));
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->timezone), gswe_timestamp_get_gregorian_timezone(timestamp));
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->longitude), fabs(coordinates->longitude));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->year), gswe_timestamp_get_gregorian_year(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->month), gswe_timestamp_get_gregorian_month(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->day), gswe_timestamp_get_gregorian_day(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->hour), gswe_timestamp_get_gregorian_hour(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->minute), gswe_timestamp_get_gregorian_minute(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->second), gswe_timestamp_get_gregorian_second(timestamp, NULL));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->timezone), gswe_timestamp_get_gregorian_timezone(timestamp));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->longitude), fabs(coordinates->longitude));
 
     if (coordinates->longitude < 0.0) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(window->priv->west_long), TRUE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->west_long), TRUE);
     }
 
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(window->priv->latitude), fabs(coordinates->latitude));
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->latitude), fabs(coordinates->latitude));
 
     if (coordinates->latitude < 0.0) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(window->priv->south_lat), TRUE);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->south_lat), TRUE);
     }
 
-    gtk_entry_set_text(GTK_ENTRY(window->priv->name), ag_chart_get_name(window->priv->chart));
+    gtk_entry_set_text(GTK_ENTRY(priv->name), ag_chart_get_name(priv->chart));
 
     g_free(coordinates);
 
@@ -389,57 +391,50 @@ chart_changed(AgChart *chart, AgWindow *window)
 static void
 recalculate_chart(AgWindow *window)
 {
-    gint year,
-         month,
-         day,
-         hour,
-         minute,
-         second;
-    gdouble       longitude,
-                  latitude;
-    gboolean      south,
-                  west;
-    GsweTimestamp *timestamp;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    gint            year      = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->year)),
+                    month     = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->month)),
+                    day       = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->day)),
+                    hour      = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->hour)),
+                    minute    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->minute)),
+                    second    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->second));
+    gdouble         longitude = gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->longitude)),
+                    latitude  = gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->latitude));
+    gboolean        south     = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->south_lat)),
+                    west      = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->west_long));
+    GsweTimestamp   *timestamp;
 
     g_debug("Recalculating chart data");
 
-    year      = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->year));
-    month     = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->month));
-    day       = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->day));
-    hour      = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->hour));
-    minute    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->minute));
-    second    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(window->priv->second));
-    longitude = gtk_spin_button_get_value(GTK_SPIN_BUTTON(window->priv->longitude));
-    latitude  = gtk_spin_button_get_value(GTK_SPIN_BUTTON(window->priv->latitude));
-
-    if ((south = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(window->priv->south_lat)))) {
+    if (south) {
         latitude = 0 - latitude;
     }
 
-    if ((west = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(window->priv->west_long)))) {
+    if (west) {
         longitude = 0 - longitude;
     }
 
     // TODO: Set timezone according to the city selected!
-    if (window->priv->chart == NULL) {
+    if (priv->chart == NULL) {
         timestamp = gswe_timestamp_new_from_gregorian_full(year, month, day, hour, minute, second, 0, 1.0);
         // TODO: make house system configurable
-        window->priv->chart = ag_chart_new_full(timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
-        g_signal_connect(window->priv->chart, "changed", G_CALLBACK(chart_changed), window);
+        priv->chart = ag_chart_new_full(timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
+        g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), window);
         ag_window_redraw_chart(window);
     } else {
-        timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(window->priv->chart));
+        timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(priv->chart));
         gswe_timestamp_set_gregorian_full(timestamp, year, month, day, hour, minute, second, 0, 1.0, NULL);
     }
 
-    ag_chart_set_name(window->priv->chart, gtk_entry_get_text(GTK_ENTRY(window->priv->name)));
+    ag_chart_set_name(priv->chart, gtk_entry_get_text(GTK_ENTRY(priv->name)));
 }
 
 void
 ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 {
-    const gchar *active_tab_name = gtk_stack_get_visible_child_name(stack);
-    GtkWidget   *active_tab;
+    GtkWidget       *active_tab;
+    const gchar     *active_tab_name = gtk_stack_get_visible_child_name(stack);
+    AgWindowPrivate *priv            = ag_window_get_instance_private(window);
 
     g_debug("Active tab changed: %s", active_tab_name);
 
@@ -459,20 +454,21 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 
     // Note that priv->current_tab is actually the previously selected tab, not
     // the real active one!
-    if (window->priv->current_tab == window->priv->tab_edit) {
+    if (priv->current_tab == priv->tab_edit) {
         recalculate_chart(window);
     }
 
-    window->priv->current_tab = active_tab;
+    priv->current_tab = active_tab;
 }
 
 static void
 ag_window_change_tab_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    AgWindow    *window     = user_data;
-    const gchar *target_tab = g_variant_get_string(parameter, NULL);
+    AgWindow        *window     = AG_WINDOW(user_data);
+    const gchar     *target_tab = g_variant_get_string(parameter, NULL);
+    AgWindowPrivate *priv       = ag_window_get_instance_private(window);
 
-    gtk_stack_set_visible_child_name(GTK_STACK(window->priv->stack), target_tab);
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), target_tab);
     g_action_change_state(G_ACTION(action), parameter);
 }
 
@@ -494,7 +490,7 @@ ag_window_init(AgWindow *window)
 
     gtk_widget_init_template(GTK_WIDGET(window));
 
-    window->priv = priv = ag_window_get_instance_private(window);
+    priv = ag_window_get_instance_private(window);
 
     webkit_web_view_load_string(
             WEBKIT_WEB_VIEW(priv->chart_web_view),
@@ -529,9 +525,9 @@ ag_window_init(AgWindow *window)
 static void
 ag_window_dispose(GObject *gobject)
 {
-    AgWindow *window = AG_WINDOW(gobject);
+    AgWindowPrivate *priv = ag_window_get_instance_private(AG_WINDOW(gobject));
 
-    g_clear_object(&window->priv->settings);
+    g_clear_object(&priv->settings);
 
     G_OBJECT_CLASS(ag_window_parent_class)->dispose(gobject);
 }
@@ -575,9 +571,10 @@ ag_window_chart_context_cb(WebKitWebView *web_view, GtkWidget *default_menu, Web
 static gboolean
 ag_window_configure_event_cb(GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
 {
-    AgWindow *window = AG_WINDOW(widget);
+    AgWindow        *window = AG_WINDOW(widget);
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
 
-    ag_window_settings_save(GTK_WINDOW(window), ag_settings_peek_window_settings(window->priv->settings));
+    ag_window_settings_save(GTK_WINDOW(window), ag_settings_peek_window_settings(priv->settings));
 
     return FALSE;
 }
@@ -585,16 +582,15 @@ ag_window_configure_event_cb(GtkWidget *widget, GdkEventConfigure *event, gpoint
 GtkWidget *
 ag_window_new(AgApp *app)
 {
-    AgWindow *window;
-
-    window = g_object_new(AG_TYPE_WINDOW, NULL);
+    AgWindow        *window = g_object_new(AG_TYPE_WINDOW, NULL);
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
 
     gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
 
     gtk_window_set_icon_name(GTK_WINDOW(window), "astrognome");
     g_signal_connect(window, "configure-event", G_CALLBACK(ag_window_configure_event_cb), NULL);
 
-    ag_window_settings_restore(GTK_WINDOW(window), ag_settings_peek_window_settings(window->priv->settings));
+    ag_window_settings_restore(GTK_WINDOW(window), ag_settings_peek_window_settings(priv->settings));
 
     return GTK_WIDGET(window);
 }
@@ -602,36 +598,44 @@ ag_window_new(AgApp *app)
 void
 ag_window_set_chart(AgWindow *window, AgChart *chart)
 {
-    if (window->priv->chart != NULL) {
-        g_signal_handlers_disconnect_by_func(window->priv->chart, chart_changed, window);
-        g_object_unref(window->priv->chart);
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    if (priv->chart != NULL) {
+        g_signal_handlers_disconnect_by_func(priv->chart, chart_changed, window);
+        g_object_unref(priv->chart);
     }
 
-    window->priv->chart = chart;
-    g_signal_connect(window->priv->chart, "changed", G_CALLBACK(chart_changed), window);
+    priv->chart = chart;
+    g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), window);
     g_object_ref(chart);
 }
 
 AgChart *
 ag_window_get_chart(AgWindow *window)
 {
-    return window->priv->chart;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    return priv->chart;
 }
 
 void
 ag_window_set_uri(AgWindow *window, const gchar *uri)
 {
-    if (window->priv->uri != NULL) {
-        g_free(window->priv->uri);
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    if (priv->uri != NULL) {
+        g_free(priv->uri);
     }
 
-    window->priv->uri = g_strdup(uri);
+    priv->uri = g_strdup(uri);
 }
 
 gchar *
 ag_window_get_uri(AgWindow *window)
 {
-    return g_strdup(window->priv->uri);
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    return g_strdup(priv->uri);
 }
 
 void
@@ -686,7 +690,9 @@ ag_window_settings_save(GtkWindow *window, GSettings *settings)
 void
 ag_window_change_tab(AgWindow *window, const gchar *tab_name)
 {
-    gtk_stack_set_visible_child_name(GTK_STACK(window->priv->stack), tab_name);
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), tab_name);
     g_action_change_state(
             g_action_map_lookup_action(G_ACTION_MAP(window), "change-tab"),
             g_variant_new_string(tab_name)

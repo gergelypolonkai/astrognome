@@ -25,7 +25,6 @@ typedef struct _AgWindowPrivate AgWindowPrivate;
 
 struct _AgWindow {
     GtkApplicationWindow parent_instance;
-    AgWindowPrivate      *priv;
 };
 
 struct _AgWindowClass {
