@@ -19,9 +19,6 @@ typedef struct _AgSettingsPrivate AgSettingsPrivate;
 
 struct _AgSettings {
     GObject parent_instance;
-
-    /*< private >*/
-    AgSettingsPrivate *priv;
 };
 
 struct _AgSettingsClass {
