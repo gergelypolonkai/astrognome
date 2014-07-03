@@ -40,7 +40,7 @@ ag_preferences_class_init(AgPreferencesClass *klass)
     object_class->finalize = ag_preferences_finalize;
     dialog_class->response = ag_preferences_response;
 
-    gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/astrognome/ag-preferences.ui");
+    gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/Astrognome/ui/ag-preferences.ui");
     gtk_widget_class_bind_template_child_private(widget_class, AgPreferences, maximized);
 }
 

@@ -540,7 +540,7 @@ ag_window_class_init(AgWindowClass *klass)
 
     gobject_class->dispose = ag_window_dispose;
 
-    gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/astrognome/ag-window.ui");
+    gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/Astrognome/ui/ag-window.ui");
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, header_bar);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, name);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year);

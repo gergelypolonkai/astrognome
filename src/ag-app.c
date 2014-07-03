@@ -257,7 +257,7 @@ setup_menu(AgApp *app)
 
     builder = gtk_builder_new();
 
-    if (!gtk_builder_add_from_resource(builder, "/eu/polonkai/gergely/astrognome/astrognome.ui", &err)) {
+    if (!gtk_builder_add_from_resource(builder, "/eu/polonkai/gergely/Astrognome/ui/astrognome.ui", &err)) {
         g_error("%s", (err) ? err->message : "unknown error");
     }
 

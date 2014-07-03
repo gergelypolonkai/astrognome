@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/eu/polonkai/gergely/astrognome">
-    <file>astrognome.ui</file>
-    <file>ag-window.ui</file>
-    <file>ag-preferences.ui</file>
+  <gresource prefix="/eu/polonkai/gergely/Astrognome">
+    <file>ui/astrognome.ui</file>
+    <file>ui/ag-window.ui</file>
+    <file>ui/ag-preferences.ui</file>
   </gresource>
 </gresources>

@@ -1,10 +1,11 @@
-resource_files = $(shell glib-compile-resources --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/ag.gresource.xml)
+RESOURCE_DIR = $(srcdir)/resources
+resource_files = $(shell glib-compile-resources --sourcedir=$(RESOURCE_DIR) --generate-dependencies $(srcdir)/ag.gresource.xml)
 
 ag-resources.c: ag.gresource.xml $(resource_files)
-	glib-compile-resources --target=$@ --sourcedir=$(srcdir) --generate-source --c-name ag $(srcdir)/ag.gresource.xml
+	glib-compile-resources --target=$@ --sourcedir=$(RESOURCE_DIR) --generate-source --c-name ag $(srcdir)/ag.gresource.xml
 
 ag-resources.h: ag.gresource.xml $(resource_files)
-	glib-compile-resources --target=$@ --sourcedir=$(srcdir) --generate-header --c-name ag $(srcdir)/ag.gresource.xml
+	glib-compile-resources --target=$@ --sourcedir=$(RESOURCE_DIR) --generate-header --c-name ag $(srcdir)/ag.gresource.xml
 
 BUILT_SOURCES = \
 				ag-resources.h \
@@ -33,7 +34,3 @@ astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS) $(LIBXML_LIBS) $(LIBXSLT_LIBS) $
 astrognome_LDFLAGS = -rdynamic
 astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) $(LIBXML_CFLAGS) $(LIBXSLT_CFLAGS) $(WEBKIT_CFLAGS) -Wall
 
-guidir = $(pkgdatadir)
-gui_DATA = astrognome.ui
-
-EXTRA_DIST += $(gui_DATA)
