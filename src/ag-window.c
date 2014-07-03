@@ -256,6 +256,20 @@ ag_window_export_svg_action(GSimpleAction *action, GVariant *parameter, gpointer
     // TODO: Check err!
 }
 
+GtkWidget *
+ag_window_create_planet_widget(GswePlanetInfo *planet_info)
+{
+    GtkWidget *widget;
+
+    if (gswe_planet_info_get_planet(planet_info) == GSWE_PLANET_SUN) {
+        widget = gtk_image_new_from_resource("/eu/polonkai/gergely/Astrognome/default-icons/planet-sun.svg");
+    } else {
+        widget = gtk_label_new(gswe_planet_info_get_name(planet_info));
+    }
+
+    return widget;
+}
+
 void
 ag_window_redraw_chart(AgWindow *window)
 {
@@ -298,11 +312,11 @@ ag_window_redraw_chart(AgWindow *window)
             planet_data = gswe_moment_get_planet(GSWE_MOMENT(priv->chart), planet_id, NULL);
             planet_info = gswe_planet_data_get_planet_info(planet_data);
 
-            label_hor = gtk_label_new(gswe_planet_info_get_name(planet_info));
+            label_hor = ag_window_create_planet_widget(planet_info);
             gtk_grid_attach(GTK_GRID(priv->aspect_table), label_hor, i + 1, i, 1, 1);
 
             if (i > 0) {
-                label_ver = gtk_label_new(gswe_planet_info_get_name(planet_info));
+                label_ver = ag_window_create_planet_widget(planet_info);
                 gtk_grid_attach(GTK_GRID(priv->aspect_table), label_ver, 0, i, 1, 1);
             }
         }
