@@ -14,9 +14,7 @@
 
 struct _AgWindowPrivate {
     GtkWidget     *header_bar;
-    GtkWidget     *grid;
     GtkWidget     *stack;
-    GtkWidget     *stack_switcher;
     GtkWidget     *name;
     GtkWidget     *north_lat;
     GtkWidget     *south_lat;
@@ -31,11 +29,7 @@ struct _AgWindowPrivate {
     GtkWidget     *minute;
     GtkWidget     *second;
     GtkWidget     *timezone;
-    GtkBuilder    *builder;
 
-    GtkWidget     *tab_chart;
-    GtkWidget     *tab_aspects;
-    GtkWidget     *tab_points;
     GtkWidget     *tab_edit;
     GtkWidget     *current_tab;
 
@@ -538,7 +532,6 @@ ag_window_dispose(GObject *gobject)
     AgWindow *window = AG_WINDOW(gobject);
 
     g_clear_object(&window->priv->settings);
-    g_clear_object(&window->priv->builder);
 
     G_OBJECT_CLASS(ag_window_parent_class)->dispose(gobject);
 }
