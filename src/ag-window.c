@@ -410,29 +410,14 @@ ag_window_create_aspect_widget(GsweAspectInfo *aspect_info)
 }
 
 void
-ag_window_redraw_chart(AgWindow *window)
+ag_window_redraw_aspect_table(AgWindow *window)
 {
     GList           *planet_list,
                     *planet1,
                     *planet2;
     guint           i,
                     j;
-    GError          *err         = NULL;
     AgWindowPrivate *priv        = ag_window_get_instance_private(window);
-    gchar           *svg_content = ag_chart_create_svg(priv->chart, NULL, &err);
-
-    if (svg_content == NULL) {
-        GtkWidget *dialog;
-
-        dialog = gtk_message_dialog_new(GTK_WINDOW(window), 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "Unable to draw chart: %s", err->message);
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
-    } else {
-        webkit_web_view_load_string(
-                WEBKIT_WEB_VIEW(priv->chart_web_view),
-                svg_content, "image/svg+xml", "UTF-8", "file://");
-        g_free(svg_content);
-    }
 
     planet_list = ag_chart_get_planets(priv->chart);
 
@@ -495,6 +480,29 @@ ag_window_redraw_chart(AgWindow *window)
     }
 
     gtk_widget_show_all(priv->aspect_table);
+}
+
+void
+ag_window_redraw_chart(AgWindow *window)
+{
+    GError          *err         = NULL;
+    AgWindowPrivate *priv        = ag_window_get_instance_private(window);
+    gchar           *svg_content = ag_chart_create_svg(priv->chart, NULL, &err);
+
+    if (svg_content == NULL) {
+        GtkWidget *dialog;
+
+        dialog = gtk_message_dialog_new(GTK_WINDOW(window), 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "Unable to draw chart: %s", err->message);
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
+    } else {
+        webkit_web_view_load_string(
+                WEBKIT_WEB_VIEW(priv->chart_web_view),
+                svg_content, "image/svg+xml", "UTF-8", "file://");
+        g_free(svg_content);
+    }
+
+    ag_window_redraw_aspect_table(window);
 }
 
 void
