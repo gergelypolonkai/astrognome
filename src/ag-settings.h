@@ -29,6 +29,7 @@ GType ag_settings_get_type(void);
 
 AgSettings *ag_settings_get(void);
 
+GSettings *ag_settings_peek_main_settings(AgSettings *settings);
 GSettings *ag_settings_peek_window_settings(AgSettings *settings);
 GSettings *ag_settings_peek_chart_settings(AgSettings *settings);
 

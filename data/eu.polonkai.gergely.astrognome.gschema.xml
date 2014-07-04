@@ -1,6 +1,16 @@
 <schemalist gettext-domain="astrognome">
     <schema id="eu.polonkai.gergely.Astrognome" path="/eu/polonkai/gergely/Astrognome/">
         <child name="state" schema="eu.polonkai.gergely.Astrognome.state" />
+        <key name="planets-char" type="b">
+            <default>false</default>
+            <summary>Display planet symbols as UTF-8 characters</summary>
+            <description>Whether to show planet symbols as their UTF-8 representation. Uses less memory, but not all system fonts have them defined. If a planet (like most dwarves) don’t have a character representation, an image fallback will be used.</description>
+        </key>
+        <key name="aspects-char" type="b">
+            <default>false</default>
+            <summary>Display aspect symbols as UTF-8 characters</summary>
+            <description>Whether to show aspect symbols as their UTF-8 representation. Uses less memory, but not all system fonts have them defined. If an aspect don’t have a character representation, an image fallback will be used.</description>
+        </key>
     </schema>
     <schema id="eu.polonkai.gergely.Astrognome.state" path="/eu/polonkai/gergely/Astrognome/state/">
         <child name="window" schema="eu.polonkai.gergely.Astrognome.state.window" />

@@ -1,11 +1,13 @@
 #include "ag-settings.h"
 
+#define SETTINGS_SCHEMA_ID_MAIN   "eu.polonkai.gergely.Astrognome"
 #define SETTINGS_SCHEMA_ID_WINDOW "eu.polonkai.gergely.Astrognome.state.window"
-#define SETTINGS_SCHEMA_ID_CHART "eu.polonkai.gergely.Astrognome.state.chart"
+#define SETTINGS_SCHEMA_ID_CHART  "eu.polonkai.gergely.Astrognome.state.chart"
 
 static AgSettings *singleton = NULL;
 
 struct _AgSettingsPrivate {
+    GSettings *settings_main;
     GSettings *settings_window;
     GSettings *settings_chart;
 };
@@ -17,6 +19,7 @@ ag_settings_init(AgSettings *settings)
 {
     AgSettingsPrivate *priv = ag_settings_get_instance_private(settings);
 
+    priv->settings_main   = g_settings_new(SETTINGS_SCHEMA_ID_MAIN);
     priv->settings_window = g_settings_new(SETTINGS_SCHEMA_ID_WINDOW);
     priv->settings_chart  = g_settings_new(SETTINGS_SCHEMA_ID_CHART);
 }
@@ -28,6 +31,7 @@ ag_settings_dispose(GObject *object)
 
     g_clear_object(&priv->settings_window);
     g_clear_object(&priv->settings_chart);
+    g_clear_object(&priv->settings_main);
 
     G_OBJECT_CLASS(ag_settings_parent_class)->dispose(object);
 }
@@ -61,6 +65,14 @@ ag_settings_get(void)
     g_assert(singleton);
 
     return singleton;
+}
+
+GSettings *
+ag_settings_peek_main_settings(AgSettings *settings)
+{
+    AgSettingsPrivate *priv = ag_settings_get_instance_private(settings);
+
+    return priv->settings_main;
 }
 
 GSettings *

@@ -7,6 +7,9 @@ static GtkWidget *prefs_dialog = NULL;
 
 typedef struct _AgPreferencesPrivate {
     GtkCheckButton *maximized;
+    GtkCheckButton *planet_chars;
+    GtkCheckButton *aspect_chars;
+
     AgSettings *settings;
 } AgPreferencesPrivate;
 
@@ -40,15 +43,18 @@ ag_preferences_class_init(AgPreferencesClass *klass)
     object_class->finalize = ag_preferences_finalize;
     dialog_class->response = ag_preferences_response;
 
-    gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/astrognome/ag-preferences.ui");
+    gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/Astrognome/ui/ag-preferences.ui");
     gtk_widget_class_bind_template_child_private(widget_class, AgPreferences, maximized);
+    gtk_widget_class_bind_template_child_private(widget_class, AgPreferences, planet_chars);
+    gtk_widget_class_bind_template_child_private(widget_class, AgPreferences, aspect_chars);
 }
 
 static void
 ag_preferences_init(AgPreferences *prefs)
 {
     AgPreferencesPrivate *priv;
-    GSettings            *settings_window;
+    GSettings            *settings_window,
+                         *settings_main;
 
     priv = ag_preferences_get_instance_private(prefs);
     gtk_widget_init_template(GTK_WIDGET(prefs));
@@ -57,6 +63,10 @@ ag_preferences_init(AgPreferences *prefs)
 
     settings_window = ag_settings_peek_window_settings(priv->settings);
     g_settings_bind(settings_window, "maximized", priv->maximized, "active", G_SETTINGS_BIND_DEFAULT);
+
+    settings_main = ag_settings_peek_main_settings(priv->settings);
+    g_settings_bind(settings_main, "planets-char", priv->planet_chars, "active", G_SETTINGS_BIND_DEFAULT);
+    g_settings_bind(settings_main, "aspects-char", priv->aspect_chars, "active", G_SETTINGS_BIND_DEFAULT);
 }
 
 void
