@@ -256,18 +256,157 @@ ag_window_export_svg_action(GSimpleAction *action, GVariant *parameter, gpointer
     // TODO: Check err!
 }
 
+const gchar *
+ag_window_planet_character(GswePlanet planet)
+{
+    switch (planet) {
+        case GSWE_PLANET_ASCENDANT:
+            return "AC";
+
+        case GSWE_PLANET_MC:
+            return "MC";
+
+        case GSWE_PLANET_VERTEX:
+            return "Vx";
+
+        case GSWE_PLANET_SUN:
+            return "☉";
+
+        case GSWE_PLANET_MOON:
+            return "☽";
+
+        case GSWE_PLANET_MOON_NODE:
+            return "☊";
+
+        case GSWE_PLANET_MERCURY:
+            return "☿";
+
+        case GSWE_PLANET_VENUS:
+            return "♀";
+
+        case GSWE_PLANET_MARS:
+            return "♂";
+
+        case GSWE_PLANET_JUPITER:
+            return "♃";
+
+        case GSWE_PLANET_SATURN:
+            return "♄";
+
+        case GSWE_PLANET_URANUS:
+            return "♅";
+
+        case GSWE_PLANET_NEPTUNE:
+            return "♆";
+
+        case GSWE_PLANET_PLUTO:
+            return "♇";
+
+        case GSWE_PLANET_CERES:
+            return "⚳";
+
+        case GSWE_PLANET_PALLAS:
+            return "⚴";
+
+        case GSWE_PLANET_JUNO:
+            return "⚵";
+
+        case GSWE_PLANET_VESTA:
+            return "⚶";
+
+        case GSWE_PLANET_CHIRON:
+            return "⚷";
+
+        case GSWE_PLANET_MOON_APOGEE:
+            return "⚸";
+
+        default:
+            return NULL;
+    }
+}
+
 GtkWidget *
 ag_window_create_planet_widget(GswePlanetInfo *planet_info)
 {
-    GtkWidget *widget;
+    const gchar *planet_char;
+    GswePlanet  planet    = gswe_planet_info_get_planet(planet_info);
+    GSettings   *settings = ag_settings_peek_main_settings(ag_settings_get());
 
-    if (gswe_planet_info_get_planet(planet_info) == GSWE_PLANET_SUN) {
-        widget = gtk_image_new_from_resource("/eu/polonkai/gergely/Astrognome/default-icons/planet-sun.svg");
-    } else {
-        widget = gtk_label_new(gswe_planet_info_get_name(planet_info));
+    if (
+            ((planet_char = ag_window_planet_character(planet)) != NULL)
+            && (g_settings_get_boolean(settings, "planets-char"))
+        )
+    {
+        return gtk_label_new(planet_char);
     }
 
-    return widget;
+    switch (planet) {
+        case GSWE_PLANET_SUN:
+            return gtk_image_new_from_resource("/eu/polonkai/gergely/Astrognome/default-icons/planet-sun.svg");
+
+        default:
+            return gtk_label_new(gswe_planet_info_get_name(planet_info));
+    }
+}
+
+const gchar *
+ag_window_aspect_character(GsweAspect aspect)
+{
+    switch (aspect) {
+        case GSWE_ASPECT_CONJUCTION:
+            return "☌";
+
+        case GSWE_ASPECT_OPPOSITION:
+            return "☍";
+
+        case GSWE_ASPECT_QUINTILE:
+            return "Q";
+
+        case GSWE_ASPECT_BIQUINTILE:
+            return "BQ";
+
+        case GSWE_ASPECT_SQUARE:
+            return "◽";
+
+        case GSWE_ASPECT_TRINE:
+            return "▵";
+
+        case GSWE_ASPECT_SEXTILE:
+            return "⚹";
+
+        case GSWE_ASPECT_SEMISEXTILE:
+            return "⚺";
+
+        case GSWE_ASPECT_QUINCUNX:
+            return "⚻";
+
+        case GSWE_ASPECT_SESQUISQUARE:
+            return "⚼";
+
+        default:
+            return NULL;
+    }
+}
+
+GtkWidget *
+ag_window_create_aspect_widget(GsweAspectInfo *aspect_info)
+{
+    const gchar *aspect_char;
+    GsweAspect  aspect    = gswe_aspect_info_get_aspect(aspect_info);
+    GSettings   *settings = ag_settings_peek_main_settings(ag_settings_get());
+
+    if (
+            ((aspect_char = ag_window_aspect_character(aspect)) != NULL)
+            && (g_settings_get_boolean(settings, "aspects-char"))
+        )
+    {
+        return gtk_label_new(aspect_char);
+    }
+
+    switch (aspect) {
+        default:
+            return gtk_label_new(gswe_aspect_info_get_name(aspect_info));
+    }
 }
 
 void
@@ -327,30 +466,25 @@ ag_window_redraw_chart(AgWindow *window)
     for (planet1 = planet_list, i = 0; planet1; planet1 = g_list_next(planet1), i++) {
         for (planet2 = planet_list, j = 0; planet2; planet2 = g_list_next(planet2), j++) {
             GsweAspectData *aspect;
-            GError *err = NULL;
+            GtkWidget      *aspect_widget;
+            GError         *err = NULL;
 
             if (GPOINTER_TO_INT(planet1->data) == GPOINTER_TO_INT(planet2->data)) {
                 break;
             }
 
+            if ((aspect_widget = gtk_grid_get_child_at(GTK_GRID(priv->aspect_table), j + 1, i)) != NULL) {
+                gtk_container_remove(GTK_CONTAINER(priv->aspect_table), aspect_widget);
+            }
+
             if ((aspect = gswe_moment_get_aspect_by_planets(GSWE_MOMENT(priv->chart), GPOINTER_TO_INT(planet1->data), GPOINTER_TO_INT(planet2->data), &err)) != NULL) {
                 GsweAspectInfo *aspect_info;
-                GtkWidget      *aspect_label;
 
-                aspect_info = gswe_aspect_data_get_aspect_info(aspect);
-                aspect_label = gtk_grid_get_child_at(GTK_GRID(priv->aspect_table), j + 1, i);
+                aspect_info   = gswe_aspect_data_get_aspect_info(aspect);
 
-                if (gswe_aspect_data_get_aspect(aspect) == GSWE_ASPECT_NONE) {
-                    if (aspect_label != NULL) {
-                        gtk_container_remove(GTK_CONTAINER(priv->aspect_table), aspect_label);
-                    }
-                } else {
-                    if (aspect_label == NULL) {
-                        aspect_label = gtk_label_new(gswe_aspect_info_get_name(aspect_info));
-                        gtk_grid_attach(GTK_GRID(priv->aspect_table), aspect_label, j + 1, i, 1, 1);
-                    } else {
-                        gtk_label_set_label(GTK_LABEL(aspect_label), gswe_aspect_info_get_name(aspect_info));
-                    }
+                if (gswe_aspect_data_get_aspect(aspect) != GSWE_ASPECT_NONE) {
+                    aspect_widget = ag_window_create_aspect_widget(aspect_info);
+                    gtk_grid_attach(GTK_GRID(priv->aspect_table), aspect_widget, j + 1, i, 1, 1);
                 }
             } else if (err) {
                 g_warning("%s\n", err->message);
