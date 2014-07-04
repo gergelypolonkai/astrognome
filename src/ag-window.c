@@ -426,9 +426,10 @@ ag_window_redraw_aspect_table(AgWindow *window)
         guint i;
 
         for (planet = planet_list, i = 0; planet; planet = g_list_next(planet), i++) {
-            GtkWidget *label_hor,
-                      *label_ver;
-            GswePlanet planet_id;
+            GtkWidget      *label_hor,
+                           *label_ver,
+                           *current_widget;
+            GswePlanet     planet_id;
             GswePlanetData *planet_data;
             GswePlanetInfo *planet_info;
 
@@ -436,10 +437,18 @@ ag_window_redraw_aspect_table(AgWindow *window)
             planet_data = gswe_moment_get_planet(GSWE_MOMENT(priv->chart), planet_id, NULL);
             planet_info = gswe_planet_data_get_planet_info(planet_data);
 
+            if ((current_widget = gtk_grid_get_child_at(GTK_GRID(priv->aspect_table), i + 1, i)) != NULL) {
+                gtk_container_remove(GTK_CONTAINER(priv->aspect_table), current_widget);
+            }
+
             label_hor = ag_window_create_planet_widget(planet_info);
             gtk_grid_attach(GTK_GRID(priv->aspect_table), label_hor, i + 1, i, 1, 1);
 
             if (i > 0) {
+                if ((current_widget = gtk_grid_get_child_at(GTK_GRID(priv->aspect_table), 0, i)) != NULL) {
+                    gtk_container_remove(GTK_CONTAINER(priv->aspect_table), current_widget);
+                }
+
                 label_ver = ag_window_create_planet_widget(planet_info);
                 gtk_grid_attach(GTK_GRID(priv->aspect_table), label_ver, 0, i, 1, 1);
             }
@@ -639,14 +648,33 @@ static GActionEntry win_entries[] = {
 };
 
 static void
+ag_window_display_changed(GSettings *settings, gchar *key, AgWindow *window)
+{
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    /* The planet symbols are redrawn only if aspect_table_populated is
+     * set to FALSE */
+    if (g_str_equal("planets-char", key)) {
+        priv->aspect_table_populated = FALSE;
+    }
+
+    ag_window_redraw_aspect_table(window);
+}
+
+static void
 ag_window_init(AgWindow *window)
 {
-    AgWindowPrivate *priv;
     GtkAccelGroup   *accel_group;
+    GSettings       *main_settings;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     gtk_widget_init_template(GTK_WIDGET(window));
 
-    priv = ag_window_get_instance_private(window);
+    priv->settings = ag_settings_get();
+    main_settings  = ag_settings_peek_main_settings(priv->settings);
+
+    g_signal_connect(G_OBJECT(main_settings), "changed::planets-char", G_CALLBACK(ag_window_display_changed), window);
+    g_signal_connect(G_OBJECT(main_settings), "changed::aspects-char", G_CALLBACK(ag_window_display_changed), window);
 
     webkit_web_view_load_string(
             WEBKIT_WEB_VIEW(priv->chart_web_view),
