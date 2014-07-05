@@ -76,6 +76,9 @@ Makefile.in
 
 /.anjuta*
 /*.anjuta
+/.cproject
+/.project
+/.settings
 
 #Documentation related files
 /docs/reference/*/*.args
