@@ -342,3 +342,19 @@ ag_app_class_init(AgAppClass *klass)
     application_class->open    = ag_app_open;
 }
 
+void
+ag_app_message_dialog(GtkWidget *window, GtkMessageType message_type, gchar *fmt, ...)
+{
+    gchar     *msg;
+    va_list   args;
+    GtkWidget *dialog;
+
+    va_start(args, fmt);
+    msg = g_strdup_vprintf(fmt, args);
+    va_end(args);
+
+    dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, message_type, GTK_BUTTONS_OK, "%s", msg);
+    g_free(msg);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+}

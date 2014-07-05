@@ -165,7 +165,9 @@ ag_window_save_action(GSimpleAction *action, GVariant *parameter, gpointer user_
         ag_window_save_as(window, &err);
     }
 
-    // TODO: Check err!
+    if (err) {
+        ag_app_message_dialog(GTK_WIDGET(window), GTK_MESSAGE_ERROR, "%s", err->message);
+    }
 }
 
 static void
@@ -177,7 +179,9 @@ ag_window_save_as_action(GSimpleAction *action, GVariant *parameter, gpointer us
     recalculate_chart(window);
     ag_window_save_as(window, &err);
 
-    // TODO: Check err!
+    if (err) {
+        ag_app_message_dialog(GTK_WIDGET(window), GTK_MESSAGE_ERROR, "%s", err->message);
+    }
 }
 
 static void
@@ -253,7 +257,9 @@ ag_window_export_svg_action(GSimpleAction *action, GVariant *parameter, gpointer
 
     ag_window_export_svg(window, &err);
 
-    // TODO: Check err!
+    if (err) {
+        ag_app_message_dialog(GTK_WIDGET(window), GTK_MESSAGE_ERROR, "%s", err->message);
+    }
 }
 
 const gchar *
