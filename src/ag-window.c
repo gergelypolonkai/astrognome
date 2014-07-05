@@ -698,7 +698,6 @@ ag_window_init(AgWindow *window)
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
     priv->current_tab = priv->tab_edit;
     g_object_set(priv->year_adjust, "lower", (gdouble)G_MININT, "upper", (gdouble)G_MAXINT, NULL);
-    //TODO: gtk_header_bar_set_custom_title(GTK_HEADER_BAR(priv->header_bar), priv->stack_switcher);
 
     priv->chart    = NULL;
     priv->uri      = NULL;
