@@ -3,7 +3,7 @@
 #include <glib/gi18n.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-#include <webkit/webkit.h>
+#include <webkit2/webkit2.h>
 
 #include <swe-glib.h>
 
@@ -511,9 +511,9 @@ ag_window_redraw_chart(AgWindow *window)
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
     } else {
-        webkit_web_view_load_string(
+        webkit_web_view_load_html(
                 WEBKIT_WEB_VIEW(priv->chart_web_view),
-                svg_content, "image/svg+xml", "UTF-8", "file://");
+                svg_content, NULL);
         g_free(svg_content);
     }
 
@@ -682,7 +682,8 @@ ag_window_init(AgWindow *window)
     g_signal_connect(G_OBJECT(main_settings), "changed::planets-char", G_CALLBACK(ag_window_display_changed), window);
     g_signal_connect(G_OBJECT(main_settings), "changed::aspects-char", G_CALLBACK(ag_window_display_changed), window);
 
-    webkit_web_view_load_string(
+    // TODO: translate this error message!
+    webkit_web_view_load_html(
             WEBKIT_WEB_VIEW(priv->chart_web_view),
             "<html>" \
                 "<head>" \
@@ -693,7 +694,7 @@ ag_window_init(AgWindow *window)
                     "<p>No chart is loaded. Create one on the edit view, or open one from the application menu!</p>" \
                 "</body>" \
             "</html>",
-            "text/html", "UTF-8", NULL);
+            NULL);
 
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
     priv->current_tab = priv->tab_edit;
