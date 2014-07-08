@@ -41,6 +41,7 @@ struct _AgWindowPrivate {
     AgChart       *chart;
     gchar         *uri;
     gboolean      aspect_table_populated;
+    GtkTextBuffer *note_buffer;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -548,6 +549,11 @@ ag_window_update_from_chart(AgWindow *window)
 
     gtk_entry_set_text(GTK_ENTRY(priv->name), ag_chart_get_name(priv->chart));
 
+    if (ag_chart_get_note(priv->chart)) {
+        // TODO: maybe setting length to -1 here is not that good of an idea…
+        gtk_text_buffer_set_text(GTK_TEXT_BUFFER(priv->note_buffer), ag_chart_get_note(priv->chart), -1);
+    }
+
     g_free(coordinates);
 
     ag_window_redraw_chart(window);
@@ -562,6 +568,10 @@ chart_changed(AgChart *chart, AgWindow *window)
 static void
 recalculate_chart(AgWindow *window)
 {
+    GsweTimestamp   *timestamp;
+    GtkTextIter     start_iter,
+                    end_iter;
+    gchar           *note;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
     gint            year      = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->year)),
                     month     = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->month)),
@@ -573,7 +583,6 @@ recalculate_chart(AgWindow *window)
                     latitude  = gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->latitude));
     gboolean        south     = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->south_lat)),
                     west      = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->west_long));
-    GsweTimestamp   *timestamp;
 
     g_debug("Recalculating chart data");
 
@@ -598,6 +607,10 @@ recalculate_chart(AgWindow *window)
     }
 
     ag_chart_set_name(priv->chart, gtk_entry_get_text(GTK_ENTRY(priv->name)));
+    gtk_text_buffer_get_bounds(priv->note_buffer, &start_iter, &end_iter);
+    note = gtk_text_buffer_get_text(priv->note_buffer, &start_iter, &end_iter, TRUE);
+    ag_chart_set_note(priv->chart, note);
+    g_free(note);
 }
 
 void
@@ -749,6 +762,7 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, aspect_table);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year_adjust);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, stack);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, note_buffer);
 }
 
 gboolean
