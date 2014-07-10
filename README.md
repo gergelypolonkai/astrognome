@@ -1,13 +1,22 @@
 #Astrognome
 
+Astrognome is an astrologer’s software written for and utilizing the GNOME
+Desktop Environment.
+
 ## Features
 
 The features below are already implemented.
 
-* Calculate planetary positions for any date, time and place on Earth, their
-  aspects and mirrorpoints
-* Create natal charts for any date, time and place on earth, with exact
-  planetary locations and their aspects (although it is very messy right now).
+* Create natal charts for any date, time and place on Earth with exact planetary
+  locations and their aspects
+* Optionally include many dwarf planets and comets like Chiron and Vesta, and
+  some theoretical/fictional points like the Dark Moon or the Vertex
+* Optionally display mirrorpoints on several pre-defined axes
+* If you don’t like these features, check out the traditional view which
+  excludes Uranian planets and minor aspects
+* Save your charts for later use in an XML format native to Astrognome, or
+  export them as an image (even a vectorized SVG one!)
+* Import your saved charts from Placidus or Regiomontanus
 
 ## Credits
 

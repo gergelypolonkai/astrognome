@@ -10,6 +10,8 @@ Debian/Ubuntu, Arch or Gentoo.
 
 The features below will be implemented in the first release of Astrognome.
 
+* Generate, load and save synastries
+* Calculate transits and progressions
 * Stepping through time without modifying the chart data
 * Application settings
   * Default display properties (can be overridden per window)
