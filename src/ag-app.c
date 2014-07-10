@@ -52,8 +52,9 @@ static GtkWidget *
 ag_app_create_window(AgApp *app)
 {
     GtkWidget *window;
+    AgAppPrivate *priv = ag_app_get_instance_private(app);
 
-    window = ag_window_new(app);
+    window = ag_window_new(app, priv->web_view_group);
     gtk_application_add_window(GTK_APPLICATION(app), GTK_WINDOW(window));
     gtk_widget_show_all(window);
 

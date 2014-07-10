@@ -568,15 +568,9 @@
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow" id="tab_chart">
-            <property name="shadow_type">in</property>
-            <child>
-              <object class="WebkitWebView" id="chart_web_view">
-                <property name="width_request">600</property>
-                <property name="height_request">600</property>
-                <signal name="context-menu" handler="ag_window_chart_context_cb" swapped="no"/>
-              </object>
-            </child>
+          <object class="GtkAlignment" id="tab_chart">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
           </object>
           <packing>
             <property name="name">chart</property>
