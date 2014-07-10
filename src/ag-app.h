@@ -32,12 +32,18 @@ AgApp *ag_app_new(void);
 GtkWindow *ag_app_peek_first_window(AgApp *self);
 
 void ag_app_new_window(AgApp *self);
+
 void ag_app_quit(AgApp *self);
+
 void ag_app_raise(AgApp *self);
+
 void ag_app_run_action(AgApp                   *app,
                        gboolean                is_remote,
                        const AstrognomeOptions *options);
-void ag_app_message_dialog(GtkWidget *window, GtkMessageType message_type, gchar *fmt, ...);
+
+void ag_app_message_dialog(GtkWidget      *window,
+                           GtkMessageType message_type,
+                           gchar          *fmt, ...);
 
 G_END_DECLS
 

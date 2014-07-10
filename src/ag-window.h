@@ -34,21 +34,31 @@ struct _AgWindowClass {
 };
 
 GType ag_window_get_type(void) G_GNUC_CONST;
+
 GtkWidget *ag_window_new(AgApp *app, WebKitWebViewGroup *web_view_group);
+
 void ag_window_set_chart(AgWindow *window,
                          AgChart  *chart);
+
 AgChart *ag_window_get_chart(AgWindow *window);
+
 void ag_window_update_from_chart(AgWindow *window);
+
 void ag_window_set_uri(AgWindow    *window,
                        const gchar *uri);
+
 gchar *ag_window_get_uri(AgWindow *window);
+
 void ag_window_settings_restore(GtkWindow *window,
                                 GSettings *settings);
+
 void ag_window_settings_save(GtkWindow *window,
                              GSettings *settings);
+
 void ag_window_change_tab(AgWindow *window, const gchar *tab_name);
 
 #define AG_WINDOW_ERROR (ag_window_error_quark())
+
 GQuark ag_window_error_quark(void);
 
 G_END_DECLS

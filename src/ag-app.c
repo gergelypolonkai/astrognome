@@ -19,7 +19,10 @@ ag_app_peek_first_window(AgApp *app)
 {
     GList *l;
 
-    for (l = gtk_application_get_windows(GTK_APPLICATION(app)); l; l = g_list_next(l)) {
+    for (
+         l = gtk_application_get_windows(GTK_APPLICATION(app));
+         l;
+         l = g_list_next(l)) {
         if (GTK_IS_WINDOW(l->data)) {
             return GTK_WINDOW(l->data);
         }
@@ -89,14 +92,20 @@ about_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     const gchar **documentors       = NULL;
     const gchar *translator_credits = _("translator_credits");
 
-    /* i18n: Please don't translate "Astrognome" (it's marked as translatable for transliteration only */
+    /* i18n: Please don't translate "Astrognome" (it's marked as translatable
+     * for transliteration only */
     gtk_show_about_dialog(NULL,
                           "name", _("Astrognome"),
                           "version", PACKAGE_VERSION,
                           "comments", _("Astrologers' software for GNOME"),
                           "authors", authors,
                           "documentors", documentors,
-                          "translator_credits", ((strcmp(translator_credits, "translator_credits") != 0) ? translator_credits : NULL),
+                          "translator_credits", ((strcmp(
+                                                         translator_credits,
+                                                         "translator_credits"
+                                                     ) != 0)
+                                                 ? translator_credits
+                                                 : NULL),
                           "website", PACKAGE_URL,
                           "website-label", _("Astrognome Website"),
                           "logo-icon-name", PACKAGE_TARNAME,
@@ -109,7 +118,10 @@ quit_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     GList *l;
 
     while ((l = gtk_application_get_windows(GTK_APPLICATION(user_data)))) {
-        gtk_application_remove_window(GTK_APPLICATION(user_data), GTK_WINDOW(l->data));
+        gtk_application_remove_window(
+                GTK_APPLICATION(user_data),
+                GTK_WINDOW(l->data)
+            );
     }
 }
 
@@ -213,7 +225,14 @@ show_help(const gchar *topic, GtkWindow *parent)
     if (!gtk_show_uri(screen, uri, gtk_get_current_event_time(), &err)) {
         GtkWidget *dialog;
 
-        dialog = gtk_message_dialog_new(parent, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "Unable to display help: %s", err->message);
+        dialog = gtk_message_dialog_new(
+                parent,
+                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+                GTK_MESSAGE_WARNING,
+                GTK_BUTTONS_OK,
+                "Unable to display help: %s",
+                err->message
+            );
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
     }
@@ -240,19 +259,59 @@ static GActionEntry app_entries[] = {
 static void
 setup_actions(AgApp *app)
 {
-    g_action_map_add_action_entries(G_ACTION_MAP(app), app_entries, G_N_ELEMENTS(app_entries), app);
+    g_action_map_add_action_entries(
+            G_ACTION_MAP(app),
+            app_entries,
+            G_N_ELEMENTS(app_entries),
+            app
+        );
 }
 
 static void
 setup_accelerators(AgApp *app)
 {
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>w",        "win.close",      NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary>s",        "win.save",       NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "<Primary><Shift>s", "win.save-as",    NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "F10",               "win.gear-menu",  NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "F1",                "app.help",       NULL);
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "F5",                "win.change-tab", g_variant_new_string("chart"));
-    gtk_application_add_accelerator(GTK_APPLICATION(app), "F9",                "win.change-tab", g_variant_new_string("aspects"));
+    gtk_application_add_accelerator(
+            GTK_APPLICATION(app),
+            "<Primary>w",
+            "win.close",
+            NULL
+        );
+    gtk_application_add_accelerator(
+            GTK_APPLICATION(app),
+            "<Primary>s",
+            "win.save",
+            NULL
+        );
+    gtk_application_add_accelerator(
+            GTK_APPLICATION(app),
+            "<Primary><Shift>s",
+            "win.save-as",
+            NULL
+        );
+    gtk_application_add_accelerator(
+            GTK_APPLICATION(app),
+            "F10",
+            "win.gear-menu",
+            NULL
+        );
+    gtk_application_add_accelerator(
+            GTK_APPLICATION(app),
+            "F1",
+            "app.help",
+            NULL
+        );
+    gtk_application_add_accelerator(
+            GTK_APPLICATION(app),
+            "F5",
+            "win.change-tab",
+            g_variant_new_string("chart")
+        );
+    gtk_application_add_accelerator(
+            GTK_APPLICATION(app),
+            "F9",
+            "win.change-tab",
+            g_variant_new_string("aspects")
+        );
 }
 
 static void
@@ -264,7 +323,11 @@ setup_menu(AgApp *app)
 
     builder = gtk_builder_new();
 
-    if (!gtk_builder_add_from_resource(builder, "/eu/polonkai/gergely/Astrognome/ui/astrognome.ui", &err)) {
+    if (!gtk_builder_add_from_resource(
+                builder,
+                "/eu/polonkai/gergely/Astrognome/ui/astrognome.ui",
+                &err
+            )) {
         g_error("%s", (err) ? err->message : "unknown error");
     }
 
@@ -297,7 +360,9 @@ ag_app_open(GApplication *gapp, GFile **files, gint n_files, const gchar *hint)
 }
 
 void
-ag_app_run_action(AgApp *app, gboolean is_remote, const AstrognomeOptions *options)
+ag_app_run_action(AgApp                   *app,
+                  gboolean                is_remote,
+                  const AstrognomeOptions *options)
 {
     if (options && options->new_window) {
         if (is_remote) {
@@ -322,7 +387,8 @@ ag_app_new(void)
 {
     AgApp *app;
 
-    /* i18n: Please don't translate "Astrognome" (it's marked as translatable for transliteration only */
+    /* i18n: Please don't translate "Astrognome" (it's marked as translatable
+     * for transliteration only */
     g_set_application_name(_("Astrognome"));
 
     app = g_object_new(AG_TYPE_APP,
@@ -330,7 +396,12 @@ ag_app_new(void)
                        "flags",            G_APPLICATION_HANDLES_OPEN,
                        "register-session", TRUE,
                        NULL);
-    g_signal_connect(app, "activate", G_CALLBACK(application_activate_cb), NULL);
+    g_signal_connect(
+            app,
+            "activate",
+            G_CALLBACK(application_activate_cb),
+            NULL
+        );
 
     return app;
 }
@@ -376,7 +447,9 @@ ag_app_class_init(AgAppClass *klass)
 }
 
 void
-ag_app_message_dialog(GtkWidget *window, GtkMessageType message_type, gchar *fmt, ...)
+ag_app_message_dialog(GtkWidget      *window,
+                      GtkMessageType message_type,
+                      gchar          *fmt, ...)
 {
     gchar     *msg;
     va_list   args;
@@ -386,7 +459,14 @@ ag_app_message_dialog(GtkWidget *window, GtkMessageType message_type, gchar *fmt
     msg = g_strdup_vprintf(fmt, args);
     va_end(args);
 
-    dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, message_type, GTK_BUTTONS_OK, "%s", msg);
+    dialog = gtk_message_dialog_new(
+            GTK_WINDOW(window),
+            GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+            message_type,
+            GTK_BUTTONS_OK,
+            "%s",
+            msg
+        );
     g_free(msg);
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
