@@ -1,4 +1,6 @@
 #include <glib/gi18n.h>
+#include <webkit2/webkit2.h>
+
 #include "ag-app.h"
 #include "ag-window.h"
 #include "ag-chart.h"
@@ -6,7 +8,11 @@
 #include "config.h"
 #include "astrognome.h"
 
-G_DEFINE_TYPE(AgApp, ag_app, GTK_TYPE_APPLICATION);
+typedef struct _AgAppPrivate {
+    WebKitWebViewGroup *web_view_group;
+} AgAppPrivate;
+
+G_DEFINE_TYPE_WITH_PRIVATE(AgApp, ag_app, GTK_TYPE_APPLICATION);
 
 GtkWindow *
 ag_app_peek_first_window(AgApp *app)
