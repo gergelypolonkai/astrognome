@@ -337,6 +337,32 @@ ag_app_new(void)
 static void
 ag_app_init(AgApp *app)
 {
+    AgAppPrivate *priv;
+    GBytes       *css_data;
+    const gchar  *css_source;
+    gsize        css_length;
+
+    priv = ag_app_get_instance_private(app);
+    priv->web_view_group = webkit_web_view_group_new(NULL);
+
+    css_data = g_resources_lookup_data(
+            "/eu/polonkai/gergely/Astrognome/ui/chart-default.css",
+            G_RESOURCE_LOOKUP_FLAGS_NONE,
+            NULL
+        );
+
+    if ((css_source = g_bytes_get_data(css_data, &css_length)) != NULL) {
+          webkit_web_view_group_add_user_style_sheet(
+                priv->web_view_group,
+                css_source,
+                NULL,
+                NULL,
+                NULL,
+                WEBKIT_INJECTED_CONTENT_FRAMES_TOP_ONLY
+            );
+    }
+
+    g_bytes_unref(css_data);
 }
 
 static void
