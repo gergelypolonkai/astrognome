@@ -255,7 +255,11 @@ ag_window_export_svg(AgWindow *window, GError **err)
                 GTK_MESSAGE_ERROR,
                 _("You must enter a name before saving a chart.")
             );
-        g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME, "No name specified");
+        g_set_error(
+                err,
+                AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME,
+                "No name specified"
+            );
 
         return;
     }
@@ -288,7 +292,9 @@ ag_window_export_svg(AgWindow *window, GError **err)
 }
 
 static void
-ag_window_export_svg_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+ag_window_export_svg_action(GSimpleAction *action,
+                            GVariant      *parameter,
+                            gpointer      user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
     GError *err = NULL;
@@ -296,7 +302,12 @@ ag_window_export_svg_action(GSimpleAction *action, GVariant *parameter, gpointer
     ag_window_export_svg(window, &err);
 
     if (err) {
-        ag_app_message_dialog(GTK_WIDGET(window), GTK_MESSAGE_ERROR, "%s", err->message);
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "%s",
+                err->message
+            );
     }
 }
 
@@ -386,7 +397,9 @@ ag_window_create_planet_widget(GswePlanetInfo *planet_info)
 
     switch (planet) {
         case GSWE_PLANET_SUN:
-            return gtk_image_new_from_resource("/eu/polonkai/gergely/Astrognome/default-icons/planet-sun.svg");
+            return gtk_image_new_from_resource(
+                    "/eu/polonkai/gergely/Astrognome/default-icons/planet-sun.svg"
+                );
 
         default:
             return gtk_label_new(gswe_planet_info_get_name(planet_info));
@@ -552,7 +565,8 @@ ag_window_redraw_chart(AgWindow *window)
     } else {
         webkit_web_view_load_html(
                 WEBKIT_WEB_VIEW(priv->chart_web_view),
-                svg_content, NULL);
+                svg_content, NULL
+            );
         g_free(svg_content);
     }
 
