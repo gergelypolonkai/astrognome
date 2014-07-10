@@ -2,6 +2,8 @@
 #define __AG_WINDOW_H__
 
 #include <gtk/gtk.h>
+#include <webkit2/webkit2.h>
+
 #include "ag-app.h"
 #include "ag-chart.h"
 
@@ -32,7 +34,7 @@ struct _AgWindowClass {
 };
 
 GType ag_window_get_type(void) G_GNUC_CONST;
-GtkWidget *ag_window_new(AgApp *app);
+GtkWidget *ag_window_new(AgApp *app, WebKitWebViewGroup *web_view_group);
 void ag_window_set_chart(AgWindow *window,
                          AgChart  *chart);
 AgChart *ag_window_get_chart(AgWindow *window);

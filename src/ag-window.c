@@ -3,7 +3,7 @@
 #include <glib/gi18n.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-#include <webkit/webkit.h>
+#include <webkit2/webkit2.h>
 
 #include <swe-glib.h>
 
@@ -30,6 +30,7 @@ struct _AgWindowPrivate {
     GtkWidget     *second;
     GtkWidget     *timezone;
 
+    GtkWidget     *tab_chart;
     GtkWidget     *tab_edit;
     GtkWidget     *current_tab;
 
@@ -512,9 +513,9 @@ ag_window_redraw_chart(AgWindow *window)
         gtk_dialog_run(GTK_DIALOG(dialog));
         gtk_widget_destroy(dialog);
     } else {
-        webkit_web_view_load_string(
+        webkit_web_view_load_html(
                 WEBKIT_WEB_VIEW(priv->chart_web_view),
-                svg_content, "image/svg+xml", "UTF-8", "file://");
+                svg_content, NULL);
         g_free(svg_content);
     }
 
@@ -695,19 +696,6 @@ ag_window_init(AgWindow *window)
     g_signal_connect(G_OBJECT(main_settings), "changed::planets-char", G_CALLBACK(ag_window_display_changed), window);
     g_signal_connect(G_OBJECT(main_settings), "changed::aspects-char", G_CALLBACK(ag_window_display_changed), window);
 
-    webkit_web_view_load_string(
-            WEBKIT_WEB_VIEW(priv->chart_web_view),
-            "<html>" \
-                "<head>" \
-                    "<title>No Chart</title>" \
-                "</head>" \
-                "<body>" \
-                    "<h1>No Chart</h1>" \
-                    "<p>No chart is loaded. Create one on the edit view, or open one from the application menu!</p>" \
-                "</body>" \
-            "</html>",
-            "text/html", "UTF-8", NULL);
-
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
     priv->current_tab = priv->tab_edit;
     g_object_set(priv->year_adjust, "lower", (gdouble)G_MININT, "upper", (gdouble)G_MAXINT, NULL);
@@ -758,9 +746,13 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, west_long);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, latitude);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, longitude);
-    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, chart_web_view);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, aspect_table);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year_adjust);
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            tab_chart
+        );
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, stack);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, note_buffer);
 }
@@ -783,10 +775,28 @@ ag_window_configure_event_cb(GtkWidget *widget, GdkEventConfigure *event, gpoint
 }
 
 GtkWidget *
-ag_window_new(AgApp *app)
+ag_window_new(AgApp *app, WebKitWebViewGroup *web_view_group)
 {
     AgWindow        *window = g_object_new(AG_TYPE_WINDOW, NULL);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+
+    priv->chart_web_view = webkit_web_view_new_with_group(web_view_group);
+    gtk_container_add(GTK_CONTAINER(priv->tab_chart), priv->chart_web_view);
+
+    // TODO: translate this error message!
+    webkit_web_view_load_html(
+            WEBKIT_WEB_VIEW(priv->chart_web_view),
+            "<html>" \
+                "<head>" \
+                    "<title>No Chart</title>" \
+                "</head>" \
+                "<body>" \
+                    "<h1>No Chart</h1>" \
+                    "<p>No chart is loaded. Create one on the " \
+                    "edit view, or open one from the application menu!</p>" \
+                "</body>" \
+            "</html>",
+            NULL);
 
     gtk_window_set_application(GTK_WINDOW(window), GTK_APPLICATION(app));
 
