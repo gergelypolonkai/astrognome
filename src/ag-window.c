@@ -107,17 +107,11 @@ ag_window_save_as(AgWindow *window, GError **err)
 
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
-        GtkWidget *dialog;
-
-        dialog = gtk_message_dialog_new(
-                GTK_WINDOW(window),
-                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
                 GTK_MESSAGE_ERROR,
-                GTK_BUTTONS_OK,
                 _("Chart cannot be calculated.")
             );
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
         g_set_error(
                 err,
                 AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART,
@@ -130,19 +124,13 @@ ag_window_save_as(AgWindow *window, GError **err)
     name = ag_chart_get_name(priv->chart);
 
     if ((name == NULL) || (*name == 0)) {
-        GtkWidget *dialog;
-
         g_free(name);
 
-        dialog = gtk_message_dialog_new(
-                GTK_WINDOW(window),
-                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
                 GTK_MESSAGE_ERROR,
-                GTK_BUTTONS_OK,
                 _("You must enter a name before saving a chart.")
             );
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
         g_set_error(
                 err,
                 AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME,
@@ -243,17 +231,11 @@ ag_window_export_svg(AgWindow *window, GError **err)
 
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
-        GtkWidget *dialog;
-
-        dialog = gtk_message_dialog_new(
-                GTK_WINDOW(window),
-                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
                 GTK_MESSAGE_ERROR,
-                GTK_BUTTONS_OK,
                 _("Chart cannot be calculated.")
             );
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
         g_set_error(
                 err,
                 AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART,
@@ -266,13 +248,13 @@ ag_window_export_svg(AgWindow *window, GError **err)
     name = ag_chart_get_name(priv->chart);
 
     if ((name == NULL) || (*name == 0)) {
-        GtkWidget *dialog;
-
         g_free(name);
 
-        dialog = gtk_message_dialog_new(GTK_WINDOW(window), GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, _("You must enter a name before saving a chart."));
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                _("You must enter a name before saving a chart.")
+            );
         g_set_error(err, AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME, "No name specified");
 
         return;
@@ -561,11 +543,12 @@ ag_window_redraw_chart(AgWindow *window)
     gchar           *svg_content = ag_chart_create_svg(priv->chart, NULL, &err);
 
     if (svg_content == NULL) {
-        GtkWidget *dialog;
-
-        dialog = gtk_message_dialog_new(GTK_WINDOW(window), 0, GTK_MESSAGE_WARNING, GTK_BUTTONS_OK, "Unable to draw chart: %s", err->message);
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_WARNING,
+                "Unable to draw chart: %s",
+                err->message
+            );
     } else {
         webkit_web_view_load_html(
                 WEBKIT_WEB_VIEW(priv->chart_web_view),
