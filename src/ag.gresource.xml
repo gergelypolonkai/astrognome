@@ -4,6 +4,7 @@
     <file>ui/astrognome.ui</file>
     <file>ui/ag-window.ui</file>
     <file>ui/ag-preferences.ui</file>
+    <file>ui/chart-default.css</file>
 
     <file>default-icons/planet-sun.svg</file>
   </gresource>
