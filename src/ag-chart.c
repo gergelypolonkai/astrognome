@@ -17,6 +17,7 @@ struct _AgChartPrivate {
     gchar *city;
     gchar *save_buffer;
     GList *planet_list;
+    gchar *note;
 };
 
 enum {
@@ -425,6 +426,7 @@ ag_chart_load_from_file(GFile *file, GError **err)
     GVariant           *minute;
     GVariant           *second;
     GVariant           *timezone;
+    GVariant           *note;
     GsweTimestamp      *timestamp;
     gboolean           found_error = FALSE;
 
@@ -505,7 +507,10 @@ ag_chart_load_from_file(GFile *file, GError **err)
         found_error = TRUE;
     }
 
+    note = get_by_xpath(xpath_context, uri, "/chartinfo/note/text()", FALSE, XML_CONVERT_STRING, err);
+
     if (found_error) {
+        ag_g_variant_unref(note);
         ag_g_variant_unref(chart_name);
         ag_g_variant_unref(country);
         ag_g_variant_unref(city);
@@ -565,6 +570,14 @@ ag_chart_load_from_file(GFile *file, GError **err)
     ag_chart_set_city(chart, city_name);
     g_free(city_name);
 
+    if (note) {
+        gchar *note_text;
+
+        g_variant_get(note, "ms", &note_text);
+        g_variant_unref(note);
+        ag_chart_set_note(chart, note_text);
+    }
+
     g_free(xml);
     g_free(uri);
     xmlXPathFreeContext(xpath_context);
@@ -576,11 +589,11 @@ ag_chart_load_from_file(GFile *file, GError **err)
 static xmlDocPtr
 create_save_doc(AgChart *chart)
 {
-    xmlDocPtr  doc        = NULL;
-    xmlNodePtr root_node  = NULL,
-               data_node  = NULL,
-               place_node = NULL,
-               time_node  = NULL;
+    xmlDocPtr       doc        = NULL;
+    xmlNodePtr      root_node  = NULL,
+                    data_node  = NULL,
+                    place_node = NULL,
+                    time_node  = NULL;
     gchar           *value;
     GsweCoordinates *coordinates;
     GsweTimestamp   *timestamp;
@@ -665,6 +678,10 @@ create_save_doc(AgChart *chart)
     g_ascii_dtostr(value, 7, gswe_timestamp_get_gregorian_timezone(timestamp));
     xmlNewChild(time_node, NULL, BAD_CAST "timezone", BAD_CAST value);
     g_free(value);
+
+    if (ag_chart_get_note(chart)) {
+        xmlNewChild(root_node, NULL, BAD_CAST "note", BAD_CAST ag_chart_get_note(chart));
+    }
 
     return doc;
 }
@@ -949,3 +966,19 @@ ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
 
     g_file_replace_contents(file, (const gchar *)svg, length, NULL, FALSE, G_FILE_CREATE_NONE, NULL, NULL, err);
 }
+
+void
+ag_chart_set_note(AgChart *chart, const gchar *note)
+{
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    priv->note = g_strdup(note);
+}
+
+const gchar *ag_chart_get_note(AgChart *chart)
+{
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    return priv->note;
+}
+
