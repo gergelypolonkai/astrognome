@@ -17,7 +17,6 @@
     <xsl:variable name="r_aspect" select="240" />
 
     <xsl:template match="/">
-        <xsl:processing-instruction name="xml-stylesheet">href="<xsl:value-of select="$css_file"/>" type="text/css"</xsl:processing-instruction>
         <svg
             xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink"
