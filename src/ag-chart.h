@@ -12,11 +12,17 @@ typedef enum {
 } AgChartError;
 
 #define AG_TYPE_CHART         (ag_chart_get_type())
-#define AG_CHART(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), AG_TYPE_CHART, AgChart))
-#define AG_CHART_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), AG_TYPE_CHART, AgChartClass))
+#define AG_CHART(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), \
+                                                          AG_TYPE_CHART, \
+                                                          AgChart))
+#define AG_CHART_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), \
+                                                       AG_TYPE_CHART, \
+                                                       AgChartClass))
 #define AG_IS_CHART(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), AG_TYPE_CHART))
 #define AG_IS_CHART_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), AG_TYPE_CHART))
-#define AG_CHART_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), AG_TYPE_CHART, AgChartClass))
+#define AG_CHART_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), \
+                                                         AG_TYPE_CHART, \
+                                                         AgChartClass))
 
 typedef struct _AgChart        AgChart;
 typedef struct _AgChartClass   AgChartClass;

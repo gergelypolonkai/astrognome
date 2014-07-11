@@ -398,7 +398,8 @@ ag_window_create_planet_widget(GswePlanetInfo *planet_info)
     switch (planet) {
         case GSWE_PLANET_SUN:
             return gtk_image_new_from_resource(
-                    "/eu/polonkai/gergely/Astrognome/default-icons/planet-sun.svg"
+                    "/eu/polonkai/gergely"
+                    "/Astrognome/default-icons/planet-sun.svg"
                 );
 
         default:
@@ -482,7 +483,11 @@ ag_window_redraw_aspect_table(AgWindow *window)
         GList *planet;
         guint i;
 
-        for (planet = planet_list, i = 0; planet; planet = g_list_next(planet), i++) {
+        for (
+                    planet = planet_list, i = 0;
+                    planet;
+                    planet = g_list_next(planet), i++
+                ) {
             GtkWidget      *label_hor,
                            *label_ver,
                            *current_widget;
@@ -491,56 +496,111 @@ ag_window_redraw_aspect_table(AgWindow *window)
             GswePlanetInfo *planet_info;
 
             planet_id = GPOINTER_TO_INT(planet->data);
-            planet_data = gswe_moment_get_planet(GSWE_MOMENT(priv->chart), planet_id, NULL);
+            planet_data = gswe_moment_get_planet(
+                    GSWE_MOMENT(priv->chart),
+                    planet_id,
+                    NULL
+                );
             planet_info = gswe_planet_data_get_planet_info(planet_data);
 
-            if ((current_widget = gtk_grid_get_child_at(GTK_GRID(priv->aspect_table), i + 1, i)) != NULL) {
-                gtk_container_remove(GTK_CONTAINER(priv->aspect_table), current_widget);
+            if ((current_widget = gtk_grid_get_child_at(
+                        GTK_GRID(priv->aspect_table),
+                        i + 1, i
+                    )) != NULL) {
+                gtk_container_remove(
+                        GTK_CONTAINER(priv->aspect_table),
+                        current_widget
+                    );
             }
 
             label_hor = ag_window_create_planet_widget(planet_info);
-            gtk_grid_attach(GTK_GRID(priv->aspect_table), label_hor, i + 1, i, 1, 1);
+            gtk_grid_attach(
+                    GTK_GRID(priv->aspect_table),
+                    label_hor,
+                    i + 1, i,
+                    1, 1
+                );
 
             if (i > 0) {
-                if ((current_widget = gtk_grid_get_child_at(GTK_GRID(priv->aspect_table), 0, i)) != NULL) {
-                    gtk_container_remove(GTK_CONTAINER(priv->aspect_table), current_widget);
+                if ((current_widget = gtk_grid_get_child_at(
+                            GTK_GRID(priv->aspect_table),
+                            0, i
+                    )) != NULL) {
+                    gtk_container_remove(
+                            GTK_CONTAINER(priv->aspect_table),
+                            current_widget
+                        );
                 }
 
                 label_ver = ag_window_create_planet_widget(planet_info);
-                gtk_grid_attach(GTK_GRID(priv->aspect_table), label_ver, 0, i, 1, 1);
+                gtk_grid_attach(
+                        GTK_GRID(priv->aspect_table),
+                        label_ver,
+                        0, i,
+                        1, 1
+                    );
             }
         }
 
         priv->aspect_table_populated = TRUE;
     }
 
-    for (planet1 = planet_list, i = 0; planet1; planet1 = g_list_next(planet1), i++) {
-        for (planet2 = planet_list, j = 0; planet2; planet2 = g_list_next(planet2), j++) {
+    for (
+                planet1 = planet_list, i = 0;
+                planet1;
+                planet1 = g_list_next(planet1), i++
+            ) {
+        for (
+                    planet2 = planet_list, j = 0;
+                    planet2;
+                    planet2 = g_list_next(planet2), j++
+                ) {
             GsweAspectData *aspect;
             GtkWidget      *aspect_widget;
             GError         *err = NULL;
 
-            if (GPOINTER_TO_INT(planet1->data) == GPOINTER_TO_INT(planet2->data)) {
+            if (GPOINTER_TO_INT(planet1->data)
+                        == GPOINTER_TO_INT(planet2->data)
+                    ) {
                 break;
             }
 
-            if ((aspect_widget = gtk_grid_get_child_at(GTK_GRID(priv->aspect_table), j + 1, i)) != NULL) {
-                gtk_container_remove(GTK_CONTAINER(priv->aspect_table), aspect_widget);
+            if ((aspect_widget = gtk_grid_get_child_at(
+                        GTK_GRID(priv->aspect_table),
+                        j + 1, i
+                    )) != NULL) {
+                gtk_container_remove(
+                        GTK_CONTAINER(priv->aspect_table),
+                        aspect_widget
+                    );
             }
 
-            if ((aspect = gswe_moment_get_aspect_by_planets(GSWE_MOMENT(priv->chart), GPOINTER_TO_INT(planet1->data), GPOINTER_TO_INT(planet2->data), &err)) != NULL) {
+            if ((aspect = gswe_moment_get_aspect_by_planets(
+                        GSWE_MOMENT(priv->chart),
+                        GPOINTER_TO_INT(planet1->data),
+                        GPOINTER_TO_INT(planet2->data),
+                        &err
+                    )) != NULL) {
                 GsweAspectInfo *aspect_info;
 
                 aspect_info   = gswe_aspect_data_get_aspect_info(aspect);
 
                 if (gswe_aspect_data_get_aspect(aspect) != GSWE_ASPECT_NONE) {
                     aspect_widget = ag_window_create_aspect_widget(aspect_info);
-                    gtk_grid_attach(GTK_GRID(priv->aspect_table), aspect_widget, j + 1, i, 1, 1);
+                    gtk_grid_attach(
+                            GTK_GRID(priv->aspect_table),
+                            aspect_widget,
+                            j + 1, i,
+                            1, 1
+                        );
                 }
             } else if (err) {
                 g_warning("%s\n", err->message);
             } else {
-                g_error("No aspect is returned between two planets. This is a bug in SWE-GLib!\n");
+                g_error(
+                        "No aspect is returned between two planets. " \
+                        "This is a bug in SWE-GLib!"
+                    );
             }
         }
     }
@@ -659,16 +719,36 @@ recalculate_chart(AgWindow *window)
                     end_iter;
     gchar           *note;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
-    gint            year      = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->year)),
-                    month     = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->month)),
-                    day       = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->day)),
-                    hour      = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->hour)),
-                    minute    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->minute)),
-                    second    = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(priv->second));
-    gdouble         longitude = gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->longitude)),
-                    latitude  = gtk_spin_button_get_value(GTK_SPIN_BUTTON(priv->latitude));
-    gboolean        south     = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->south_lat)),
-                    west      = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(priv->west_long));
+    gint            year      = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->year)
+        ),
+                    month     = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->month)
+        ),
+                    day       = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->day)
+        ),
+                    hour      = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->hour)
+        ),
+                    minute    = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->minute)
+        ),
+                    second    = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->second)
+        );
+    gdouble         longitude = gtk_spin_button_get_value(
+            GTK_SPIN_BUTTON(priv->longitude)
+        ),
+                    latitude  = gtk_spin_button_get_value(
+            GTK_SPIN_BUTTON(priv->latitude)
+        );
+    gboolean        south     = gtk_toggle_button_get_active(
+            GTK_TOGGLE_BUTTON(priv->south_lat)
+        ),
+                    west      = gtk_toggle_button_get_active(
+            GTK_TOGGLE_BUTTON(priv->west_long)
+        );
 
     g_debug("Recalculating chart data");
 
@@ -682,19 +762,42 @@ recalculate_chart(AgWindow *window)
 
     // TODO: Set timezone according to the city selected!
     if (priv->chart == NULL) {
-        timestamp = gswe_timestamp_new_from_gregorian_full(year, month, day, hour, minute, second, 0, 1.0);
+        timestamp = gswe_timestamp_new_from_gregorian_full(
+                year, month, day,
+                hour, minute, second, 0,
+                1.0
+            );
         // TODO: make house system configurable
-        priv->chart = ag_chart_new_full(timestamp, longitude, latitude, 380.0, GSWE_HOUSE_SYSTEM_PLACIDUS);
-        g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), window);
+        priv->chart = ag_chart_new_full(
+                timestamp,
+                longitude, latitude, 380.0,
+                GSWE_HOUSE_SYSTEM_PLACIDUS
+            );
+        g_signal_connect(
+                priv->chart,
+                "changed",
+                G_CALLBACK(chart_changed),
+                window
+            );
         ag_window_redraw_chart(window);
     } else {
         timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(priv->chart));
-        gswe_timestamp_set_gregorian_full(timestamp, year, month, day, hour, minute, second, 0, 1.0, NULL);
+        gswe_timestamp_set_gregorian_full(
+                timestamp,
+                year, month, day,
+                hour, minute, second, 0,
+                1.0,
+                NULL
+            );
     }
 
     ag_chart_set_name(priv->chart, gtk_entry_get_text(GTK_ENTRY(priv->name)));
     gtk_text_buffer_get_bounds(priv->note_buffer, &start_iter, &end_iter);
-    note = gtk_text_buffer_get_text(priv->note_buffer, &start_iter, &end_iter, TRUE);
+    note = gtk_text_buffer_get_text(
+            priv->note_buffer,
+            &start_iter, &end_iter,
+            TRUE
+        );
     ag_chart_set_note(priv->chart, note);
     g_free(note);
 }
@@ -732,7 +835,9 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 }
 
 static void
-ag_window_change_tab_action(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+ag_window_change_tab_action(GSimpleAction *action,
+                            GVariant      *parameter,
+                            gpointer      user_data)
 {
     AgWindow        *window     = AG_WINDOW(user_data);
     const gchar     *target_tab = g_variant_get_string(parameter, NULL);
@@ -1072,7 +1177,10 @@ ag_window_settings_save(GtkWindow *window, GSettings *settings)
     gboolean       maximized;
 
     state     = gdk_window_get_state(gtk_widget_get_window(GTK_WIDGET(window)));
-    maximized = ((state & GDK_WINDOW_STATE_MAXIMIZED) == GDK_WINDOW_STATE_MAXIMIZED);
+    maximized = (
+                (state & GDK_WINDOW_STATE_MAXIMIZED)
+                == GDK_WINDOW_STATE_MAXIMIZED
+            );
 
     g_settings_set_boolean(settings, "maximized", maximized);
 

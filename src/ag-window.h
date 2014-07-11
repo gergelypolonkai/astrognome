@@ -15,11 +15,17 @@ typedef enum {
 } AgWindowError;
 
 #define AG_TYPE_WINDOW         (ag_window_get_type())
-#define AG_WINDOW(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), AG_TYPE_WINDOW, AgWindow))
-#define AG_WINDOW_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), AG_TYPE_WINDOW, AgWindowClass))
+#define AG_WINDOW(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), \
+                                                           AG_TYPE_WINDOW, \
+                                                           AgWindow))
+#define AG_WINDOW_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), \
+                                                        AG_TYPE_WINDOW, \
+                                                        AgWindowClass))
 #define AG_IS_WINDOW(o)        (G_TYPE_CHECK_INSTANCE_TYPE((o), AG_TYPE_WINDOW))
 #define AG_IS_WINDOW_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE((k), AG_TYPE_WINDOW))
-#define AG_WINDOW_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), AG_TYPE_WINDOW, AgWindowClass))
+#define AG_WINDOW_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS((o), \
+                                                          AG_TYPE_WINDOW, \
+                                                          AgWindowClass))
 
 typedef struct _AgWindow        AgWindow;
 typedef struct _AgWindowClass   AgWindowClass;

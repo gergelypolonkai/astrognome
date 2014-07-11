@@ -27,7 +27,9 @@ ag_settings_init(AgSettings *settings)
 static void
 ag_settings_dispose(GObject *object)
 {
-    AgSettingsPrivate *priv = ag_settings_get_instance_private(AG_SETTINGS(object));
+    AgSettingsPrivate *priv = ag_settings_get_instance_private(
+            AG_SETTINGS(object)
+        );
 
     g_clear_object(&priv->settings_window);
     g_clear_object(&priv->settings_chart);

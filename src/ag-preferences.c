@@ -43,10 +43,25 @@ ag_preferences_class_init(AgPreferencesClass *klass)
     object_class->finalize = ag_preferences_finalize;
     dialog_class->response = ag_preferences_response;
 
-    gtk_widget_class_set_template_from_resource(widget_class, "/eu/polonkai/gergely/Astrognome/ui/ag-preferences.ui");
-    gtk_widget_class_bind_template_child_private(widget_class, AgPreferences, maximized);
-    gtk_widget_class_bind_template_child_private(widget_class, AgPreferences, planet_chars);
-    gtk_widget_class_bind_template_child_private(widget_class, AgPreferences, aspect_chars);
+    gtk_widget_class_set_template_from_resource(
+            widget_class,
+            "/eu/polonkai/gergely/Astrognome/ui/ag-preferences.ui"
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgPreferences,
+            maximized
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgPreferences,
+            planet_chars
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgPreferences,
+            aspect_chars
+        );
 }
 
 static void
@@ -62,11 +77,29 @@ ag_preferences_init(AgPreferences *prefs)
     priv->settings = ag_settings_get();
 
     settings_window = ag_settings_peek_window_settings(priv->settings);
-    g_settings_bind(settings_window, "maximized", priv->maximized, "active", G_SETTINGS_BIND_DEFAULT);
+    g_settings_bind(
+            settings_window,
+            "maximized",
+            priv->maximized,
+            "active",
+            G_SETTINGS_BIND_DEFAULT
+        );
 
     settings_main = ag_settings_peek_main_settings(priv->settings);
-    g_settings_bind(settings_main, "planets-char", priv->planet_chars, "active", G_SETTINGS_BIND_DEFAULT);
-    g_settings_bind(settings_main, "aspects-char", priv->aspect_chars, "active", G_SETTINGS_BIND_DEFAULT);
+    g_settings_bind(
+            settings_main,
+            "planets-char",
+            priv->planet_chars,
+            "active",
+            G_SETTINGS_BIND_DEFAULT
+        );
+    g_settings_bind(
+            settings_main,
+            "aspects-char",
+            priv->aspect_chars,
+            "active",
+            G_SETTINGS_BIND_DEFAULT
+        );
 }
 
 void
@@ -76,7 +109,12 @@ ag_preferences_show_dialog(GtkWindow *parent)
 
     if (prefs_dialog == NULL) {
         prefs_dialog = GTK_WIDGET(g_object_new(AG_TYPE_PREFERENCES, NULL));
-        g_signal_connect(prefs_dialog, "destroy", G_CALLBACK(gtk_widget_destroyed), &prefs_dialog);
+        g_signal_connect(
+                prefs_dialog,
+                "destroy",
+                G_CALLBACK(gtk_widget_destroyed),
+                &prefs_dialog
+            );
     }
 
     if (parent != gtk_window_get_transient_for(GTK_WINDOW(prefs_dialog))) {

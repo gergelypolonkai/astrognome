@@ -56,9 +56,27 @@ main(int argc, char *argv[])
     AstrognomeOptions options;
 
     GOptionEntry      option_entries[] = {
-        { "new-window", 'n', 0, G_OPTION_ARG_NONE, &(options.new_window), N_("Opens a new Astrognome window"), NULL },
-        { "version",    'v', 0, G_OPTION_ARG_NONE, &(options.version),    N_("Display version and exit"),      NULL },
-        { "quit",       'q', 0, G_OPTION_ARG_NONE, &(options.quit),       N_("Quit any running Astrognome"),   NULL },
+        {
+                "new-window", 'n',
+                0, G_OPTION_ARG_NONE,
+                &(options.new_window),
+                N_("Opens a new Astrognome window"),
+                NULL
+        },
+        {
+                "version",    'v',
+                0, G_OPTION_ARG_NONE,
+                &(options.version),
+                N_("Display version and exit"),
+                NULL
+        },
+        {
+                "quit",       'q',
+                0, G_OPTION_ARG_NONE,
+                &(options.quit),
+                N_("Quit any running Astrognome"),
+                NULL
+        },
         { NULL }
     };
 
@@ -78,7 +96,10 @@ main(int argc, char *argv[])
 
     memset(&options, 0, sizeof(AstrognomeOptions));
 
-    if (!gtk_init_with_args(&argc, &argv, _("[FILE…]"), option_entries, GETTEXT_PACKAGE, &err)) {
+    if (!gtk_init_with_args(
+                &argc, &argv,
+                _("[FILE…]"
+            ), option_entries, GETTEXT_PACKAGE, &err)) {
         g_printerr("%s\n", err->message);
 
         return EXIT_FAILURE;
@@ -96,7 +117,10 @@ main(int argc, char *argv[])
     g_application_set_default(G_APPLICATION(app));
 
     if (!g_application_register(G_APPLICATION(app), NULL, &err)) {
-        g_printerr("Couldn't register Astrognome instance: '%s'\n", (err) ? err->message : "");
+        g_printerr(
+                "Couldn't register Astrognome instance: '%s'\n",
+                (err) ? err->message : ""
+            );
         g_object_unref(app);
 
         return EXIT_FAILURE;
@@ -115,4 +139,3 @@ main(int argc, char *argv[])
 
     return status;
 }
-
