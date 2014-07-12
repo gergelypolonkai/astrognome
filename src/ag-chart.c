@@ -1009,12 +1009,8 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
     xmlNodePtr        antiscia_node = NULL;
     xmlNodePtr        node          = NULL;
     gchar             *value;
-    gchar             *stylesheet_path;
-    gchar             *css_path;
     gchar             *save_content = NULL;
-    gchar             *css_uri;
-    gchar             *css_final_uri;
-    gchar             **params;
+    const gchar       *xslt_content;
     GList             *houses;
     GList             *house;
     GList             *planet;
@@ -1026,9 +1022,10 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
     GEnumClass        *aspects_class;
     GEnumClass        *antiscia_class;
     gint              save_length;
-    GFile             *css_file;
     xsltStylesheetPtr xslt_proc;
     locale_t          current_locale;
+    GBytes            *xslt_data;
+    gsize             xslt_length;
 
     root_node = xmlDocGetRootElement(doc);
 
@@ -1227,24 +1224,25 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
 
     // Now, doc contains the generated XML tree
 
-    css_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.css");
-    g_debug("Using %s as a CSS stylesheet", css_path);
-    css_file = g_file_new_for_path(css_path);
-    css_uri  = g_file_get_uri(css_file);
+    xslt_data = g_resources_lookup_data(
+            "/eu/polonkai/gergely/Astrognome/ui/chart-default.xsl",
+            G_RESOURCE_LOOKUP_FLAGS_NONE,
+            NULL
+        );
+    xslt_content = g_bytes_get_data(xslt_data, &xslt_length);
 
-    stylesheet_path = g_strdup_printf("%s/%s", PKGDATADIR, "chart.xsl");
-    g_debug("Opening %s as a stylesheet", stylesheet_path);
-    if ((xslt_doc = xmlReadFile(stylesheet_path, "UTF-8", 0)) == NULL) {
+    if ((xslt_doc = xmlReadMemory(
+                xslt_content,
+                xslt_length,
+                "file://" PKGDATADIR "/astrognome",
+                "UTF-8",
+                0
+            )) == NULL) {
         g_set_error(
                 err,
                 AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
-                "File '%s' can not be parsed as a stylesheet file.",
-                stylesheet_path
+                "Built in style sheet can not be parsed as a stylesheet file."
             );
-        g_free(stylesheet_path);
-        g_free(css_path);
-        g_free(css_uri);
-        g_object_unref(css_file);
         xmlFreeDoc(doc);
 
         return NULL;
@@ -1260,35 +1258,21 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
         g_set_error(
                 err,
                 AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
-                "File '%s' can not be parsed as a stylesheet file.",
-                stylesheet_path
+                "Built in style sheet can not be parsed as a stylesheet file."
             );
-        g_free(stylesheet_path);
-        g_free(css_path);
-        g_free(css_uri);
-        g_object_unref(css_file);
         xmlFreeDoc(xslt_doc);
         xmlFreeDoc(doc);
 
         return NULL;
     }
 
-    css_final_uri = g_strdup_printf("'%s'", css_uri);
-    g_free(css_uri);
-    params    = g_new0(gchar *, 3);
-    params[0] = "css_file";
-    params[1] = css_final_uri;
     // libxml2 messes up the output, as it prints decimal floating point
     // numbers in a localized format. It is not good in locales that use a
     // character for decimal separator other than a dot. So let's just use the
     // C locale until the SVG is generated.
     current_locale = uselocale(newlocale(LC_ALL, "C", 0));
-    svg_doc        = xsltApplyStylesheet(xslt_proc, doc, (const char **)params);
+    svg_doc        = xsltApplyStylesheet(xslt_proc, doc, NULL);
     uselocale(current_locale);
-    g_free(stylesheet_path);
-    g_free(css_path);
-    g_object_unref(css_file);
-    g_free(params);
     xsltFreeStylesheet(xslt_proc);
     xmlFreeDoc(doc);
 

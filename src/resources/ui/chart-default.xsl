@@ -30,18 +30,18 @@
                     )"/>
             </title>
             <defs>
-                <xi:include href="sign_aries.xml" />
-                <xi:include href="sign_taurus.xml" />
-                <xi:include href="sign_gemini.xml" />
-                <xi:include href="sign_cancer.xml" />
-                <xi:include href="sign_leo.xml" />
-                <xi:include href="sign_virgo.xml" />
-                <xi:include href="sign_libra.xml" />
-                <xi:include href="sign_scorpio.xml" />
-                <xi:include href="sign_sagittarius.xml" />
-                <xi:include href="sign_capricorn.xml" />
-                <xi:include href="sign_aquarius.xml" />
-                <xi:include href="sign_pisces.xml" />
+                <xi:include href="gres://default-icons/sign-aries.xml" />
+                <xi:include href="gres://default-icons/sign-taurus.xml" />
+                <xi:include href="gres://default-icons/sign-gemini.xml" />
+                <xi:include href="gres://default-icons/sign-cancer.xml" />
+                <xi:include href="gres://default-icons/sign-leo.xml" />
+                <xi:include href="gres://default-icons/sign-virgo.xml" />
+                <xi:include href="gres://default-icons/sign-libra.xml" />
+                <xi:include href="gres://default-icons/sign-scorpio.xml" />
+                <xi:include href="gres://default-icons/sign-sagittarius.xml" />
+                <xi:include href="gres://default-icons/sign-capricorn.xml" />
+                <xi:include href="gres://default-icons/sign-aquarius.xml" />
+                <xi:include href="gres://default-icons/sign-pisces.xml" />
 
                 <marker id="arrow_end" orient="auto" refX="-3.5" refY="0.0" style="overflow:visible">
                     <polygon points="0.0,0.0 7.0,-2.0 5.0,0.0 7.0,2.0" transform="rotate(180)" />
