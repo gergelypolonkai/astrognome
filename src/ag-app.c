@@ -111,6 +111,7 @@ about_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
                                                  : NULL),
                           "website", PACKAGE_URL,
                           "website-label", _("Astrognome Website"),
+                          "license-type", GTK_LICENSE_GPL_3_0,
                           "logo-icon-name", PACKAGE_TARNAME,
                           NULL);
 }
