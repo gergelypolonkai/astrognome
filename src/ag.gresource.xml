@@ -7,6 +7,18 @@
     <file>ui/chart-default.css</file>
     <file>ui/chart-default.xsl</file>
 
+    <file>default-icons/sign-aries.xml</file>
+    <file>default-icons/sign-taurus.xml</file>
+    <file>default-icons/sign-gemini.xml</file>
+    <file>default-icons/sign-cancer.xml</file>
+    <file>default-icons/sign-leo.xml</file>
+    <file>default-icons/sign-virgo.xml</file>
+    <file>default-icons/sign-libra.xml</file>
+    <file>default-icons/sign-scorpio.xml</file>
+    <file>default-icons/sign-sagittarius.xml</file>
+    <file>default-icons/sign-capricorn.xml</file>
+    <file>default-icons/sign-aquarius.xml</file>
+    <file>default-icons/sign-pisces.xml</file>
     <file>default-icons/planet-sun.svg</file>
   </gresource>
 </gresources>
