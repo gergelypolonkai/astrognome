@@ -20,9 +20,10 @@ ag_app_peek_first_window(AgApp *app)
     GList *l;
 
     for (
-         l = gtk_application_get_windows(GTK_APPLICATION(app));
-         l;
-         l = g_list_next(l)) {
+                l = gtk_application_get_windows(GTK_APPLICATION(app));
+                l;
+                l = g_list_next(l)
+            ) {
         if (GTK_IS_WINDOW(l->data)) {
             return GTK_WINDOW(l->data);
         }
