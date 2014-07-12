@@ -89,8 +89,10 @@ about_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
         "Jean-André Santoni <jean.andre.santoni@gmail.com>",
         NULL
     };
-
-    const gchar **documentors       = NULL;
+    const gchar *artists[] = {
+        "Ákos Szimmer <akos.szimmer@gmail.com>",
+        NULL
+    };
     const gchar *translator_credits = _("translator_credits");
 
     /* i18n: Please don't translate "Astrognome" (it's marked as translatable
@@ -100,7 +102,7 @@ about_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
                           "version", PACKAGE_VERSION,
                           "comments", _("Astrologers' software for GNOME"),
                           "authors", authors,
-                          "documentors", documentors,
+                          "artists", artists,
                           "translator_credits", ((strcmp(
                                                          translator_credits,
                                                          "translator_credits"
