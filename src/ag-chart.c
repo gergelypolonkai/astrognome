@@ -8,6 +8,7 @@
 #include <libxslt/transform.h>
 #include <swe-glib.h>
 #include <locale.h>
+#include <math.h>
 
 #include "ag-chart.h"
 
@@ -995,6 +996,25 @@ ag_chart_save_to_file(AgChart *chart, GFile *file, GError **err)
     xmlFreeDoc(save_doc);
 }
 
+gint
+ag_chart_sort_planets_by_position(GswePlanetData *planet1,
+                                  GswePlanetData *planet2)
+{
+    gdouble pos1,
+            pos2;
+
+    pos1 = gswe_planet_data_get_position(planet1);
+    pos2 = gswe_planet_data_get_position(planet2);
+
+    if (pos1 == pos2) {
+        return 0;
+    } else if (pos1 < pos2) {
+        return -1;
+    } else {
+        return 1;
+    }
+}
+
 gchar *
 ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
 {
@@ -1016,6 +1036,7 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
     GList             *planet;
     GList             *aspect;
     GList             *antiscion;
+    GList             *sorted_planets;
     GswePlanetData    *planet_data;
     GsweAspectData    *aspect_data;
     GEnumClass        *planets_class;
@@ -1026,6 +1047,10 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
     locale_t          current_locale;
     GBytes            *xslt_data;
     gsize             xslt_length;
+    gdouble           asc_position,
+                      prev_position;
+    gboolean          first;
+    guint             dist;
 
     root_node = xmlDocGetRootElement(doc);
 
@@ -1044,8 +1069,9 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
             GSWE_PLANET_ASCENDANT,
             NULL
         );
-    value       = g_malloc0(12);
-    g_ascii_dtostr(value, 12, gswe_planet_data_get_position(planet_data));
+    asc_position = gswe_planet_data_get_position(planet_data);
+    value        = g_malloc0(12);
+    g_ascii_dtostr(value, 12, asc_position);
     xmlNewProp(node, BAD_CAST "degree_ut", BAD_CAST value);
     g_free(value);
 
@@ -1101,14 +1127,22 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
     bodies_node = xmlNewChild(root_node, NULL, BAD_CAST "bodies", NULL);
 
     planets_class = g_type_class_ref(GSWE_TYPE_PLANET);
+    sorted_planets = g_list_sort(
+            g_list_copy(gswe_moment_get_all_planets(GSWE_MOMENT(chart))),
+            (GCompareFunc)ag_chart_sort_planets_by_position
+        );
 
     for (
-                planet = gswe_moment_get_all_planets(GSWE_MOMENT(chart));
+                planet = sorted_planets,
+                     dist = 0,
+                     prev_position = -360.0,
+                     first = TRUE;
                 planet;
                 planet = g_list_next(planet)
             ) {
         planet_data = planet->data;
         GEnumValue *enum_value;
+        gdouble    position;
 
         if (
             (gswe_planet_data_get_planet(planet_data) == GSWE_PLANET_ASCENDANT)
@@ -1117,6 +1151,19 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
            ) {
             continue;
         }
+
+        position = gswe_planet_data_get_position(planet_data);
+
+        if (first) {
+            dist = 0;
+            first = FALSE;
+        } else if (fabs(prev_position - position) < 5.0) {
+            dist++;
+        } else {
+            dist = 0;
+        }
+
+        prev_position = position;
 
         node = xmlNewChild(bodies_node, NULL, BAD_CAST "body", NULL);
 
@@ -1129,6 +1176,10 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
         value = g_malloc0(12);
         g_ascii_dtostr(value, 12, gswe_planet_data_get_position(planet_data));
         xmlNewProp(node, BAD_CAST "degree", BAD_CAST value);
+        g_free(value);
+
+        value = g_strdup_printf("%d", dist);
+        xmlNewProp(node, BAD_CAST "dist", BAD_CAST value);
         g_free(value);
     }
 

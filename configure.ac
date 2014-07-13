@@ -8,6 +8,9 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AM_PROG_AR
 AC_PROG_LIBTOOL
+AC_SEARCH_LIBS([fabs], [m], [], [
+    AC_MSG_ERROR([Unable to find the fabs() function])
+])
 AC_PATH_PROGS(PERL, [perl5 perl])
 AC_PATH_PROGS(WGET, [wget])
 AC_PATH_PROGS(CURL, [curl])

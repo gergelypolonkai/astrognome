@@ -567,7 +567,7 @@
                                     </line>
                                     <use>
                                         <xsl:attribute name="xlink:href"><xsl:value-of select="concat('#', $planet_base, '_tmpl')"/></xsl:attribute>
-                                        <xsl:attribute name="transform"><xsl:value-of select="concat('translate(330,-15) rotate(', @degree - $asc_rotate ,',15,15)')"/></xsl:attribute>
+                                        <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', 330 + @dist * 35, ',-15) rotate(', @degree - $asc_rotate ,',15,15)')"/></xsl:attribute>
                                     </use>
                                 </g>
                                 <xsl:choose>
