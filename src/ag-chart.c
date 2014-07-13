@@ -1018,30 +1018,30 @@ ag_chart_sort_planets_by_position(GswePlanetData *planet1,
 gchar *
 ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
 {
-    xmlDocPtr         doc = create_save_doc(chart);
-    xmlDocPtr         xslt_doc;
-    xmlDocPtr         svg_doc;
-    xmlNodePtr        root_node     = NULL;
-    xmlNodePtr        ascmcs_node   = NULL;
-    xmlNodePtr        houses_node   = NULL;
-    xmlNodePtr        bodies_node   = NULL;
-    xmlNodePtr        aspects_node  = NULL;
-    xmlNodePtr        antiscia_node = NULL;
-    xmlNodePtr        node          = NULL;
-    gchar             *value;
-    gchar             *save_content = NULL;
+    xmlDocPtr         doc = create_save_doc(chart),
+                      xslt_doc,
+                      svg_doc;
+    xmlNodePtr        root_node     = NULL,
+                      ascmcs_node   = NULL,
+                      houses_node   = NULL,
+                      bodies_node   = NULL,
+                      aspects_node  = NULL,
+                      antiscia_node = NULL,
+                      node          = NULL;
+    gchar             *value,
+                      *save_content = NULL;
     const gchar       *xslt_content;
-    GList             *houses;
-    GList             *house;
-    GList             *planet;
-    GList             *aspect;
-    GList             *antiscion;
-    GList             *sorted_planets;
+    GList             *houses,
+                      *house,
+                      *planet,
+                      *aspect,
+                      *antiscion,
+                      *sorted_planets;
     GswePlanetData    *planet_data;
     GsweAspectData    *aspect_data;
-    GEnumClass        *planets_class;
-    GEnumClass        *aspects_class;
-    GEnumClass        *antiscia_class;
+    GEnumClass        *planets_class,
+                      *aspects_class,
+                      *antiscia_class;
     gint              save_length;
     xsltStylesheetPtr xslt_proc;
     locale_t          current_locale;
