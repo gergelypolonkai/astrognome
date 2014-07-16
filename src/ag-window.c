@@ -29,6 +29,7 @@ struct _AgWindowPrivate {
     GtkWidget     *minute;
     GtkWidget     *second;
     GtkWidget     *timezone;
+    GtkWidget     *house_system;
 
     GtkWidget     *tab_chart;
     GtkWidget     *tab_edit;
@@ -43,6 +44,7 @@ struct _AgWindowPrivate {
     gchar         *uri;
     gboolean      aspect_table_populated;
     GtkTextBuffer *note_buffer;
+    GtkListStore  *house_system_model;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -872,10 +874,27 @@ ag_window_display_changed(GSettings *settings, gchar *key, AgWindow *window)
 }
 
 static void
+ag_window_add_house_system(GsweHouseSystemInfo *house_system_info,
+                           AgWindowPrivate *priv)
+{
+    GtkTreeIter iter;
+
+    gtk_list_store_append(priv->house_system_model, &iter);
+    gtk_list_store_set(
+            priv->house_system_model, &iter,
+            0, gswe_house_system_info_get_house_system(house_system_info),
+            1, gswe_house_system_info_get_name(house_system_info),
+            -1
+        );
+}
+
+static void
 ag_window_init(AgWindow *window)
 {
     GtkAccelGroup   *accel_group;
     GSettings       *main_settings;
+    GList           *house_system_list;
+    GtkCellRenderer *house_system_renderer;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     gtk_widget_init_template(GTK_WIDGET(window));
@@ -894,6 +913,23 @@ ag_window_init(AgWindow *window)
             "changed::aspects-char",
             G_CALLBACK(ag_window_display_changed),
             window
+        );
+
+    house_system_list = gswe_all_house_systems();
+    g_list_foreach(house_system_list, (GFunc)ag_window_add_house_system, priv);
+    g_list_free(house_system_list);
+
+    house_system_renderer = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(
+            GTK_CELL_LAYOUT(priv->house_system),
+            house_system_renderer,
+            TRUE
+        );
+    gtk_cell_layout_set_attributes(
+            GTK_CELL_LAYOUT(priv->house_system),
+            house_system_renderer,
+            "text", 1,
+            NULL
         );
 
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
@@ -995,6 +1031,16 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             longitude
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            house_system_model
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            house_system
         );
     gtk_widget_class_bind_template_child_private(
             widget_class,

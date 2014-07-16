@@ -104,6 +104,14 @@
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkListStore" id="house_system_model">
+    <columns>
+      <!-- column-name house-system-id -->
+      <column type="GsweHouseSystem"/>
+      <!-- column-name house-system-name -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkTextBuffer" id="note_buffer">
   </object>
   <template class="AgWindow" parent="GtkApplicationWindow">
@@ -510,8 +518,8 @@
                 <property name="label" translatable="yes" context="Chart edit, Timezone label">Timezone</property>
               </object>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="top_attach">5</property>
+                <property name="left_attach">7</property>
+                <property name="top_attach">3</property>
               </packing>
             </child>
             <child>
@@ -520,6 +528,29 @@
                 <property name="can_focus">True</property>
                 <property name="adjustment">timezone_adjust</property>
                 <property name="digits">1</property>
+              </object>
+              <packing>
+                <property name="left_attach">7</property>
+                <property name="top_attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="house_system_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes" context="Chart edit, House system label">House system</property>
+              </object>
+              <packing>
+                <property name="left_attach">4</property>
+                <property name="top_attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="house_system">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">house_system_model</property>
+                <property name="id_column">0</property>
               </object>
               <packing>
                 <property name="left_attach">5</property>
