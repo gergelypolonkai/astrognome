@@ -635,6 +635,34 @@ ag_window_redraw_chart(AgWindow *window)
     ag_window_redraw_aspect_table(window);
 }
 
+static gboolean
+ag_window_find_house_system(GtkTreeModel *model,
+                            GtkTreePath  *path,
+                            GtkTreeIter  *iter,
+                            AgWindow     *window)
+{
+    GsweHouseSystem row_house_system;
+    AgWindowPrivate *priv        = ag_window_get_instance_private(window);
+    GsweHouseSystem house_system = gswe_moment_get_house_system(
+            GSWE_MOMENT(priv->chart)
+        );
+
+    gtk_tree_model_get(
+            GTK_TREE_MODEL(priv->house_system_model),
+            iter,
+            0, &row_house_system,
+            -1
+        );
+
+    if (house_system == row_house_system) {
+        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(priv->house_system), iter);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 void
 ag_window_update_from_chart(AgWindow *window)
 {
@@ -690,6 +718,12 @@ ag_window_update_from_chart(AgWindow *window)
     if (coordinates->latitude < 0.0) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->south_lat), TRUE);
     }
+
+    gtk_tree_model_foreach(
+            GTK_TREE_MODEL(priv->house_system_model),
+            (GtkTreeModelForeachFunc)ag_window_find_house_system,
+            window
+        );
 
     gtk_entry_set_text(GTK_ENTRY(priv->name), ag_chart_get_name(priv->chart));
 
