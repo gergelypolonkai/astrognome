@@ -446,8 +446,9 @@ get_by_xpath(xmlXPathContextPtr xpath_context,
         g_set_error(
                 err,
                 AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
-                "File '%s' doesn't look like a valid saved chart.",
-                uri
+                "File '%s' doesn't look like a valid saved chart: "
+                    "missing node: %s",
+                uri, xpath
             );
         xmlXPathFreeObject(xpathObj);
 
@@ -459,8 +460,9 @@ get_by_xpath(xmlXPathContextPtr xpath_context,
         g_set_error(
                 err,
                 AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
-                "File '%s' doesn't look like a valid saved chart.",
-                uri
+                "File '%s' doesn't look like a valid saved chart: "
+                    "too many node: %s",
+                uri, xpath
             );
         xmlXPathFreeObject(xpathObj);
 
@@ -469,12 +471,13 @@ get_by_xpath(xmlXPathContextPtr xpath_context,
 
     if (xpathObj->nodesetval->nodeNr == 0) {
         if (value_required) {
-            g_debug("Too many '%s' nodes", xpath);
+            g_debug("No '%s' nodes", xpath);
             g_set_error(
                     err,
                     AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
-                    "File '%s' doesn't look like a valid saved chart.",
-                    uri
+                    "File '%s' doesn't look like a valid saved chart: "
+                        "missing node: %s",
+                    uri, xpath
                 );
             xmlXPathFreeObject(xpathObj);
 
@@ -518,8 +521,9 @@ get_by_xpath(xmlXPathContextPtr xpath_context,
                 g_set_error(
                         err,
                         AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
-                        "File '%s' doesn't look like a valid saved chart.",
-                        uri
+                        "File '%s' doesn't look like a valid saved chart: "
+                            "Invalid value in node: %s",
+                        uri, xpath
                     );
                 ret = NULL;
             } else {
@@ -535,8 +539,9 @@ get_by_xpath(xmlXPathContextPtr xpath_context,
                 g_set_error(
                         err,
                         AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
-                        "File '%s' doesn't look like a valid saved chart.",
-                        uri
+                        "File '%s' doesn't look like a valid saved chart: "
+                            "Invalid value in node: %s",
+                        uri, xpath
                     );
                 ret = NULL;
             } else {
