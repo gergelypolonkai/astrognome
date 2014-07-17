@@ -561,28 +561,28 @@ AgChart *
 ag_chart_load_from_file(GFile *file, GError **err)
 {
     AgChart            *chart = NULL;
-    gchar              *uri;
-    gchar              *xml = NULL;
-    gchar              *name;
-    gchar              *country_name;
-    gchar              *city_name;
+    gchar              *uri,
+                       *xml = NULL,
+                       *name,
+                       *country_name,
+                       *city_name;
     gsize              length;
     xmlDocPtr          doc;
     xmlXPathContextPtr xpath_context;
-    GVariant           *chart_name;
-    GVariant           *country;
-    GVariant           *city;
-    GVariant           *longitude;
-    GVariant           *latitude;
-    GVariant           *altitude;
-    GVariant           *year;
-    GVariant           *month;
-    GVariant           *day;
-    GVariant           *hour;
-    GVariant           *minute;
-    GVariant           *second;
-    GVariant           *timezone;
-    GVariant           *note;
+    GVariant           *chart_name,
+                       *country,
+                       *city,
+                       *longitude,
+                       *latitude,
+                       *altitude,
+                       *year,
+                       *month,
+                       *day,
+                       *hour,
+                       *minute,
+                       *second,
+                       *timezone,
+                       *note;
     GsweTimestamp      *timestamp;
     gboolean           found_error = FALSE;
 
@@ -797,15 +797,15 @@ ag_chart_load_from_file(GFile *file, GError **err)
     }
 
     timestamp = gswe_timestamp_new_from_gregorian_full(
-        g_variant_get_int32(year),
-        g_variant_get_int32(month),
-        g_variant_get_int32(day),
-        g_variant_get_int32(hour),
-        g_variant_get_int32(minute),
-        g_variant_get_int32(second),
-        0,
-        g_variant_get_double(timezone)
-                                                      );
+            g_variant_get_int32(year),
+            g_variant_get_int32(month),
+            g_variant_get_int32(day),
+            g_variant_get_int32(hour),
+            g_variant_get_int32(minute),
+            g_variant_get_int32(second),
+            0,
+            g_variant_get_double(timezone)
+        );
     g_variant_unref(year);
     g_variant_unref(month);
     g_variant_unref(day);
