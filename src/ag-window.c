@@ -753,6 +753,8 @@ recalculate_chart(AgWindow *window)
     GsweTimestamp   *timestamp;
     GtkTextIter     start_iter,
                     end_iter;
+    GtkTreeIter     house_system_iter;
+    GsweHouseSystem house_system;
     gchar           *note;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
     gint            year      = gtk_spin_button_get_value_as_int(
@@ -796,6 +798,29 @@ recalculate_chart(AgWindow *window)
         longitude = 0 - longitude;
     }
 
+    if (!gtk_combo_box_get_active_iter(
+                GTK_COMBO_BOX(priv->house_system),
+                &house_system_iter
+            )) {
+        // TODO: a better approach must be made here. If there is an error, we
+        // cannot calculate the chart. If we are changing tabs, this should even
+        // prevent it!
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "House system must be set!"
+            );
+
+        return;
+    }
+
+    gtk_tree_model_get(
+            GTK_TREE_MODEL(priv->house_system_model),
+            &house_system_iter,
+            0, &house_system,
+            -1
+        );
+
     // TODO: Set timezone according to the city selected!
     if (priv->chart == NULL) {
         timestamp = gswe_timestamp_new_from_gregorian_full(
@@ -803,11 +828,10 @@ recalculate_chart(AgWindow *window)
                 hour, minute, second, 0,
                 1.0
             );
-        // TODO: make house system configurable
         priv->chart = ag_chart_new_full(
                 timestamp,
                 longitude, latitude, 380.0,
-                GSWE_HOUSE_SYSTEM_PLACIDUS
+                house_system
             );
         g_signal_connect(
                 priv->chart,
@@ -817,6 +841,7 @@ recalculate_chart(AgWindow *window)
             );
         ag_window_redraw_chart(window);
     } else {
+        gswe_moment_set_house_system(GSWE_MOMENT(priv->chart), house_system);
         timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(priv->chart));
         gswe_timestamp_set_gregorian_full(
                 timestamp,
