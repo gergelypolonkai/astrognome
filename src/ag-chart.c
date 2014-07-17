@@ -771,7 +771,7 @@ ag_chart_load_from_file(GFile *file, GError **err)
             "/chartinfo/note/text()",
             FALSE,
             XML_CONVERT_STRING,
-            err
+            NULL
         );
 
     if (found_error) {
