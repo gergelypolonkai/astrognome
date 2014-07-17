@@ -29,6 +29,7 @@ struct _AgWindowPrivate {
     GtkWidget     *minute;
     GtkWidget     *second;
     GtkWidget     *timezone;
+    GtkWidget     *house_system;
 
     GtkWidget     *tab_chart;
     GtkWidget     *tab_edit;
@@ -43,6 +44,7 @@ struct _AgWindowPrivate {
     gchar         *uri;
     gboolean      aspect_table_populated;
     GtkTextBuffer *note_buffer;
+    GtkListStore  *house_system_model;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -633,6 +635,34 @@ ag_window_redraw_chart(AgWindow *window)
     ag_window_redraw_aspect_table(window);
 }
 
+static gboolean
+ag_window_find_house_system(GtkTreeModel *model,
+                            GtkTreePath  *path,
+                            GtkTreeIter  *iter,
+                            AgWindow     *window)
+{
+    GsweHouseSystem row_house_system;
+    AgWindowPrivate *priv        = ag_window_get_instance_private(window);
+    GsweHouseSystem house_system = gswe_moment_get_house_system(
+            GSWE_MOMENT(priv->chart)
+        );
+
+    gtk_tree_model_get(
+            GTK_TREE_MODEL(priv->house_system_model),
+            iter,
+            0, &row_house_system,
+            -1
+        );
+
+    if (house_system == row_house_system) {
+        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(priv->house_system), iter);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 void
 ag_window_update_from_chart(AgWindow *window)
 {
@@ -689,6 +719,12 @@ ag_window_update_from_chart(AgWindow *window)
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->south_lat), TRUE);
     }
 
+    gtk_tree_model_foreach(
+            GTK_TREE_MODEL(priv->house_system_model),
+            (GtkTreeModelForeachFunc)ag_window_find_house_system,
+            window
+        );
+
     gtk_entry_set_text(GTK_ENTRY(priv->name), ag_chart_get_name(priv->chart));
 
     if (ag_chart_get_note(priv->chart)) {
@@ -717,6 +753,8 @@ recalculate_chart(AgWindow *window)
     GsweTimestamp   *timestamp;
     GtkTextIter     start_iter,
                     end_iter;
+    GtkTreeIter     house_system_iter;
+    GsweHouseSystem house_system;
     gchar           *note;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
     gint            year      = gtk_spin_button_get_value_as_int(
@@ -760,6 +798,29 @@ recalculate_chart(AgWindow *window)
         longitude = 0 - longitude;
     }
 
+    if (!gtk_combo_box_get_active_iter(
+                GTK_COMBO_BOX(priv->house_system),
+                &house_system_iter
+            )) {
+        // TODO: a better approach must be made here. If there is an error, we
+        // cannot calculate the chart. If we are changing tabs, this should even
+        // prevent it!
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "House system must be set!"
+            );
+
+        return;
+    }
+
+    gtk_tree_model_get(
+            GTK_TREE_MODEL(priv->house_system_model),
+            &house_system_iter,
+            0, &house_system,
+            -1
+        );
+
     // TODO: Set timezone according to the city selected!
     if (priv->chart == NULL) {
         timestamp = gswe_timestamp_new_from_gregorian_full(
@@ -767,11 +828,10 @@ recalculate_chart(AgWindow *window)
                 hour, minute, second, 0,
                 1.0
             );
-        // TODO: make house system configurable
         priv->chart = ag_chart_new_full(
                 timestamp,
                 longitude, latitude, 380.0,
-                GSWE_HOUSE_SYSTEM_PLACIDUS
+                house_system
             );
         g_signal_connect(
                 priv->chart,
@@ -781,6 +841,7 @@ recalculate_chart(AgWindow *window)
             );
         ag_window_redraw_chart(window);
     } else {
+        gswe_moment_set_house_system(GSWE_MOMENT(priv->chart), house_system);
         timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(priv->chart));
         gswe_timestamp_set_gregorian_full(
                 timestamp,
@@ -872,10 +933,27 @@ ag_window_display_changed(GSettings *settings, gchar *key, AgWindow *window)
 }
 
 static void
+ag_window_add_house_system(GsweHouseSystemInfo *house_system_info,
+                           AgWindowPrivate *priv)
+{
+    GtkTreeIter iter;
+
+    gtk_list_store_append(priv->house_system_model, &iter);
+    gtk_list_store_set(
+            priv->house_system_model, &iter,
+            0, gswe_house_system_info_get_house_system(house_system_info),
+            1, gswe_house_system_info_get_name(house_system_info),
+            -1
+        );
+}
+
+static void
 ag_window_init(AgWindow *window)
 {
     GtkAccelGroup   *accel_group;
     GSettings       *main_settings;
+    GList           *house_system_list;
+    GtkCellRenderer *house_system_renderer;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     gtk_widget_init_template(GTK_WIDGET(window));
@@ -894,6 +972,23 @@ ag_window_init(AgWindow *window)
             "changed::aspects-char",
             G_CALLBACK(ag_window_display_changed),
             window
+        );
+
+    house_system_list = gswe_all_house_systems();
+    g_list_foreach(house_system_list, (GFunc)ag_window_add_house_system, priv);
+    g_list_free(house_system_list);
+
+    house_system_renderer = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(
+            GTK_CELL_LAYOUT(priv->house_system),
+            house_system_renderer,
+            TRUE
+        );
+    gtk_cell_layout_set_attributes(
+            GTK_CELL_LAYOUT(priv->house_system),
+            house_system_renderer,
+            "text", 1,
+            NULL
         );
 
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
@@ -995,6 +1090,16 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             longitude
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            house_system_model
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            house_system
         );
     gtk_widget_class_bind_template_child_private(
             widget_class,

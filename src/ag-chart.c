@@ -565,7 +565,9 @@ ag_chart_load_from_file(GFile *file, GError **err)
                        *xml = NULL,
                        *name,
                        *country_name,
-                       *city_name;
+                       *city_name,
+                       *house_system_name,
+                       *house_system_enum_name;
     gsize              length;
     xmlDocPtr          doc;
     xmlXPathContextPtr xpath_context;
@@ -582,8 +584,11 @@ ag_chart_load_from_file(GFile *file, GError **err)
                        *minute,
                        *second,
                        *timezone,
-                       *note;
+                       *note,
+                       *house_system;
     GsweTimestamp      *timestamp;
+    GEnumClass         *house_system_class;
+    GEnumValue         *enum_value;
     gboolean           found_error = FALSE;
 
     uri = g_file_get_uri(file);
@@ -765,6 +770,17 @@ ag_chart_load_from_file(GFile *file, GError **err)
         found_error = TRUE;
     }
 
+    if ((house_system = get_by_xpath(
+                 xpath_context,
+                 uri,
+                 "/chartinfo/data/housesystem/text()",
+                 TRUE,
+                 XML_CONVERT_STRING,
+                 err
+             )) == NULL) {
+        found_error = TRUE;
+    }
+
     note = get_by_xpath(
             xpath_context,
             uri,
@@ -775,6 +791,7 @@ ag_chart_load_from_file(GFile *file, GError **err)
         );
 
     if (found_error) {
+        ag_g_variant_unref(house_system);
         ag_g_variant_unref(note);
         ag_g_variant_unref(chart_name);
         ag_g_variant_unref(country);
@@ -814,14 +831,47 @@ ag_chart_load_from_file(GFile *file, GError **err)
     g_variant_unref(second);
     g_variant_unref(timezone);
 
-    // TODO: Make house system configurable (and saveable)
+    g_variant_get(house_system, "ms", &house_system_name);
+    g_variant_unref(house_system);
+    house_system_enum_name = g_utf8_strup(house_system_name, -1);
+    g_free(house_system_name);
+    house_system_name = house_system_enum_name;
+    house_system_enum_name = g_strdup_printf(
+            "GSWE_HOUSE_SYSTEM_%s",
+            house_system_name
+        );
+    g_free(house_system_name);
+    house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+    if ((enum_value = g_enum_get_value_by_name(
+                 G_ENUM_CLASS(house_system_class),
+                 house_system_enum_name
+             )) == NULL) {
+        g_variant_unref(longitude);
+        g_variant_unref(latitude);
+        g_variant_unref(altitude);
+        g_variant_unref(chart_name);
+        g_variant_unref(country);
+        g_variant_unref(city);
+        ag_g_variant_unref(note);
+        g_type_class_unref(house_system_class);
+
+        g_set_error(err,
+                    AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
+                    "Unknown house system in save file"
+               );
+
+        return NULL;
+    }
+
     chart = ag_chart_new_full(
             timestamp,
             g_variant_get_double(longitude),
             g_variant_get_double(latitude),
             g_variant_get_double(altitude),
-            GSWE_HOUSE_SYSTEM_PLACIDUS
+            enum_value->value
         );
+    g_type_class_unref(house_system_class);
+    g_free(house_system_enum_name);
     g_variant_unref(longitude);
     g_variant_unref(latitude);
     g_variant_unref(altitude);

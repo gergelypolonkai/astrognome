@@ -18,5 +18,6 @@
       <second>45</second>
       <timezone>1</timezone>
     </time>
+    <housesystem>placidus</housesystem>
   </data>
 </chartinfo>
