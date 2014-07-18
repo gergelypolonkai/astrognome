@@ -1,4 +1,10 @@
 <schemalist gettext-domain="astrognome">
+    <enum id="eu.polonkai.gergely.Astrognome.GsweHouseSystem">
+        <value nick="none" value="0"/>
+        <value nick="placidus" value="1"/>
+        <value nick="koch" value="2"/>
+        <value nick="equal" value="3"/>
+    </enum>
     <schema id="eu.polonkai.gergely.Astrognome" path="/eu/polonkai/gergely/Astrognome/">
         <child name="state" schema="eu.polonkai.gergely.Astrognome.state" />
         <key name="planets-char" type="b">
@@ -10,6 +16,11 @@
             <default>false</default>
             <summary>Display aspect symbols as UTF-8 characters</summary>
             <description>Whether to show aspect symbols as their UTF-8 representation. Uses less memory, but not all system fonts have them defined. If an aspect don’t have a character representation, an image fallback will be used.</description>
+        </key>
+        <key name="default-house-system" enum="eu.polonkai.gergely.Astrognome.GsweHouseSystem">
+            <default>'placidus'</default>
+            <summary>The default house system</summary>
+            <description>The house system to use by default in new charts</description>
         </key>
     </schema>
     <schema id="eu.polonkai.gergely.Astrognome.state" path="/eu/polonkai/gergely/Astrognome/state/">

@@ -636,7 +636,7 @@ ag_window_redraw_chart(AgWindow *window)
 }
 
 static gboolean
-ag_window_find_house_system(GtkTreeModel *model,
+ag_window_set_house_system(GtkTreeModel *model,
                             GtkTreePath  *path,
                             GtkTreeIter  *iter,
                             AgWindow     *window)
@@ -721,7 +721,7 @@ ag_window_update_from_chart(AgWindow *window)
 
     gtk_tree_model_foreach(
             GTK_TREE_MODEL(priv->house_system_model),
-            (GtkTreeModelForeachFunc)ag_window_find_house_system,
+            (GtkTreeModelForeachFunc)ag_window_set_house_system,
             window
         );
 
@@ -947,6 +947,39 @@ ag_window_add_house_system(GsweHouseSystemInfo *house_system_info,
         );
 }
 
+static gboolean
+ag_window_set_default_house_system(GtkTreeModel *model,
+                            GtkTreePath  *path,
+                            GtkTreeIter  *iter,
+                            AgWindow     *window)
+{
+    GsweHouseSystem row_house_system;
+    AgWindowPrivate *priv          = ag_window_get_instance_private(window);
+    AgSettings      *settings      = ag_settings_get();
+    GSettings       *main_settings = ag_settings_peek_main_settings(settings);
+    GsweHouseSystem house_system   = g_settings_get_enum(
+            main_settings,
+            "default-house-system"
+        );
+
+    g_object_unref(settings);
+
+    gtk_tree_model_get(
+            GTK_TREE_MODEL(priv->house_system_model),
+            iter,
+            0, &row_house_system,
+            -1
+        );
+
+    if (house_system == row_house_system) {
+        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(priv->house_system), iter);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 static void
 ag_window_init(AgWindow *window)
 {
@@ -977,6 +1010,11 @@ ag_window_init(AgWindow *window)
     house_system_list = gswe_all_house_systems();
     g_list_foreach(house_system_list, (GFunc)ag_window_add_house_system, priv);
     g_list_free(house_system_list);
+    gtk_tree_model_foreach(
+            GTK_TREE_MODEL(priv->house_system_model),
+            (GtkTreeModelForeachFunc)ag_window_set_default_house_system,
+            window
+        );
 
     house_system_renderer = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start(

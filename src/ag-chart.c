@@ -833,16 +833,10 @@ ag_chart_load_from_file(GFile *file, GError **err)
 
     g_variant_get(house_system, "ms", &house_system_name);
     g_variant_unref(house_system);
-    house_system_enum_name = g_utf8_strup(house_system_name, -1);
-    g_free(house_system_name);
-    house_system_name = house_system_enum_name;
-    house_system_enum_name = g_strdup_printf(
-            "GSWE_HOUSE_SYSTEM_%s",
-            house_system_name
-        );
+    house_system_enum_name = g_utf8_strdown(house_system_name, -1);
     g_free(house_system_name);
     house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
-    if ((enum_value = g_enum_get_value_by_name(
+    if ((enum_value = g_enum_get_value_by_nick(
                  G_ENUM_CLASS(house_system_class),
                  house_system_enum_name
              )) == NULL) {
@@ -854,6 +848,7 @@ ag_chart_load_from_file(GFile *file, GError **err)
         g_variant_unref(city);
         ag_g_variant_unref(note);
         g_type_class_unref(house_system_class);
+        g_free(house_system_enum_name);
 
         g_set_error(err,
                     AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
@@ -918,6 +913,8 @@ create_save_doc(AgChart *chart)
     gchar           *value;
     GsweCoordinates *coordinates;
     GsweTimestamp   *timestamp;
+    GEnumClass      *house_system_class;
+    GEnumValue      *enum_value;
 
     doc       = xmlNewDoc(BAD_CAST "1.0");
     root_node = xmlNewNode(NULL, BAD_CAST "chartinfo");
@@ -1014,6 +1011,19 @@ create_save_doc(AgChart *chart)
     g_ascii_dtostr(value, 7, gswe_timestamp_get_gregorian_timezone(timestamp));
     xmlNewChild(time_node, NULL, BAD_CAST "timezone", BAD_CAST value);
     g_free(value);
+
+    house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+    enum_value = g_enum_get_value(
+            house_system_class,
+            gswe_moment_get_house_system(GSWE_MOMENT(chart))
+        );
+    xmlNewChild(
+            data_node,
+            NULL,
+            BAD_CAST "housesystem",
+            BAD_CAST enum_value->value_nick
+        );
+    g_type_class_unref(house_system_class);
 
     if (ag_chart_get_note(chart)) {
         xmlNewChild(
