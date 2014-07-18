@@ -833,16 +833,10 @@ ag_chart_load_from_file(GFile *file, GError **err)
 
     g_variant_get(house_system, "ms", &house_system_name);
     g_variant_unref(house_system);
-    house_system_enum_name = g_utf8_strup(house_system_name, -1);
-    g_free(house_system_name);
-    house_system_name = house_system_enum_name;
-    house_system_enum_name = g_strdup_printf(
-            "GSWE_HOUSE_SYSTEM_%s",
-            house_system_name
-        );
+    house_system_enum_name = g_utf8_strdown(house_system_name, -1);
     g_free(house_system_name);
     house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
-    if ((enum_value = g_enum_get_value_by_name(
+    if ((enum_value = g_enum_get_value_by_nick(
                  G_ENUM_CLASS(house_system_class),
                  house_system_enum_name
              )) == NULL) {
