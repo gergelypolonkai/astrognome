@@ -802,16 +802,7 @@ recalculate_chart(AgWindow *window)
                 GTK_COMBO_BOX(priv->house_system),
                 &house_system_iter
             )) {
-        // TODO: a better approach must be made here. If there is an error, we
-        // cannot calculate the chart. If we are changing tabs, this should even
-        // prevent it!
-        ag_app_message_dialog(
-                GTK_WIDGET(window),
-                GTK_MESSAGE_ERROR,
-                "House system must be set!"
-            );
-
-        return;
+        g_error("House system is not set! This is clearly a bug.");
     }
 
     gtk_tree_model_get(
