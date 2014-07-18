@@ -636,7 +636,7 @@ ag_window_redraw_chart(AgWindow *window)
 }
 
 static gboolean
-ag_window_find_house_system(GtkTreeModel *model,
+ag_window_set_house_system(GtkTreeModel *model,
                             GtkTreePath  *path,
                             GtkTreeIter  *iter,
                             AgWindow     *window)
@@ -721,7 +721,7 @@ ag_window_update_from_chart(AgWindow *window)
 
     gtk_tree_model_foreach(
             GTK_TREE_MODEL(priv->house_system_model),
-            (GtkTreeModelForeachFunc)ag_window_find_house_system,
+            (GtkTreeModelForeachFunc)ag_window_set_house_system,
             window
         );
 
