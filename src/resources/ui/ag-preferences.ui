@@ -2,6 +2,14 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
+  <object class="GtkListStore" id="house_system_model">
+    <columns>
+      <!-- column-name house-system-id -->
+      <column type="gchararray"/>
+      <!-- column-name house-system-name -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <template class="AgPreferences" parent="GtkDialog">
     <property name="can_focus">False</property>
     <property name="type_hint">normal</property>
@@ -44,6 +52,7 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">0</property>
+                <property name="width">2</property>
               </packing>
             </child>
             <child>
@@ -58,6 +67,7 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">1</property>
+                <property name="width">2</property>
               </packing>
             </child>
             <child>
@@ -72,6 +82,30 @@
               <packing>
                 <property name="left_attach">0</property>
                 <property name="top_attach">2</property>
+                <property name="width">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Default house system</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="house_system">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">house_system_model</property>
+                <property name="id_column">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">3</property>
               </packing>
             </child>
           </object>
