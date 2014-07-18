@@ -1,4 +1,5 @@
 #include <gtk/gtk.h>
+#include <swe-glib.h>
 
 #include "ag-settings.h"
 #include "ag-preferences.h"
@@ -9,6 +10,8 @@ typedef struct _AgPreferencesPrivate {
     GtkCheckButton *maximized;
     GtkCheckButton *planet_chars;
     GtkCheckButton *aspect_chars;
+    GtkWidget      *house_system;
+    GtkListStore   *house_system_model;
 
     AgSettings *settings;
 } AgPreferencesPrivate;
@@ -62,19 +65,67 @@ ag_preferences_class_init(AgPreferencesClass *klass)
             AgPreferences,
             aspect_chars
         );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgPreferences,
+            house_system
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgPreferences,
+            house_system_model
+        );
+}
+
+static void
+ag_preferences_add_house_system(GsweHouseSystemInfo  *house_system_info,
+                                AgPreferencesPrivate *priv)
+{
+    GtkTreeIter iter;
+    GEnumClass  *house_system_type = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+    GEnumValue  *enum_value;
+
+    enum_value = g_enum_get_value(
+            house_system_type,
+            gswe_house_system_info_get_house_system(house_system_info)
+        );
+    gtk_list_store_append(priv->house_system_model, &iter);
+    gtk_list_store_set(
+            priv->house_system_model, &iter,
+            0, enum_value->value_nick,
+            1, gswe_house_system_info_get_name(house_system_info),
+            -1
+        );
 }
 
 static void
 ag_preferences_init(AgPreferences *prefs)
 {
-    AgPreferencesPrivate *priv;
     GSettings            *settings_window,
                          *settings_main;
+    GList                *house_system_list = gswe_all_house_systems();
+    AgPreferencesPrivate *priv = ag_preferences_get_instance_private(prefs);
+    GtkCellRenderer      *cell_renderer;
 
-    priv = ag_preferences_get_instance_private(prefs);
     gtk_widget_init_template(GTK_WIDGET(prefs));
-
     priv->settings = ag_settings_get();
+    g_list_foreach(
+            house_system_list,
+            (GFunc)ag_preferences_add_house_system,
+            priv
+        );
+    cell_renderer = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(
+            GTK_CELL_LAYOUT(priv->house_system),
+            cell_renderer,
+            TRUE
+        );
+    gtk_cell_layout_set_attributes(
+            GTK_CELL_LAYOUT(priv->house_system),
+            cell_renderer,
+            "text", 1,
+            NULL
+        );
 
     settings_window = ag_settings_peek_window_settings(priv->settings);
     g_settings_bind(
@@ -98,6 +149,13 @@ ag_preferences_init(AgPreferences *prefs)
             "aspects-char",
             priv->aspect_chars,
             "active",
+            G_SETTINGS_BIND_DEFAULT
+        );
+    g_settings_bind(
+            settings_main,
+            "default-house-system",
+            priv->house_system,
+            "active-id",
             G_SETTINGS_BIND_DEFAULT
         );
 }
