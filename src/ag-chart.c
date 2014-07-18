@@ -854,6 +854,7 @@ ag_chart_load_from_file(GFile *file, GError **err)
         g_variant_unref(city);
         ag_g_variant_unref(note);
         g_type_class_unref(house_system_class);
+        g_free(house_system_enum_name);
 
         g_set_error(err,
                     AG_CHART_ERROR, AG_CHART_ERROR_CORRUPT_FILE,
