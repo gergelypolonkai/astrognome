@@ -913,6 +913,8 @@ create_save_doc(AgChart *chart)
     gchar           *value;
     GsweCoordinates *coordinates;
     GsweTimestamp   *timestamp;
+    GEnumClass      *house_system_class;
+    GEnumValue      *enum_value;
 
     doc       = xmlNewDoc(BAD_CAST "1.0");
     root_node = xmlNewNode(NULL, BAD_CAST "chartinfo");
@@ -1009,6 +1011,19 @@ create_save_doc(AgChart *chart)
     g_ascii_dtostr(value, 7, gswe_timestamp_get_gregorian_timezone(timestamp));
     xmlNewChild(time_node, NULL, BAD_CAST "timezone", BAD_CAST value);
     g_free(value);
+
+    house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+    enum_value = g_enum_get_value(
+            house_system_class,
+            gswe_moment_get_house_system(GSWE_MOMENT(chart))
+        );
+    xmlNewChild(
+            data_node,
+            NULL,
+            BAD_CAST "housesystem",
+            BAD_CAST enum_value->value_nick
+        );
+    g_type_class_unref(house_system_class);
 
     if (ag_chart_get_note(chart)) {
         xmlNewChild(
