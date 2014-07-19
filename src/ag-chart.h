@@ -26,11 +26,9 @@ typedef enum {
 
 typedef struct _AgChart        AgChart;
 typedef struct _AgChartClass   AgChartClass;
-typedef struct _AgChartPrivate AgChartPrivate;
 
 struct _AgChart {
     GsweMoment     parent_instance;
-    AgChartPrivate *priv;
 };
 
 struct _AgChartClass {

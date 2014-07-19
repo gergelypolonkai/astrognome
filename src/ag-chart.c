@@ -12,14 +12,14 @@
 
 #include "ag-chart.h"
 
-struct _AgChartPrivate {
+typedef struct _AgChartPrivate {
     gchar *name;
     gchar *country;
     gchar *city;
     gchar *save_buffer;
     GList *planet_list;
     gchar *note;
-};
+} AgChartPrivate;
 
 enum {
     PROP_0,
@@ -100,12 +100,13 @@ ag_chart_class_init(AgChartClass *klass)
 static void
 ag_chart_init(AgChart *chart)
 {
-    chart->priv              = ag_chart_get_instance_private(chart);
-    chart->priv->name        = NULL;
-    chart->priv->country     = NULL;
-    chart->priv->city        = NULL;
-    chart->priv->save_buffer = NULL;
-    chart->priv->planet_list = NULL;
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    priv->name        = NULL;
+    priv->country     = NULL;
+    priv->city        = NULL;
+    priv->save_buffer = NULL;
+    priv->planet_list = NULL;
 }
 
 static void
@@ -138,19 +139,21 @@ ag_chart_get_property(GObject    *gobject,
                       GValue     *value,
                       GParamSpec *param_spec)
 {
+    AgChartPrivate *priv = ag_chart_get_instance_private(AG_CHART(gobject));
+
     switch (prop_id) {
         case PROP_NAME:
-            g_value_set_string(value, AG_CHART(gobject)->priv->name);
+            g_value_set_string(value, priv->name);
 
             break;
 
         case PROP_COUNTRY:
-            g_value_set_string(value, AG_CHART(gobject)->priv->country);
+            g_value_set_string(value, priv->country);
 
             break;
 
         case PROP_CITY:
-            g_value_set_string(value, AG_CHART(gobject)->priv->city);
+            g_value_set_string(value, priv->city);
 
             break;
 
@@ -160,163 +163,166 @@ ag_chart_get_property(GObject    *gobject,
 static void
 ag_chart_finalize(GObject *gobject)
 {
-    AgChart *chart = AG_CHART(gobject);
+    AgChart        *chart = AG_CHART(gobject);
+    AgChartPrivate *priv  = ag_chart_get_instance_private(chart);
 
-    if (chart->priv->name != NULL) {
-        g_free(chart->priv->name);
+    if (priv->name != NULL) {
+        g_free(priv->name);
     }
 
-    if (chart->priv->country != NULL) {
-        g_free(chart->priv->country);
+    if (priv->country != NULL) {
+        g_free(priv->country);
     }
 
-    if (chart->priv->city != NULL) {
-        g_free(chart->priv->city);
+    if (priv->city != NULL) {
+        g_free(priv->city);
     }
 
-    if (chart->priv->save_buffer != NULL) {
-        g_free(chart->priv->save_buffer);
+    if (priv->save_buffer != NULL) {
+        g_free(priv->save_buffer);
     }
 }
 
 void
 ag_chart_add_planets(AgChart *chart)
 {
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_CHARIKLO, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_CHARIKLO)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_VESTA, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_VESTA)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_JUNO, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_JUNO)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_PALLAS, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_PALLAS)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_CERES, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_CERES)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_NESSUS, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_NESSUS)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_PHOLUS, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_PHOLUS)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_CHIRON, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_CHIRON)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MOON_APOGEE, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_MOON_APOGEE)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MOON_NODE, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_MOON_NODE)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_PLUTO, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_PLUTO)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_NEPTUNE, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_NEPTUNE)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_URANUS, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_URANUS)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_SATURN, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_SATURN)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_JUPITER, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_JUPITER)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MARS, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_MARS)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_VENUS, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_VENUS)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MERCURY, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_MERCURY)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MOON, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_MOON)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_SUN, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_SUN)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_VERTEX, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_VERTEX)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_ASCENDANT, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_ASCENDANT)
         );
 
     gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MC, NULL);
-    chart->priv->planet_list = g_list_prepend(
-            chart->priv->planet_list,
+    priv->planet_list = g_list_prepend(
+            priv->planet_list,
             GINT_TO_POINTER(GSWE_PLANET_MC)
         );
 }
@@ -351,49 +357,61 @@ ag_chart_new_full(GsweTimestamp   *timestamp,
 void
 ag_chart_set_name(AgChart *chart, const gchar *name)
 {
-    if (chart->priv->name != NULL) {
-        g_free(chart->priv->name);
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    if (priv->name != NULL) {
+        g_free(priv->name);
     }
 
-    chart->priv->name = g_strdup(name);
+    priv->name = g_strdup(name);
 }
 
 gchar *
 ag_chart_get_name(AgChart *chart)
 {
-    return g_strdup(chart->priv->name);
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    return g_strdup(priv->name);
 }
 
 void
 ag_chart_set_country(AgChart *chart, const gchar *country)
 {
-    if (chart->priv->country != NULL) {
-        g_free(chart->priv->country);
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    if (priv->country != NULL) {
+        g_free(priv->country);
     }
 
-    chart->priv->country = g_strdup(country);
+    priv->country = g_strdup(country);
 }
 
 gchar *
 ag_chart_get_country(AgChart *chart)
 {
-    return g_strdup(chart->priv->country);
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    return g_strdup(priv->country);
 }
 
 void
 ag_chart_set_city(AgChart *chart, const gchar *city)
 {
-    if (chart->priv->city != NULL) {
-        g_free(chart->priv->city);
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    if (priv->city != NULL) {
+        g_free(priv->city);
     }
 
-    chart->priv->city = g_strdup(city);
+    priv->city = g_strdup(city);
 }
 
 gchar *
 ag_chart_get_city(AgChart *chart)
 {
-    return g_strdup(chart->priv->city);
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    return g_strdup(priv->city);
 }
 
 /**
@@ -1413,7 +1431,9 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
 GList *
 ag_chart_get_planets(AgChart *chart)
 {
-    return chart->priv->planet_list;
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    return priv->planet_list;
 }
 
 void
