@@ -18,6 +18,7 @@ astrognome_source_files = \
 						  ag-chart.c       \
 						  ag-settings.c    \
 						  ag-preferences.c \
+						  ag-db.c          \
 						  astrognome.c     \
 						  $(NULL)
 
@@ -30,7 +31,7 @@ AM_CPPFLAGS = -DG_LOG_DOMAIN=\"Astrognome\" -DLOCALEDIR=\"$(localedir)\" -DPKGDA
 bin_PROGRAMS = astrognome
 
 astrognome_SOURCES = $(astrognome_source_files) $(BUILT_SOURCES)
-astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS) $(LIBXML_LIBS) $(LIBXSLT_LIBS) $(WEBKIT_LIBS)
+astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS) $(LIBXML_LIBS) $(LIBXSLT_LIBS) $(WEBKIT_LIBS) $(GDA_LIBS)
 astrognome_LDFLAGS = -rdynamic
-astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) $(LIBXML_CFLAGS) $(LIBXSLT_CFLAGS) $(WEBKIT_CFLAGS) -Wall
+astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) $(LIBXML_CFLAGS) $(LIBXSLT_CFLAGS) $(WEBKIT_CFLAGS) $(GDA_CFLAGS) -Wall
 
