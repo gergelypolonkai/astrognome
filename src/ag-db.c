@@ -43,6 +43,7 @@ ag_db_non_select(AgDb *db, const gchar *sql)
                     ? err->message
                     : "no reason"
             );
+    }
 
     if ((nrows = gda_connection_statement_execute_non_select(
                  priv->conn,
