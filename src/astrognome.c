@@ -15,8 +15,6 @@
 #include "ag-app.h"
 #include "ag-window.h"
 
-#define UI_FILE PKGDATADIR "/astrognome.ui"
-
 GtkBuilder    *builder;
 GtkFileFilter *filter_all   = NULL;
 GtkFileFilter *filter_chart = NULL;
