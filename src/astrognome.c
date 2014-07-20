@@ -81,7 +81,10 @@ xml_open_gresource(const gchar *uri)
         );
     g_free(path);
 
-    if ((position = g_hash_table_lookup(xinclude_positions, res_location)) == NULL) {
+    if ((position = g_hash_table_lookup(
+                 xinclude_positions,
+                 res_location
+             )) == NULL) {
         g_hash_table_insert(xinclude_positions, res_location, g_new0(gsize, 1));
     } else {
         g_warning("Reopening gres:// link?");
