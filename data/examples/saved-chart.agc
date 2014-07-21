@@ -20,4 +20,5 @@
     </time>
     <housesystem>placidus</housesystem>
   </data>
+  <note>This is my own chart.</note>
 </chartinfo>
