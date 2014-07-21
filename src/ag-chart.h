@@ -2,6 +2,7 @@
 #define __AG_CHART_H__
 
 #include <glib-object.h>
+#include <gtk/gtk.h>
 #include <swe-glib.h>
 
 #include "ag-db.h"
@@ -84,6 +85,10 @@ GList *ag_chart_get_planets(AgChart *chart);
 void ag_chart_set_note(AgChart *chart, const gchar *note);
 
 const gchar *ag_chart_get_note(AgChart *chart);
+
+gboolean ag_chart_save_to_db(AgChart *chart,
+                             AgDbSave **old_save,
+                             GtkWidget *window);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);

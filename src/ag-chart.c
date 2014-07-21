@@ -10,6 +10,7 @@
 #include <locale.h>
 #include <math.h>
 
+#include "ag-db.h"
 #include "ag-chart.h"
 
 typedef struct _AgChartPrivate {
@@ -1538,3 +1539,74 @@ const gchar *ag_chart_get_note(AgChart *chart)
     return priv->note;
 }
 
+gboolean
+ag_chart_save_to_db(AgChart *chart, AgDbSave **old_save, GtkWidget *window)
+{
+    GsweCoordinates *coords;
+    AgDb            *db        = ag_db_get();
+    AgChartPrivate  *priv      = ag_chart_get_instance_private(chart);
+    AgDbSave        *save_data = g_new0(AgDbSave, 1);
+    GError          *err       = NULL;
+    GsweTimestamp   *timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
+    GEnumClass      *house_system_class;
+    GEnumValue      *house_system_enum;
+    gboolean        ret;
+
+    if (old_save && *old_save) {
+        save_data->db_id = (*old_save)->db_id;
+    } else {
+        save_data->db_id = -1;
+    }
+
+    save_data->name         = g_strdup(priv->name);
+    save_data->country      = g_strdup(priv->country);
+    save_data->city         = g_strdup(priv->city);
+    coords                  = gswe_moment_get_coordinates(GSWE_MOMENT(chart));
+    save_data->longitude    = coords->longitude;
+    save_data->latitude     = coords->latitude;
+    save_data->altitude     = coords->altitude;
+    g_free(coords);
+    save_data->year         = gswe_timestamp_get_gregorian_year(
+            timestamp,
+            NULL
+        );
+    save_data->month        = gswe_timestamp_get_gregorian_month(
+            timestamp,
+            NULL
+        );
+    save_data->day          = gswe_timestamp_get_gregorian_day(timestamp, NULL);
+    save_data->hour         = gswe_timestamp_get_gregorian_hour(
+            timestamp,
+            NULL
+        );
+    save_data->minute       = gswe_timestamp_get_gregorian_minute(
+            timestamp,
+            NULL
+        );
+    save_data->second       = gswe_timestamp_get_gregorian_second(
+            timestamp,
+            NULL
+        );
+    save_data->timezone     = gswe_timestamp_get_gregorian_timezone(timestamp);
+    house_system_class      = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+    house_system_enum       = g_enum_get_value(
+            house_system_class,
+            gswe_moment_get_house_system(GSWE_MOMENT(chart))
+        );
+    save_data->house_system = g_strdup(house_system_enum->value_nick);
+    g_type_class_unref(house_system_class);
+    save_data->note         = g_strdup(priv->note);
+
+    if (
+            (!old_save || !*old_save)
+            || !ag_db_save_identical(*old_save, save_data)
+        ) {
+        ret = ag_db_save_chart(db, save_data, window, &err);
+    } else {
+        ret = TRUE;
+    }
+
+    ag_db_save_data_free(save_data);
+
+    return ret;
+}

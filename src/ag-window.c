@@ -178,30 +178,12 @@ ag_window_save_action(GSimpleAction *action,
                       GVariant      *parameter,
                       gpointer      user_data)
 {
-    gchar           *uri;
     AgWindow        *window = AG_WINDOW(user_data);
-    GError          *err    = NULL;
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
 
     recalculate_chart(window);
-    uri = ag_window_get_uri(window);
 
-    if (uri != NULL) {
-        GFile *file = g_file_new_for_uri(uri);
-        g_free(uri);
-
-        ag_chart_save_to_file(priv->chart, file, &err);
-    } else {
-        ag_window_save_as(window, &err);
-    }
-
-    if (err) {
-        ag_app_message_dialog(
-                GTK_WIDGET(window),
-                GTK_MESSAGE_ERROR,
-                "%s", err->message
-            );
-    }
+    ag_chart_save_to_db(priv->chart, &(priv->saved_data), GTK_WIDGET(window));
 }
 
 static void
