@@ -459,3 +459,33 @@ ag_db_get(void)
 
     return singleton;
 }
+
+void
+ag_db_save_data_free(AgDbSave *save_data)
+{
+    if (!save_data) {
+        return;
+    }
+
+    if (save_data->name) {
+        g_free(save_data->name);
+    }
+
+    if (save_data->country) {
+        g_free(save_data->country);
+    }
+
+    if (save_data->city) {
+        g_free(save_data->city);
+    }
+
+    if (save_data->house_system) {
+        g_free(save_data->house_system);
+    }
+
+    if (save_data->note) {
+        g_free(save_data->note);
+    }
+
+    g_free(save_data);
+}

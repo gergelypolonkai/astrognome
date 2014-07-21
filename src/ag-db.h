@@ -29,8 +29,30 @@ struct _AgDbClass {
     GObjectClass parent_class;
 };
 
+typedef struct _AgDbSave {
+    gint db_id;
+    gchar *name;
+    gchar *country;
+    gchar *city;
+    gdouble longitude;
+    gdouble latitude;
+    gdouble altitude;
+    gint year;
+    guint month;
+    guint day;
+    guint hour;
+    guint minute;
+    guint second;
+    gdouble timezone;
+    gchar *house_system;
+    gchar *note;
+} AgDbSave;
+
 GType ag_db_get_type(void) G_GNUC_CONST;
+
 AgDb *ag_db_get(void);
+
+void ag_db_save_data_free(AgDbSave *save_data);
 
 G_END_DECLS
 
