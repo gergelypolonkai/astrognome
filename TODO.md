@@ -10,6 +10,12 @@ Debian/Ubuntu, Arch or Gentoo.
 
 The features below will be implemented in the first release of Astrognome.
 
+* Implement storage database. Database should contain a small preview image of
+  the chart. The selection screen should show a small box with the name and the
+  preview image. Upon mouseover it should blur/darken the image, and write some
+  chart data over it, like birth date and place
+* Placidus .HOR import
+* Chart cleanup and manipulation
 * Generate, load and save synastries
 * Calculate transits and progressions
 * Stepping through time without modifying the chart data
@@ -26,6 +32,7 @@ The features below will be implemented in the first release of Astrognome.
     * Display hidden ascendent
     * Display Vertex/anti-Vertex
   * Symbol of Uranus and Pluto to use in charts
+* Regiomontanus import
 
 ## Later features
 
