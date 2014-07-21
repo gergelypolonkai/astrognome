@@ -36,13 +36,16 @@ struct _AgChartClass {
 };
 
 GType ag_chart_get_type(void) G_GNUC_CONST;
+
 AgChart *ag_chart_new_full(GsweTimestamp   *timestamp,
                            gdouble         longitude,
                            gdouble         latitude,
                            gdouble         altitude,
                            GsweHouseSystem house_system);
+
 AgChart *ag_chart_load_from_file(GFile  *file,
                                  GError **err);
+
 void ag_chart_save_to_file(AgChart *chart,
                            GFile   *file,
                            GError  **err);
@@ -53,18 +56,27 @@ void ag_chart_export_svg_to_file(AgChart *chart,
 
 void ag_chart_set_name(AgChart     *chart,
                        const gchar *name);
+
 gchar *ag_chart_get_name(AgChart *chart);
+
 void ag_chart_set_country(AgChart     *chart,
                           const gchar *country);
+
 gchar *ag_chart_get_country(AgChart *chart);
+
 void ag_chart_set_city(AgChart     *chart,
                        const gchar *city);
+
 gchar *ag_chart_get_city(AgChart *chart);
+
 gchar *ag_chart_create_svg(AgChart *chart,
                            gsize   *length,
                            GError  **err);
+
 GList *ag_chart_get_planets(AgChart *chart);
+
 void ag_chart_set_note(AgChart *chart, const gchar *note);
+
 const gchar *ag_chart_get_note(AgChart *chart);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
