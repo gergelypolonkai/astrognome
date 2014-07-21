@@ -2,6 +2,7 @@
 #define __AG_DB_H__
 
 #include <glib-object.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
@@ -53,6 +54,11 @@ GType ag_db_get_type(void) G_GNUC_CONST;
 AgDb *ag_db_get(void);
 
 void ag_db_save_data_free(AgDbSave *save_data);
+
+gboolean ag_db_save_chart(AgDb      *db,
+                          AgDbSave  *save_data,
+                          GtkWidget *window,
+                          GError    **err);
 
 G_END_DECLS
 

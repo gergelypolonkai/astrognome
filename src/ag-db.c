@@ -5,6 +5,7 @@
 #include <gobject/gvaluecollector.h>
 
 #include "config.h"
+#include "ag-app.h"
 #include "ag-db.h"
 
 #define SCHEMA_VERSION 1
@@ -488,4 +489,162 @@ ag_db_save_data_free(AgDbSave *save_data)
     }
 
     g_free(save_data);
+}
+
+gboolean
+ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
+{
+    GValue      db_id        = G_VALUE_INIT,
+                name         = G_VALUE_INIT,
+                country      = G_VALUE_INIT,
+                city         = G_VALUE_INIT,
+                longitude    = G_VALUE_INIT,
+                latitude     = G_VALUE_INIT,
+                altitude     = G_VALUE_INIT,
+                year         = G_VALUE_INIT,
+                month        = G_VALUE_INIT,
+                day          = G_VALUE_INIT,
+                hour         = G_VALUE_INIT,
+                minute       = G_VALUE_INIT,
+                second       = G_VALUE_INIT,
+                timezone     = G_VALUE_INIT,
+                house_system = G_VALUE_INIT,
+                note         = G_VALUE_INIT;
+    AgDbPrivate *priv = ag_db_get_instance_private(db);
+
+    g_value_init(&name, G_TYPE_STRING);
+    g_value_set_string(&name, save_data->name);
+
+    g_value_init(&country, G_TYPE_STRING);
+    g_value_set_string(&country, save_data->country);
+
+    g_value_init(&city, G_TYPE_STRING);
+    g_value_set_string(&city, save_data->city);
+
+    g_value_init(&longitude, G_TYPE_DOUBLE);
+    g_value_set_double(&longitude, save_data->longitude);
+
+    g_value_init(&latitude, G_TYPE_DOUBLE);
+    g_value_set_double(&latitude, save_data->latitude);
+
+    g_value_init(&altitude, G_TYPE_DOUBLE);
+    g_value_set_double(&altitude, save_data->altitude);
+
+    g_value_init(&year, G_TYPE_INT);
+    g_value_set_int(&year, save_data->year);
+
+    g_value_init(&month, G_TYPE_UINT);
+    g_value_set_uint(&month, save_data->month);
+
+    g_value_init(&day, G_TYPE_UINT);
+    g_value_set_uint(&day, save_data->day);
+
+    g_value_init(&hour, G_TYPE_UINT);
+    g_value_set_uint(&hour, save_data->hour);
+
+    g_value_init(&minute, G_TYPE_UINT);
+    g_value_set_uint(&minute, save_data->minute);
+
+    g_value_init(&second, G_TYPE_UINT);
+    g_value_set_uint(&second, save_data->second);
+
+    g_value_init(&timezone, G_TYPE_DOUBLE);
+    g_value_set_double(&timezone, save_data->timezone);
+
+    g_value_init(&house_system, G_TYPE_STRING);
+    g_value_set_string(&house_system, save_data->house_system);
+
+    g_value_init(&note, G_TYPE_STRING);
+    g_value_set_string(&note, save_data->note);
+
+    if (save_data->db_id == -1) {
+        if (!gda_connection_insert_row_into_table(
+                    priv->conn,
+                    "chart",
+                    err,
+                    "name",         &name,
+                    "country_name", &country,
+                    "city_name",    &city,
+                    "longitude",    &longitude,
+                    "latitude",     &latitude,
+                    "altitude",     &altitude,
+                    "year",         &year,
+                    "month",        &month,
+                    "day",          &day,
+                    "hour",         &hour,
+                    "minute",       &minute,
+                    "second",       &second,
+                    "timezone",     &timezone,
+                    "house_system", &house_system,
+                    "note",         &note,
+                    NULL
+                )) {
+
+            ag_app_message_dialog(
+                    window,
+                    GTK_MESSAGE_ERROR,
+                    "Unable to save: %s",
+                    (*err && (*err)->message)
+                        ? (*err)->message
+                        : "no reason"
+                );
+        }
+    } else {
+        g_value_init(&db_id, G_TYPE_INT);
+        g_value_set_int(&db_id, save_data->db_id);
+
+        if (!gda_connection_update_row_in_table(
+                    priv->conn,
+                    "chart",
+                    "id",
+                    &db_id,
+                    err,
+                    "name",         &name,
+                    "country_name", &country,
+                    "city_name",    &city,
+                    "longitude",    &longitude,
+                    "latitude",     &latitude,
+                    "altitude",     &altitude,
+                    "year",         &year,
+                    "month",        &month,
+                    "day",          &day,
+                    "hour",         &hour,
+                    "minute",       &minute,
+                    "second",       &second,
+                    "timezone",     &timezone,
+                    "house_system", &house_system,
+                    "note",         &note,
+                    NULL
+                )) {
+
+            ag_app_message_dialog(
+                    window,
+                    GTK_MESSAGE_ERROR,
+                    "Unable to save: %s",
+                    (*err && (*err)->message)
+                        ? (*err)->message
+                        : "no reason"
+                );
+        }
+
+        g_value_unset(&db_id);
+    }
+
+    g_value_unset(&note);
+    g_value_unset(&house_system);
+    g_value_unset(&timezone);
+    g_value_unset(&second);
+    g_value_unset(&minute);
+    g_value_unset(&hour);
+    g_value_unset(&day);
+    g_value_unset(&month);
+    g_value_unset(&year);
+    g_value_unset(&altitude);
+    g_value_unset(&latitude);
+    g_value_unset(&longitude);
+    g_value_unset(&city);
+    g_value_unset(&country);
+    g_value_unset(&name);
+
+    return FALSE;
 }
