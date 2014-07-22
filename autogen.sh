@@ -4,6 +4,8 @@
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
+ACLOCAL_FLAGS="-I libgd $ACLOCAL_FLAGS"
+
 PKG_NAME="astrognome"
 
 (test -f $srcdir/configure.ac \
@@ -17,6 +19,8 @@ which gnome-autogen.sh || {
     echo "gnome-autogen.sh not found, you need to install gnome-common"
     exit 1
 }
+
+git submodule update --init --recursive
 
 REQUIRED_AUTOMAKE_VERSION=1.9 . gnome-autogen.sh
 
