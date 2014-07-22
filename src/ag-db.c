@@ -648,3 +648,37 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
 
     return FALSE;
 }
+
+GList *
+ag_db_get_chart_list(AgDb *db, GError **err)
+{
+    GdaDataModelIter *iter;
+    GList            *ret    = NULL;
+    GdaDataModel     *result = ag_db_select(
+            db,
+            err,
+            "SELECT id, name FROM chart ORDER BY name",
+            NULL
+        );
+
+    if (result == NULL) {
+        return NULL;
+    }
+
+    iter = gda_data_model_create_iter(result);
+
+    while (gda_data_model_iter_move_next(iter)) {
+        const GValue *value;
+        AgDbSave     *save_data = g_new0(AgDbSave, 1);
+
+        value = gda_data_model_iter_get_value_at(iter, 0);
+        save_data->db_id = g_value_get_int(value);
+
+        value = gda_data_model_iter_get_value_at(iter, 1);
+        save_data->name = g_strdup(g_value_get_string(value));
+
+        ret = g_list_prepend(ret, save_data);
+    }
+
+    return g_list_reverse(ret);
+}

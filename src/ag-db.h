@@ -60,6 +60,8 @@ gboolean ag_db_save_chart(AgDb      *db,
                           GtkWidget *window,
                           GError    **err);
 
+GList *ag_db_get_chart_list(AgDb *db, GError **err);
+
 G_END_DECLS
 
 #endif /* __AG_DB_H__ */
