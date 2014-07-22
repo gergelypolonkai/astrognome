@@ -4,6 +4,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <webkit2/webkit2.h>
+#include <libgd/gd-main-view.h>
 
 #include <swe-glib.h>
 
@@ -32,6 +33,7 @@ struct _AgWindowPrivate {
     GtkWidget     *timezone;
     GtkWidget     *house_system;
 
+    GtkWidget     *tab_list;
     GtkWidget     *tab_chart;
     GtkWidget     *tab_edit;
     GtkWidget     *current_tab;
@@ -47,6 +49,7 @@ struct _AgWindowPrivate {
     GtkTextBuffer *note_buffer;
     GtkListStore  *house_system_model;
     GtkListStore  *db_chart_data;
+    AgDbSave      *saved_data;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -973,6 +976,63 @@ ag_window_set_default_house_system(GtkTreeModel *model,
     return FALSE;
 }
 
+static gboolean
+ag_window_list_item_activated_cb(GdMainView        *view,
+                                 const gchar       *id,
+                                 const GtkTreePath *path,
+                                 AgWindow          *window)
+{
+    guint           row_id = atoi(id);
+    AgWindowPrivate *priv  = ag_window_get_instance_private(window);
+    AgDb            *db    = ag_db_get();
+    GError          *err   = NULL;
+
+    if (priv->saved_data != NULL) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "Window chart is not saved. " \
+                "This is a bug, it should not happen here. " \
+                "Please consider opening a bug report!"
+            );
+
+        ag_window_change_tab(window, "chart");
+    }
+
+    priv->saved_data = ag_db_get_chart_data_by_id(db, row_id, NULL);
+
+    if (priv->chart) {
+        g_object_unref(priv->chart);
+        priv->chart = NULL;
+    }
+
+    if ((priv->chart = ag_chart_new_from_db_save(
+                 priv->saved_data,
+                 &err
+            )) == NULL) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "Error: %s",
+                err->message
+            );
+        ag_db_save_data_free(priv->saved_data);
+        priv->saved_data = NULL;
+
+        return FALSE;
+    }
+
+    ag_window_update_from_chart(window);
+
+    if (priv->uri) {
+        g_free(priv->uri);
+    }
+
+    ag_window_change_tab(window, "chart");
+
+    return FALSE;
+}
+
 static void
 ag_window_init(AgWindow *window)
 {
@@ -1022,8 +1082,29 @@ ag_window_init(AgWindow *window)
             NULL
         );
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
-    priv->current_tab = priv->tab_edit;
+    priv->tab_list = GTK_WIDGET(gd_main_view_new(GD_MAIN_VIEW_ICON));
+    gtk_stack_add_titled(
+            GTK_STACK(priv->stack),
+            priv->tab_list,
+            "list",
+            "Chart list"
+        );
+
+    gd_main_view_set_selection_mode(GD_MAIN_VIEW(priv->tab_list), FALSE);
+    gd_main_view_set_model(
+            GD_MAIN_VIEW(priv->tab_list),
+            GTK_TREE_MODEL(priv->db_chart_data)
+        );
+    g_signal_connect(
+            priv->tab_list,
+            "item-activated",
+            G_CALLBACK(ag_window_list_item_activated_cb),
+            window
+        );
+
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+    priv->current_tab = priv->tab_list;
+
     g_object_set(
             priv->year_adjust,
             "lower", (gdouble)G_MININT,

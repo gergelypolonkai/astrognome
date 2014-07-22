@@ -68,7 +68,9 @@ ag_app_create_window(AgApp *app)
 static void
 new_window_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    ag_app_create_window(AG_APP(user_data));
+    AgWindow *window = AG_WINDOW(ag_app_create_window(AG_APP(user_data)));
+
+    ag_window_change_tab(window, "list");
 }
 
 static void
