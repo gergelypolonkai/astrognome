@@ -196,8 +196,9 @@ ag_db_select(AgDb *db, GError **err, const gchar *sql, ...)
     GdaSet       *params;
     GdaStatement *sth;
     GdaDataModel *ret;
-    gchar        *error = NULL;
-    AgDbPrivate  *priv  = ag_db_get_instance_private(db);
+    gchar        *error     = NULL;
+    GError       *local_err = NULL;
+    AgDbPrivate  *priv      = ag_db_get_instance_private(db);
 
     parser = g_object_get_data(G_OBJECT(priv->conn), "parser");
 
@@ -205,21 +206,21 @@ ag_db_select(AgDb *db, GError **err, const gchar *sql, ...)
                 parser,
                 sql,
                 &remain,
-                err
+                &local_err
             )) == NULL) {
         g_error(
                 "SQL error: %s",
-                (*err && (*err)->message)
-                    ? (*err)->message
+                (local_err && local_err->message)
+                    ? local_err->message
                     : "no reason"
             );
     }
 
-    if (!gda_statement_get_parameters(sth, &params, err)) {
+    if (!gda_statement_get_parameters(sth, &params, &local_err)) {
         g_error(
                 "SQL error: %s",
-                (*err && (*err)->message)
-                    ? (*err)->message
+                (local_err && local_err->message)
+                    ? local_err->message
                     : "no reason"
             );
     }
