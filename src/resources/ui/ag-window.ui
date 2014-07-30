@@ -116,6 +116,26 @@
   </object>
   <object class="GtkTextBuffer" id="note_buffer">
   </object>
+  <object class="GtkListStore" id="db_chart_data">
+    <columns>
+      <!-- column-name id -->
+      <column type="gchararray"/>
+      <!-- column-name uri -->
+      <column type="gchararray"/>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+      <!-- column-name secondary-text -->
+      <column type="gchararray"/>
+      <!-- column-name icon -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name mtime -->
+      <column type="gint64"/>
+      <!-- column-name selected -->
+      <column type="gboolean"/>
+      <!-- column-name pulse -->
+      <column type="guint"/>
+    </columns>
+  </object>
   <template class="AgWindow" parent="GtkApplicationWindow">
     <property name="can_focus">False</property>
     <property name="has_focus">False</property>

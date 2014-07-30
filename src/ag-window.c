@@ -1070,6 +1070,11 @@ ag_window_class_init(AgWindowClass *klass)
             AgWindow,
             header_bar
         );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            db_chart_data
+        );
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, name);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, month);
