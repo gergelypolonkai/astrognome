@@ -63,6 +63,8 @@ void ag_window_settings_save(GtkWindow *window,
 
 void ag_window_change_tab(AgWindow *window, const gchar *tab_name);
 
+gboolean ag_window_load_chart_list(AgWindow *window);
+
 #define AG_WINDOW_ERROR (ag_window_error_quark())
 
 GQuark ag_window_error_quark(void);

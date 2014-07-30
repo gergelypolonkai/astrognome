@@ -11,6 +11,7 @@
 #include "ag-window.h"
 #include "ag-chart.h"
 #include "ag-settings.h"
+#include "ag-db.h"
 
 struct _AgWindowPrivate {
     GtkWidget     *header_bar;
@@ -45,6 +46,7 @@ struct _AgWindowPrivate {
     gboolean      aspect_table_populated;
     GtkTextBuffer *note_buffer;
     GtkListStore  *house_system_model;
+    GtkListStore  *db_chart_data;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -1346,4 +1348,52 @@ ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
     name = gtk_entry_get_text(name_entry);
 
     gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), name);
+}
+
+static void
+ag_window_add_chart_to_list(AgDbSave *save_data, AgWindow *window)
+{
+    GtkTreeIter     iter;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    gchar           *id   = g_strdup_printf("%d", save_data->db_id);
+
+    gtk_list_store_append(priv->db_chart_data, &iter);
+    gtk_list_store_set(
+            priv->db_chart_data, &iter,
+            0, id,              /* ID             */
+            1, NULL,            /* URI            */
+            2, save_data->name, /* Primary text   */
+            3, NULL,            /* Secondary text */
+            4, NULL,            /* Icon           */
+            5, 0,               /* mtime          */
+            6, FALSE,           /* Selected       */
+            7, 0,               /* Pulse          */
+            -1
+        );
+    g_free(id);
+}
+
+static void
+ag_window_clear_chart_list(AgWindow *window)
+{
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    gtk_list_store_clear(priv->db_chart_data);
+}
+
+gboolean
+ag_window_load_chart_list(AgWindow *window)
+{
+    AgDb   *db         = ag_db_get();
+    GError *err        = NULL;
+    GList  *chart_list = ag_db_get_chart_list(db, &err);
+
+    ag_window_clear_chart_list(window);
+    /* With only a few charts, this should be fine. Maybe implementing lazy
+     * loading would be a better idea. See:
+     * http://blogs.gnome.org/ebassi/documentation/lazy-loading/
+     */
+    g_list_foreach(chart_list, (GFunc)ag_window_add_chart_to_list, window);
+
+    return TRUE;
 }
