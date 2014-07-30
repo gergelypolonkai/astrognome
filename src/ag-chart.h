@@ -4,11 +4,15 @@
 #include <glib-object.h>
 #include <swe-glib.h>
 
+#include "ag-db.h"
+
 G_BEGIN_DECLS
 
 typedef enum {
     AG_CHART_ERROR_LIBXML,
     AG_CHART_ERROR_CORRUPT_FILE,
+    AG_CHART_ERROR_EMPTY_RECORD,
+    AG_CHART_ERROR_INVALID_HOUSE_SYSTEM,
 } AgChartError;
 
 #define AG_TYPE_CHART         (ag_chart_get_type())
@@ -45,6 +49,8 @@ AgChart *ag_chart_new_full(GsweTimestamp   *timestamp,
 
 AgChart *ag_chart_load_from_file(GFile  *file,
                                  GError **err);
+
+AgChart *ag_chart_new_from_db_save(AgDbSave *save_data, GError **err);
 
 void ag_chart_save_to_file(AgChart *chart,
                            GFile   *file,

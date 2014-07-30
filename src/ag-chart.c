@@ -920,6 +920,70 @@ ag_chart_load_from_file(GFile *file, GError **err)
     return chart;
 }
 
+AgChart *
+ag_chart_new_from_db_save(AgDbSave *save_data, GError **err)
+{
+    GsweTimestamp   *timestamp;
+    gchar           *house_system_enum_name;
+    GTypeClass      *house_system_class;
+    GEnumValue      *enum_value;
+    GsweHouseSystem house_system;
+    AgChart         *chart;
+
+    if (save_data == NULL) {
+        g_set_error(
+                err,
+                AG_CHART_ERROR, AG_CHART_ERROR_EMPTY_RECORD,
+                "Invalid chart"
+            );
+
+        return NULL;
+    }
+
+    house_system_enum_name = g_utf8_strdown(save_data->house_system, -1);
+    house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+
+    if ((enum_value = g_enum_get_value_by_nick(
+                G_ENUM_CLASS(house_system_class),
+                house_system_enum_name
+            )) == NULL) {
+        g_free(house_system_enum_name);
+        g_set_error(
+                err,
+                AG_CHART_ERROR, AG_CHART_ERROR_INVALID_HOUSE_SYSTEM,
+                "Invalid house system: '%s'",
+                save_data->house_system
+            );
+
+        return NULL;
+    }
+
+    g_free(house_system_enum_name);
+
+    house_system = enum_value->value;
+
+    timestamp = gswe_timestamp_new_from_gregorian_full(
+            save_data->year, save_data->month, save_data->day,
+            save_data->hour, save_data->minute, save_data->second, 0,
+            save_data->timezone
+        );
+
+    chart = ag_chart_new_full(
+            timestamp,
+            save_data->longitude,
+            save_data->latitude,
+            save_data->altitude,
+            house_system
+        );
+
+    ag_chart_set_name(chart, save_data->name);
+    ag_chart_set_country(chart, save_data->country);
+    ag_chart_set_city(chart, save_data->city);
+    ag_chart_set_note(chart, save_data->note);
+
+    return chart;
+}
+
 static xmlDocPtr
 create_save_doc(AgChart *chart)
 {
