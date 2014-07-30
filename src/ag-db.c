@@ -17,6 +17,8 @@ typedef struct _AgDbPrivate {
     GdaConnection *conn;
 } AgDbPrivate;
 
+G_DEFINE_QUARK(ag_db_error_quark, ag_db_error);
+
 G_DEFINE_TYPE_WITH_PRIVATE(AgDb, ag_db, G_TYPE_OBJECT);
 
 static void
