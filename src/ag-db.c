@@ -21,6 +21,52 @@ G_DEFINE_QUARK(ag_db_error_quark, ag_db_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgDb, ag_db, G_TYPE_OBJECT);
 
+typedef enum {
+    COLUMN_ID,
+    COLUMN_NAME,
+    COLUMN_COUNTRY,
+    COLUMN_CITY,
+    COLUMN_LONGITUDE,
+    COLUMN_LATITUDE,
+    COLUMN_ALTITUDE,
+    COLUMN_YEAR,
+    COLUMN_MONTH,
+    COLUMN_DAY,
+    COLUMN_HOUR,
+    COLUMN_MINUTE,
+    COLUMN_SECOND,
+    COLUMN_TIMEZONE,
+    COLUMN_HOUSE_SYSTEM,
+    COLUMN_NOTE,
+
+    /* Leave this as the last element */
+    COLUMN_COUNT
+} ChartTableColumn;
+
+typedef struct {
+    ChartTableColumn id;
+    gchar *name;
+} ChartTableColumnDef;
+
+static ChartTableColumnDef chart_table_column[] = {
+    { COLUMN_ID,           "id" },
+    { COLUMN_NAME,         "name" },
+    { COLUMN_COUNTRY,      "country_name" },
+    { COLUMN_CITY,         "city_name" },
+    { COLUMN_LONGITUDE,    "longitude" },
+    { COLUMN_LATITUDE,     "latitude" },
+    { COLUMN_ALTITUDE,     "altitude" },
+    { COLUMN_YEAR,         "year" },
+    { COLUMN_MONTH,        "month" },
+    { COLUMN_DAY,          "day" },
+    { COLUMN_HOUR,         "hour" },
+    { COLUMN_MINUTE,       "minute" },
+    { COLUMN_SECOND,       "second" },
+    { COLUMN_TIMEZONE,     "timezone" },
+    { COLUMN_HOUSE_SYSTEM, "house_system" },
+    { COLUMN_NOTE,         "note" },
+};
+
 static void
 ag_db_non_select(AgDb *db, const gchar *sql)
 {
@@ -683,4 +729,176 @@ ag_db_get_chart_list(AgDb *db, GError **err)
     }
 
     return g_list_reverse(ret);
+}
+
+AgDbSave *
+ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
+{
+    AgDbSave          *save_data;
+    const GValue      *value;
+    GdaValueAttribute attributes;
+    gchar             *query,
+                      *columns;
+    guint             i;
+    GdaDataModel      *result;
+    GError            *local_err = NULL;
+
+    columns = NULL;
+
+    for (i = 1; i < COLUMN_COUNT; i++) {
+        gchar *tmp;
+
+        if (i == 1) {
+            columns = g_strjoin(
+                    ", ",
+                    chart_table_column[0].name,
+                    chart_table_column[1].name,
+                    NULL
+                );
+        } else {
+            tmp = g_strjoin(", ", columns, chart_table_column[i].name, NULL);
+            g_free(columns);
+            columns = tmp;
+        }
+    }
+
+    query = g_strdup_printf(
+            "SELECT %s FROM chart WHERE id = ##id::gint",
+            columns
+        );
+    g_free(columns);
+
+    result = ag_db_select(db, &local_err, query, "id", row_id, NULL);
+    g_free(query);
+
+    if (local_err && (local_err->message)) {
+        return NULL;
+    }
+
+    if (gda_data_model_get_n_rows(result) < 1) {
+        g_set_error(
+                err,
+                AG_DB_ERROR, AG_DB_ERROR_NO_CHART,
+                "Chart does not exist"
+            );
+
+        return NULL;
+    }
+
+    save_data = g_new0(AgDbSave, 1);
+
+    /* id */
+    value            = gda_data_model_get_value_at(result, COLUMN_ID, 0, NULL);
+    save_data->db_id = g_value_get_int(value);
+
+    /* name */
+    value           = gda_data_model_get_value_at(result, COLUMN_NAME, 0, NULL);
+    save_data->name = g_strdup(g_value_get_string(value));
+
+    /* country */
+    value      = gda_data_model_get_value_at(result, COLUMN_COUNTRY, 0, NULL);
+    attributes = gda_data_model_get_attributes_at(result, COLUMN_COUNTRY, 0);
+
+    if (attributes | GDA_VALUE_ATTR_IS_NULL) {
+        save_data->country = NULL;
+    } else {
+        save_data->country = g_strdup(g_value_get_string(value));
+    }
+
+    value      = gda_data_model_get_value_at(result, COLUMN_CITY, 0, NULL);
+    attributes = gda_data_model_get_attributes_at(result, COLUMN_CITY, 0);
+
+    if (attributes | GDA_VALUE_ATTR_IS_NULL) {
+        save_data->city = NULL;
+    } else {
+        save_data->city = g_strdup(g_value_get_string(value));
+    }
+
+    value                = gda_data_model_get_value_at(
+            result,
+            COLUMN_LONGITUDE,
+            0,
+            NULL
+        );
+    save_data->longitude = g_value_get_double(value);
+
+    value               = gda_data_model_get_value_at(
+            result,
+            COLUMN_LATITUDE,
+            0,
+            NULL
+        );
+    save_data->latitude = g_value_get_double(value);
+
+    value      = gda_data_model_get_value_at(result, COLUMN_ALTITUDE, 0, NULL);
+    attributes = gda_data_model_get_attributes_at(result, COLUMN_ALTITUDE, 0);
+
+    if (attributes | GDA_VALUE_ATTR_IS_NULL) {
+        /* TODO: this value should be macroified */
+        save_data->altitude = 280.0;
+    } else {
+        save_data->altitude = g_value_get_double(value);
+    }
+
+    value           = gda_data_model_get_value_at(result, COLUMN_YEAR, 0, NULL);
+    save_data->year = g_value_get_int(value);
+
+    value            = gda_data_model_get_value_at(
+            result,
+            COLUMN_MONTH,
+            0,
+            NULL
+        );
+    save_data->month = g_value_get_uint(value);
+
+    value          = gda_data_model_get_value_at(result, COLUMN_DAY, 0, NULL);
+    save_data->day = g_value_get_uint(value);
+
+    value           = gda_data_model_get_value_at(result, COLUMN_HOUR, 0, NULL);
+    save_data->hour = g_value_get_uint(value);
+
+    value             = gda_data_model_get_value_at(
+            result,
+            COLUMN_MINUTE,
+            0,
+            NULL
+        );
+    save_data->minute = g_value_get_uint(value);
+
+    value             = gda_data_model_get_value_at(
+            result,
+            COLUMN_SECOND,
+            0,
+            NULL
+        );
+    save_data->second = g_value_get_uint(value);
+
+    value               = gda_data_model_get_value_at(
+            result,
+            COLUMN_TIMEZONE,
+            0,
+            NULL
+        );
+    save_data->timezone = g_value_get_double(value);
+
+    value                   = gda_data_model_get_value_at(
+            result,
+            COLUMN_HOUSE_SYSTEM,
+            0,
+            NULL
+        );
+    save_data->house_system = g_strdup(g_value_get_string(value));
+
+    value      = gda_data_model_get_value_at(result, COLUMN_NOTE, 0, NULL);
+    attributes = gda_data_model_get_attributes_at(result, 15, 0);
+
+    if (attributes | GDA_VALUE_ATTR_IS_NULL) {
+        save_data->note = NULL;
+    } else {
+        save_data->note = g_strdup(g_value_get_string(value));
+    }
+
+    g_object_unref(result);
+
+    return save_data;
 }

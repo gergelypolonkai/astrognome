@@ -66,6 +66,8 @@ gboolean ag_db_save_chart(AgDb      *db,
 
 GList *ag_db_get_chart_list(AgDb *db, GError **err);
 
+AgDbSave *ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err);
+
 #define AG_DB_ERROR (ag_db_error_quark())
 GQuark ag_db_error_quark(void);
 
