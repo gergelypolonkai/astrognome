@@ -4,6 +4,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <webkit2/webkit2.h>
+#include <gtk/gtk.h>
 
 #include <swe-glib.h>
 
