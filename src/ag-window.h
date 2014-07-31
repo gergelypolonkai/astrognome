@@ -50,11 +50,6 @@ AgChart *ag_window_get_chart(AgWindow *window);
 
 void ag_window_update_from_chart(AgWindow *window);
 
-void ag_window_set_uri(AgWindow    *window,
-                       const gchar *uri);
-
-gchar *ag_window_get_uri(AgWindow *window);
-
 void ag_window_settings_restore(GtkWindow *window,
                                 GSettings *settings);
 

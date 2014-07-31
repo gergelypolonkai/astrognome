@@ -44,7 +44,6 @@ struct _AgWindowPrivate {
 
     AgSettings    *settings;
     AgChart       *chart;
-    gchar         *uri;
     gboolean      aspect_table_populated;
     GtkTextBuffer *note_buffer;
     GtkListStore  *house_system_model;
@@ -1024,10 +1023,6 @@ ag_window_list_item_activated_cb(GdMainView        *view,
 
     ag_window_update_from_chart(window);
 
-    if (priv->uri) {
-        g_free(priv->uri);
-    }
-
     ag_window_change_tab(window, "chart");
 
     return FALSE;
@@ -1113,7 +1108,6 @@ ag_window_init(AgWindow *window)
         );
 
     priv->chart    = NULL;
-    priv->uri      = NULL;
 
     g_action_map_add_action_entries(
             G_ACTION_MAP(window),
@@ -1334,26 +1328,6 @@ ag_window_get_chart(AgWindow *window)
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     return priv->chart;
-}
-
-void
-ag_window_set_uri(AgWindow *window, const gchar *uri)
-{
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
-
-    if (priv->uri != NULL) {
-        g_free(priv->uri);
-    }
-
-    priv->uri = g_strdup(uri);
-}
-
-gchar *
-ag_window_get_uri(AgWindow *window)
-{
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
-
-    return g_strdup(priv->uri);
 }
 
 void

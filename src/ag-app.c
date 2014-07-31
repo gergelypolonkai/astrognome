@@ -138,7 +138,6 @@ ag_app_open_chart(AgApp *app, GFile *file)
     GtkWidget *window;
     AgChart   *chart;
     GError    *err = NULL;
-    gchar     *uri;
 
     if ((chart = ag_chart_load_from_file(file, &err)) == NULL) {
         g_print("Error: '%s'\n", err->message);
@@ -149,9 +148,6 @@ ag_app_open_chart(AgApp *app, GFile *file)
     window = ag_app_create_window(app);
     ag_window_set_chart(AG_WINDOW(window), chart);
     ag_window_update_from_chart(AG_WINDOW(window));
-    uri = g_file_get_uri(file);
-    ag_window_set_uri(AG_WINDOW(window), uri);
-    g_free(uri);
     ag_window_change_tab(AG_WINDOW(window), "chart");
 }
 
