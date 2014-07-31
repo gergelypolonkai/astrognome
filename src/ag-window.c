@@ -102,7 +102,7 @@ ag_window_close_action(GSimpleAction *action,
 }
 
 static void
-ag_window_save_as(AgWindow *window, GError **err)
+ag_window_export(AgWindow *window, GError **err)
 {
     gchar           *name;
     gchar           *file_name;
@@ -150,7 +150,7 @@ ag_window_save_as(AgWindow *window, GError **err)
     file_name = g_strdup_printf("%s.agc", name);
     g_free(name);
 
-    fs = gtk_file_chooser_dialog_new(_("Save Chart"),
+    fs = gtk_file_chooser_dialog_new(_("Export Chart"),
                                      GTK_WINDOW(window),
                                      GTK_FILE_CHOOSER_ACTION_SAVE,
                                      _("_Cancel"), GTK_RESPONSE_CANCEL,
@@ -206,15 +206,15 @@ ag_window_save_action(GSimpleAction *action,
 }
 
 static void
-ag_window_save_as_action(GSimpleAction *action,
-                         GVariant      *parameter,
-                         gpointer      user_data)
+ag_window_export_action(GSimpleAction *action,
+                        GVariant      *parameter,
+                        gpointer      user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
     GError   *err    = NULL;
 
     recalculate_chart(window);
-    ag_window_save_as(window, &err);
+    ag_window_export(window, &err);
 
     if (err) {
         ag_app_message_dialog(
@@ -907,7 +907,7 @@ ag_window_change_tab_action(GSimpleAction *action,
 static GActionEntry win_entries[] = {
     { "close",      ag_window_close_action,      NULL, NULL,      NULL },
     { "save",       ag_window_save_action,       NULL, NULL,      NULL },
-    { "save-as",    ag_window_save_as_action,    NULL, NULL,      NULL },
+    { "export",     ag_window_export_action,     NULL, NULL,      NULL },
     { "export-svg", ag_window_export_svg_action, NULL, NULL,      NULL },
     { "view-menu",  ag_window_view_menu_action,  NULL, "false",   NULL },
     { "gear-menu",  ag_window_gear_menu_action,  NULL, "false",   NULL },
