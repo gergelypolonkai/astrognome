@@ -903,3 +903,91 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
 
     return save_data;
 }
+
+static gint
+string_collate(const gchar *str1, const gchar *str2)
+{
+    if (((str1 == NULL) || (str2 == NULL)) && (str1 != str2)) {
+        return (str1 == NULL) ? -1 : 1;
+    }
+
+    if (str1 == str2) {
+        return 0;
+    }
+
+    return g_utf8_collate(str1, str2);
+}
+
+gboolean
+ag_db_save_identical(const AgDbSave *a, const AgDbSave *b)
+{
+    if (a == b) {
+        return TRUE;
+    }
+
+    if ((a == NULL) || (b == NULL)) {
+        return FALSE;
+    }
+
+    if (string_collate(a->name, b->name) != 0) {
+        return FALSE;
+    }
+
+    if (string_collate(a->country, b->country) != 0) {
+        return FALSE;
+    }
+
+    if (string_collate(a->city, b->city) != 0) {
+        return FALSE;
+    }
+
+    if (a->longitude != b->longitude) {
+        return FALSE;
+    }
+
+    if (a->latitude != b->latitude) {
+        return FALSE;
+    }
+
+    if (a->altitude != b->altitude) {
+        return FALSE;
+    }
+
+    if (a->year != b->year) {
+        return FALSE;
+    }
+
+    if (a->month != b->month) {
+        return FALSE;
+    }
+
+    if (a->day != b->day) {
+        return FALSE;
+    }
+
+    if (a->hour != b->hour) {
+        return FALSE;
+    }
+
+    if (a->minute != b->minute) {
+        return FALSE;
+    }
+
+    if (a->second != b->second) {
+        return FALSE;
+    }
+
+    if (a->timezone != b->timezone) {
+        return FALSE;
+    }
+
+    if (string_collate(a->house_system, b->house_system) != 0) {
+        return FALSE;
+    }
+
+    if (string_collate(a->note, b->note) != 0) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
