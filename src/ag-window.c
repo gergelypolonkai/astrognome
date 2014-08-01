@@ -5,6 +5,7 @@
 #include <libxml/tree.h>
 #include <webkit2/webkit2.h>
 #include <libgd/gd-main-view.h>
+#include <gtk/gtk.h>
 
 #include <swe-glib.h>
 
