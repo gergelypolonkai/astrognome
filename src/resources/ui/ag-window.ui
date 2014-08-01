@@ -149,6 +149,44 @@
         <property name="show_close_button">True</property>
         <property name="title" translatable="yes">Astrognome</property>
         <child>
+          <object class="GtkStack" id="new_back_stack">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="homogeneous">False</property>
+            <child>
+              <object class="GtkButton" id="new_button">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">New</property>
+                <property name="action_name">win.new-chart</property>
+              </object>
+              <packing>
+                <property name="name">new</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="back_button">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">win.back</property>
+                <style>
+                  <class name="image-button"/>
+                </style>
+                <child>
+                  <object class="GtkImage" id="back_image">
+                    <property name="visible">True</property>
+                    <property name="icon_size">1</property>
+                    <property name="icon_name">go-previous-symbolic</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="name">back</property>
+              </packing>
+            </child>
+          </object>
+        </child>
+        <child>
           <object class="GtkBox" id="box">
             <property name="visible">True</property>
             <property name="valign">center</property>
@@ -159,44 +197,60 @@
           </object>
         </child>
         <child>
-          <object class="GtkMenuButton">
+          <object class="GtkRevealer" id="menubutton_revealer">
             <property name="visible">True</property>
-            <property name="valign">center</property>
             <property name="can_focus">False</property>
-            <property name="action_name">win.gear-menu</property>
-            <property name="menu_model">gear_menu</property>
-            <property name="use_popover">False</property>
-            <style>
-              <class name="image-button"/>
-            </style>
+            <property name="reveal_child">False</property>
             <child>
-              <object class="GtkImage" id="gear_image">
+              <object class="GtkBox" id="menubutton_box">
                 <property name="visible">True</property>
-                <property name="icon_size">1</property>
-                <property name="icon_name">emblem-system-symbolic</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="pack_type">end</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkMenuButton">
-            <property name="visible">True</property>
-            <property name="valign">center</property>
-            <property name="can_focus">False</property>
-            <property name="action_name">win.view-menu</property>
-            <property name="menu_model">view_menu</property>
-            <property name="use_popover">False</property>
-            <style>
-              <class name="image-button"/>
-            </style>
-            <child>
-              <object class="GtkImage" id="view_image">
-                <property name="visible">True</property>
-                <property name="icon_size">1</property>
-                <property name="icon_name">document-properties-symbolic</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkMenuButton">
+                    <property name="visible">True</property>
+                    <property name="valign">center</property>
+                    <property name="can_focus">False</property>
+                    <property name="action_name">win.view-menu</property>
+                    <property name="menu_model">view_menu</property>
+                    <property name="use_popover">False</property>
+                    <style>
+                      <class name="image-button"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage" id="view_image">
+                        <property name="visible">True</property>
+                        <property name="icon_size">1</property>
+                        <property name="icon_name">document-properties-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkMenuButton">
+                    <property name="visible">True</property>
+                    <property name="valign">center</property>
+                    <property name="can_focus">False</property>
+                    <property name="action_name">win.gear-menu</property>
+                    <property name="menu_model">gear_menu</property>
+                    <property name="use_popover">False</property>
+                    <style>
+                      <class name="image-button"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage" id="gear_image">
+                        <property name="visible">True</property>
+                        <property name="icon_size">1</property>
+                        <property name="icon_name">emblem-system-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
               </object>
             </child>
           </object>

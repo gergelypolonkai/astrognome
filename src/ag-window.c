@@ -17,6 +17,8 @@
 
 struct _AgWindowPrivate {
     GtkWidget     *header_bar;
+    GtkWidget     *menubutton_revealer;
+    GtkWidget     *new_back_stack;
     GtkWidget     *stack;
     GtkWidget     *name;
     GtkWidget     *north_lat;
@@ -860,6 +862,14 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
         gtk_widget_set_size_request(active_tab, 600, 600);
     }
 
+    if (strcmp("list", active_tab_name) == 0) {
+        gtk_revealer_set_reveal_child(GTK_REVEALER(priv->menubutton_revealer), FALSE);
+        gtk_stack_set_visible_child_name(GTK_STACK(priv->new_back_stack), "new");
+    } else {
+        gtk_revealer_set_reveal_child(GTK_REVEALER(priv->menubutton_revealer), TRUE);
+        gtk_stack_set_visible_child_name(GTK_STACK(priv->new_back_stack), "back");
+    }
+
     // If we are coming from the Edit tab, let’s assume the chart data has
     // changed. This is a bad idea, though, it should be checked instead!
     // (TODO)
@@ -886,6 +896,30 @@ ag_window_change_tab_action(GSimpleAction *action,
     g_action_change_state(G_ACTION(action), parameter);
 }
 
+static void
+ag_window_new_chart_action(GSimpleAction *action,
+                           GVariant      *parameter,
+                           gpointer      user_data)
+{
+    AgWindow        *window = AG_WINDOW(user_data);
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
+}
+
+static void
+ag_window_back_action(GSimpleAction *action,
+                      GVariant      *parameter,
+                      gpointer      user_data)
+{
+    AgWindow        *window = AG_WINDOW(user_data);
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+
+    /* TODO: Check for saving! */
+    ag_window_load_chart_list(window);
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+}
+
 static GActionEntry win_entries[] = {
     { "close",      ag_window_close_action,      NULL, NULL,      NULL },
     { "save",       ag_window_save_action,       NULL, NULL,      NULL },
@@ -894,6 +928,8 @@ static GActionEntry win_entries[] = {
     { "view-menu",  ag_window_view_menu_action,  NULL, "false",   NULL },
     { "gear-menu",  ag_window_gear_menu_action,  NULL, "false",   NULL },
     { "change-tab", ag_window_change_tab_action, "s",  "'edit'",  NULL },
+    { "new-chart",  ag_window_new_chart_action,  NULL, NULL,      NULL },
+    { "back",       ag_window_back_action,       NULL, NULL,      NULL },
 };
 
 static void
@@ -1129,6 +1165,16 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             header_bar
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            new_back_stack
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            menubutton_revealer
         );
     gtk_widget_class_bind_template_child_private(
             widget_class,
