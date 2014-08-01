@@ -183,10 +183,32 @@ ag_window_save_action(GSimpleAction *action,
 {
     AgWindow        *window = AG_WINDOW(user_data);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    AgDb            *db     = ag_db_get();
+    GError          *err;
+    gint            old_id;
+    AgDbSave        *save_data;
 
     recalculate_chart(window);
 
-    ag_chart_save_to_db(priv->chart, &(priv->saved_data), GTK_WIDGET(window));
+    old_id = (priv->saved_data) ? priv->saved_data->db_id : -1;
+
+    save_data = ag_chart_get_db_save(priv->chart, old_id);
+
+    if (!ag_db_save_identical(priv->saved_data, save_data)) {
+        if (!ag_db_save_chart(db, save_data, &err)) {
+            ag_app_message_dialog(
+                    GTK_WIDGET(window),
+                    GTK_MESSAGE_ERROR,
+                    _("Unable to save: %s"),
+                    err->message
+                );
+        }
+
+        ag_db_save_data_free(priv->saved_data);
+        priv->saved_data = save_data;
+    } else {
+        ag_db_save_data_free(save_data);
+    }
 }
 
 static void

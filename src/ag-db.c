@@ -3,6 +3,7 @@
 #include <libgda/libgda.h>
 #include <sql-parser/gda-sql-parser.h>
 #include <gobject/gvaluecollector.h>
+#include <glib/gi18n.h>
 
 #include "config.h"
 #include "ag-app.h"
@@ -592,20 +593,18 @@ ag_db_save_data_free(AgDbSave *save_data)
  * ag_db_save_chart:
  * @db: the #AgDb object to operate on
  * @save_data: the data to save.
- * @window: the window to use as the parent of possible message dialogs (TODO:
- *          this is a design flow. This function should merely rely only on
- *          @err)
  * @err: a #GError for storing errors
  *
  * Saves @save_data to the database. If its db_id field is -1, a new record is
- * created; otherwise the row with the given ID will be updated. Should any
- * issues arise, a message dialog will pop up on @window
+ * created; otherwise the row with the given ID will be updated.
  *
  * Returns: TRUE if the save succeeds, FALSE otherwise
  */
 gboolean
-ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
+ag_db_save_chart(AgDb *db, AgDbSave *save_data,  GError **err)
 {
+    GError      *local_err   = NULL;
+    gboolean    save_success = TRUE;
     GValue      db_id        = G_VALUE_INIT,
                 name         = G_VALUE_INIT,
                 country      = G_VALUE_INIT,
@@ -669,11 +668,12 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
     g_value_init(&note, G_TYPE_STRING);
     g_value_set_string(&note, save_data->note);
 
-    if (save_data->db_id == -1) {
+    /* It is possible to get 0 here, which is as non-existant as -1 */
+    if (save_data->db_id < 0) {
         if (!gda_connection_insert_row_into_table(
                     priv->conn,
                     "chart",
-                    err,
+                    &local_err,
                     "name",         &name,
                     "country_name", &country,
                     "city_name",    &city,
@@ -692,14 +692,17 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
                     NULL
                 )) {
 
-            ag_app_message_dialog(
-                    window,
-                    GTK_MESSAGE_ERROR,
-                    "Unable to save: %s",
-                    (*err && (*err)->message)
-                        ? (*err)->message
-                        : "no reason"
+            g_set_error(
+                    err,
+                    AG_DB_ERROR,
+                    AG_DB_ERROR_DATABASE_ERROR,
+                    "%s",
+                    (local_err && local_err->message)
+                        ? local_err->message
+                        : _("Reason unknown")
                 );
+
+            save_success = FALSE;
         }
     } else {
         g_value_init(&db_id, G_TYPE_INT);
@@ -710,7 +713,7 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
                     "chart",
                     "id",
                     &db_id,
-                    err,
+                    &local_err,
                     "name",         &name,
                     "country_name", &country,
                     "city_name",    &city,
@@ -729,14 +732,17 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
                     NULL
                 )) {
 
-            ag_app_message_dialog(
-                    window,
-                    GTK_MESSAGE_ERROR,
-                    "Unable to save: %s",
-                    (*err && (*err)->message)
-                        ? (*err)->message
-                        : "no reason"
+            g_set_error(
+                    err,
+                    AG_DB_ERROR,
+                    AG_DB_ERROR_DATABASE_ERROR,
+                    "%s",
+                    (local_err && local_err->message)
+                        ? local_err->message
+                        : _("Reason unknown")
                 );
+
+            save_success = FALSE;
         }
 
         g_value_unset(&db_id);
@@ -758,7 +764,7 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
     g_value_unset(&country);
     g_value_unset(&name);
 
-    return FALSE;
+    return save_success;
 }
 
 /**

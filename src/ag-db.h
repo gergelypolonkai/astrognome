@@ -50,7 +50,8 @@ typedef struct _AgDbSave {
 } AgDbSave;
 
 typedef enum {
-    AG_DB_ERROR_NO_CHART
+    AG_DB_ERROR_NO_CHART,
+    AG_DB_ERROR_DATABASE_ERROR,
 } AgDbError;
 
 GType ag_db_get_type(void) G_GNUC_CONST;
@@ -61,7 +62,6 @@ void ag_db_save_data_free(AgDbSave *save_data);
 
 gboolean ag_db_save_chart(AgDb      *db,
                           AgDbSave  *save_data,
-                          GtkWidget *window,
                           GError    **err);
 
 GList *ag_db_get_chart_list(AgDb *db, GError **err);

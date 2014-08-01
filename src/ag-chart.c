@@ -1539,24 +1539,17 @@ const gchar *ag_chart_get_note(AgChart *chart)
     return priv->note;
 }
 
-gboolean
-ag_chart_save_to_db(AgChart *chart, AgDbSave **old_save, GtkWidget *window)
+AgDbSave *
+ag_chart_get_db_save(AgChart *chart, gint db_id)
 {
     GsweCoordinates *coords;
-    AgDb            *db        = ag_db_get();
     AgChartPrivate  *priv      = ag_chart_get_instance_private(chart);
     AgDbSave        *save_data = g_new0(AgDbSave, 1);
-    GError          *err       = NULL;
     GsweTimestamp   *timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
     GEnumClass      *house_system_class;
     GEnumValue      *house_system_enum;
-    gboolean        ret;
 
-    if (old_save && *old_save) {
-        save_data->db_id = (*old_save)->db_id;
-    } else {
-        save_data->db_id = -1;
-    }
+    save_data->db_id = db_id;
 
     save_data->name         = g_strdup(priv->name);
     save_data->country      = g_strdup(priv->country);
@@ -1597,16 +1590,5 @@ ag_chart_save_to_db(AgChart *chart, AgDbSave **old_save, GtkWidget *window)
     g_type_class_unref(house_system_class);
     save_data->note         = g_strdup(priv->note);
 
-    if (
-            (!old_save || !*old_save)
-            || !ag_db_save_identical(*old_save, save_data)
-        ) {
-        ret = ag_db_save_chart(db, save_data, window, &err);
-    } else {
-        ret = TRUE;
-    }
-
-    ag_db_save_data_free(save_data);
-
-    return ret;
+    return save_data;
 }

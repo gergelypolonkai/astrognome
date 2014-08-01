@@ -86,9 +86,7 @@ void ag_chart_set_note(AgChart *chart, const gchar *note);
 
 const gchar *ag_chart_get_note(AgChart *chart);
 
-gboolean ag_chart_save_to_db(AgChart *chart,
-                             AgDbSave **old_save,
-                             GtkWidget *window);
+AgDbSave *ag_chart_get_db_save(AgChart *chart, gint db_id);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);
