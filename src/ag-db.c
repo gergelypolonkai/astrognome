@@ -67,6 +67,13 @@ static ChartTableColumnDef chart_table_column[] = {
     { COLUMN_NOTE,         "note" },
 };
 
+/**
+ * ag_db_non_select:
+ * @db: the AgDb to operate on
+ * @sql: the SQL query to execute
+ *
+ * Executes a non-SELECT query on @db. No result is returned right now (TODO)
+ */
 static void
 ag_db_non_select(AgDb *db, const gchar *sql)
 {
@@ -112,6 +119,16 @@ ag_db_non_select(AgDb *db, const gchar *sql)
     g_object_unref(sth);
 }
 
+/**
+ * ag_db_table_exists:
+ * @db: the #AgDb object to operate on
+ * @table: the nawe of the table to check for
+ *
+ * Checks if the specified table exists. It is done by querying the
+ * sqlite_master system table.
+ *
+ * Returns: TRUE if the table exists, FALSE otherwise
+ */
 static gboolean
 ag_db_table_exists(AgDb *db, const gchar *table)
 {
@@ -271,6 +288,13 @@ ag_db_select(AgDb *db, GError **err, const gchar *sql, ...)
     return ret;
 }
 
+/**
+ * ag_db_check_version_table:
+ * @db: the #AgDb object to operate on
+ *
+ * Checks if the version table exists, and creates it if necessary. It doesn't
+ * check if the structure is valid!
+ */
 static void
 ag_db_check_version_table(AgDb *db)
 {
@@ -374,6 +398,13 @@ ag_db_check_version_table(AgDb *db)
     }
 }
 
+/**
+ * ag_db_check_chart_table:
+ * @db: the #AgDb object to operate on
+ *
+ * Checks if the chart table exists, and creates it if necessary. It doesn't
+ * check if the structure is valid!
+ */
 static void
 ag_db_check_chart_table(AgDb *db)
 {
@@ -400,6 +431,14 @@ ag_db_check_chart_table(AgDb *db)
         );
 }
 
+/**
+ * ag_db_verify:
+ * @db: the #AgDb object to operate on
+ *
+ * Checks if the database file is sane.
+ *
+ * Returns: the status of the database (TODO: make this an enum!)
+ */
 static gint
 ag_db_verify(AgDb *db)
 {
@@ -510,6 +549,12 @@ ag_db_get(void)
     return singleton;
 }
 
+/**
+ * ag_db_save_data_free:
+ * @save_data: the #AgDbSave struct to free
+ *
+ * Frees @save_data and all its fields
+ */
 void
 ag_db_save_data_free(AgDbSave *save_data)
 {
@@ -540,6 +585,21 @@ ag_db_save_data_free(AgDbSave *save_data)
     g_free(save_data);
 }
 
+/**
+ * ag_db_save_chart:
+ * @db: the #AgDb object to operate on
+ * @save_data: the data to save.
+ * @window: the window to use as the parent of possible message dialogs (TODO:
+ *          this is a design flow. This function should merely rely only on
+ *          @err)
+ * @err: a #GError for storing errors
+ *
+ * Saves @save_data to the database. If its db_id field is -1, a new record is
+ * created; otherwise the row with the given ID will be updated. Should any
+ * issues arise, a message dialog will pop up on @window
+ *
+ * Returns: TRUE if the save succeeds, FALSE otherwise
+ */
 gboolean
 ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
 {
@@ -698,6 +758,22 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data, GtkWidget *window, GError **err)
     return FALSE;
 }
 
+/**
+ * ag_db_get_chart_list:
+ * @db: the #AgDb object to operate on
+ * @err: a #GError
+ *
+ * Creates a list of all charts in the database, ordered by name. As the return
+ * value may be NULL even if there are no charts or if there was an error, you
+ * may want to check @err if the return value is NULL.
+ *
+ * Please be aware that the #AgDbSave objects of the returned value are not
+ * fully realised chart records. To get one, you need to call
+ * ag_db_get_chart_data_by_id()
+ *
+ * Returns: (element-type AgDbSave) (transfer full): the list of all charts, or
+ *          or NULL if there are none, or if there is an error.
+ */
 GList *
 ag_db_get_chart_list(AgDb *db, GError **err)
 {
@@ -732,6 +808,16 @@ ag_db_get_chart_list(AgDb *db, GError **err)
     return g_list_reverse(ret);
 }
 
+/**
+ * ag_db_get_chart_data_by_id:
+ * @db: the #AgDb object to operate on
+ * @row_id: the ID field of the requested chart
+ * @err: a #GError
+ *
+ * Fetches the specified row from the chart table.
+ *
+ * Returns: (transfer full): A fully filled #AgDbSave record of the chart
+ */
 AgDbSave *
 ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
 {
@@ -904,6 +990,17 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
     return save_data;
 }
 
+/**
+ * string_collate:
+ * @str1: the first string
+ * @str2: the second string
+ *
+ * A wrapper function around g_utf8_collate() that can handle NULL values. NULL
+ * precedes any strings (even "").
+ *
+ * Returns: -1 if str1 is ordered before str2, 1 if str2 comes first, or 0 if
+ * they are identical
+ */
 static gint
 string_collate(const gchar *str1, const gchar *str2)
 {
@@ -918,6 +1015,16 @@ string_collate(const gchar *str1, const gchar *str2)
     return g_utf8_collate(str1, str2);
 }
 
+/**
+ * ag_db_save_identical:
+ * @a: the first #AgDbSave structure
+ * @b: the second #AgDbSave structure
+ *
+ * Compares two #AgDbSave structures and their contents.
+ *
+ * Returns: TRUE if the two structs hold equal values (strings are also compared
+ *          with string_collate()), FALSE otherwise
+ */
 gboolean
 ag_db_save_identical(const AgDbSave *a, const AgDbSave *b)
 {
