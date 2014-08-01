@@ -133,7 +133,7 @@ quit_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
-ag_app_open_chart(AgApp *app, GFile *file)
+ag_app_import_chart(AgApp *app, GFile *file)
 {
     GtkWidget *window;
     AgChart   *chart;
@@ -152,7 +152,7 @@ ag_app_open_chart(AgApp *app, GFile *file)
 }
 
 static void
-open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
+ag_app_import_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     gint      response;
     GtkWidget *fs;
@@ -162,7 +162,7 @@ open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
                                      NULL,
                                      GTK_FILE_CHOOSER_ACTION_OPEN,
                                      _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                     _("_Open"), GTK_RESPONSE_ACCEPT,
+                                     _("_Import"), GTK_RESPONSE_ACCEPT,
                                      NULL);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_all);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_chart);
@@ -189,7 +189,7 @@ open_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
             }
 
             file = g_file_new_for_commandline_arg(data);
-            ag_app_open_chart(AG_APP(user_data), file);
+            ag_app_import_chart(AG_APP(user_data), file);
         }
     }
 
@@ -244,13 +244,13 @@ help_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static GActionEntry app_entries[] = {
-    { "new-window",  new_window_cb,  NULL, NULL, NULL },
-    { "preferences", preferences_cb, NULL, NULL, NULL },
-    { "about",       about_cb,       NULL, NULL, NULL },
-    { "quit",        quit_cb,        NULL, NULL, NULL },
-    { "raise",       raise_cb,       NULL, NULL, NULL },
-    { "open",        open_cb,        NULL, NULL, NULL },
-    { "help",        help_cb,        NULL, NULL, NULL },
+    { "new-window",  new_window_cb,    NULL, NULL, NULL },
+    { "preferences", preferences_cb,   NULL, NULL, NULL },
+    { "about",       about_cb,         NULL, NULL, NULL },
+    { "quit",        quit_cb,          NULL, NULL, NULL },
+    { "raise",       raise_cb,         NULL, NULL, NULL },
+    { "import",      ag_app_import_cb, NULL, NULL, NULL },
+    { "help",        help_cb,          NULL, NULL, NULL },
 };
 
 static void
@@ -347,12 +347,15 @@ startup(GApplication *gapp)
 }
 
 static void
-ag_app_open(GApplication *gapp, GFile **files, gint n_files, const gchar *hint)
+ag_app_import(GApplication *gapp,
+              GFile **files,
+              gint n_files,
+              const gchar *hint)
 {
     gint i;
 
     for (i = 0; i < n_files; i++) {
-        ag_app_open_chart(AG_APP(gapp), files[i]);
+        ag_app_import_chart(AG_APP(gapp), files[i]);
     }
 }
 
@@ -440,7 +443,7 @@ ag_app_class_init(AgAppClass *klass)
     GApplicationClass *application_class = G_APPLICATION_CLASS(klass);
 
     application_class->startup = startup;
-    application_class->open    = ag_app_open;
+    application_class->open    = ag_app_import;
 }
 
 gint
