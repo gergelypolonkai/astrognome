@@ -246,6 +246,7 @@ ag_db_select(AgDb *db, GError **err, const gchar *sql, ...)
         va_list ap;
 
         va_start(ap, sql);
+
         while (TRUE) {
             gchar     *key;
             GdaHolder *holder;
@@ -280,6 +281,8 @@ ag_db_select(AgDb *db, GError **err, const gchar *sql, ...)
                     );
             }
         }
+
+        va_end(ap);
     }
 
     ret = gda_connection_statement_execute_select(priv->conn, sth, params, err);
