@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="https://www.freedesktop.org/standards/appdata/1.0"
+             xmlns:xi="http://www.w3.org/2001/XInclude"
+             xmlns:its="http://www.w3.org/2005/11/its">
+    <id type="desktop">astrognome.desktop</id>
+    <metadata_license>GPL-3.0+</metadata_license>
+    <project_license>GPL-3.0+</project_license>
+    <_name>Astrognome</_name>
+    <_summary>Astrologers’ software</_summary>
+    <description>
+        <_p>An astrologers’ software for the GNOME desktop</_p>
+    </description>
+    <!--screenshots>
+        <screenshot type="default">https://...jpg</screenshot>
+    </screenshots-->
+    <url type="homepage">http://gergely.polonkai.eu/astrognome/</url>
+    <project_group>GNOME</project_group>
+    <updatecontact>https://github.com/gergelypolonkai/astrognome/issues</updatecontact>
+</application>

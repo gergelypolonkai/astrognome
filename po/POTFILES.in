@@ -8,3 +8,4 @@ src/astrognome.c
 [type: gettext/glade]src/resources/ui/astrognome.ui
 [type: gettext/glade]src/resources/ui/ag-window.ui
 [type: gettext/glade]src/resources/ui/ag-preferences.ui
+astrognome.appdata.xml.in
