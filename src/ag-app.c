@@ -443,6 +443,48 @@ ag_app_class_init(AgAppClass *klass)
     application_class->open    = ag_app_open;
 }
 
+gint
+ag_app_buttoned_dialog(GtkWidget      *window,
+                       GtkMessageType message_type,
+                       const gchar    *message,
+                       const gchar    *first_button_text,
+                       ...)
+{
+    va_list     ap;
+    const gchar *button_text;
+    gint        response_id;
+    GtkWidget   *dialog;
+
+    dialog = gtk_message_dialog_new(
+            GTK_WINDOW(window),
+            GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+            message_type,
+            GTK_BUTTONS_NONE,
+            "%s",
+            message
+        );
+
+    if (first_button_text) {
+        button_text = first_button_text;
+
+        va_start(ap, first_button_text);
+        response_id = va_arg(ap, gint);
+        gtk_dialog_add_button(GTK_DIALOG(dialog), button_text, response_id);
+
+        while ((button_text = va_arg(ap, gchar *)) != NULL) {
+            response_id = va_arg(ap, gint);
+            gtk_dialog_add_button(GTK_DIALOG(dialog), button_text, response_id);
+        }
+
+        va_end(ap);
+    }
+
+    response_id = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+    return response_id;
+}
+
 void
 ag_app_message_dialog(GtkWidget      *window,
                       GtkMessageType message_type,
@@ -450,21 +492,18 @@ ag_app_message_dialog(GtkWidget      *window,
 {
     gchar     *msg;
     va_list   args;
-    GtkWidget *dialog;
 
     va_start(args, fmt);
     msg = g_strdup_vprintf(fmt, args);
     va_end(args);
 
-    dialog = gtk_message_dialog_new(
-            GTK_WINDOW(window),
-            GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+    ag_app_buttoned_dialog(
+            window,
             message_type,
-            GTK_BUTTONS_OK,
-            "%s",
-            msg
+            msg,
+            _("Close"), GTK_RESPONSE_CLOSE,
+            NULL
         );
+
     g_free(msg);
-    gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
 }
