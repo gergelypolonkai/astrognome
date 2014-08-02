@@ -1036,6 +1036,14 @@ ag_window_back_action(GSimpleAction *action,
     }
 }
 
+static void
+ag_window_refresh_action(GSimpleAction *action,
+                         GVariant      *parameter,
+                         gpointer      user_data)
+{
+    ag_window_load_chart_list(AG_WINDOW(user_data));
+}
+
 static GActionEntry win_entries[] = {
     { "close",      ag_window_close_action,      NULL, NULL,      NULL },
     { "save",       ag_window_save_action,       NULL, NULL,      NULL },
@@ -1046,6 +1054,7 @@ static GActionEntry win_entries[] = {
     { "change-tab", ag_window_change_tab_action, "s",  "'edit'",  NULL },
     { "new-chart",  ag_window_new_chart_action,  NULL, NULL,      NULL },
     { "back",       ag_window_back_action,       NULL, NULL,      NULL },
+    { "refresh",    ag_window_refresh_action,    NULL, NULL,      NULL },
 };
 
 static void
