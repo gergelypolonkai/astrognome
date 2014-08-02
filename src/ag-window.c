@@ -92,6 +92,65 @@ ag_window_view_menu_action(GSimpleAction *action,
     g_variant_unref(state);
 }
 
+gboolean
+ag_window_can_close(AgWindow *window, gboolean display_dialog)
+{
+    AgWindowPrivate *priv      = ag_window_get_instance_private(window);
+    gint            db_id      = (priv->saved_data)
+            ? priv->saved_data->db_id
+            : -1;
+    AgDbSave        *save_data = NULL;
+    AgDb            *db        = ag_db_get();
+
+    if (priv->chart) {
+        save_data = ag_chart_get_db_save(priv->chart, db_id);
+
+        if (!ag_db_save_identical(priv->saved_data, save_data)) {
+            g_debug("Save is needed!");
+
+            if (display_dialog) {
+                gint response;
+
+                response = ag_app_buttoned_dialog(
+                        GTK_WIDGET(window),
+                        GTK_MESSAGE_QUESTION,
+                        _("Chart is not saved. Do you want to save it?"),
+                        _("Save and close"), GTK_RESPONSE_YES,
+                        _("Close without saving"), GTK_RESPONSE_NO,
+                        _("Return to chart"), GTK_RESPONSE_CANCEL,
+                        NULL
+                    );
+
+                switch (response) {
+                    case GTK_RESPONSE_YES:
+                        ag_db_save(db, save_data, NULL);
+                        // TODO: error checking?
+
+                        return TRUE;
+
+                    case GTK_RESPONSE_NO:
+                        return TRUE;
+
+                    default:
+                        return FALSE;
+                }
+            } else {
+                return FALSE;
+            }
+        }
+    }
+
+    return TRUE;
+}
+
+gboolean
+ag_window_delete_event_callback(AgWindow *window,
+                                GdkEvent *event,
+                                gpointer user_data)
+{
+    return (!ag_window_can_close(window, TRUE));
+}
+
 static void
 ag_window_close_action(GSimpleAction *action,
                        GVariant      *parameter,

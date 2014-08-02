@@ -141,6 +141,7 @@
     <property name="has_focus">False</property>
     <property name="is_focus">False</property>
     <property name="icon_name">astrognome</property>
+    <signal name="delete-event" handler="ag_window_delete_event_callback" swapped="no"/>
     <child type="titlebar">
       <object class="GtkHeaderBar" id="header_bar">
         <property name="visible">True</property>
