@@ -1,0 +1,17 @@
+<Project xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/"
+         xmlns="http://usefulinc.com/ns/doap#">
+  <name xml:lang="en">Astrognome</name>
+  <shortdesc xml:lang="en">Astrologers’ software</shortdesc>
+  <homepage rdf:resource="http://gergely.polonkai.eu/astrognome/" />
+  <!--mailing-list rdf:resource="http://mail.gnome.org/mailman/listinfo/evince-list" /-->
+  <download-page rdf:resource="http://gergely.polonkai.eu/astrognome/download/" />
+  <bug-database rdf:resource="https://github.com/gergelypolonkai/astrognome/issues" />
+  <category rdf:resource="http://api.gnome.org/doap-extensions#desktop" />
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Gergely Polonkai</foaf:name>
+      <foaf:mbox rdf:resource="mailto:gergely@polonkai.eu" />
+    </foaf:Person>
+  </maintainer>
+</Project>
