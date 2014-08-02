@@ -1076,7 +1076,7 @@ ag_window_set_default_house_system(GtkTreeModel *model,
     return FALSE;
 }
 
-static gboolean
+static void
 ag_window_list_item_activated_cb(GdMainView        *view,
                                  const gchar       *id,
                                  const GtkTreePath *path,
@@ -1098,7 +1098,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
 
         ag_window_change_tab(window, "chart");
 
-        return FALSE;
+        return;
     }
 
     if ((priv->saved_data = ag_db_get_chart_data_by_id(
@@ -1111,7 +1111,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
                 "Could not open chart."
             );
 
-        return FALSE;
+        return;
     }
 
     if (priv->chart) {
@@ -1132,14 +1132,12 @@ ag_window_list_item_activated_cb(GdMainView        *view,
         ag_db_save_data_free(priv->saved_data);
         priv->saved_data = NULL;
 
-        return FALSE;
+        return;
     }
 
     ag_window_update_from_chart(window);
 
     ag_window_change_tab(window, "chart");
-
-    return FALSE;
 }
 
 static void
