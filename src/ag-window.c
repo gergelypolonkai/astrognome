@@ -1008,9 +1008,14 @@ ag_window_back_action(GSimpleAction *action,
     AgWindow        *window = AG_WINDOW(user_data);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
 
-    /* TODO: Check for saving! */
-    ag_window_load_chart_list(window);
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+    if (ag_window_can_close(window, TRUE)) {
+        g_clear_object(&(priv->chart));
+        ag_db_save_data_free(priv->saved_data);
+        priv->saved_data = NULL;
+
+        ag_window_load_chart_list(window);
+        gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+    }
 }
 
 static GActionEntry win_entries[] = {
