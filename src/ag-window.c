@@ -101,6 +101,8 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
             : -1;
     AgDbSave        *save_data = NULL;
     AgDb            *db        = ag_db_get();
+    GError          *err       = NULL;
+    gboolean        ret        = TRUE;
 
     if (priv->chart) {
         save_data = ag_chart_get_db_save(priv->chart, db_id);
@@ -123,24 +125,40 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
 
                 switch (response) {
                     case GTK_RESPONSE_YES:
-                        ag_db_save(db, save_data, NULL);
-                        // TODO: error checking?
+                        if (!ag_db_save_chart(db, save_data, &err)) {
+                            ag_app_message_dialog(
+                                    GTK_WIDGET(window),
+                                    GTK_MESSAGE_ERROR,
+                                    "Unable to save chart: %s",
+                                    err->message
+                                );
 
-                        return TRUE;
+                            ret = FALSE;
+                        } else {
+                            ret = TRUE;
+                        }
+
+                        break;
 
                     case GTK_RESPONSE_NO:
-                        return TRUE;
+                        ret = TRUE;
+
+                        break;
 
                     default:
-                        return FALSE;
+                        ret = FALSE;
+
+                        break;
                 }
             } else {
-                return FALSE;
+                ret = FALSE;
             }
         }
     }
 
-    return TRUE;
+    ag_db_save_data_free(save_data);
+
+    return ret;
 }
 
 gboolean
