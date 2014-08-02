@@ -983,6 +983,20 @@ ag_window_new_chart_action(GSimpleAction *action,
     AgWindow        *window = AG_WINDOW(user_data);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
 
+    if (priv->chart) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "This window already has a chart. " \
+                "This should not happen, " \
+                "please consider issuing a bug report!"
+            );
+
+        gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "chart");
+
+        return;
+    }
+
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
 }
 
