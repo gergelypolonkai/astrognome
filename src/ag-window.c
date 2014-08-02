@@ -1037,9 +1037,22 @@ ag_window_list_item_activated_cb(GdMainView        *view,
             );
 
         ag_window_change_tab(window, "chart");
+
+        return FALSE;
     }
 
-    priv->saved_data = ag_db_get_chart_data_by_id(db, row_id, NULL);
+    if ((priv->saved_data = ag_db_get_chart_data_by_id(
+                 db,
+                 row_id,
+                 &err)) == NULL) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "Could not open chart."
+            );
+
+        return FALSE;
+    }
 
     if (priv->chart) {
         g_object_unref(priv->chart);
