@@ -154,12 +154,13 @@ ag_window_delete_event_callback(AgWindow *window,
 static void
 ag_window_close_action(GSimpleAction *action,
                        GVariant      *parameter,
-                       gpointer user_data)
+                       gpointer      user_data)
 {
-    AgWindow *window = user_data;
+    AgWindow        *window = AG_WINDOW(user_data);
 
-    // TODO: Save unsaved changes!
-    gtk_widget_destroy(GTK_WIDGET(window));
+    if (ag_window_can_close(window, TRUE)) {
+        gtk_widget_destroy(GTK_WIDGET(window));
+    }
 }
 
 static void
