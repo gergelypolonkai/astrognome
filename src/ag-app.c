@@ -148,6 +148,7 @@ ag_app_import_chart(AgApp *app, GFile *file)
     window = ag_app_create_window(app);
     ag_window_set_chart(AG_WINDOW(window), chart);
     ag_window_update_from_chart(AG_WINDOW(window));
+    g_action_group_activate_action(G_ACTION_GROUP(window), "save", NULL);
     ag_window_change_tab(AG_WINDOW(window), "chart");
 }
 
