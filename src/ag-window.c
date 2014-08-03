@@ -1233,7 +1233,7 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
                 chart_changed,
                 window
             );
-        g_object_unref(priv->chart);
+        g_clear_object(&(priv->chart));
     }
 
     priv->chart = chart;
