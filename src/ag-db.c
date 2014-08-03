@@ -596,7 +596,8 @@ ag_db_save_data_free(AgDbSave *save_data)
  * @err: a #GError for storing errors
  *
  * Saves @save_data to the database. If its db_id field is -1, a new record is
- * created; otherwise the row with the given ID will be updated.
+ * created. In this case, @save_data is updated and db_id is set to the actual
+ * data record ID. Otherwise the row with the given ID will be updated.
  *
  * Returns: TRUE if the save succeeds, FALSE otherwise
  */
@@ -703,6 +704,30 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data,  GError **err)
                 );
 
             save_success = FALSE;
+        } else {
+            // Get inserted row's id
+            GdaDataModel *result = ag_db_select(
+                    db,
+                    &local_err,
+                    "SELECT last_insert_rowid()"
+                );
+
+            if (result == NULL) {
+                if (err) {
+                    *err = g_error_copy(local_err);
+                }
+
+                // TODO: a more reasonable return value should be given here
+                save_success = FALSE;
+            } else {
+                const GValue *value = gda_data_model_get_value_at(
+                        result,
+                        0, 0,
+                        NULL
+                    );
+
+                save_data->db_id = g_value_get_int(value);
+            }
         }
     } else {
         g_value_init(&db_id, G_TYPE_INT);
