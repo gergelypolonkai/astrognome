@@ -265,51 +265,30 @@ setup_actions(AgApp *app)
         );
 }
 
+const gchar *action_accels[] = {
+    "win.close",               "<Ctrl>W",        NULL,
+    "win.save",                "<Ctrl>S",        NULL,
+    "win.export",              "<Ctrl><Shift>E", NULL,
+    "win.gear-menu",           "F10",            NULL,
+    "app.help",                "F1",             NULL,
+    "win.change-tab::chart",   "F5",             NULL,
+    "win.change-tab::aspects", "F9",             NULL,
+    "win.change-tab::edit",    "F10",            NULL,
+    NULL
+};
+
 static void
 setup_accelerators(AgApp *app)
 {
-    gtk_application_add_accelerator(
-            GTK_APPLICATION(app),
-            "<Primary>w",
-            "win.close",
-            NULL
-        );
-    gtk_application_add_accelerator(
-            GTK_APPLICATION(app),
-            "<Primary>s",
-            "win.save",
-            NULL
-        );
-    gtk_application_add_accelerator(
-            GTK_APPLICATION(app),
-            "<Primary><Shift>s",
-            "win.save-as",
-            NULL
-        );
-    gtk_application_add_accelerator(
-            GTK_APPLICATION(app),
-            "F10",
-            "win.gear-menu",
-            NULL
-        );
-    gtk_application_add_accelerator(
-            GTK_APPLICATION(app),
-            "F1",
-            "app.help",
-            NULL
-        );
-    gtk_application_add_accelerator(
-            GTK_APPLICATION(app),
-            "F5",
-            "win.change-tab",
-            g_variant_new_string("chart")
-        );
-    gtk_application_add_accelerator(
-            GTK_APPLICATION(app),
-            "F9",
-            "win.change-tab",
-            g_variant_new_string("aspects")
-        );
+    const char **it;
+
+    for (it = action_accels; it[0]; it += g_strv_length((gchar **)it) + 1) {
+        gtk_application_set_accels_for_action(
+                GTK_APPLICATION(app),
+                it[0],
+                &it[1]
+            );
+    }
 }
 
 static void
