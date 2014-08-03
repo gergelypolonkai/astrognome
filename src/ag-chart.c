@@ -10,6 +10,7 @@
 #include <locale.h>
 #include <math.h>
 
+#include "ag-db.h"
 #include "ag-chart.h"
 
 typedef struct _AgChartPrivate {
@@ -921,6 +922,70 @@ ag_chart_load_from_file(GFile *file, GError **err)
     return chart;
 }
 
+AgChart *
+ag_chart_new_from_db_save(AgDbSave *save_data, GError **err)
+{
+    GsweTimestamp   *timestamp;
+    gchar           *house_system_enum_name;
+    GTypeClass      *house_system_class;
+    GEnumValue      *enum_value;
+    GsweHouseSystem house_system;
+    AgChart         *chart;
+
+    if (save_data == NULL) {
+        g_set_error(
+                err,
+                AG_CHART_ERROR, AG_CHART_ERROR_EMPTY_RECORD,
+                "Invalid chart"
+            );
+
+        return NULL;
+    }
+
+    house_system_enum_name = g_utf8_strdown(save_data->house_system, -1);
+    house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+
+    if ((enum_value = g_enum_get_value_by_nick(
+                G_ENUM_CLASS(house_system_class),
+                house_system_enum_name
+            )) == NULL) {
+        g_free(house_system_enum_name);
+        g_set_error(
+                err,
+                AG_CHART_ERROR, AG_CHART_ERROR_INVALID_HOUSE_SYSTEM,
+                "Invalid house system: '%s'",
+                save_data->house_system
+            );
+
+        return NULL;
+    }
+
+    g_free(house_system_enum_name);
+
+    house_system = enum_value->value;
+
+    timestamp = gswe_timestamp_new_from_gregorian_full(
+            save_data->year, save_data->month, save_data->day,
+            save_data->hour, save_data->minute, save_data->second, 0,
+            save_data->timezone
+        );
+
+    chart = ag_chart_new_full(
+            timestamp,
+            save_data->longitude,
+            save_data->latitude,
+            save_data->altitude,
+            house_system
+        );
+
+    ag_chart_set_name(chart, save_data->name);
+    ag_chart_set_country(chart, save_data->country);
+    ag_chart_set_city(chart, save_data->city);
+    ag_chart_set_note(chart, save_data->note);
+
+    return chart;
+}
+
 static xmlDocPtr
 create_save_doc(AgChart *chart)
 {
@@ -1475,3 +1540,56 @@ const gchar *ag_chart_get_note(AgChart *chart)
     return priv->note;
 }
 
+AgDbSave *
+ag_chart_get_db_save(AgChart *chart, gint db_id)
+{
+    GsweCoordinates *coords;
+    AgChartPrivate  *priv      = ag_chart_get_instance_private(chart);
+    AgDbSave        *save_data = g_new0(AgDbSave, 1);
+    GsweTimestamp   *timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
+    GEnumClass      *house_system_class;
+    GEnumValue      *house_system_enum;
+
+    save_data->db_id = db_id;
+
+    save_data->name         = g_strdup(priv->name);
+    save_data->country      = g_strdup(priv->country);
+    save_data->city         = g_strdup(priv->city);
+    coords                  = gswe_moment_get_coordinates(GSWE_MOMENT(chart));
+    save_data->longitude    = coords->longitude;
+    save_data->latitude     = coords->latitude;
+    save_data->altitude     = coords->altitude;
+    g_free(coords);
+    save_data->year         = gswe_timestamp_get_gregorian_year(
+            timestamp,
+            NULL
+        );
+    save_data->month        = gswe_timestamp_get_gregorian_month(
+            timestamp,
+            NULL
+        );
+    save_data->day          = gswe_timestamp_get_gregorian_day(timestamp, NULL);
+    save_data->hour         = gswe_timestamp_get_gregorian_hour(
+            timestamp,
+            NULL
+        );
+    save_data->minute       = gswe_timestamp_get_gregorian_minute(
+            timestamp,
+            NULL
+        );
+    save_data->second       = gswe_timestamp_get_gregorian_second(
+            timestamp,
+            NULL
+        );
+    save_data->timezone     = gswe_timestamp_get_gregorian_timezone(timestamp);
+    house_system_class      = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+    house_system_enum       = g_enum_get_value(
+            house_system_class,
+            gswe_moment_get_house_system(GSWE_MOMENT(chart))
+        );
+    save_data->house_system = g_strdup(house_system_enum->value_nick);
+    g_type_class_unref(house_system_class);
+    save_data->note         = g_strdup(priv->note);
+
+    return save_data;
+}

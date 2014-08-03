@@ -2,13 +2,18 @@
 #define __AG_CHART_H__
 
 #include <glib-object.h>
+#include <gtk/gtk.h>
 #include <swe-glib.h>
+
+#include "ag-db.h"
 
 G_BEGIN_DECLS
 
 typedef enum {
     AG_CHART_ERROR_LIBXML,
     AG_CHART_ERROR_CORRUPT_FILE,
+    AG_CHART_ERROR_EMPTY_RECORD,
+    AG_CHART_ERROR_INVALID_HOUSE_SYSTEM,
 } AgChartError;
 
 #define AG_TYPE_CHART         (ag_chart_get_type())
@@ -46,6 +51,8 @@ AgChart *ag_chart_new_full(GsweTimestamp   *timestamp,
 AgChart *ag_chart_load_from_file(GFile  *file,
                                  GError **err);
 
+AgChart *ag_chart_new_from_db_save(AgDbSave *save_data, GError **err);
+
 void ag_chart_save_to_file(AgChart *chart,
                            GFile   *file,
                            GError  **err);
@@ -78,6 +85,8 @@ GList *ag_chart_get_planets(AgChart *chart);
 void ag_chart_set_note(AgChart *chart, const gchar *note);
 
 const gchar *ag_chart_get_note(AgChart *chart);
+
+AgDbSave *ag_chart_get_db_save(AgChart *chart, gint db_id);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);

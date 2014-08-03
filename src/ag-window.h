@@ -50,11 +50,6 @@ AgChart *ag_window_get_chart(AgWindow *window);
 
 void ag_window_update_from_chart(AgWindow *window);
 
-void ag_window_set_uri(AgWindow    *window,
-                       const gchar *uri);
-
-gchar *ag_window_get_uri(AgWindow *window);
-
 void ag_window_settings_restore(GtkWindow *window,
                                 GSettings *settings);
 
@@ -62,6 +57,8 @@ void ag_window_settings_save(GtkWindow *window,
                              GSettings *settings);
 
 void ag_window_change_tab(AgWindow *window, const gchar *tab_name);
+
+gboolean ag_window_load_chart_list(AgWindow *window);
 
 #define AG_WINDOW_ERROR (ag_window_error_quark())
 

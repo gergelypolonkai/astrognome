@@ -4,6 +4,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <webkit2/webkit2.h>
+#include <libgd/gd-main-view.h>
 #include <gtk/gtk.h>
 
 #include <swe-glib.h>
@@ -12,9 +13,12 @@
 #include "ag-window.h"
 #include "ag-chart.h"
 #include "ag-settings.h"
+#include "ag-db.h"
 
 struct _AgWindowPrivate {
     GtkWidget     *header_bar;
+    GtkWidget     *menubutton_revealer;
+    GtkWidget     *new_back_stack;
     GtkWidget     *stack;
     GtkWidget     *name;
     GtkWidget     *north_lat;
@@ -32,6 +36,7 @@ struct _AgWindowPrivate {
     GtkWidget     *timezone;
     GtkWidget     *house_system;
 
+    GtkWidget     *tab_list;
     GtkWidget     *tab_chart;
     GtkWidget     *tab_edit;
     GtkWidget     *current_tab;
@@ -42,10 +47,11 @@ struct _AgWindowPrivate {
 
     AgSettings    *settings;
     AgChart       *chart;
-    gchar         *uri;
     gboolean      aspect_table_populated;
     GtkTextBuffer *note_buffer;
     GtkListStore  *house_system_model;
+    GtkListStore  *db_chart_data;
+    AgDbSave      *saved_data;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -86,19 +92,101 @@ ag_window_view_menu_action(GSimpleAction *action,
     g_variant_unref(state);
 }
 
-static void
-ag_window_close_action(GSimpleAction *action,
-                       GVariant      *parameter,
-                       gpointer user_data)
+gboolean
+ag_window_can_close(AgWindow *window, gboolean display_dialog)
 {
-    AgWindow *window = user_data;
+    AgWindowPrivate *priv      = ag_window_get_instance_private(window);
+    gint            db_id      = (priv->saved_data)
+            ? priv->saved_data->db_id
+            : -1;
+    AgDbSave        *save_data = NULL;
+    AgDb            *db        = ag_db_get();
+    GError          *err       = NULL;
+    gboolean        ret        = TRUE;
 
-    // TODO: Save unsaved changes!
-    gtk_widget_destroy(GTK_WIDGET(window));
+    if (priv->chart) {
+        save_data = ag_chart_get_db_save(priv->chart, db_id);
+
+        if (
+                    !ag_db_save_identical(priv->saved_data, save_data)
+                    || !(priv->saved_data)
+                    || (priv->saved_data->db_id == -1)
+                ) {
+            g_debug("Save is needed!");
+
+            if (display_dialog) {
+                gint response;
+
+                response = ag_app_buttoned_dialog(
+                        GTK_WIDGET(window),
+                        GTK_MESSAGE_QUESTION,
+                        _("Chart is not saved. Do you want to save it?"),
+                        _("Save and close"), GTK_RESPONSE_YES,
+                        _("Close without saving"), GTK_RESPONSE_NO,
+                        _("Return to chart"), GTK_RESPONSE_CANCEL,
+                        NULL
+                    );
+
+                switch (response) {
+                    case GTK_RESPONSE_YES:
+                        if (!ag_db_save_chart(db, save_data, &err)) {
+                            ag_app_message_dialog(
+                                    GTK_WIDGET(window),
+                                    GTK_MESSAGE_ERROR,
+                                    "Unable to save chart: %s",
+                                    err->message
+                                );
+
+                            ret = FALSE;
+                        } else {
+                            ret = TRUE;
+                        }
+
+                        break;
+
+                    case GTK_RESPONSE_NO:
+                        ret = TRUE;
+
+                        break;
+
+                    default:
+                        ret = FALSE;
+
+                        break;
+                }
+            } else {
+                ret = FALSE;
+            }
+        }
+    }
+
+    ag_db_save_data_free(save_data);
+
+    return ret;
+}
+
+gboolean
+ag_window_delete_event_callback(AgWindow *window,
+                                GdkEvent *event,
+                                gpointer user_data)
+{
+    return (!ag_window_can_close(window, TRUE));
 }
 
 static void
-ag_window_save_as(AgWindow *window, GError **err)
+ag_window_close_action(GSimpleAction *action,
+                       GVariant      *parameter,
+                       gpointer      user_data)
+{
+    AgWindow        *window = AG_WINDOW(user_data);
+
+    if (ag_window_can_close(window, TRUE)) {
+        gtk_widget_destroy(GTK_WIDGET(window));
+    }
+}
+
+static void
+ag_window_export(AgWindow *window, GError **err)
 {
     gchar           *name;
     gchar           *file_name;
@@ -146,7 +234,7 @@ ag_window_save_as(AgWindow *window, GError **err)
     file_name = g_strdup_printf("%s.agc", name);
     g_free(name);
 
-    fs = gtk_file_chooser_dialog_new(_("Save Chart"),
+    fs = gtk_file_chooser_dialog_new(_("Export Chart"),
                                      GTK_WINDOW(window),
                                      GTK_FILE_CHOOSER_ACTION_SAVE,
                                      _("_Cancel"), GTK_RESPONSE_CANCEL,
@@ -175,42 +263,43 @@ ag_window_save_action(GSimpleAction *action,
                       GVariant      *parameter,
                       gpointer      user_data)
 {
-    gchar           *uri;
     AgWindow        *window = AG_WINDOW(user_data);
-    GError          *err    = NULL;
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    AgDb            *db     = ag_db_get();
+    GError          *err;
+    gint            old_id;
+    AgDbSave        *save_data;
 
     recalculate_chart(window);
-    uri = ag_window_get_uri(window);
 
-    if (uri != NULL) {
-        GFile *file = g_file_new_for_uri(uri);
-        g_free(uri);
+    if (!ag_window_can_close(window, FALSE)) {
+        old_id    = (priv->saved_data) ? priv->saved_data->db_id : -1;
+        save_data = ag_chart_get_db_save(priv->chart, old_id);
 
-        ag_chart_save_to_file(priv->chart, file, &err);
-    } else {
-        ag_window_save_as(window, &err);
-    }
+        if (!ag_db_save_chart(db, save_data, &err)) {
+            ag_app_message_dialog(
+                    GTK_WIDGET(window),
+                    GTK_MESSAGE_ERROR,
+                    _("Unable to save: %s"),
+                    err->message
+                );
+        }
 
-    if (err) {
-        ag_app_message_dialog(
-                GTK_WIDGET(window),
-                GTK_MESSAGE_ERROR,
-                "%s", err->message
-            );
+        ag_db_save_data_free(priv->saved_data);
+        priv->saved_data = save_data;
     }
 }
 
 static void
-ag_window_save_as_action(GSimpleAction *action,
-                         GVariant      *parameter,
-                         gpointer      user_data)
+ag_window_export_action(GSimpleAction *action,
+                        GVariant      *parameter,
+                        gpointer      user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
     GError   *err    = NULL;
 
     recalculate_chart(window);
-    ag_window_save_as(window, &err);
+    ag_window_export(window, &err);
 
     if (err) {
         ag_app_message_dialog(
@@ -874,6 +963,14 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
         gtk_widget_set_size_request(active_tab, 600, 600);
     }
 
+    if (strcmp("list", active_tab_name) == 0) {
+        gtk_revealer_set_reveal_child(GTK_REVEALER(priv->menubutton_revealer), FALSE);
+        gtk_stack_set_visible_child_name(GTK_STACK(priv->new_back_stack), "new");
+    } else {
+        gtk_revealer_set_reveal_child(GTK_REVEALER(priv->menubutton_revealer), TRUE);
+        gtk_stack_set_visible_child_name(GTK_STACK(priv->new_back_stack), "back");
+    }
+
     // If we are coming from the Edit tab, let’s assume the chart data has
     // changed. This is a bad idea, though, it should be checked instead!
     // (TODO)
@@ -900,14 +997,68 @@ ag_window_change_tab_action(GSimpleAction *action,
     g_action_change_state(G_ACTION(action), parameter);
 }
 
+static void
+ag_window_new_chart_action(GSimpleAction *action,
+                           GVariant      *parameter,
+                           gpointer      user_data)
+{
+    AgWindow        *window = AG_WINDOW(user_data);
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+
+    if (priv->chart) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "This window already has a chart. " \
+                "This should not happen, " \
+                "please consider issuing a bug report!"
+            );
+
+        gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "chart");
+
+        return;
+    }
+
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
+}
+
+static void
+ag_window_back_action(GSimpleAction *action,
+                      GVariant      *parameter,
+                      gpointer      user_data)
+{
+    AgWindow        *window = AG_WINDOW(user_data);
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+
+    if (ag_window_can_close(window, TRUE)) {
+        g_clear_object(&(priv->chart));
+        ag_db_save_data_free(priv->saved_data);
+        priv->saved_data = NULL;
+
+        ag_window_load_chart_list(window);
+        gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+    }
+}
+
+static void
+ag_window_refresh_action(GSimpleAction *action,
+                         GVariant      *parameter,
+                         gpointer      user_data)
+{
+    ag_window_load_chart_list(AG_WINDOW(user_data));
+}
+
 static GActionEntry win_entries[] = {
     { "close",      ag_window_close_action,      NULL, NULL,      NULL },
     { "save",       ag_window_save_action,       NULL, NULL,      NULL },
-    { "save-as",    ag_window_save_as_action,    NULL, NULL,      NULL },
+    { "export",     ag_window_export_action,     NULL, NULL,      NULL },
     { "export-svg", ag_window_export_svg_action, NULL, NULL,      NULL },
     { "view-menu",  ag_window_view_menu_action,  NULL, "false",   NULL },
     { "gear-menu",  ag_window_gear_menu_action,  NULL, "false",   NULL },
     { "change-tab", ag_window_change_tab_action, "s",  "'edit'",  NULL },
+    { "new-chart",  ag_window_new_chart_action,  NULL, NULL,      NULL },
+    { "back",       ag_window_back_action,       NULL, NULL,      NULL },
+    { "refresh",    ag_window_refresh_action,    NULL, NULL,      NULL },
 };
 
 static void
@@ -973,6 +1124,70 @@ ag_window_set_default_house_system(GtkTreeModel *model,
 }
 
 static void
+ag_window_list_item_activated_cb(GdMainView        *view,
+                                 const gchar       *id,
+                                 const GtkTreePath *path,
+                                 AgWindow          *window)
+{
+    guint           row_id = atoi(id);
+    AgWindowPrivate *priv  = ag_window_get_instance_private(window);
+    AgDb            *db    = ag_db_get();
+    GError          *err   = NULL;
+
+    if (priv->saved_data != NULL) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "Window chart is not saved. " \
+                "This is a bug, it should not happen here. " \
+                "Please consider opening a bug report!"
+            );
+
+        ag_window_change_tab(window, "chart");
+
+        return;
+    }
+
+    if ((priv->saved_data = ag_db_get_chart_data_by_id(
+                 db,
+                 row_id,
+                 &err)) == NULL) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "Could not open chart."
+            );
+
+        return;
+    }
+
+    if (priv->chart) {
+        g_object_unref(priv->chart);
+        priv->chart = NULL;
+    }
+
+    if ((priv->chart = ag_chart_new_from_db_save(
+                 priv->saved_data,
+                 &err
+            )) == NULL) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "Error: %s",
+                err->message
+            );
+        ag_db_save_data_free(priv->saved_data);
+        priv->saved_data = NULL;
+
+        return;
+    }
+
+    ag_window_update_from_chart(window);
+
+    ag_window_change_tab(window, "chart");
+}
+
+static void
 ag_window_init(AgWindow *window)
 {
     GtkAccelGroup   *accel_group;
@@ -1021,8 +1236,29 @@ ag_window_init(AgWindow *window)
             NULL
         );
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
-    priv->current_tab = priv->tab_edit;
+    priv->tab_list = GTK_WIDGET(gd_main_view_new(GD_MAIN_VIEW_ICON));
+    gtk_stack_add_titled(
+            GTK_STACK(priv->stack),
+            priv->tab_list,
+            "list",
+            "Chart list"
+        );
+
+    gd_main_view_set_selection_mode(GD_MAIN_VIEW(priv->tab_list), FALSE);
+    gd_main_view_set_model(
+            GD_MAIN_VIEW(priv->tab_list),
+            GTK_TREE_MODEL(priv->db_chart_data)
+        );
+    g_signal_connect(
+            priv->tab_list,
+            "item-activated",
+            G_CALLBACK(ag_window_list_item_activated_cb),
+            window
+        );
+
+    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+    priv->current_tab = priv->tab_list;
+
     g_object_set(
             priv->year_adjust,
             "lower", (gdouble)G_MININT,
@@ -1031,7 +1267,6 @@ ag_window_init(AgWindow *window)
         );
 
     priv->chart    = NULL;
-    priv->uri      = NULL;
 
     g_action_map_add_action_entries(
             G_ACTION_MAP(window),
@@ -1070,6 +1305,21 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             header_bar
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            new_back_stack
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            menubutton_revealer
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            db_chart_data
         );
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, name);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year);
@@ -1236,9 +1486,12 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
         g_clear_object(&(priv->chart));
     }
 
+    ag_db_save_data_free(priv->saved_data);
+
     priv->chart = chart;
     g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), window);
     g_object_ref(chart);
+    priv->saved_data = ag_chart_get_db_save(chart, -1);
 }
 
 AgChart *
@@ -1247,26 +1500,6 @@ ag_window_get_chart(AgWindow *window)
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     return priv->chart;
-}
-
-void
-ag_window_set_uri(AgWindow *window, const gchar *uri)
-{
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
-
-    if (priv->uri != NULL) {
-        g_free(priv->uri);
-    }
-
-    priv->uri = g_strdup(uri);
-}
-
-gchar *
-ag_window_get_uri(AgWindow *window)
-{
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
-
-    return g_strdup(priv->uri);
 }
 
 void
@@ -1342,4 +1575,52 @@ ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
     name = gtk_entry_get_text(name_entry);
 
     gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), name);
+}
+
+static void
+ag_window_add_chart_to_list(AgDbSave *save_data, AgWindow *window)
+{
+    GtkTreeIter     iter;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    gchar           *id   = g_strdup_printf("%d", save_data->db_id);
+
+    gtk_list_store_append(priv->db_chart_data, &iter);
+    gtk_list_store_set(
+            priv->db_chart_data, &iter,
+            0, id,              /* ID             */
+            1, NULL,            /* URI            */
+            2, save_data->name, /* Primary text   */
+            3, NULL,            /* Secondary text */
+            4, NULL,            /* Icon           */
+            5, 0,               /* mtime          */
+            6, FALSE,           /* Selected       */
+            7, 0,               /* Pulse          */
+            -1
+        );
+    g_free(id);
+}
+
+static void
+ag_window_clear_chart_list(AgWindow *window)
+{
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    gtk_list_store_clear(priv->db_chart_data);
+}
+
+gboolean
+ag_window_load_chart_list(AgWindow *window)
+{
+    AgDb   *db         = ag_db_get();
+    GError *err        = NULL;
+    GList  *chart_list = ag_db_get_chart_list(db, &err);
+
+    ag_window_clear_chart_list(window);
+    /* With only a few charts, this should be fine. Maybe implementing lazy
+     * loading would be a better idea. See:
+     * http://blogs.gnome.org/ebassi/documentation/lazy-loading/
+     */
+    g_list_foreach(chart_list, (GFunc)ag_window_add_chart_to_list, window);
+
+    return TRUE;
 }

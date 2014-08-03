@@ -38,9 +38,9 @@
         <attribute name="accel">&lt;Primary&gt;s</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="yes">Save as…</attribute>
-        <attribute name="action">win.save-as</attribute>
-        <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;s</attribute>
+        <attribute name="label" translatable="yes">Export…</attribute>
+        <attribute name="action">win.export</attribute>
+        <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;e</attribute>
       </item>
     </section>
     <section>
@@ -116,11 +116,32 @@
   </object>
   <object class="GtkTextBuffer" id="note_buffer">
   </object>
+  <object class="GtkListStore" id="db_chart_data">
+    <columns>
+      <!-- column-name id -->
+      <column type="gchararray"/>
+      <!-- column-name uri -->
+      <column type="gchararray"/>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+      <!-- column-name secondary-text -->
+      <column type="gchararray"/>
+      <!-- column-name icon -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name mtime -->
+      <column type="gint64"/>
+      <!-- column-name selected -->
+      <column type="gboolean"/>
+      <!-- column-name pulse -->
+      <column type="guint"/>
+    </columns>
+  </object>
   <template class="AgWindow" parent="GtkApplicationWindow">
     <property name="can_focus">False</property>
     <property name="has_focus">False</property>
     <property name="is_focus">False</property>
     <property name="icon_name">astrognome</property>
+    <signal name="delete-event" handler="ag_window_delete_event_callback" swapped="no"/>
     <child type="titlebar">
       <object class="GtkHeaderBar" id="header_bar">
         <property name="visible">True</property>
@@ -128,6 +149,82 @@
         <property name="vexpand">False</property>
         <property name="show_close_button">True</property>
         <property name="title" translatable="yes">Astrognome</property>
+        <child>
+          <object class="GtkStack" id="new_back_stack">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="homogeneous">False</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkButton" id="new_button">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="action_name">win.new-chart</property>
+                    <style>
+                      <class name="image-button"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage" id="new_image">
+                        <property name="visible">True</property>
+                        <property name="icon_size">1</property>
+                        <property name="icon_name">document-new-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="refresh_button">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="action_name">win.refresh</property>
+                    <style>
+                      <class name="image-button"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage" id="refresh_image">
+                        <property name="visible">True</property>
+                        <property name="icon_size">1</property>
+                        <property name="icon_name">view-refresh-symbolic</property>
+                  </object>
+                </child>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="name">new</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="back_button">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="action_name">win.back</property>
+                <style>
+                  <class name="image-button"/>
+                </style>
+                <child>
+                  <object class="GtkImage" id="back_image">
+                    <property name="visible">True</property>
+                    <property name="icon_size">1</property>
+                    <property name="icon_name">go-previous-symbolic</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="name">back</property>
+              </packing>
+            </child>
+          </object>
+        </child>
         <child>
           <object class="GtkBox" id="box">
             <property name="visible">True</property>
@@ -139,44 +236,60 @@
           </object>
         </child>
         <child>
-          <object class="GtkMenuButton">
+          <object class="GtkRevealer" id="menubutton_revealer">
             <property name="visible">True</property>
-            <property name="valign">center</property>
             <property name="can_focus">False</property>
-            <property name="action_name">win.gear-menu</property>
-            <property name="menu_model">gear_menu</property>
-            <property name="use_popover">False</property>
-            <style>
-              <class name="image-button"/>
-            </style>
+            <property name="reveal_child">False</property>
             <child>
-              <object class="GtkImage" id="gear_image">
+              <object class="GtkBox" id="menubutton_box">
                 <property name="visible">True</property>
-                <property name="icon_size">1</property>
-                <property name="icon_name">emblem-system-symbolic</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="pack_type">end</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkMenuButton">
-            <property name="visible">True</property>
-            <property name="valign">center</property>
-            <property name="can_focus">False</property>
-            <property name="action_name">win.view-menu</property>
-            <property name="menu_model">view_menu</property>
-            <property name="use_popover">False</property>
-            <style>
-              <class name="image-button"/>
-            </style>
-            <child>
-              <object class="GtkImage" id="view_image">
-                <property name="visible">True</property>
-                <property name="icon_size">1</property>
-                <property name="icon_name">document-properties-symbolic</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkMenuButton">
+                    <property name="visible">True</property>
+                    <property name="valign">center</property>
+                    <property name="can_focus">False</property>
+                    <property name="action_name">win.view-menu</property>
+                    <property name="menu_model">view_menu</property>
+                    <property name="use_popover">False</property>
+                    <style>
+                      <class name="image-button"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage" id="view_image">
+                        <property name="visible">True</property>
+                        <property name="icon_size">1</property>
+                        <property name="icon_name">document-properties-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkMenuButton">
+                    <property name="visible">True</property>
+                    <property name="valign">center</property>
+                    <property name="can_focus">False</property>
+                    <property name="action_name">win.gear-menu</property>
+                    <property name="menu_model">gear_menu</property>
+                    <property name="use_popover">False</property>
+                    <style>
+                      <class name="image-button"/>
+                    </style>
+                    <child>
+                      <object class="GtkImage" id="gear_image">
+                        <property name="visible">True</property>
+                        <property name="icon_size">1</property>
+                        <property name="icon_name">emblem-system-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
               </object>
             </child>
           </object>
