@@ -1486,9 +1486,12 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
         g_object_unref(priv->chart);
     }
 
+    ag_db_save_data_free(priv->saved_data);
+
     priv->chart = chart;
     g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), window);
     g_object_ref(chart);
+    priv->saved_data = ag_chart_get_db_save(chart, -1);
 }
 
 AgChart *
