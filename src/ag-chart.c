@@ -855,6 +855,7 @@ ag_chart_load_from_file(GFile *file, GError **err)
     house_system_enum_name = g_utf8_strdown(house_system_name, -1);
     g_free(house_system_name);
     house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+
     if ((enum_value = g_enum_get_value_by_nick(
                  G_ENUM_CLASS(house_system_class),
                  house_system_enum_name
