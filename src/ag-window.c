@@ -58,7 +58,7 @@ G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
-static void recalculate_chart(AgWindow *window);
+static void ag_window_recalculate_chart(AgWindow *window);
 
 static void
 ag_window_gear_menu_action(GSimpleAction *action,
@@ -194,7 +194,7 @@ ag_window_export(AgWindow *window, GError **err)
     gint            response;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
-    recalculate_chart(window);
+    ag_window_recalculate_chart(window);
 
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
@@ -270,7 +270,7 @@ ag_window_save_action(GSimpleAction *action,
     gint            old_id;
     AgDbSave        *save_data;
 
-    recalculate_chart(window);
+    ag_window_recalculate_chart(window);
 
     if (!ag_window_can_close(window, FALSE)) {
         old_id    = (priv->saved_data) ? priv->saved_data->db_id : -1;
@@ -298,7 +298,7 @@ ag_window_export_action(GSimpleAction *action,
     AgWindow *window = AG_WINDOW(user_data);
     GError   *err    = NULL;
 
-    recalculate_chart(window);
+    ag_window_recalculate_chart(window);
     ag_window_export(window, &err);
 
     if (err) {
@@ -319,7 +319,7 @@ ag_window_export_svg(AgWindow *window, GError **err)
     gint            response;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
-    recalculate_chart(window);
+    ag_window_recalculate_chart(window);
 
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
@@ -838,7 +838,7 @@ chart_changed(AgChart *chart, AgWindow *window)
 }
 
 static void
-recalculate_chart(AgWindow *window)
+ag_window_recalculate_chart(AgWindow *window)
 {
     GsweTimestamp   *timestamp;
     GtkTextIter     start_iter,
@@ -978,7 +978,7 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
     // Note that priv->current_tab is actually the previously selected tab, not
     // the real active one!
     if (priv->current_tab == priv->tab_edit) {
-        recalculate_chart(window);
+        ag_window_recalculate_chart(window);
     }
 
     priv->current_tab = active_tab;
