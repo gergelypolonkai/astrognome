@@ -108,7 +108,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
         save_data = ag_chart_get_db_save(priv->chart, db_id);
 
         if (
-                    !ag_db_save_identical(priv->saved_data, save_data)
+                    !ag_db_save_identical(priv->saved_data, save_data, FALSE)
                     || !(priv->saved_data)
                     || (priv->saved_data->db_id == -1)
                 ) {

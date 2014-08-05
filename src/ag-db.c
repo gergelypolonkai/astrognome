@@ -1060,7 +1060,7 @@ string_collate(const gchar *str1, const gchar *str2)
  *          with string_collate()), FALSE otherwise
  */
 gboolean
-ag_db_save_identical(const AgDbSave *a, const AgDbSave *b)
+ag_db_save_identical(const AgDbSave *a, const AgDbSave *b, gboolean chart_only)
 {
     if (a == b) {
         return TRUE;
@@ -1070,15 +1070,15 @@ ag_db_save_identical(const AgDbSave *a, const AgDbSave *b)
         return FALSE;
     }
 
-    if (string_collate(a->name, b->name) != 0) {
+    if (!chart_only && string_collate(a->name, b->name) != 0) {
         return FALSE;
     }
 
-    if (string_collate(a->country, b->country) != 0) {
+    if (!chart_only && string_collate(a->country, b->country) != 0) {
         return FALSE;
     }
 
-    if (string_collate(a->city, b->city) != 0) {
+    if (!chart_only && string_collate(a->city, b->city) != 0) {
         return FALSE;
     }
 
@@ -1126,7 +1126,7 @@ ag_db_save_identical(const AgDbSave *a, const AgDbSave *b)
         return FALSE;
     }
 
-    if (string_collate(a->note, b->note) != 0) {
+    if (!chart_only && string_collate(a->note, b->note) != 0) {
         return FALSE;
     }
 
