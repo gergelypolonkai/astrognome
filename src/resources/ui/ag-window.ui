@@ -306,7 +306,7 @@
         <property name="hexpand">True</property>
         <signal name="notify::visible-child" handler="ag_window_tab_changed_cb" object="AgWindow" swapped="no"/>
         <child>
-          <object class="GtkGrid" id="edit_tab">
+          <object class="GtkGrid" id="tab_edit">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
