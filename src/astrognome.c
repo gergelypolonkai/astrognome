@@ -143,6 +143,38 @@ xml_read_gresource(void *context, char *buffer, int len)
     return len;
 }
 
+const gchar *
+ag_house_system_id_to_nick(GsweHouseSystem house_system)
+{
+    GEnumClass *house_system_class;
+    GEnumValue *enum_value;
+
+    house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+    enum_value = g_enum_get_value(house_system_class, house_system);
+
+    if (enum_value) {
+        return enum_value->value_nick;
+    }
+
+    return NULL;
+}
+
+GsweHouseSystem
+ag_house_system_nick_to_id(const gchar *nick)
+{
+    GEnumClass *house_system_class;
+    GEnumValue *enum_value;
+
+    house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
+    enum_value = g_enum_get_value_by_nick(house_system_class, nick);
+
+    if (enum_value) {
+        return enum_value->value;
+    }
+
+    return GSWE_HOUSE_SYSTEM_NONE;
+}
+
 int
 main(int argc, char *argv[])
 {

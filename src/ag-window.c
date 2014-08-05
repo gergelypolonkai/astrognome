@@ -58,7 +58,7 @@ G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
-static void recalculate_chart(AgWindow *window);
+static void ag_window_recalculate_chart(AgWindow *window);
 
 static void
 ag_window_gear_menu_action(GSimpleAction *action,
@@ -108,7 +108,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
         save_data = ag_chart_get_db_save(priv->chart, db_id);
 
         if (
-                    !ag_db_save_identical(priv->saved_data, save_data)
+                    !ag_db_save_identical(priv->saved_data, save_data, FALSE)
                     || !(priv->saved_data)
                     || (priv->saved_data->db_id == -1)
                 ) {
@@ -194,7 +194,7 @@ ag_window_export(AgWindow *window, GError **err)
     gint            response;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
-    recalculate_chart(window);
+    ag_window_recalculate_chart(window);
 
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
@@ -270,7 +270,7 @@ ag_window_save_action(GSimpleAction *action,
     gint            old_id;
     AgDbSave        *save_data;
 
-    recalculate_chart(window);
+    ag_window_recalculate_chart(window);
 
     if (!ag_window_can_close(window, FALSE)) {
         old_id    = (priv->saved_data) ? priv->saved_data->db_id : -1;
@@ -298,7 +298,7 @@ ag_window_export_action(GSimpleAction *action,
     AgWindow *window = AG_WINDOW(user_data);
     GError   *err    = NULL;
 
-    recalculate_chart(window);
+    ag_window_recalculate_chart(window);
     ag_window_export(window, &err);
 
     if (err) {
@@ -319,7 +319,7 @@ ag_window_export_svg(AgWindow *window, GError **err)
     gint            response;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
-    recalculate_chart(window);
+    ag_window_recalculate_chart(window);
 
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
@@ -838,55 +838,75 @@ chart_changed(AgChart *chart, AgWindow *window)
 }
 
 static void
-recalculate_chart(AgWindow *window)
+ag_window_recalculate_chart(AgWindow *window)
 {
-    GsweTimestamp   *timestamp;
-    GtkTextIter     start_iter,
-                    end_iter;
+    AgDbSave        *edit_data,
+                    *chart_data;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    gboolean        south,
+                    west;
     GtkTreeIter     house_system_iter;
     GsweHouseSystem house_system;
-    gchar           *note;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
-    gint            year      = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->year)
-        ),
-                    month     = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->month)
-        ),
-                    day       = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->day)
-        ),
-                    hour      = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->hour)
-        ),
-                    minute    = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->minute)
-        ),
-                    second    = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->second)
-        );
-    gdouble         longitude = gtk_spin_button_get_value(
-            GTK_SPIN_BUTTON(priv->longitude)
-        ),
-                    latitude  = gtk_spin_button_get_value(
-            GTK_SPIN_BUTTON(priv->latitude)
-        );
-    gboolean        south     = gtk_toggle_button_get_active(
+    GtkTextIter     start_iter,
+                    end_iter;
+    GsweTimestamp   *timestamp;
+    gint            db_id = (priv->saved_data) ? priv->saved_data->db_id : -1;
+
+    south = gtk_toggle_button_get_active(
             GTK_TOGGLE_BUTTON(priv->south_lat)
-        ),
-                    west      = gtk_toggle_button_get_active(
+        );
+
+    west      = gtk_toggle_button_get_active(
             GTK_TOGGLE_BUTTON(priv->west_long)
         );
 
-    g_debug("Recalculating chart data");
+    edit_data = g_new0(AgDbSave, 1);
 
-    if (south) {
-        latitude = 0 - latitude;
-    }
+    edit_data->db_id = db_id;
+
+    edit_data->name = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->name)));
+    // TODO: This will cause problems with imported charts…
+    edit_data->country = NULL;
+    edit_data->city = NULL;
+    edit_data->longitude = gtk_spin_button_get_value(
+            GTK_SPIN_BUTTON(priv->longitude)
+        );
 
     if (west) {
-        longitude = 0 - longitude;
+        edit_data->longitude = - edit_data->longitude;
     }
+
+    edit_data->latitude = gtk_spin_button_get_value(
+            GTK_SPIN_BUTTON(priv->latitude)
+        );
+
+    if (south) {
+        edit_data->latitude = - edit_data->latitude;
+    }
+
+    // TODO: So as this…
+    edit_data->altitude = 280.0;
+    edit_data->year = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->year)
+        );
+    edit_data->month = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->month)
+        );
+    edit_data->day = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->day)
+        );
+    edit_data->hour = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->hour)
+        );
+    edit_data->minute = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->minute)
+        );
+    edit_data->second = gtk_spin_button_get_value_as_int(
+            GTK_SPIN_BUTTON(priv->second)
+        );
+    edit_data->timezone = gtk_spin_button_get_value(
+            GTK_SPIN_BUTTON(priv->timezone)
+        );
 
     if (!gtk_combo_box_get_active_iter(
                 GTK_COMBO_BOX(priv->house_system),
@@ -901,17 +921,44 @@ recalculate_chart(AgWindow *window)
             0, &house_system,
             -1
         );
+    edit_data->house_system = g_strdup(
+            ag_house_system_id_to_nick(house_system)
+        );
+    gtk_text_buffer_get_bounds(priv->note_buffer, &start_iter, &end_iter);
+    edit_data->note = gtk_text_buffer_get_text(
+            priv->note_buffer,
+            &start_iter, &end_iter,
+            TRUE
+        );
+
+    chart_data = (priv->chart)
+            ? ag_chart_get_db_save(priv->chart, db_id)
+            : NULL
+        ;
+
+    if (ag_db_save_identical(edit_data, chart_data, TRUE)) {
+        g_debug("No redrawing needed");
+
+        ag_db_save_data_free(edit_data);
+        ag_db_save_data_free(chart_data);
+
+        return;
+    }
+
+    ag_db_save_data_free(chart_data);
+
+    g_debug("Recalculating chart data");
 
     // TODO: Set timezone according to the city selected!
     if (priv->chart == NULL) {
         timestamp = gswe_timestamp_new_from_gregorian_full(
-                year, month, day,
-                hour, minute, second, 0,
-                1.0
+                edit_data->year, edit_data->month, edit_data->day,
+                edit_data->hour, edit_data->minute, edit_data->second, 0,
+                edit_data->timezone
             );
         priv->chart = ag_chart_new_full(
                 timestamp,
-                longitude, latitude, 380.0,
+                edit_data->longitude, edit_data->latitude, edit_data->altitude,
                 house_system
             );
         g_signal_connect(
@@ -926,22 +973,14 @@ recalculate_chart(AgWindow *window)
         timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(priv->chart));
         gswe_timestamp_set_gregorian_full(
                 timestamp,
-                year, month, day,
-                hour, minute, second, 0,
-                1.0,
+                edit_data->year, edit_data->month, edit_data->day,
+                edit_data->hour, edit_data->minute, edit_data->second, 0,
+                edit_data->timezone,
                 NULL
             );
     }
 
-    ag_chart_set_name(priv->chart, gtk_entry_get_text(GTK_ENTRY(priv->name)));
-    gtk_text_buffer_get_bounds(priv->note_buffer, &start_iter, &end_iter);
-    note = gtk_text_buffer_get_text(
-            priv->note_buffer,
-            &start_iter, &end_iter,
-            TRUE
-        );
-    ag_chart_set_note(priv->chart, note);
-    g_free(note);
+    ag_db_save_data_free(edit_data);
 }
 
 void
@@ -971,14 +1010,10 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
         gtk_stack_set_visible_child_name(GTK_STACK(priv->new_back_stack), "back");
     }
 
-    // If we are coming from the Edit tab, let’s assume the chart data has
-    // changed. This is a bad idea, though, it should be checked instead!
-    // (TODO)
-
     // Note that priv->current_tab is actually the previously selected tab, not
     // the real active one!
     if (priv->current_tab == priv->tab_edit) {
-        recalculate_chart(window);
+        ag_window_recalculate_chart(window);
     }
 
     priv->current_tab = active_tab;
@@ -1320,6 +1355,11 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             db_chart_data
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            tab_edit
         );
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, name);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year);
