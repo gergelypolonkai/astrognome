@@ -437,9 +437,14 @@ ag_app_buttoned_dialog(GtkWidget      *window,
     const gchar *button_text;
     gint        response_id;
     GtkWidget   *dialog;
+    GtkWindow   *parent = NULL;
+
+    if (window) {
+        parent = GTK_WINDOW(window);
+    }
 
     dialog = gtk_message_dialog_new(
-            GTK_WINDOW(window),
+            parent,
             GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
             message_type,
             GTK_BUTTONS_NONE,
