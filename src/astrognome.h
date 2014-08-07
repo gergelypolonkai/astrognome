@@ -11,6 +11,7 @@ typedef struct {
 
 extern GtkFileFilter *filter_all;
 extern GtkFileFilter *filter_chart;
+extern GtkFileFilter *filter_hor;
 
 const gchar *ag_house_system_id_to_nick(GsweHouseSystem house_system);
 GsweHouseSystem ag_house_system_nick_to_id(const gchar *nick);
