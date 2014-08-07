@@ -14,6 +14,11 @@
                 <attribute name="target">agc</attribute>
                 <attribute name="accel">&lt;Primary&gt;o</attribute>
             </item>
+            <item>
+                <attribute name="label" translatable="yes">Import from Placidus</attribute>
+                <attribute name="action">app.import</attribute>
+                <attribute name="target">hor</attribute>
+            </item>
         </section>
         <section>
             <item>
