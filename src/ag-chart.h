@@ -14,6 +14,9 @@ typedef enum {
     AG_CHART_ERROR_CORRUPT_FILE,
     AG_CHART_ERROR_EMPTY_RECORD,
     AG_CHART_ERROR_INVALID_HOUSE_SYSTEM,
+    AG_CHART_ERROR_NOT_IMPLEMENTED,
+    AG_CHART_ERROR_INVALID_PLAC_FILE,
+    AG_CHART_ERROR_UNSUPPORTED_PLAC_FILE,
 } AgChartError;
 
 #define AG_TYPE_CHART         (ag_chart_get_type())
@@ -48,8 +51,11 @@ AgChart *ag_chart_new_full(GsweTimestamp   *timestamp,
                            gdouble         altitude,
                            GsweHouseSystem house_system);
 
-AgChart *ag_chart_load_from_file(GFile  *file,
-                                 GError **err);
+AgChart *ag_chart_load_from_agc(GFile  *file,
+                                GError **err);
+
+AgChart *ag_chart_load_from_placidus_file(GFile  *file,
+                                          GError **err);
 
 AgChart *ag_chart_new_from_db_save(AgDbSave *save_data, GError **err);
 

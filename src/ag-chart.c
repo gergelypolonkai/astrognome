@@ -9,9 +9,11 @@
 #include <swe-glib.h>
 #include <locale.h>
 #include <math.h>
+#include <string.h>
 
 #include "ag-db.h"
 #include "ag-chart.h"
+#include "placidus.h"
 
 typedef struct _AgChartPrivate {
     gchar *name;
@@ -577,7 +579,7 @@ get_by_xpath(xmlXPathContextPtr xpath_context,
 }
 
 AgChart *
-ag_chart_load_from_file(GFile *file, GError **err)
+ag_chart_load_from_agc(GFile *file, GError **err)
 {
     AgChart            *chart = NULL;
     gchar              *uri,
@@ -918,6 +920,320 @@ ag_chart_load_from_file(GFile *file, GError **err)
     g_free(uri);
     xmlXPathFreeContext(xpath_context);
     xmlFreeDoc(doc);
+
+    return chart;
+}
+
+AgChart *ag_chart_load_from_placidus_file(GFile  *file,
+                                          GError **err)
+{
+    gchar *hor_contents,
+          *header,
+          *name_buf,
+          *name,
+          *type_buf,
+          *type,
+          *city_buf,
+          *city,
+          *notes_buf,
+          *notes,
+          *comma,
+          *country;
+    gsize hor_length,
+          name_len,
+          type_len,
+          city_len,
+          notes_len;
+    guint8 calendar,
+           month,
+           day,
+           hour,
+           minute,
+           long_deg,
+           long_min,
+           long_hemi,
+           lat_deg,
+           lat_min,
+           lat_hemi,
+           zone_type,
+           zone_hour,
+           zone_minute,
+           zone_sign,
+           gender;
+    guint16 year;
+    gdouble second,
+           swe_tz,
+           real_long,
+           real_lat;
+    GsweTimestamp *timestamp;
+    AgChart *chart;
+    GError *local_err = NULL;
+
+    if (!g_file_load_contents(
+                file,
+                NULL,
+                &hor_contents,
+                &hor_length,
+                NULL,
+                err)) {
+        return NULL;
+    }
+
+    // A Placidus save file is at least 2176 bytes (3926 in case of
+    // a Nostradamus save)
+    if (hor_length < 2176) {
+        g_set_error(
+                err,
+                AG_CHART_ERROR, AG_CHART_ERROR_INVALID_PLAC_FILE,
+                "Invalid Placidus file."
+            );
+
+        return NULL;
+    }
+
+    header = g_malloc0(PLAC_HEADER_LEN);
+    memcpy(header, hor_contents + PLAC_HEADER_POS, PLAC_HEADER_LEN);
+    if (strncmp(
+                "PLACIDUS v4.0 Horoscope File\x0d\x0a", header,
+                PLAC_HEADER_LEN)) {
+        g_free(header);
+        g_set_error(
+                err,
+                AG_CHART_ERROR, AG_CHART_ERROR_INVALID_PLAC_FILE,
+                "Invalid Placidus file."
+            );
+
+        return NULL;
+    }
+
+    g_free(header);
+
+    name_buf = g_malloc0(PLAC_NAME_LEN + 1);
+    memcpy(name_buf, hor_contents + PLAC_NAME_POS, PLAC_NAME_LEN);
+    name = g_convert(
+            name_buf, -1,
+            "UTF-8", "LATIN2",
+            NULL,
+            &name_len,
+            &local_err
+        );
+    g_free(name_buf);
+
+    type_buf = g_malloc0(PLAC_TYPE_LEN + 1);
+    memcpy(type_buf, hor_contents + PLAC_TYPE_POS, PLAC_TYPE_LEN);
+    type = g_convert(
+            type_buf, -1,
+            "UTF-8", "LATIN2",
+            NULL,
+            &type_len,
+            &local_err
+        );
+    g_free(type_buf);
+
+    notes_buf = g_malloc0(PLAC_NOTES_LEN + 1);
+    memcpy(notes_buf, hor_contents + PLAC_NOTES_POS, PLAC_NOTES_LEN);
+    notes = g_convert(
+            notes_buf, -1,
+            "UTF-8", "LATIN2",
+            NULL,
+            &notes_len,
+            &local_err
+        );
+    g_free(notes_buf);
+
+    city_buf = g_malloc0(PLAC_CITY_LEN + 1);
+    memcpy(city_buf, hor_contents + PLAC_CITY_POS, PLAC_CITY_LEN);
+    city = g_convert(
+            city_buf, -1,
+            "UTF-8", "LATIN2",
+            NULL,
+            &city_len,
+            &local_err
+        );
+    g_free(city_buf);
+
+    memcpy(&calendar, hor_contents + PLAC_CALENDAR_POS, sizeof(guint8));
+    memcpy(&year, hor_contents + PLAC_YEAR_POS, sizeof(guint16));
+    year = GUINT16_FROM_LE(year);
+
+    memcpy(&month, hor_contents + PLAC_MONTH_POS, sizeof(guint8));
+    memcpy(&day, hor_contents + PLAC_DAY_POS, sizeof(guint8));
+    memcpy(&hour, hor_contents + PLAC_HOUR_POS, sizeof(guint8));
+    memcpy(&minute, hor_contents + PLAC_MINUTE_POS, sizeof(guint8));
+    memcpy(&second, hor_contents + PLAC_SECOND_POS, sizeof(gdouble));
+    memcpy(&long_deg, hor_contents + PLAC_LONGDEG_POS, sizeof(guint8));
+    memcpy(&long_min, hor_contents + PLAC_LONGMIN_POS, sizeof(guint8));
+    memcpy(&long_hemi, hor_contents + PLAC_LONGSIGN_POS, sizeof(guint8));
+    memcpy(&lat_deg, hor_contents + PLAC_LATDEG_POS, sizeof(guint8));
+    memcpy(&lat_min, hor_contents + PLAC_LATMIN_POS, sizeof(guint8));
+    memcpy(&lat_hemi, hor_contents + PLAC_LATSIGN_POS, sizeof(guint8));
+    memcpy(&zone_type, hor_contents + PLAC_ZONETYPE_POS, sizeof(guint8));
+    memcpy(&zone_hour, hor_contents + PLAC_ZONEHOUR_POS, sizeof(guint8));
+    memcpy(&zone_minute, hor_contents + PLAC_ZONEMIN_POS, sizeof(guint8));
+    memcpy(&zone_sign, hor_contents + PLAC_ZONESIGN_POS, sizeof(guint8));
+    memcpy(&gender, hor_contents + PLAC_GENDER_POS, sizeof(guint8));
+
+    g_free(hor_contents);
+
+    switch (zone_type) {
+        // UTC
+        case 0:
+            swe_tz = 0.0;
+
+            break;
+
+        // Local mean time. It is unclear what it exactly means for Placidus,
+        // so we don’t support it yet.
+        case 1:
+            g_set_error(
+                    err,
+                    AG_CHART_ERROR, AG_CHART_ERROR_UNSUPPORTED_PLAC_FILE,
+                    "Local mean time Placidus charts are not supported yet."
+                );
+
+            g_free(name);
+            g_free(type);
+            g_free(city);
+            g_free(notes);
+
+            return NULL;
+
+        // Zone time
+        case 2:
+            {
+                GDateTime *utc,
+                          *final;
+                GTimeZone *zone;
+                gchar *zone_string;
+
+                utc = g_date_time_new_utc(
+                        year, month, day,
+                        hour, minute, second
+                    );
+                zone_string = g_strdup_printf(
+                        "%c%02d:%02d",
+                        (zone_sign == 0) ? '+' : '-',
+                        zone_hour,
+                        zone_minute
+                    );
+                zone = g_time_zone_new(zone_string);
+                final = g_date_time_to_timezone(utc, zone);
+                g_date_time_unref(utc);
+                year = g_date_time_get_year(final);
+                month = g_date_time_get_month(final);
+                day = g_date_time_get_day_of_month(final);
+                hour = g_date_time_get_hour(final);
+                minute = g_date_time_get_minute(final);
+                second = g_date_time_get_second(final);
+                swe_tz = (gdouble)zone_hour + (gdouble)zone_minute / 60.0;
+            }
+
+            break;
+
+        default:
+            g_set_error(
+                    err,
+                    AG_CHART_ERROR, AG_CHART_ERROR_UNSUPPORTED_PLAC_FILE,
+                    "Unknown time zone type."
+                );
+
+            g_free(name);
+            g_free(type);
+            g_free(city);
+            g_free(notes);
+
+            return NULL;
+    }
+
+    switch (calendar) {
+        // Julian calendar
+        case 0:
+            g_set_error(
+                    err,
+                    AG_CHART_ERROR, AG_CHART_ERROR_UNSUPPORTED_PLAC_FILE,
+                    "Julian calendar is not supported by Astrognome yet."
+                );
+
+            g_free(name);
+            g_free(type);
+            g_free(city);
+            g_free(notes);
+
+            return NULL;
+
+        // Gregorian calendar
+        case 1:
+            break;
+
+        default:
+            g_set_error(
+                    err,
+                    AG_CHART_ERROR, AG_CHART_ERROR_UNSUPPORTED_PLAC_FILE,
+                    "Unknown calendar type in Placidus chart."
+                );
+
+            g_free(name);
+            g_free(type);
+            g_free(city);
+            g_free(notes);
+
+            return NULL;
+    }
+
+    if (strncmp("radix", type, 5) != 0) {
+            g_set_error(
+                    err,
+                    AG_CHART_ERROR, AG_CHART_ERROR_UNSUPPORTED_PLAC_FILE,
+                    "Only radix charts are supported by Astrognome yet."
+                );
+
+            g_free(name);
+            g_free(type);
+            g_free(city);
+            g_free(notes);
+
+            return NULL;
+    }
+
+    if ((comma = strchr(city, ',')) != NULL) {
+        *comma = 0;
+        country = comma + 2;
+    } else {
+        country = g_strdup("");
+    }
+
+    real_long = (gdouble)long_deg + (gdouble)long_min / 60.0;
+    real_lat  = (gdouble)lat_deg + (gdouble)lat_deg / 60.0;
+
+    if (long_hemi == 1) {
+        real_long = - real_long;
+    }
+
+    if (lat_hemi == 1) {
+        real_lat = - real_lat;
+    }
+
+    if (zone_sign == 1) {
+        swe_tz = - swe_tz;
+    }
+
+    timestamp = gswe_timestamp_new_from_gregorian_full(
+            year, month, day,
+            hour, minute, second, 0,
+            swe_tz
+        );
+
+    chart = ag_chart_new_full(
+            timestamp,
+            real_long, real_lat, 280.0,
+            GSWE_HOUSE_SYSTEM_PLACIDUS
+        );
+
+    ag_chart_set_name(chart, name);
+    ag_chart_set_country(chart, country);
+    ag_chart_set_city(chart, city);
+    // TODO: implement gender
+    ag_chart_set_note(chart, notes);
 
     return chart;
 }

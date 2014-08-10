@@ -18,6 +18,7 @@
 GtkBuilder    *builder;
 GtkFileFilter *filter_all   = NULL;
 GtkFileFilter *filter_chart = NULL;
+GtkFileFilter *filter_hor   = NULL;
 GHashTable    *xinclude_positions;
 
 const char    *moonStateName[] = {
@@ -44,6 +45,11 @@ init_filters(void)
     gtk_file_filter_set_name(filter_chart, _("Astrognome charts"));
     gtk_file_filter_add_pattern(filter_chart, "*.agc");
     g_object_ref_sink(filter_chart);
+
+    filter_hor = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_hor, _("Placidus charts"));
+    gtk_file_filter_add_pattern(filter_hor, "*.hor");
+    g_object_ref_sink(filter_hor);
 }
 
 static int

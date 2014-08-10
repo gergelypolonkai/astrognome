@@ -1,0 +1,55 @@
+#ifndef __AG_PLACIDUS_H__
+#define __AG_PLACIDUS_H__
+
+#define PLAC_HEADER_POS 0x0000
+#define PLAC_HEADER_LEN 30
+
+#define PLAC_NAME_POS 0x0020
+#define PLAC_NAME_LEN 32
+
+#define PLAC_TYPE_POS 0x0049
+#define PLAC_TYPE_LEN 10
+
+#define PLAC_CALENDAR_POS 0x0057
+
+#define PLAC_YEAR_POS 0x0058
+
+#define PLAC_MONTH_POS 0x005a
+
+#define PLAC_DAY_POS 0x005b
+
+#define PLAC_HOUR_POS 0x005c
+
+#define PLAC_MINUTE_POS 0x005d
+
+#define PLAC_SECOND_POS 0x005e
+
+#define PLAC_LONGDEG_POS 0x0066
+
+#define PLAC_LONGSIGN_POS 0x0067
+
+#define PLAC_LONGMIN_POS 0x0068
+
+#define PLAC_LATDEG_POS 0x0071
+
+#define PLAC_LATSIGN_POS 0x0072
+
+#define PLAC_LATMIN_POS 0x0073
+
+#define PLAC_ZONETYPE_POS 0x007c
+
+#define PLAC_ZONEHOUR_POS 0x007d
+
+#define PLAC_ZONEMIN_POS 0x007e
+
+#define PLAC_ZONESIGN_POS 0x007f
+
+#define PLAC_CITY_POS 0x008f
+#define PLAC_CITY_LEN 31
+
+#define PLAC_GENDER_POS 0x00ae
+
+#define PLAC_NOTES_POS 0x00af
+#define PLAC_NOTES_LEN 2000
+
+#endif /* __AG_PLACIDUS_H__ */
