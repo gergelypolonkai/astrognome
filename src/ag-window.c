@@ -1290,6 +1290,30 @@ ag_window_list_item_activated_cb(GdMainView        *view,
 }
 
 static void
+ag_window_list_selection_changed_cb(GdMainView *view, AgWindow *window)
+{
+    GList           *selection;
+    guint           count;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    selection = gd_main_view_get_selection(view);
+
+    if ((count = g_list_length(selection)) > 0) {
+        gtk_revealer_set_reveal_child(
+                GTK_REVEALER(priv->selection_toolbar),
+                TRUE
+            );
+    } else {
+        gtk_revealer_set_reveal_child(
+                GTK_REVEALER(priv->selection_toolbar),
+                FALSE
+            );
+    }
+
+    // Here it is possible to set button sensitivity later
+}
+
+static void
 ag_window_init(AgWindow *window)
 {
     GtkAccelGroup   *accel_group;
@@ -1355,6 +1379,12 @@ ag_window_init(AgWindow *window)
             priv->tab_list,
             "item-activated",
             G_CALLBACK(ag_window_list_item_activated_cb),
+            window
+        );
+    g_signal_connect(
+            priv->tab_list,
+            "view-selection-changed",
+            G_CALLBACK(ag_window_list_selection_changed_cb),
             window
         );
 
