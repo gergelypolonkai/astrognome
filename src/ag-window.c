@@ -5,6 +5,7 @@
 #include <libxml/tree.h>
 #include <webkit2/webkit2.h>
 #include <libgd/gd-main-view.h>
+#include <libgd/gd-main-view-generic.h>
 #include <gtk/gtk.h>
 
 #include <swe-glib.h>
@@ -17,8 +18,9 @@
 
 struct _AgWindowPrivate {
     GtkWidget     *header_bar;
-    GtkWidget     *menubutton_revealer;
+    GtkWidget     *menubutton_stack;
     GtkWidget     *new_back_stack;
+    GtkWidget     *selection_toolbar;
     GtkWidget     *stack;
     GtkWidget     *name;
     GtkWidget     *north_lat;
@@ -1003,11 +1005,23 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
     }
 
     if (strcmp("list", active_tab_name) == 0) {
-        gtk_revealer_set_reveal_child(GTK_REVEALER(priv->menubutton_revealer), FALSE);
-        gtk_stack_set_visible_child_name(GTK_STACK(priv->new_back_stack), "new");
+        gtk_stack_set_visible_child_name(
+                GTK_STACK(priv->menubutton_stack),
+                "list"
+            );
+        gtk_stack_set_visible_child_name(
+                GTK_STACK(priv->new_back_stack),
+                "new"
+            );
     } else {
-        gtk_revealer_set_reveal_child(GTK_REVEALER(priv->menubutton_revealer), TRUE);
-        gtk_stack_set_visible_child_name(GTK_STACK(priv->new_back_stack), "back");
+        gtk_stack_set_visible_child_name(
+                GTK_STACK(priv->menubutton_stack),
+                "chart"
+            );
+        gtk_stack_set_visible_child_name(
+                GTK_STACK(priv->new_back_stack),
+                "back"
+            );
     }
 
     // Note that priv->current_tab is actually the previously selected tab, not
@@ -1083,17 +1097,111 @@ ag_window_refresh_action(GSimpleAction *action,
     ag_window_load_chart_list(AG_WINDOW(user_data));
 }
 
+static void
+ag_window_selection_mode_action(GSimpleAction *action,
+                                GVariant      *parameter,
+                                gpointer      user_data)
+{
+    GVariant        *state;
+    gboolean        new_state;
+    GtkStyleContext *style;
+    AgWindow        *window = AG_WINDOW(user_data);
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    state = g_action_get_state(G_ACTION(action));
+    new_state = !g_variant_get_boolean(state);
+    g_action_change_state(G_ACTION(action), g_variant_new_boolean(new_state));
+    g_variant_unref(state);
+
+    style = gtk_widget_get_style_context(priv->header_bar);
+
+    if (new_state) {
+        gtk_header_bar_set_show_close_button(
+                GTK_HEADER_BAR(priv->header_bar),
+                FALSE
+            );
+        gtk_style_context_add_class(style, "selection-mode");
+        gd_main_view_set_selection_mode(GD_MAIN_VIEW(priv->tab_list), TRUE);
+        gtk_widget_hide(priv->new_back_stack);
+        gtk_stack_set_visible_child_name(
+                GTK_STACK(priv->menubutton_stack),
+                "selection"
+            );
+    } else {
+        gtk_header_bar_set_show_close_button(
+                GTK_HEADER_BAR(priv->header_bar),
+                TRUE
+            );
+        gtk_style_context_remove_class(style, "selection-mode");
+        gd_main_view_set_selection_mode(GD_MAIN_VIEW(priv->tab_list), FALSE);
+        gtk_widget_show_all(priv->new_back_stack);
+        gtk_stack_set_visible_child_name(
+                GTK_STACK(priv->menubutton_stack),
+                "list"
+            );
+    }
+}
+
+static void
+ag_window_delete_action(GSimpleAction *action,
+                        GVariant      *parameter,
+                        gpointer      user_data)
+{
+    GList           *selection,
+                    *item;
+    GtkTreeModel    *model;
+    AgWindow        *window = AG_WINDOW(user_data);
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    AgDb            *db     = ag_db_get();
+
+    selection = gd_main_view_get_selection(GD_MAIN_VIEW(priv->tab_list));
+    model     = gd_main_view_get_model(GD_MAIN_VIEW(priv->tab_list));
+
+    for (item = selection; item; item = g_list_next(item)) {
+        GtkTreePath *path = item->data;
+        GtkTreeIter iter;
+        gchar       *id_str;
+        gint        id;
+        GError      *err = NULL;
+
+        gtk_tree_model_get_iter(model, &iter, path);
+        gtk_tree_model_get(
+                model, &iter,
+                GD_MAIN_COLUMN_ID, &id_str,
+                -1
+            );
+        id = atoi(id_str);
+        g_free(id_str);
+
+        if (!ag_db_delete_chart(db, id, &err)) {
+            ag_app_message_dialog(
+                    GTK_WIDGET(window),
+                    GTK_MESSAGE_ERROR,
+                    "Unable to delete chart: %s",
+                    (err && err->message)
+                        ? err->message
+                        : "No reason"
+                );
+        }
+    }
+
+    g_action_group_activate_action(G_ACTION_GROUP(window), "selection", NULL);
+    g_action_group_activate_action(G_ACTION_GROUP(window), "refresh", NULL);
+}
+
 static GActionEntry win_entries[] = {
-    { "close",      ag_window_close_action,      NULL, NULL,      NULL },
-    { "save",       ag_window_save_action,       NULL, NULL,      NULL },
-    { "export",     ag_window_export_action,     NULL, NULL,      NULL },
-    { "export-svg", ag_window_export_svg_action, NULL, NULL,      NULL },
-    { "view-menu",  ag_window_view_menu_action,  NULL, "false",   NULL },
-    { "gear-menu",  ag_window_gear_menu_action,  NULL, "false",   NULL },
-    { "change-tab", ag_window_change_tab_action, "s",  "'edit'",  NULL },
-    { "new-chart",  ag_window_new_chart_action,  NULL, NULL,      NULL },
-    { "back",       ag_window_back_action,       NULL, NULL,      NULL },
-    { "refresh",    ag_window_refresh_action,    NULL, NULL,      NULL },
+    { "close",      ag_window_close_action,          NULL, NULL,      NULL },
+    { "save",       ag_window_save_action,           NULL, NULL,      NULL },
+    { "export",     ag_window_export_action,         NULL, NULL,      NULL },
+    { "export-svg", ag_window_export_svg_action,     NULL, NULL,      NULL },
+    { "view-menu",  ag_window_view_menu_action,      NULL, "false",   NULL },
+    { "gear-menu",  ag_window_gear_menu_action,      NULL, "false",   NULL },
+    { "change-tab", ag_window_change_tab_action,     "s",  "'edit'",  NULL },
+    { "new-chart",  ag_window_new_chart_action,      NULL, NULL,      NULL },
+    { "back",       ag_window_back_action,           NULL, NULL,      NULL },
+    { "refresh",    ag_window_refresh_action,        NULL, NULL,      NULL },
+    { "selection",  ag_window_selection_mode_action, NULL, "false",   NULL },
+    { "delete",     ag_window_delete_action,         NULL, NULL,      NULL },
 };
 
 static void
@@ -1223,6 +1331,30 @@ ag_window_list_item_activated_cb(GdMainView        *view,
 }
 
 static void
+ag_window_list_selection_changed_cb(GdMainView *view, AgWindow *window)
+{
+    GList           *selection;
+    guint           count;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    selection = gd_main_view_get_selection(view);
+
+    if ((count = g_list_length(selection)) > 0) {
+        gtk_revealer_set_reveal_child(
+                GTK_REVEALER(priv->selection_toolbar),
+                TRUE
+            );
+    } else {
+        gtk_revealer_set_reveal_child(
+                GTK_REVEALER(priv->selection_toolbar),
+                FALSE
+            );
+    }
+
+    // Here it is possible to set button sensitivity later
+}
+
+static void
 ag_window_init(AgWindow *window)
 {
     GtkAccelGroup   *accel_group;
@@ -1290,6 +1422,12 @@ ag_window_init(AgWindow *window)
             G_CALLBACK(ag_window_list_item_activated_cb),
             window
         );
+    g_signal_connect(
+            priv->tab_list,
+            "view-selection-changed",
+            G_CALLBACK(ag_window_list_selection_changed_cb),
+            window
+        );
 
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
     priv->current_tab = priv->tab_list;
@@ -1349,7 +1487,7 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_child_private(
             widget_class,
             AgWindow,
-            menubutton_revealer
+            menubutton_stack
         );
     gtk_widget_class_bind_template_child_private(
             widget_class,
@@ -1441,6 +1579,11 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             note_buffer
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            selection_toolbar
         );
 }
 
