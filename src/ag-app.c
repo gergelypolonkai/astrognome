@@ -133,14 +133,31 @@ quit_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 }
 
 static void
-ag_app_import_chart(AgApp *app, GFile *file)
+ag_app_import_file(AgApp *app, GFile *file, AgAppImportType type)
 {
     GtkWidget *window;
     AgChart   *chart;
     GError    *err = NULL;
 
-    if ((chart = ag_chart_load_from_file(file, &err)) == NULL) {
-        g_print("Error: '%s'\n", err->message);
+    switch (type) {
+        case AG_APP_IMPORT_AGC:
+            chart = ag_chart_load_from_agc(file, &err);
+
+            break;
+
+        default:
+            g_error("Unknown import type!");
+
+            break;
+    }
+
+    if (chart == NULL) {
+        ag_app_message_dialog(
+                NULL,
+                GTK_MESSAGE_ERROR,
+                "Error while loading: %s",
+                err->message
+            );
 
         return;
     }
@@ -155,9 +172,19 @@ ag_app_import_chart(AgApp *app, GFile *file)
 static void
 ag_app_import_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
-    gint      response;
-    GtkWidget *fs;
-    GSList    *filenames = NULL;
+    gint            response;
+    GtkWidget       *fs;
+    GtkFileFilter   *filter;
+    GSList          *filenames   = NULL;
+    const gchar     *target_type = g_variant_get_string(parameter, NULL);
+    AgAppImportType type         = AG_APP_IMPORT_NONE;
+
+    if (strncmp("agc", target_type, 3) == 0) {
+        type = AG_APP_IMPORT_AGC;
+        filter = filter_chart;
+    } else {
+        g_error("Unknown import type!");
+    }
 
     fs = gtk_file_chooser_dialog_new(_("Select charts"),
                                      NULL,
@@ -166,8 +193,8 @@ ag_app_import_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
                                      _("_Import"), GTK_RESPONSE_ACCEPT,
                                      NULL);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_all);
-    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_chart);
-    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(fs), filter_chart);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter);
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(fs), filter);
     gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
     gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(fs), TRUE);
     gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
@@ -190,7 +217,7 @@ ag_app_import_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
             }
 
             file = g_file_new_for_commandline_arg(data);
-            ag_app_import_chart(AG_APP(user_data), file);
+            ag_app_import_file(AG_APP(user_data), file, type);
         }
     }
 
@@ -250,7 +277,7 @@ static GActionEntry app_entries[] = {
     { "about",       about_cb,         NULL, NULL, NULL },
     { "quit",        quit_cb,          NULL, NULL, NULL },
     { "raise",       raise_cb,         NULL, NULL, NULL },
-    { "import",      ag_app_import_cb, NULL, NULL, NULL },
+    { "import",      ag_app_import_cb, "s",  NULL, NULL },
     { "help",        help_cb,          NULL, NULL, NULL },
 };
 
@@ -335,7 +362,7 @@ ag_app_import(GApplication *gapp,
     gint i;
 
     for (i = 0; i < n_files; i++) {
-        ag_app_import_chart(AG_APP(gapp), files[i]);
+        ag_app_import_file(AG_APP(gapp), files[i], AG_APP_IMPORT_AGC);
     }
 }
 

@@ -7,6 +7,11 @@
 
 G_BEGIN_DECLS
 
+typedef enum {
+    AG_APP_IMPORT_NONE,
+    AG_APP_IMPORT_AGC,
+} AgAppImportType;
+
 #define AG_TYPE_APP         (ag_app_get_type())
 #define AG_APP(o)           (G_TYPE_CHECK_INSTANCE_CAST((o), \
                                                         AG_TYPE_APP, \

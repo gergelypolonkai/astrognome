@@ -577,7 +577,7 @@ get_by_xpath(xmlXPathContextPtr xpath_context,
 }
 
 AgChart *
-ag_chart_load_from_file(GFile *file, GError **err)
+ag_chart_load_from_agc(GFile *file, GError **err)
 {
     AgChart            *chart = NULL;
     gchar              *uri,
