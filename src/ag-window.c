@@ -5,6 +5,7 @@
 #include <libxml/tree.h>
 #include <webkit2/webkit2.h>
 #include <libgd/gd-main-view.h>
+#include <libgd/gd-main-view-generic.h>
 #include <gtk/gtk.h>
 
 #include <swe-glib.h>
@@ -1146,6 +1147,46 @@ ag_window_delete_action(GSimpleAction *action,
                         GVariant      *parameter,
                         gpointer      user_data)
 {
+    GList           *selection,
+                    *item;
+    GtkTreeModel    *model;
+    AgWindow        *window = AG_WINDOW(user_data);
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    AgDb            *db     = ag_db_get();
+
+    selection = gd_main_view_get_selection(GD_MAIN_VIEW(priv->tab_list));
+    model     = gd_main_view_get_model(GD_MAIN_VIEW(priv->tab_list));
+
+    for (item = selection; item; item = g_list_next(item)) {
+        GtkTreePath *path = item->data;
+        GtkTreeIter iter;
+        gchar       *id_str;
+        gint        id;
+        GError      *err = NULL;
+
+        gtk_tree_model_get_iter(model, &iter, path);
+        gtk_tree_model_get(
+                model, &iter,
+                GD_MAIN_COLUMN_ID, &id_str,
+                -1
+            );
+        id = atoi(id_str);
+        g_free(id_str);
+
+        if (!ag_db_delete_chart(db, id, &err)) {
+            ag_app_message_dialog(
+                    GTK_WIDGET(window),
+                    GTK_MESSAGE_ERROR,
+                    "Unable to delete chart: %s",
+                    (err && err->message)
+                        ? err->message
+                        : "No reason"
+                );
+        }
+    }
+
+    g_action_group_activate_action(G_ACTION_GROUP(window), "selection", NULL);
+    g_action_group_activate_action(G_ACTION_GROUP(window), "refresh", NULL);
 }
 
 static GActionEntry win_entries[] = {
