@@ -1132,3 +1132,19 @@ ag_db_save_identical(const AgDbSave *a, const AgDbSave *b, gboolean chart_only)
 
     return TRUE;
 }
+
+gboolean
+ag_db_delete_chart(AgDb *db, gint row_id, GError **err)
+{
+    AgDbPrivate *priv = ag_db_get_instance_private(db);
+    GValue      id    = G_VALUE_INIT;
+
+    g_value_init(&id, G_TYPE_INT);
+    g_value_set_int(&id, row_id);
+
+    return gda_connection_delete_row_from_table(
+            priv->conn, "chart",
+            "id", &id,
+            err
+        );
+}

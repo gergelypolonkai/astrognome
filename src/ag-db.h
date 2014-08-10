@@ -68,6 +68,8 @@ GList *ag_db_get_chart_list(AgDb *db, GError **err);
 
 AgDbSave *ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err);
 
+gboolean ag_db_delete_chart(AgDb *db, gint row_id, GError **err);
+
 gboolean ag_db_save_identical(const AgDbSave *a,
                               const AgDbSave *b,
                               gboolean chart_only);
