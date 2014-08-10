@@ -145,6 +145,11 @@ ag_app_import_file(AgApp *app, GFile *file, AgAppImportType type)
 
             break;
 
+        case AG_APP_IMPORT_HOR:
+            chart = ag_chart_load_from_placidus_file(file, &err);
+
+            break;
+
         default:
             g_error("Unknown import type!");
 
@@ -182,6 +187,9 @@ ag_app_import_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     if (strncmp("agc", target_type, 3) == 0) {
         type = AG_APP_IMPORT_AGC;
         filter = filter_chart;
+    } else if (strncmp("hor", target_type, 3) == 0) {
+        type = AG_APP_IMPORT_HOR;
+        filter = filter_hor;
     } else {
         g_error("Unknown import type!");
     }
