@@ -1086,6 +1086,7 @@ ag_window_back_action(GSimpleAction *action,
 
         ag_window_load_chart_list(window);
         gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+        gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), NULL);
     }
 }
 
