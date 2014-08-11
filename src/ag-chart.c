@@ -1553,6 +1553,7 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
                       prev_position;
     gboolean          first;
     guint             dist;
+    gdouble           first_pos;
 
     root_node = xmlDocGetRootElement(doc);
 
@@ -1659,9 +1660,14 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
         if (first) {
             dist = 0;
             first = FALSE;
+            first_pos = position;
+        } else if (fabs(prev_position - first_pos) >= 5.0) {
+            first_pos = position;
+            dist = 0;
         } else if (fabs(prev_position - position) < 5.0) {
             dist++;
         } else {
+            first_pos = position;
             dist = 0;
         }
 
