@@ -834,7 +834,7 @@ ag_window_update_from_chart(AgWindow *window)
 }
 
 static void
-chart_changed(AgChart *chart, AgWindow *window)
+ag_window_chart_changed(AgChart *chart, AgWindow *window)
 {
     ag_window_redraw_chart(window);
 }
@@ -966,7 +966,7 @@ ag_window_recalculate_chart(AgWindow *window)
         g_signal_connect(
                 priv->chart,
                 "changed",
-                G_CALLBACK(chart_changed),
+                G_CALLBACK(ag_window_chart_changed),
                 window
             );
         ag_window_redraw_chart(window);
@@ -1664,7 +1664,7 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
     if (priv->chart != NULL) {
         g_signal_handlers_disconnect_by_func(
                 priv->chart,
-                chart_changed,
+                ag_window_chart_changed,
                 window
             );
         g_clear_object(&(priv->chart));
@@ -1673,7 +1673,12 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
     ag_db_save_data_free(priv->saved_data);
 
     priv->chart = chart;
-    g_signal_connect(priv->chart, "changed", G_CALLBACK(chart_changed), window);
+    g_signal_connect(
+            priv->chart,
+            "changed",
+            G_CALLBACK(ag_window_chart_changed),
+            window
+        );
     g_object_ref(chart);
     priv->saved_data = ag_chart_get_db_save(chart, -1);
 }
