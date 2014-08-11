@@ -60,7 +60,8 @@ G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
-static void ag_window_recalculate_chart(AgWindow *window);
+static void ag_window_recalculate_chart(AgWindow *window,
+                                        gboolean set_everything);
 
 static void
 ag_window_gear_menu_action(GSimpleAction *action,
@@ -107,6 +108,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
     gboolean        ret        = TRUE;
 
     if (priv->chart) {
+        ag_window_recalculate_chart(window, TRUE);
         save_data = ag_chart_get_db_save(priv->chart, db_id);
 
         if (
@@ -196,7 +198,7 @@ ag_window_export(AgWindow *window, GError **err)
     gint            response;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
-    ag_window_recalculate_chart(window);
+    ag_window_recalculate_chart(window, FALSE);
 
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
@@ -272,7 +274,7 @@ ag_window_save_action(GSimpleAction *action,
     gint            old_id;
     AgDbSave        *save_data;
 
-    ag_window_recalculate_chart(window);
+    ag_window_recalculate_chart(window, TRUE);
 
     if (!ag_window_can_close(window, FALSE)) {
         old_id    = (priv->saved_data) ? priv->saved_data->db_id : -1;
@@ -300,7 +302,7 @@ ag_window_export_action(GSimpleAction *action,
     AgWindow *window = AG_WINDOW(user_data);
     GError   *err    = NULL;
 
-    ag_window_recalculate_chart(window);
+    ag_window_recalculate_chart(window, TRUE);
     ag_window_export(window, &err);
 
     if (err) {
@@ -321,7 +323,7 @@ ag_window_export_svg(AgWindow *window, GError **err)
     gint            response;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
-    ag_window_recalculate_chart(window);
+    ag_window_recalculate_chart(window, TRUE);
 
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
@@ -840,7 +842,7 @@ ag_window_chart_changed(AgChart *chart, AgWindow *window)
 }
 
 static void
-ag_window_recalculate_chart(AgWindow *window)
+ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
 {
     AgDbSave        *edit_data,
                     *chart_data;
@@ -938,7 +940,7 @@ ag_window_recalculate_chart(AgWindow *window)
             : NULL
         ;
 
-    if (ag_db_save_identical(edit_data, chart_data, TRUE)) {
+    if (ag_db_save_identical(edit_data, chart_data, !set_everything)) {
         g_debug("No redrawing needed");
 
         ag_db_save_data_free(edit_data);
@@ -982,6 +984,13 @@ ag_window_recalculate_chart(AgWindow *window)
             );
     }
 
+    if (set_everything) {
+        ag_chart_set_name(priv->chart, edit_data->name);
+        ag_chart_set_country(priv->chart, edit_data->country);
+        ag_chart_set_city(priv->chart, edit_data->city);
+        ag_chart_set_note(priv->chart, edit_data->note);
+    }
+
     ag_db_save_data_free(edit_data);
 }
 
@@ -1022,12 +1031,12 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
                 GTK_STACK(priv->new_back_stack),
                 "back"
             );
-    }
 
-    // Note that priv->current_tab is actually the previously selected tab, not
-    // the real active one!
-    if (priv->current_tab == priv->tab_edit) {
-        ag_window_recalculate_chart(window);
+        // Note that priv->current_tab is actually the previously selected tab,
+        // not the real active one!
+        if (priv->current_tab == priv->tab_edit) {
+            ag_window_recalculate_chart(window, FALSE);
+        }
     }
 
     priv->current_tab = active_tab;
@@ -1078,6 +1087,8 @@ ag_window_back_action(GSimpleAction *action,
 {
     AgWindow        *window = AG_WINDOW(user_data);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+
+    g_debug("Back button pressed");
 
     if (ag_window_can_close(window, TRUE)) {
         g_clear_object(&(priv->chart));
@@ -1292,6 +1303,8 @@ ag_window_list_item_activated_cb(GdMainView        *view,
         return;
     }
 
+    g_debug("Loading chart with ID %d", row_id);
+
     if ((priv->saved_data = ag_db_get_chart_data_by_id(
                  db,
                  row_id,
@@ -1306,8 +1319,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
     }
 
     if (priv->chart) {
-        g_object_unref(priv->chart);
-        priv->chart = NULL;
+        g_clear_object(&(priv->chart));
     }
 
     if ((priv->chart = ag_chart_new_from_db_save(
