@@ -1063,70 +1063,104 @@ gboolean
 ag_db_save_identical(const AgDbSave *a, const AgDbSave *b, gboolean chart_only)
 {
     if (a == b) {
+        g_debug("identical: Equal");
+
         return TRUE;
     }
 
     if ((a == NULL) || (b == NULL)) {
+        g_debug("identical: One is NULL");
+
         return FALSE;
     }
 
     if (!chart_only && string_collate(a->name, b->name) != 0) {
+        g_debug("identical: Names differ");
+
         return FALSE;
     }
 
     if (!chart_only && string_collate(a->country, b->country) != 0) {
+        g_debug("identical: Countries differ");
+
         return FALSE;
     }
 
     if (!chart_only && string_collate(a->city, b->city) != 0) {
+        g_debug("identical: Cities differ");
+
         return FALSE;
     }
 
     if (a->longitude != b->longitude) {
+        g_debug("identical: Longitudes differ");
+
         return FALSE;
     }
 
     if (a->latitude != b->latitude) {
+        g_debug("identical: Latitudes differ");
+
         return FALSE;
     }
 
     if (a->altitude != b->altitude) {
+        g_debug("identical: Altitudes differ");
+
         return FALSE;
     }
 
     if (a->year != b->year) {
+        g_debug("identical: Years differ");
+
         return FALSE;
     }
 
     if (a->month != b->month) {
+        g_debug("identical: Months differ");
+
         return FALSE;
     }
 
     if (a->day != b->day) {
+        g_debug("identical: Days differ");
+
         return FALSE;
     }
 
     if (a->hour != b->hour) {
+        g_debug("identical: Hours differ");
+
         return FALSE;
     }
 
     if (a->minute != b->minute) {
+        g_debug("identical: Minutes differ");
+
         return FALSE;
     }
 
     if (a->second != b->second) {
+        g_debug("identical: Seconds differ");
+
         return FALSE;
     }
 
     if (a->timezone != b->timezone) {
+        g_debug("identical: Timezones differ");
+
         return FALSE;
     }
 
     if (string_collate(a->house_system, b->house_system) != 0) {
+        g_debug("identical: House systems differ");
+
         return FALSE;
     }
 
     if (!chart_only && string_collate(a->note, b->note) != 0) {
+        g_debug("identical: Notes differ");
+
         return FALSE;
     }
 

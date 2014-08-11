@@ -28,7 +28,9 @@ enum {
     PROP_0,
     PROP_NAME,
     PROP_COUNTRY,
-    PROP_CITY
+    PROP_CITY,
+    PROP_NOTE,
+    PROP_LAST
 };
 
 typedef enum {
@@ -40,6 +42,8 @@ typedef enum {
 G_DEFINE_QUARK(ag_chart_error_quark, ag_chart_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgChart, ag_chart, GSWE_TYPE_MOMENT);
+
+static GParamSpec *properties[PROP_LAST];
 
 #define ag_g_variant_unref(v) \
     if ((v) != NULL) { \
@@ -65,38 +69,56 @@ ag_chart_class_init(AgChartClass *klass)
     gobject_class->get_property = ag_chart_get_property;
     gobject_class->finalize     = ag_chart_finalize;
 
+    properties[PROP_NAME] = g_param_spec_string(
+            "name",
+            "Chart name",
+            "Name of the person on this chart",
+            NULL,
+            G_PARAM_READWRITE
+        );
     g_object_class_install_property(
             gobject_class,
             PROP_NAME,
-            g_param_spec_string(
-                    "name",
-                    "Chart name",
-                    "Name of the person on this chart",
-                    NULL,
-                    G_PARAM_READWRITE
-                )
+            properties[PROP_NAME]
+        );
+
+    properties[PROP_COUNTRY] = g_param_spec_string(
+            "country",
+            "Country",
+            "Name of the country of birth",
+            NULL,
+            G_PARAM_READWRITE
         );
     g_object_class_install_property(
             gobject_class,
             PROP_COUNTRY,
-            g_param_spec_string(
-                    "country",
-                    "Country name",
-                    "Name of the country of birth",
-                    NULL,
-                    G_PARAM_READWRITE
-                )
+            properties[PROP_COUNTRY]
+        );
+
+    properties[PROP_CITY] = g_param_spec_string(
+            "city",
+            "City name",
+            "Name of the city of birth",
+            NULL,
+            G_PARAM_READWRITE
         );
     g_object_class_install_property(
             gobject_class,
             PROP_CITY,
-            g_param_spec_string(
-                    "city",
-                    "City name",
-                    "Name of the city of birth",
-                    NULL,
-                    G_PARAM_READWRITE
-                )
+            properties[PROP_CITY]
+        );
+
+    properties[PROP_NOTE] = g_param_spec_string(
+            "note",
+            "Note",
+            "Chart notes",
+            NULL,
+            G_PARAM_READWRITE
+        );
+    g_object_class_install_property(
+            gobject_class,
+            PROP_NOTE,
+            properties[PROP_NOTE]
         );
 }
 
@@ -133,6 +155,11 @@ ag_chart_set_property(GObject      *gobject,
             ag_chart_set_city(AG_CHART(gobject), g_value_get_string(value));
 
             break;
+
+        case PROP_NOTE:
+            ag_chart_set_note(AG_CHART(gobject), g_value_get_string(value));
+
+            break;
     }
 }
 
@@ -160,6 +187,10 @@ ag_chart_get_property(GObject    *gobject,
 
             break;
 
+        case PROP_NOTE:
+            g_value_set_string(value, priv->note);
+
+            break;
     }
 }
 
@@ -367,6 +398,8 @@ ag_chart_set_name(AgChart *chart, const gchar *name)
     }
 
     priv->name = g_strdup(name);
+
+    g_object_notify_by_pspec(G_OBJECT(chart), properties[PROP_NAME]);
 }
 
 gchar *
@@ -387,6 +420,8 @@ ag_chart_set_country(AgChart *chart, const gchar *country)
     }
 
     priv->country = g_strdup(country);
+
+    g_object_notify_by_pspec(G_OBJECT(chart), properties[PROP_COUNTRY]);
 }
 
 gchar *
@@ -407,6 +442,8 @@ ag_chart_set_city(AgChart *chart, const gchar *city)
     }
 
     priv->city = g_strdup(city);
+
+    g_object_notify_by_pspec(G_OBJECT(chart), properties[PROP_CITY]);
 }
 
 gchar *
@@ -1847,6 +1884,8 @@ ag_chart_set_note(AgChart *chart, const gchar *note)
     AgChartPrivate *priv = ag_chart_get_instance_private(chart);
 
     priv->note = g_strdup(note);
+
+    g_object_notify_by_pspec(G_OBJECT(chart), properties[PROP_NOTE]);
 }
 
 const gchar *ag_chart_get_note(AgChart *chart)
