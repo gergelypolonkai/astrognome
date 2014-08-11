@@ -28,7 +28,8 @@ enum {
     PROP_0,
     PROP_NAME,
     PROP_COUNTRY,
-    PROP_CITY
+    PROP_CITY,
+    PROP_NOTE,
 };
 
 typedef enum {
@@ -98,6 +99,17 @@ ag_chart_class_init(AgChartClass *klass)
                     G_PARAM_READWRITE
                 )
         );
+    g_object_class_install_property(
+            gobject_class,
+            PROP_NOTE,
+            g_param_spec_string(
+                    "note",
+                    "Note",
+                    "Chart notes",
+                    NULL,
+                    G_PARAM_READWRITE
+                )
+        );
 }
 
 static void
@@ -133,6 +145,11 @@ ag_chart_set_property(GObject      *gobject,
             ag_chart_set_city(AG_CHART(gobject), g_value_get_string(value));
 
             break;
+
+        case PROP_NOTE:
+            ag_chart_set_note(AG_CHART(gobject), g_value_get_string(value));
+
+            break;
     }
 }
 
@@ -160,6 +177,10 @@ ag_chart_get_property(GObject    *gobject,
 
             break;
 
+        case PROP_NOTE:
+            g_value_set_string(value, priv->note);
+
+            break;
     }
 }
 
