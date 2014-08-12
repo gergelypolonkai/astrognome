@@ -60,9 +60,6 @@ G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
-static void ag_window_recalculate_chart(AgWindow *window,
-                                        gboolean set_everything);
-
 static void
 ag_window_gear_menu_action(GSimpleAction *action,
                            GVariant      *parameter,
@@ -93,318 +90,6 @@ ag_window_view_menu_action(GSimpleAction *action,
         );
 
     g_variant_unref(state);
-}
-
-gboolean
-ag_window_can_close(AgWindow *window, gboolean display_dialog)
-{
-    AgWindowPrivate *priv      = ag_window_get_instance_private(window);
-    gint            db_id      = (priv->saved_data)
-            ? priv->saved_data->db_id
-            : -1;
-    AgDbSave        *save_data = NULL;
-    AgDb            *db        = ag_db_get();
-    GError          *err       = NULL;
-    gboolean        ret        = TRUE;
-
-    if (priv->chart) {
-        ag_window_recalculate_chart(window, TRUE);
-        save_data = ag_chart_get_db_save(priv->chart, db_id);
-
-        if (
-                    !ag_db_save_identical(priv->saved_data, save_data, FALSE)
-                    || !(priv->saved_data)
-                    || (priv->saved_data->db_id == -1)
-                ) {
-            g_debug("Save is needed!");
-
-            if (display_dialog) {
-                gint response;
-
-                response = ag_app_buttoned_dialog(
-                        GTK_WIDGET(window),
-                        GTK_MESSAGE_QUESTION,
-                        _("Chart is not saved. Do you want to save it?"),
-                        _("Save and close"), GTK_RESPONSE_YES,
-                        _("Close without saving"), GTK_RESPONSE_NO,
-                        _("Return to chart"), GTK_RESPONSE_CANCEL,
-                        NULL
-                    );
-
-                switch (response) {
-                    case GTK_RESPONSE_YES:
-                        if (!ag_db_save_chart(db, save_data, &err)) {
-                            ag_app_message_dialog(
-                                    GTK_WIDGET(window),
-                                    GTK_MESSAGE_ERROR,
-                                    "Unable to save chart: %s",
-                                    err->message
-                                );
-
-                            ret = FALSE;
-                        } else {
-                            ret = TRUE;
-                        }
-
-                        break;
-
-                    case GTK_RESPONSE_NO:
-                        ret = TRUE;
-
-                        break;
-
-                    default:
-                        ret = FALSE;
-
-                        break;
-                }
-            } else {
-                ret = FALSE;
-            }
-        }
-    }
-
-    ag_db_save_data_free(save_data);
-
-    return ret;
-}
-
-gboolean
-ag_window_delete_event_callback(AgWindow *window,
-                                GdkEvent *event,
-                                gpointer user_data)
-{
-    return (!ag_window_can_close(window, TRUE));
-}
-
-static void
-ag_window_close_action(GSimpleAction *action,
-                       GVariant      *parameter,
-                       gpointer      user_data)
-{
-    AgWindow        *window = AG_WINDOW(user_data);
-
-    if (ag_window_can_close(window, TRUE)) {
-        gtk_widget_destroy(GTK_WIDGET(window));
-    }
-}
-
-static void
-ag_window_export(AgWindow *window, GError **err)
-{
-    gchar           *name;
-    gchar           *file_name;
-    GtkWidget       *fs;
-    gint            response;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
-
-    ag_window_recalculate_chart(window, FALSE);
-
-    // We should never enter here, but who knows...
-    if (priv->chart == NULL) {
-        ag_app_message_dialog(
-                GTK_WIDGET(window),
-                GTK_MESSAGE_ERROR,
-                _("Chart cannot be calculated.")
-            );
-        g_set_error(
-                err,
-                AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART,
-                "Chart is empty"
-            );
-
-        return;
-    }
-
-    name = ag_chart_get_name(priv->chart);
-
-    if ((name == NULL) || (*name == 0)) {
-        g_free(name);
-
-        ag_app_message_dialog(
-                GTK_WIDGET(window),
-                GTK_MESSAGE_ERROR,
-                _("You must enter a name before saving a chart.")
-            );
-        g_set_error(
-                err,
-                AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME,
-                "No name specified"
-            );
-
-        return;
-    }
-
-    file_name = g_strdup_printf("%s.agc", name);
-    g_free(name);
-
-    fs = gtk_file_chooser_dialog_new(_("Export Chart"),
-                                     GTK_WINDOW(window),
-                                     GTK_FILE_CHOOSER_ACTION_SAVE,
-                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                     _("_Save"), GTK_RESPONSE_ACCEPT,
-                                     NULL);
-    gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
-    gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
-    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), TRUE);
-    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fs), file_name);
-    g_free(file_name);
-
-    response = gtk_dialog_run(GTK_DIALOG(fs));
-    gtk_widget_hide(fs);
-
-    if (response == GTK_RESPONSE_ACCEPT) {
-        GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
-
-        ag_chart_save_to_file(priv->chart, file, err);
-    }
-
-    gtk_widget_destroy(fs);
-}
-
-static void
-ag_window_save_action(GSimpleAction *action,
-                      GVariant      *parameter,
-                      gpointer      user_data)
-{
-    AgWindow        *window = AG_WINDOW(user_data);
-    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
-    AgDb            *db     = ag_db_get();
-    GError          *err;
-    gint            old_id;
-    AgDbSave        *save_data;
-
-    ag_window_recalculate_chart(window, TRUE);
-
-    if (!ag_window_can_close(window, FALSE)) {
-        old_id    = (priv->saved_data) ? priv->saved_data->db_id : -1;
-        save_data = ag_chart_get_db_save(priv->chart, old_id);
-
-        if (!ag_db_save_chart(db, save_data, &err)) {
-            ag_app_message_dialog(
-                    GTK_WIDGET(window),
-                    GTK_MESSAGE_ERROR,
-                    _("Unable to save: %s"),
-                    err->message
-                );
-        }
-
-        ag_db_save_data_free(priv->saved_data);
-        priv->saved_data = save_data;
-    }
-}
-
-static void
-ag_window_export_action(GSimpleAction *action,
-                        GVariant      *parameter,
-                        gpointer      user_data)
-{
-    AgWindow *window = AG_WINDOW(user_data);
-    GError   *err    = NULL;
-
-    ag_window_recalculate_chart(window, TRUE);
-    ag_window_export(window, &err);
-
-    if (err) {
-        ag_app_message_dialog(
-                GTK_WIDGET(window),
-                GTK_MESSAGE_ERROR,
-                "%s", err->message
-            );
-    }
-}
-
-static void
-ag_window_export_svg(AgWindow *window, GError **err)
-{
-    gchar           *name;
-    gchar           *file_name;
-    GtkWidget       *fs;
-    gint            response;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
-
-    ag_window_recalculate_chart(window, TRUE);
-
-    // We should never enter here, but who knows...
-    if (priv->chart == NULL) {
-        ag_app_message_dialog(
-                GTK_WIDGET(window),
-                GTK_MESSAGE_ERROR,
-                _("Chart cannot be calculated.")
-            );
-        g_set_error(
-                err,
-                AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART,
-                "Chart is empty"
-            );
-
-        return;
-    }
-
-    name = ag_chart_get_name(priv->chart);
-
-    if ((name == NULL) || (*name == 0)) {
-        g_free(name);
-
-        ag_app_message_dialog(
-                GTK_WIDGET(window),
-                GTK_MESSAGE_ERROR,
-                _("You must enter a name before saving a chart.")
-            );
-        g_set_error(
-                err,
-                AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME,
-                "No name specified"
-            );
-
-        return;
-    }
-
-    file_name = g_strdup_printf("%s.svg", name);
-    g_free(name);
-
-    fs = gtk_file_chooser_dialog_new(_("Export Chart as SVG"),
-                                     GTK_WINDOW(window),
-                                     GTK_FILE_CHOOSER_ACTION_SAVE,
-                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                     _("_Save"), GTK_RESPONSE_ACCEPT,
-                                     NULL);
-    gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
-    gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
-    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), TRUE);
-    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fs), file_name);
-    g_free(file_name);
-
-    response = gtk_dialog_run(GTK_DIALOG(fs));
-    gtk_widget_hide(fs);
-
-    if (response == GTK_RESPONSE_ACCEPT) {
-        GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
-
-        ag_chart_export_svg_to_file(priv->chart, file, err);
-    }
-
-    gtk_widget_destroy(fs);
-}
-
-static void
-ag_window_export_svg_action(GSimpleAction *action,
-                            GVariant      *parameter,
-                            gpointer      user_data)
-{
-    AgWindow *window = AG_WINDOW(user_data);
-    GError *err = NULL;
-
-    ag_window_export_svg(window, &err);
-
-    if (err) {
-        ag_app_message_dialog(
-                GTK_WIDGET(window),
-                GTK_MESSAGE_ERROR,
-                "%s",
-                err->message
-            );
-    }
 }
 
 const gchar *
@@ -992,6 +677,318 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     }
 
     ag_db_save_data_free(edit_data);
+}
+
+static void
+ag_window_export_svg(AgWindow *window, GError **err)
+{
+    gchar           *name;
+    gchar           *file_name;
+    GtkWidget       *fs;
+    gint            response;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    ag_window_recalculate_chart(window, TRUE);
+
+    // We should never enter here, but who knows...
+    if (priv->chart == NULL) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                _("Chart cannot be calculated.")
+            );
+        g_set_error(
+                err,
+                AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART,
+                "Chart is empty"
+            );
+
+        return;
+    }
+
+    name = ag_chart_get_name(priv->chart);
+
+    if ((name == NULL) || (*name == 0)) {
+        g_free(name);
+
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                _("You must enter a name before saving a chart.")
+            );
+        g_set_error(
+                err,
+                AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME,
+                "No name specified"
+            );
+
+        return;
+    }
+
+    file_name = g_strdup_printf("%s.svg", name);
+    g_free(name);
+
+    fs = gtk_file_chooser_dialog_new(_("Export Chart as SVG"),
+                                     GTK_WINDOW(window),
+                                     GTK_FILE_CHOOSER_ACTION_SAVE,
+                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                     _("_Save"), GTK_RESPONSE_ACCEPT,
+                                     NULL);
+    gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
+    gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), TRUE);
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fs), file_name);
+    g_free(file_name);
+
+    response = gtk_dialog_run(GTK_DIALOG(fs));
+    gtk_widget_hide(fs);
+
+    if (response == GTK_RESPONSE_ACCEPT) {
+        GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
+
+        ag_chart_export_svg_to_file(priv->chart, file, err);
+    }
+
+    gtk_widget_destroy(fs);
+}
+
+static void
+ag_window_export_svg_action(GSimpleAction *action,
+                            GVariant      *parameter,
+                            gpointer      user_data)
+{
+    AgWindow *window = AG_WINDOW(user_data);
+    GError *err = NULL;
+
+    ag_window_export_svg(window, &err);
+
+    if (err) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "%s",
+                err->message
+            );
+    }
+}
+
+static void
+ag_window_export(AgWindow *window, GError **err)
+{
+    gchar           *name;
+    gchar           *file_name;
+    GtkWidget       *fs;
+    gint            response;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    ag_window_recalculate_chart(window, FALSE);
+
+    // We should never enter here, but who knows...
+    if (priv->chart == NULL) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                _("Chart cannot be calculated.")
+            );
+        g_set_error(
+                err,
+                AG_WINDOW_ERROR, AG_WINDOW_ERROR_EMPTY_CHART,
+                "Chart is empty"
+            );
+
+        return;
+    }
+
+    name = ag_chart_get_name(priv->chart);
+
+    if ((name == NULL) || (*name == 0)) {
+        g_free(name);
+
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                _("You must enter a name before saving a chart.")
+            );
+        g_set_error(
+                err,
+                AG_WINDOW_ERROR, AG_WINDOW_ERROR_NO_NAME,
+                "No name specified"
+            );
+
+        return;
+    }
+
+    file_name = g_strdup_printf("%s.agc", name);
+    g_free(name);
+
+    fs = gtk_file_chooser_dialog_new(_("Export Chart"),
+                                     GTK_WINDOW(window),
+                                     GTK_FILE_CHOOSER_ACTION_SAVE,
+                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                     _("_Save"), GTK_RESPONSE_ACCEPT,
+                                     NULL);
+    gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
+    gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), TRUE);
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fs), file_name);
+    g_free(file_name);
+
+    response = gtk_dialog_run(GTK_DIALOG(fs));
+    gtk_widget_hide(fs);
+
+    if (response == GTK_RESPONSE_ACCEPT) {
+        GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
+
+        ag_chart_save_to_file(priv->chart, file, err);
+    }
+
+    gtk_widget_destroy(fs);
+}
+
+static void
+ag_window_export_action(GSimpleAction *action,
+                        GVariant      *parameter,
+                        gpointer      user_data)
+{
+    AgWindow *window = AG_WINDOW(user_data);
+    GError   *err    = NULL;
+
+    ag_window_recalculate_chart(window, TRUE);
+    ag_window_export(window, &err);
+
+    if (err) {
+        ag_app_message_dialog(
+                GTK_WIDGET(window),
+                GTK_MESSAGE_ERROR,
+                "%s", err->message
+            );
+    }
+}
+
+gboolean
+ag_window_can_close(AgWindow *window, gboolean display_dialog)
+{
+    AgWindowPrivate *priv      = ag_window_get_instance_private(window);
+    gint            db_id      = (priv->saved_data)
+            ? priv->saved_data->db_id
+            : -1;
+    AgDbSave        *save_data = NULL;
+    AgDb            *db        = ag_db_get();
+    GError          *err       = NULL;
+    gboolean        ret        = TRUE;
+
+    if (priv->chart) {
+        ag_window_recalculate_chart(window, TRUE);
+        save_data = ag_chart_get_db_save(priv->chart, db_id);
+
+        if (
+                    !ag_db_save_identical(priv->saved_data, save_data, FALSE)
+                    || !(priv->saved_data)
+                    || (priv->saved_data->db_id == -1)
+                ) {
+            g_debug("Save is needed!");
+
+            if (display_dialog) {
+                gint response;
+
+                response = ag_app_buttoned_dialog(
+                        GTK_WIDGET(window),
+                        GTK_MESSAGE_QUESTION,
+                        _("Chart is not saved. Do you want to save it?"),
+                        _("Save and close"), GTK_RESPONSE_YES,
+                        _("Close without saving"), GTK_RESPONSE_NO,
+                        _("Return to chart"), GTK_RESPONSE_CANCEL,
+                        NULL
+                    );
+
+                switch (response) {
+                    case GTK_RESPONSE_YES:
+                        if (!ag_db_save_chart(db, save_data, &err)) {
+                            ag_app_message_dialog(
+                                    GTK_WIDGET(window),
+                                    GTK_MESSAGE_ERROR,
+                                    "Unable to save chart: %s",
+                                    err->message
+                                );
+
+                            ret = FALSE;
+                        } else {
+                            ret = TRUE;
+                        }
+
+                        break;
+
+                    case GTK_RESPONSE_NO:
+                        ret = TRUE;
+
+                        break;
+
+                    default:
+                        ret = FALSE;
+
+                        break;
+                }
+            } else {
+                ret = FALSE;
+            }
+        }
+    }
+
+    ag_db_save_data_free(save_data);
+
+    return ret;
+}
+
+static void
+ag_window_save_action(GSimpleAction *action,
+                      GVariant      *parameter,
+                      gpointer      user_data)
+{
+    AgWindow        *window = AG_WINDOW(user_data);
+    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    AgDb            *db     = ag_db_get();
+    GError          *err;
+    gint            old_id;
+    AgDbSave        *save_data;
+
+    ag_window_recalculate_chart(window, TRUE);
+
+    if (!ag_window_can_close(window, FALSE)) {
+        old_id    = (priv->saved_data) ? priv->saved_data->db_id : -1;
+        save_data = ag_chart_get_db_save(priv->chart, old_id);
+
+        if (!ag_db_save_chart(db, save_data, &err)) {
+            ag_app_message_dialog(
+                    GTK_WIDGET(window),
+                    GTK_MESSAGE_ERROR,
+                    _("Unable to save: %s"),
+                    err->message
+                );
+        }
+
+        ag_db_save_data_free(priv->saved_data);
+        priv->saved_data = save_data;
+    }
+}
+
+static void
+ag_window_close_action(GSimpleAction *action,
+                       GVariant      *parameter,
+                       gpointer      user_data)
+{
+    AgWindow        *window = AG_WINDOW(user_data);
+
+    if (ag_window_can_close(window, TRUE)) {
+        gtk_widget_destroy(GTK_WIDGET(window));
+    }
+}
+
+gboolean
+ag_window_delete_event_callback(AgWindow *window,
+                                GdkEvent *event,
+                                gpointer user_data)
+{
+    return (!ag_window_can_close(window, TRUE));
 }
 
 void
