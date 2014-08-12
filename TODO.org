@@ -1,0 +1,67 @@
+
+* Port to other Linux distros
+
+* Package for other distros
+
+- Debian
+- Ubuntu
+- Arch
+- Gentoo
+
+* Preview images
+
+The database (or a cache directory) should contain a preview image of
+each chart. The chart list screen should show a small box with the
+name and the preview image. Upon mouseover the image should
+blur/darken and some chart data (maybe customizable?) may get drawn
+over it.
+
+* Chart cleanup
+
+* Chart manipulation
+
+* Synastries
+
+* Transits
+
+* Progressions
+
+* Stepping through time without actually modifying the chart data
+
+* Application settings
+
+** Default display properties
+
+*** Traditional view
+
+Personal (inner) planets, Ptolemaic aspects only, nothing else
+
+*** Show/hide major aspects
+
+*** Show/hide minor aspects
+
+*** Show/hide astiscia/contrantiscia
+
+*** Show/hide personal planets
+
+*** Show/hide outer planets
+
+*** Show/hide dwarf planets and asteroids
+
+*** Show/hide fixed stars
+
+*** Show/hide hidden ascendant
+
+*** Show/hide vertex/anti-vertex
+
+** Symbol of Uranus and Pluto
+
+* Regiomontanus import
+
+* Custom location database
+
+* Chart export as different image types
+
+* Chart printing
+
+* Port to Windows
