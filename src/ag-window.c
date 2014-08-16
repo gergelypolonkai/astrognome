@@ -1052,6 +1052,39 @@ ag_window_change_tab_action(GSimpleAction *action,
     g_action_change_state(G_ACTION(action), parameter);
 }
 
+static gboolean
+ag_window_set_default_house_system(GtkTreeModel *model,
+                            GtkTreePath  *path,
+                            GtkTreeIter  *iter,
+                            AgWindow     *window)
+{
+    GsweHouseSystem row_house_system;
+    AgWindowPrivate *priv          = ag_window_get_instance_private(window);
+    AgSettings      *settings      = ag_settings_get();
+    GSettings       *main_settings = ag_settings_peek_main_settings(settings);
+    GsweHouseSystem house_system   = g_settings_get_enum(
+            main_settings,
+            "default-house-system"
+        );
+
+    g_object_unref(settings);
+
+    gtk_tree_model_get(
+            GTK_TREE_MODEL(priv->house_system_model),
+            iter,
+            0, &row_house_system,
+            -1
+        );
+
+    if (house_system == row_house_system) {
+        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(priv->house_system), iter);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 static void
 ag_window_new_chart_action(GSimpleAction *action,
                            GVariant      *parameter,
@@ -1059,6 +1092,28 @@ ag_window_new_chart_action(GSimpleAction *action,
 {
     AgWindow        *window = AG_WINDOW(user_data);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+
+    /* Empty edit tab values */
+    gtk_entry_set_text(GTK_ENTRY(priv->name), "");
+    //gtk_entry_set_text(GTK_ENTRY(priv->country), "");
+    //gtk_entry_set_text(GTK_ENTRY(priv->city), "");
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->year), (gdouble)1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->month), (gdouble)1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->day), (gdouble)1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->hour), (gdouble)1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->minute), (gdouble)1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->second), (gdouble)1);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->timezone), 0.0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->north_lat), TRUE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->east_long), TRUE);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->longitude), 0.0);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->latitude), 0.0);
+    gtk_tree_model_foreach(
+            GTK_TREE_MODEL(priv->house_system_model),
+            (GtkTreeModelForeachFunc)ag_window_set_default_house_system,
+            window
+        );
+    gtk_text_buffer_set_text(GTK_TEXT_BUFFER(priv->note_buffer), "", 0);
 
     if (priv->chart) {
         ag_app_message_dialog(
@@ -1240,39 +1295,6 @@ ag_window_add_house_system(GsweHouseSystemInfo *house_system_info,
             1, gswe_house_system_info_get_name(house_system_info),
             -1
         );
-}
-
-static gboolean
-ag_window_set_default_house_system(GtkTreeModel *model,
-                            GtkTreePath  *path,
-                            GtkTreeIter  *iter,
-                            AgWindow     *window)
-{
-    GsweHouseSystem row_house_system;
-    AgWindowPrivate *priv          = ag_window_get_instance_private(window);
-    AgSettings      *settings      = ag_settings_get();
-    GSettings       *main_settings = ag_settings_peek_main_settings(settings);
-    GsweHouseSystem house_system   = g_settings_get_enum(
-            main_settings,
-            "default-house-system"
-        );
-
-    g_object_unref(settings);
-
-    gtk_tree_model_get(
-            GTK_TREE_MODEL(priv->house_system_model),
-            iter,
-            0, &row_house_system,
-            -1
-        );
-
-    if (house_system == row_house_system) {
-        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(priv->house_system), iter);
-
-        return TRUE;
-    }
-
-    return FALSE;
 }
 
 static void
