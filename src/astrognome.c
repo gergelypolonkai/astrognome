@@ -19,6 +19,8 @@ GtkBuilder    *builder;
 GtkFileFilter *filter_all   = NULL;
 GtkFileFilter *filter_chart = NULL;
 GtkFileFilter *filter_hor   = NULL;
+GtkTreeModel  *country_list = NULL;
+GtkTreeModel  *city_list    = NULL;
 GHashTable    *xinclude_positions;
 
 const char    *moonStateName[] = {
@@ -278,6 +280,23 @@ main(int argc, char *argv[])
 
         return EXIT_SUCCESS;
     }
+
+    country_list = GTK_TREE_MODEL(gtk_list_store_new(
+            AG_COUNTRY_COLCOUNT,
+            G_TYPE_STRING,
+            G_TYPE_STRING
+        ));
+
+    city_list = GTK_TREE_MODEL(gtk_list_store_new(
+            AG_CITY_COLCOUNT,
+            G_TYPE_STRING,
+            G_TYPE_STRING,
+            G_TYPE_DOUBLE,
+            G_TYPE_DOUBLE,
+            G_TYPE_DOUBLE,
+            G_TYPE_DOUBLE,
+            G_TYPE_DOUBLE
+        ));
 
     status = g_application_run(G_APPLICATION(app), argc, argv);
 

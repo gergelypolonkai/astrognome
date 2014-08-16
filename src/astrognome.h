@@ -12,6 +12,25 @@ typedef struct {
 extern GtkFileFilter *filter_all;
 extern GtkFileFilter *filter_chart;
 extern GtkFileFilter *filter_hor;
+extern GtkTreeModel  *country_list;
+extern GtkTreeModel  *city_list;
+
+enum {
+    AG_COUNTRY_CODE,
+    AG_COUNTRY_NAME,
+    AG_COUNTRY_COLCOUNT
+};
+
+enum {
+    AG_CITY_COUNTRY,
+    AG_CITY_NAME,
+    AG_CITY_LAT,
+    AG_CITY_LONG,
+    AG_CITY_ALT,
+    AG_CITY_TZO,
+    AG_CITY_TZD,
+    AG_CITY_COLCOUNT
+};
 
 const gchar *ag_house_system_id_to_nick(GsweHouseSystem house_system);
 GsweHouseSystem ag_house_system_nick_to_id(const gchar *nick);
