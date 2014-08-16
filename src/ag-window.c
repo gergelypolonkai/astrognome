@@ -947,7 +947,7 @@ ag_window_save_action(GSimpleAction *action,
     AgWindow        *window = AG_WINDOW(user_data);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
     AgDb            *db     = ag_db_get();
-    GError          *err;
+    GError          *err    = NULL;
     gint            old_id;
     AgDbSave        *save_data;
 
@@ -976,7 +976,7 @@ ag_window_close_action(GSimpleAction *action,
                        GVariant      *parameter,
                        gpointer      user_data)
 {
-    AgWindow        *window = AG_WINDOW(user_data);
+    AgWindow *window = AG_WINDOW(user_data);
 
     if (ag_window_can_close(window, TRUE)) {
         gtk_widget_destroy(GTK_WIDGET(window));
