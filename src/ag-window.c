@@ -510,6 +510,11 @@ ag_window_update_from_chart(AgWindow *window)
         );
 
     gtk_entry_set_text(GTK_ENTRY(priv->name), ag_chart_get_name(priv->chart));
+    gtk_entry_set_text(
+            GTK_ENTRY(priv->country),
+            ag_chart_get_country(priv->chart)
+        );
+    gtk_entry_set_text(GTK_ENTRY(priv->city), ag_chart_get_city(priv->chart));
 
     if (ag_chart_get_note(priv->chart)) {
         // TODO: maybe setting length to -1 here is not that good of an idea…
@@ -1100,8 +1105,8 @@ ag_window_new_chart_action(GSimpleAction *action,
 
     /* Empty edit tab values */
     gtk_entry_set_text(GTK_ENTRY(priv->name), "");
-    //gtk_entry_set_text(GTK_ENTRY(priv->country), "");
-    //gtk_entry_set_text(GTK_ENTRY(priv->city), "");
+    gtk_entry_set_text(GTK_ENTRY(priv->country), "");
+    gtk_entry_set_text(GTK_ENTRY(priv->city), "");
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->year), (gdouble)1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->month), (gdouble)1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->day), (gdouble)1);
