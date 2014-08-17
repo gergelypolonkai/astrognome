@@ -11,6 +11,7 @@
 #include <math.h>
 #include <string.h>
 
+#include "config.h"
 #include "ag-db.h"
 #include "ag-chart.h"
 #include "placidus.h"
@@ -1262,7 +1263,7 @@ AgChart *ag_chart_load_from_placidus_file(GFile  *file,
 
     chart = ag_chart_new_full(
             timestamp,
-            real_long, real_lat, 280.0,
+            real_long, real_lat, DEFAULT_ALTITUDE,
             GSWE_HOUSE_SYSTEM_PLACIDUS
         );
 
