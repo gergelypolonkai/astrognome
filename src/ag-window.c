@@ -24,6 +24,8 @@ struct _AgWindowPrivate {
     GtkWidget     *selection_toolbar;
     GtkWidget     *stack;
     GtkWidget     *name;
+    GtkWidget     *country;
+    GtkWidget     *city;
     GtkWidget     *north_lat;
     GtkWidget     *south_lat;
     GtkWidget     *latitude;
@@ -55,6 +57,8 @@ struct _AgWindowPrivate {
     GtkListStore  *house_system_model;
     GtkListStore  *db_chart_data;
     AgDbSave      *saved_data;
+    GtkEntryCompletion *country_comp;
+    GtkEntryCompletion *city_comp;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -1387,6 +1391,15 @@ ag_window_list_selection_changed_cb(GdMainView *view, AgWindow *window)
     // Here it is possible to set button sensitivity later
 }
 
+gboolean
+ag_window_country_selected_callback(GtkEntryCompletion *country_comp,
+                                    GtkTreeModel       *list,
+                                    GtkTreeIter        *iter,
+                                    AgWindow           *window)
+{
+    return FALSE;
+}
+
 static void
 ag_window_init(AgWindow *window)
 {
@@ -1413,6 +1426,15 @@ ag_window_init(AgWindow *window)
             G_CALLBACK(ag_window_display_changed),
             window
         );
+
+    gtk_entry_completion_set_model(priv->country_comp, country_list);
+    gtk_entry_completion_set_text_column(priv->country_comp, AG_COUNTRY_NAME);
+    gtk_entry_set_completion(GTK_ENTRY(priv->country), priv->country_comp);
+
+    gtk_entry_completion_set_model(priv->city_comp, city_list);
+    gtk_entry_completion_set_text_column(priv->city_comp, AG_CITY_NAME);
+    gtk_entry_completion_set_minimum_key_length(priv->city_comp, 3);
+    gtk_entry_set_completion(GTK_ENTRY(priv->city), priv->city_comp);
 
     house_system_list = gswe_all_house_systems();
     g_list_foreach(house_system_list, (GFunc)ag_window_add_house_system, priv);
@@ -1507,6 +1529,16 @@ ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
 }
 
 static void
+ag_window_country_changed_callback(GtkSearchEntry *country, AgWindow *window)
+{
+}
+
+static void
+ag_window_city_changed_callback(GtkSearchEntry *city, AgWindow *window)
+{
+}
+
+static void
 ag_window_class_init(AgWindowClass *klass)
 {
     GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
@@ -1544,6 +1576,22 @@ ag_window_class_init(AgWindowClass *klass)
             tab_edit
         );
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, name);
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            country
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            country_comp
+        );
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, city);
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            city_comp
+        );
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, month);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, day);
@@ -1641,6 +1689,18 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_name_changed_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_country_selected_callback
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_country_changed_callback
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_city_changed_callback
         );
 }
 
