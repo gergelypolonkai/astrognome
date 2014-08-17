@@ -18,6 +18,7 @@ AC_PATH_PROGS(UNZIP, [unzip])
 have_geonames_perl_modules=no
 AX_PROG_PERL_MODULES([XML::Writer IO::File], [have_geonames_perl_modules=yes], AC_MSG_WARN([XML::Writer and IO::File perl modules are required if you want to regenerate geodata.xml!]))
 AC_SUBST([have_geonames_perl_modules])
+AC_DEFINE([DEFAULT_ALTITUDE], [280.0], [Set this to the default altitude value, which is used if there is no value in geodata.xml])
 IT_PROG_INTLTOOL([0.35.0])
 GETTEXT_PACKAGE=astrognome
 AC_SUBST(GETTEXT_PACKAGE)

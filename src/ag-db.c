@@ -955,8 +955,7 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
     attributes = gda_data_model_get_attributes_at(result, COLUMN_ALTITUDE, 0);
 
     if (attributes | GDA_VALUE_ATTR_IS_NULL) {
-        /* TODO: this value should be macroified */
-        save_data->altitude = 280.0;
+        save_data->altitude = DEFAULT_ALTITUDE;
     } else {
         save_data->altitude = g_value_get_double(value);
     }
