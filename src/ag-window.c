@@ -10,6 +10,7 @@
 
 #include <swe-glib.h>
 
+#include "config.h"
 #include "ag-app.h"
 #include "ag-window.h"
 #include "ag-chart.h"
@@ -574,7 +575,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     }
 
     // TODO: So as this…
-    edit_data->altitude = 280.0;
+    edit_data->altitude = DEFAULT_ALTITUDE;
     edit_data->year = gtk_spin_button_get_value_as_int(
             GTK_SPIN_BUTTON(priv->year)
         );
