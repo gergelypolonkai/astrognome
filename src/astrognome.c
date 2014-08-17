@@ -7,6 +7,7 @@
 #include <libxslt/xslt.h>
 #include <libxslt/transform.h>
 #include <libexslt/exslt.h>
+#include <libxml/xmlreader.h>
 
 #include <swe-glib.h>
 
@@ -14,6 +15,10 @@
 
 #include "ag-app.h"
 #include "ag-window.h"
+
+#ifndef LIBXML_READER_ENABLED
+#error "You need to have libxml2 with XmlReader enabled"
+#endif
 
 GtkBuilder    *builder;
 GtkFileFilter *filter_all   = NULL;
@@ -188,9 +193,9 @@ main(int argc, char *argv[])
 {
     gint              status;
     AgApp             *app;
-    GError            *err = NULL;
+    xmlTextReaderPtr  reader;
     AstrognomeOptions options;
-
+    GError            *err             = NULL;
     GOptionEntry      option_entries[] = {
         {
                 "new-window", 'n',
@@ -297,6 +302,128 @@ main(int argc, char *argv[])
             G_TYPE_DOUBLE,
             G_TYPE_DOUBLE
         ));
+
+    reader = xmlReaderForFile(PKGDATADIR "/geodata.xml", NULL, 0);
+
+    if (reader != NULL) {
+        int ret;
+
+        while ((ret = xmlTextReaderRead(reader)) == 1) {
+            gchar        *name;
+            GtkTreeIter  iter;
+
+            name = (gchar *)xmlTextReaderConstName(reader);
+
+            if (strcmp(name, "p") == 0) {
+                gchar   *aname,
+                        *acode,
+                        *alat,
+                        *alon,
+                        *aalt,
+                        *atzo,
+                        *atzd,
+                        *endptr;
+                gdouble lat,
+                        lon,
+                        alt,
+                        tzo,
+                        tzd;
+
+                aname = (gchar *)xmlTextReaderGetAttribute(
+                        reader,
+                        BAD_CAST "n"
+                    );
+                acode = (gchar *)xmlTextReaderGetAttribute(
+                        reader,
+                        BAD_CAST "c"
+                    );
+                alat = (gchar *)xmlTextReaderGetAttribute(
+                        reader,
+                        BAD_CAST "lat"
+                    );
+                alon = (gchar *)xmlTextReaderGetAttribute(
+                        reader,
+                        BAD_CAST "lon"
+                    );
+                aalt = (gchar *)xmlTextReaderGetAttribute(
+                        reader,
+                        BAD_CAST "alt"
+                    );
+                atzo = (gchar *)xmlTextReaderGetAttribute(
+                        reader,
+                        BAD_CAST "tzo"
+                    );
+                atzd = (gchar *)xmlTextReaderGetAttribute(
+                        reader,
+                        BAD_CAST "tzd"
+                    );
+
+                lat = g_ascii_strtod(alat, &endptr);
+                lon = g_ascii_strtod(alon, &endptr);
+
+                if (*aalt == '\0') {
+                    alt = DEFAULT_ALTITUDE;
+                } else {
+                    alt = g_ascii_strtod(aalt, &endptr);
+                }
+
+                tzo = g_ascii_strtod(atzo, &endptr);
+                tzd = g_ascii_strtod(atzd, &endptr);
+
+                gtk_list_store_append(GTK_LIST_STORE(city_list), &iter);
+                gtk_list_store_set(
+                        GTK_LIST_STORE(city_list), &iter,
+                        AG_CITY_COUNTRY, acode,
+                        AG_CITY_NAME,    aname,
+                        AG_CITY_LAT,     lat,
+                        AG_CITY_LONG,    lon,
+                        AG_CITY_ALT,     alt,
+                        AG_CITY_TZO,     tzo,
+                        AG_CITY_TZD,     tzd,
+                        -1
+                    );
+
+                g_free(aname);
+                g_free(acode);
+                g_free(alat);
+                g_free(alon);
+                g_free(aalt);
+                g_free(atzo);
+                g_free(atzd);
+            } else if (strcmp(name, "c") == 0) {
+                gchar *aname,
+                      *acode;
+
+                aname = (gchar *)xmlTextReaderGetAttribute(
+                        reader,
+                        BAD_CAST "n"
+                    );
+                acode = (gchar *)xmlTextReaderGetAttribute(
+                        reader,
+                        BAD_CAST "c"
+                    );
+
+                gtk_list_store_append(GTK_LIST_STORE(country_list), &iter);
+                gtk_list_store_set(
+                        GTK_LIST_STORE(country_list), &iter,
+                        AG_COUNTRY_CODE, acode,
+                        AG_COUNTRY_NAME, aname,
+                        -1
+                    );
+
+                g_free(aname);
+                g_free(acode);
+            }
+        }
+
+        xmlFreeTextReader(reader);
+
+        if (ret != 0) {
+            g_error("Parse error in geodata.xml!");
+        }
+    } else {
+        g_error("Unable to open geodata.xml!");
+    }
 
     status = g_application_run(G_APPLICATION(app), argc, argv);
 
