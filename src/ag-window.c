@@ -984,7 +984,7 @@ ag_window_close_action(GSimpleAction *action,
     }
 }
 
-gboolean
+static gboolean
 ag_window_delete_event_callback(AgWindow *window,
                                 GdkEvent *event,
                                 gpointer user_data)
@@ -992,7 +992,7 @@ ag_window_delete_event_callback(AgWindow *window,
     return (!ag_window_can_close(window, TRUE));
 }
 
-void
+static void
 ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 {
     GtkWidget       *active_tab;
@@ -1496,6 +1496,17 @@ ag_window_dispose(GObject *gobject)
 }
 
 static void
+ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
+{
+    const gchar     *name;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    name = gtk_entry_get_text(name_entry);
+
+    gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), name);
+}
+
+static void
 ag_window_class_init(AgWindowClass *klass)
 {
     GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
@@ -1617,6 +1628,19 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             selection_toolbar
+        );
+
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_delete_event_callback
+       );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_tab_changed_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_name_changed_cb
         );
 }
 
@@ -1785,17 +1809,6 @@ ag_window_change_tab(AgWindow *window, const gchar *tab_name)
             g_action_map_lookup_action(G_ACTION_MAP(window), "change-tab"),
             g_variant_new_string(tab_name)
         );
-}
-
-void
-ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
-{
-    const gchar     *name;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
-
-    name = gtk_entry_get_text(name_entry);
-
-    gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), name);
 }
 
 static void
