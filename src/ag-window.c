@@ -574,9 +574,8 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     edit_data->db_id = db_id;
 
     edit_data->name = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->name)));
-    // TODO: This will cause problems with imported charts…
-    edit_data->country = NULL;
-    edit_data->city = NULL;
+    edit_data->country = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->country)));
+    edit_data->city = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->city)));
     edit_data->longitude = gtk_spin_button_get_value(
             GTK_SPIN_BUTTON(priv->longitude)
         );
@@ -593,7 +592,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         edit_data->latitude = - edit_data->latitude;
     }
 
-    // TODO: So as this…
+    // TODO: This will cause problems with imported charts
     edit_data->altitude = DEFAULT_ALTITUDE;
     edit_data->year = gtk_spin_button_get_value_as_int(
             GTK_SPIN_BUTTON(priv->year)
