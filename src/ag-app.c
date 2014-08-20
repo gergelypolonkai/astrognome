@@ -301,14 +301,14 @@ setup_actions(AgApp *app)
 }
 
 const gchar *action_accels[] = {
-    "win.close",               "<Ctrl>W",        NULL,
-    "win.save",                "<Ctrl>S",        NULL,
-    "win.export",              "<Ctrl><Shift>E", NULL,
-    "win.gear-menu",           "F10",            NULL,
-    "app.help",                "F1",             NULL,
-    "win.change-tab::chart",   "F5",             NULL,
-    "win.change-tab::aspects", "F9",             NULL,
-    "win.change-tab::edit",    "F10",            NULL,
+    "win.close",               "<Primary>W",        NULL,
+    "win.save",                "<Primary>S",        NULL,
+    "win.export",              "<Primary><Shift>E", NULL,
+    "win.gear-menu",           "F10",               NULL,
+    "app.help",                "F1",                NULL,
+    "win.change-tab::chart",   "F5",                NULL,
+    "win.change-tab::aspects", "F9",                NULL,
+    "win.change-tab::edit",    "F10",               NULL,
     NULL
 };
 
