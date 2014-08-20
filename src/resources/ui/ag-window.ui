@@ -757,9 +757,19 @@
               </packing>
             </child>
             <child>
-              <object class="GtkAlignment" id="tab_chart">
+              <object class="GtkBox" id="tab_chart">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="pack_type">start</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="name">chart</property>

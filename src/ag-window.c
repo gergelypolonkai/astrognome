@@ -1689,7 +1689,11 @@ ag_window_new(AgApp *app, WebKitUserContentManager *manager)
     priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
             manager
         );
-    gtk_container_add(GTK_CONTAINER(priv->tab_chart), priv->chart_web_view);
+    gtk_box_pack_end(
+            GTK_BOX(priv->tab_chart),
+            priv->chart_web_view,
+            TRUE, TRUE, 0
+        );
 
     // TODO: translate this error message!
     webkit_web_view_load_html(
