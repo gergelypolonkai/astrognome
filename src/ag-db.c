@@ -1029,7 +1029,7 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
  * @str2: the second string
  *
  * A wrapper function around g_utf8_collate() that can handle NULL values. NULL
- * precedes any strings (even "").
+ * and empty strings ("") are considered equal.
  *
  * Returns: -1 if str1 is ordered before str2, 1 if str2 comes first, or 0 if
  * they are identical
@@ -1037,6 +1037,13 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
 static gint
 string_collate(const gchar *str1, const gchar *str2)
 {
+    if (
+                ((str1 == NULL) && str2 && (*str2 == '\0'))
+                || (str1 && (*str1 == '\0') && (str2 == NULL))
+            ) {
+        return 0;
+    }
+
     if (((str1 == NULL) || (str2 == NULL)) && (str1 != str2)) {
         return (str1 == NULL) ? -1 : 1;
     }
