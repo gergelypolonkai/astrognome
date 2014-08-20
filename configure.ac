@@ -35,7 +35,7 @@ PKG_CHECK_MODULES([GOBJECT], [gobject-2.0])
 PKG_CHECK_MODULES([GTK], [gtk+-3.0 >= 3.12])
 PKG_CHECK_MODULES([LIBXML], [libxml-2.0])
 PKG_CHECK_MODULES([LIBXSLT], [libexslt])
-PKG_CHECK_MODULES([WEBKIT], [webkit2gtk-3.0])
+PKG_CHECK_MODULES([WEBKIT], [webkit2gtk-4.0])
 PKG_CHECK_MODULES([GDA], [libgda-5.0 libgda-sqlite-5.0])
 PKG_CHECK_MODULES([SWE_GLIB], [swe-glib >= 2.1.0])
 

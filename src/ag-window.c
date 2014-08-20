@@ -393,9 +393,14 @@ ag_window_redraw_aspect_table(AgWindow *window)
 void
 ag_window_redraw_chart(AgWindow *window)
 {
+    gsize           length;
     GError          *err         = NULL;
     AgWindowPrivate *priv        = ag_window_get_instance_private(window);
-    gchar           *svg_content = ag_chart_create_svg(priv->chart, NULL, &err);
+    gchar           *svg_content = ag_chart_create_svg(
+            priv->chart,
+            &length,
+            &err
+        );
 
     if (svg_content == NULL) {
         ag_app_message_dialog(
@@ -405,11 +410,16 @@ ag_window_redraw_chart(AgWindow *window)
                 err->message
             );
     } else {
-        webkit_web_view_load_html(
+        GBytes *content;
+
+        content = g_bytes_new_take(svg_content, length);
+
+        webkit_web_view_load_bytes(
                 WEBKIT_WEB_VIEW(priv->chart_web_view),
-                svg_content, NULL
+                content, "image/svg+xml",
+                "UTF-8", NULL
             );
-        g_free(svg_content);
+        g_bytes_unref(content);
     }
 
     ag_window_redraw_aspect_table(window);
@@ -1671,12 +1681,14 @@ ag_window_configure_event_cb(GtkWidget         *widget,
 }
 
 GtkWidget *
-ag_window_new(AgApp *app, WebKitWebViewGroup *web_view_group)
+ag_window_new(AgApp *app, WebKitUserContentManager *manager)
 {
     AgWindow        *window = g_object_new(AG_TYPE_WINDOW, NULL);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
 
-    priv->chart_web_view = webkit_web_view_new_with_group(web_view_group);
+    priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
+            manager
+        );
     gtk_container_add(GTK_CONTAINER(priv->tab_chart), priv->chart_web_view);
 
     // TODO: translate this error message!
