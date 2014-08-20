@@ -397,9 +397,14 @@ ag_window_redraw_aspect_table(AgWindow *window)
 void
 ag_window_redraw_chart(AgWindow *window)
 {
+    gsize           length;
     GError          *err         = NULL;
     AgWindowPrivate *priv        = ag_window_get_instance_private(window);
-    gchar           *svg_content = ag_chart_create_svg(priv->chart, NULL, &err);
+    gchar           *svg_content = ag_chart_create_svg(
+            priv->chart,
+            &length,
+            &err
+        );
 
     if (svg_content == NULL) {
         ag_app_message_dialog(
@@ -409,11 +414,16 @@ ag_window_redraw_chart(AgWindow *window)
                 err->message
             );
     } else {
-        webkit_web_view_load_html(
+        GBytes *content;
+
+        content = g_bytes_new_take(svg_content, length);
+
+        webkit_web_view_load_bytes(
                 WEBKIT_WEB_VIEW(priv->chart_web_view),
-                svg_content, NULL
+                content, "image/svg+xml",
+                "UTF-8", NULL
             );
-        g_free(svg_content);
+        g_bytes_unref(content);
     }
 
     ag_window_redraw_aspect_table(window);
@@ -1263,19 +1273,83 @@ ag_window_delete_action(GSimpleAction *action,
     g_action_group_activate_action(G_ACTION_GROUP(window), "refresh", NULL);
 }
 
+static void
+ag_window_js_callback(GObject *object, GAsyncResult *res, gpointer user_data)
+{
+    WebKitJavascriptResult *js_result;
+    GError                 *err = NULL;
+
+    if ((js_result = webkit_web_view_run_javascript_finish(
+                WEBKIT_WEB_VIEW(object),
+                res,
+                &err
+            )) != NULL) {
+        webkit_javascript_result_unref(js_result);
+    }
+}
+
+static void
+ag_window_connection_action(GSimpleAction *action,
+                            GVariant      *parameter,
+                            gpointer      user_data)
+{
+    GVariant        *current_state;
+    const gchar     *state;
+    gchar           *js_code = NULL;
+    AgWindowPrivate *priv    = ag_window_get_instance_private(
+            AG_WINDOW(user_data)
+        );
+    static gchar *js         = "aspects = document.getElementById('aspects');\n"   \
+                               "antiscia = document.getElementById('antiscia');\n" \
+                               "aspects.setAttribute('visibility', '%s');\n"       \
+                               "antiscia.setAttribute('visibility', '%s');\n";
+
+    current_state = g_action_get_state(G_ACTION(action));
+
+    if (g_variant_equal(current_state, parameter)) {
+        return;
+    }
+
+    g_action_change_state(G_ACTION(action), parameter);
+
+    state = g_variant_get_string(parameter, NULL);
+
+    if (strcmp("aspects", state) == 0) {
+        g_debug("Switching to aspects");
+        js_code = g_strdup_printf(js, "visible", "hidden");
+    } else if (strcmp("antiscia", state) == 0) {
+        g_debug("Switching to antiscia");
+        js_code = g_strdup_printf(js, "hidden", "visible");
+    } else {
+        g_warning("Connection type '%s' is invalid", state);
+    }
+
+    if (js_code) {
+        webkit_web_view_run_javascript(
+                WEBKIT_WEB_VIEW(priv->chart_web_view),
+                js_code,
+                NULL,
+                ag_window_js_callback,
+                NULL
+            );
+        g_free(js_code);
+    }
+}
+
 static GActionEntry win_entries[] = {
-    { "close",      ag_window_close_action,          NULL, NULL,      NULL },
-    { "save",       ag_window_save_action,           NULL, NULL,      NULL },
-    { "export",     ag_window_export_action,         NULL, NULL,      NULL },
-    { "export-svg", ag_window_export_svg_action,     NULL, NULL,      NULL },
-    { "view-menu",  ag_window_view_menu_action,      NULL, "false",   NULL },
-    { "gear-menu",  ag_window_gear_menu_action,      NULL, "false",   NULL },
-    { "change-tab", ag_window_change_tab_action,     "s",  "'edit'",  NULL },
-    { "new-chart",  ag_window_new_chart_action,      NULL, NULL,      NULL },
-    { "back",       ag_window_back_action,           NULL, NULL,      NULL },
-    { "refresh",    ag_window_refresh_action,        NULL, NULL,      NULL },
-    { "selection",  ag_window_selection_mode_action, NULL, "false",   NULL },
-    { "delete",     ag_window_delete_action,         NULL, NULL,      NULL },
+    { "close",      ag_window_close_action,          NULL, NULL,        NULL },
+    { "save",       ag_window_save_action,           NULL, NULL,        NULL },
+    { "export",     ag_window_export_action,         NULL, NULL,        NULL },
+    { "export-svg", ag_window_export_svg_action,     NULL, NULL,        NULL },
+    { "view-menu",  ag_window_view_menu_action,      NULL, "false",     NULL },
+    { "gear-menu",  ag_window_gear_menu_action,      NULL, "false",     NULL },
+    { "change-tab", ag_window_change_tab_action,     "s",  "'edit'",    NULL },
+    { "new-chart",  ag_window_new_chart_action,      NULL, NULL,        NULL },
+    { "back",       ag_window_back_action,           NULL, NULL,        NULL },
+    { "refresh",    ag_window_refresh_action,        NULL, NULL,        NULL },
+    { "selection",  ag_window_selection_mode_action, NULL, "false",     NULL },
+    { "delete",     ag_window_delete_action,         NULL, NULL,        NULL },
+    { "connection", ag_window_connection_action,     "s",  "'aspects'", NULL },
 };
 
 static void
@@ -1736,13 +1810,19 @@ ag_window_configure_event_cb(GtkWidget         *widget,
 }
 
 GtkWidget *
-ag_window_new(AgApp *app, WebKitWebViewGroup *web_view_group)
+ag_window_new(AgApp *app, WebKitUserContentManager *manager)
 {
     AgWindow        *window = g_object_new(AG_TYPE_WINDOW, NULL);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
 
-    priv->chart_web_view = webkit_web_view_new_with_group(web_view_group);
-    gtk_container_add(GTK_CONTAINER(priv->tab_chart), priv->chart_web_view);
+    priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
+            manager
+        );
+    gtk_box_pack_end(
+            GTK_BOX(priv->tab_chart),
+            priv->chart_web_view,
+            TRUE, TRUE, 0
+        );
 
     // TODO: translate this error message!
     webkit_web_view_load_html(

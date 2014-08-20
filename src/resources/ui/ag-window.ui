@@ -764,9 +764,40 @@
               </packing>
             </child>
             <child>
-              <object class="GtkAlignment" id="tab_chart">
+              <object class="GtkBox" id="tab_chart">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkRadioButton" id="toolbar_aspect">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Aspects</property>
+                        <property name="draw_indicator">False</property>
+                        <property name="action_name">win.connection</property>
+                        <property name="action_target">'aspects'</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkRadioButton">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Antiscia</property>
+                        <property name="draw_indicator">False</property>
+                        <property name="group">toolbar_aspect</property>
+                        <property name="action_name">win.connection</property>
+                        <property name="action_target">'antiscia'</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="pack_type">start</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="name">chart</property>
