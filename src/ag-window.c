@@ -390,6 +390,12 @@ ag_window_redraw_aspect_table(AgWindow *window)
     gtk_widget_show_all(priv->aspect_table);
 }
 
+/**
+ * ag_window_redraw_chart:
+ * @window: the #AgWindow to operate on
+ *
+ * Redraw the chart on the chart view.
+ */
 void
 ag_window_redraw_chart(AgWindow *window)
 {
@@ -550,6 +556,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     GtkTextIter     start_iter,
                     end_iter;
     GsweTimestamp   *timestamp;
+    GtkWidget       *current;
     gint            db_id = (priv->saved_data) ? priv->saved_data->db_id : -1;
 
     south = gtk_toggle_button_get_active(
@@ -559,6 +566,15 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     west      = gtk_toggle_button_get_active(
             GTK_TOGGLE_BUTTON(priv->west_long)
         );
+
+    // If the current widget is a spin button, force it to update. This is
+    // required when the user enters a new value in a spin button, but doesn't
+    // leave the spin entry before switching to the chart tab with an accel.
+    current = gtk_window_get_focus(GTK_WINDOW(window));
+
+    if (GTK_IS_SPIN_BUTTON(current)) {
+        gtk_spin_button_update(GTK_SPIN_BUTTON(current));
+    }
 
     edit_data = g_new0(AgDbSave, 1);
 
@@ -1044,6 +1060,7 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
         // not the real active one!
         if (priv->current_tab == priv->tab_edit) {
             ag_window_recalculate_chart(window, FALSE);
+            ag_window_redraw_chart(window);
         }
     }
 
