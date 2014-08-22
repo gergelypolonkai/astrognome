@@ -390,6 +390,12 @@ ag_window_redraw_aspect_table(AgWindow *window)
     gtk_widget_show_all(priv->aspect_table);
 }
 
+/**
+ * ag_window_redraw_chart:
+ * @window: the #AgWindow to operate on
+ *
+ * Redraw the chart on the chart view.
+ */
 void
 ag_window_redraw_chart(AgWindow *window)
 {
@@ -1044,6 +1050,7 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
         // not the real active one!
         if (priv->current_tab == priv->tab_edit) {
             ag_window_recalculate_chart(window, FALSE);
+            ag_window_redraw_chart(window);
         }
     }
 
