@@ -59,6 +59,13 @@ struct _AgWindowPrivate {
     AgDbSave      *saved_data;
     GtkEntryCompletion *country_comp;
     GtkEntryCompletion *city_comp;
+    gchar              *selected_country;
+};
+
+struct cc_search {
+    const gchar  *target;
+    GtkTreeIter  *ret_iter;
+    gchar        *ret_code;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -1486,15 +1493,6 @@ ag_window_list_selection_changed_cb(GdMainView *view, AgWindow *window)
     // Here it is possible to set button sensitivity later
 }
 
-gboolean
-ag_window_country_selected_callback(GtkEntryCompletion *country_comp,
-                                    GtkTreeModel       *list,
-                                    GtkTreeIter        *iter,
-                                    AgWindow           *window)
-{
-    return FALSE;
-}
-
 static void
 ag_window_init(AgWindow *window)
 {
@@ -1623,9 +1621,66 @@ ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
     gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), name);
 }
 
+static gboolean
+ag_window_find_country(GtkTreeModel     *model,
+                       GtkTreePath      *path,
+                       GtkTreeIter      *iter,
+                       struct cc_search *search)
+{
+    gchar    *name,
+             *ccode;
+    gboolean found = FALSE;
+
+    gtk_tree_model_get(
+            model, iter,
+            AG_COUNTRY_NAME, &name,
+            AG_COUNTRY_CODE, &ccode,
+            -1
+        );
+
+    if (g_utf8_collate(search->target, name) == 0) {
+        found = TRUE;
+        search->ret_iter = gtk_tree_iter_copy(iter);
+        search->ret_code = ccode;
+    } else {
+        g_free(ccode);
+    }
+
+    return found;
+}
+
+/**
+ * ag_window_country_changed_callback:
+ * @country: the #GtkSearchEntry for country search
+ * @window: the window in which the event happens
+ *
+ * This function is called whenever the text in the country search entry is
+ * changed.
+ */
 static void
 ag_window_country_changed_callback(GtkSearchEntry *country, AgWindow *window)
 {
+    struct cc_search search;
+    AgWindowPrivate  *priv = ag_window_get_instance_private(window);
+
+    search.target   = gtk_entry_get_text(GTK_ENTRY(country));
+    search.ret_iter = NULL;
+
+    gtk_tree_model_foreach(
+            country_list,
+            (GtkTreeModelForeachFunc)ag_window_find_country,
+            &search
+        );
+
+    g_free(priv->selected_country);
+
+    if (search.ret_iter != NULL) {
+        g_debug("Country (entry-changed): %s", search.ret_code);
+        gtk_tree_iter_free(search.ret_iter);
+        priv->selected_country = search.ret_code;
+    } else {
+        priv->selected_country = NULL;
+    }
 }
 
 static void
@@ -1784,10 +1839,6 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_name_changed_cb
-        );
-    gtk_widget_class_bind_template_callback(
-            widget_class,
-            ag_window_country_selected_callback
         );
     gtk_widget_class_bind_template_callback(
             widget_class,

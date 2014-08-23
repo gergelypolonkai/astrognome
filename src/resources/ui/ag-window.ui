@@ -137,9 +137,10 @@
     </columns>
   </object>
   <object class="GtkEntryCompletion" id="country_comp">
-    <signal name="match-selected" handler="ag_window_country_selected_callback" swapped="no"/>
+    <property name="inline_completion">True</property>
   </object>
   <object class="GtkEntryCompletion" id="city_comp">
+    <property name="inline_completion">True</property>
   </object>
   <template class="AgWindow" parent="GtkApplicationWindow">
     <property name="can_focus">False</property>
