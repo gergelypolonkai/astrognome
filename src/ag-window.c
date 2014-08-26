@@ -526,6 +526,11 @@ ag_window_update_from_chart(AgWindow *window)
             );
     }
 
+    gtk_header_bar_set_subtitle(
+            GTK_HEADER_BAR(priv->header_bar),
+            ag_chart_get_name(priv->chart)
+        );
+
     g_free(coordinates);
 
     ag_window_redraw_chart(window);
