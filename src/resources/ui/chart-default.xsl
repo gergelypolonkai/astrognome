@@ -569,6 +569,14 @@
                                         <xsl:attribute name="xlink:href"><xsl:value-of select="concat('#', $planet_base, '_tmpl')"/></xsl:attribute>
                                         <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', 330 + @dist * 35, ',-15) rotate(', @degree - $asc_rotate ,',15,15)')"/></xsl:attribute>
                                     </use>
+                                    <xsl:choose>
+                                        <xsl:when test="@retrograde='True'">
+                                            <text>
+                                                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', 365 + @dist * 35, ',15) rotate(', @degree - $asc_rotate, ',-20,-20)')"/></xsl:attribute>
+                                                R
+                                            </text>
+                                        </xsl:when>
+                                    </xsl:choose>
                                 </g>
                                 <xsl:choose>
                                     <xsl:when test="@name='GSWE_PLANET_MOON_NODE'">
