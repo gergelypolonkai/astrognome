@@ -308,7 +308,7 @@ const gchar *action_accels[] = {
     "app.help",                "F1",                NULL,
     "win.change-tab::chart",   "F5",                NULL,
     "win.change-tab::aspects", "F9",                NULL,
-    "win.change-tab::edit",    "F10",               NULL,
+    "win.change-tab::edit",    "F4",                NULL,
     NULL
 };
 
