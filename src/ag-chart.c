@@ -1682,6 +1682,16 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
         xmlNewProp(node, BAD_CAST "degree", BAD_CAST value);
         g_free(value);
 
+        xmlNewProp(
+                node,
+                BAD_CAST "retrograde",
+                BAD_CAST (
+                        gswe_planet_data_get_retrograde(planet_data)
+                            ? "True"
+                            : "False"
+                        )
+            );
+
         value = g_strdup_printf("%d", dist);
         xmlNewProp(node, BAD_CAST "dist", BAD_CAST value);
         g_free(value);
