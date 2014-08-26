@@ -70,17 +70,17 @@ void ag_chart_export_svg_to_file(AgChart *chart,
 void ag_chart_set_name(AgChart     *chart,
                        const gchar *name);
 
-gchar *ag_chart_get_name(AgChart *chart);
+const gchar *ag_chart_get_name(AgChart *chart);
 
 void ag_chart_set_country(AgChart     *chart,
                           const gchar *country);
 
-gchar *ag_chart_get_country(AgChart *chart);
+const gchar *ag_chart_get_country(AgChart *chart);
 
 void ag_chart_set_city(AgChart     *chart,
                        const gchar *city);
 
-gchar *ag_chart_get_city(AgChart *chart);
+const gchar *ag_chart_get_city(AgChart *chart);
 
 gchar *ag_chart_create_svg(AgChart *chart,
                            gsize   *length,

@@ -532,6 +532,11 @@ ag_window_update_from_chart(AgWindow *window)
             );
     }
 
+    gtk_header_bar_set_subtitle(
+            GTK_HEADER_BAR(priv->header_bar),
+            ag_chart_get_name(priv->chart)
+        );
+
     g_free(coordinates);
 
     ag_window_redraw_chart(window);
@@ -736,8 +741,6 @@ ag_window_export_svg(AgWindow *window, GError **err)
     name = ag_chart_get_name(priv->chart);
 
     if ((name == NULL) || (*name == 0)) {
-        g_free(name);
-
         ag_app_message_dialog(
                 GTK_WIDGET(window),
                 GTK_MESSAGE_ERROR,
@@ -753,7 +756,6 @@ ag_window_export_svg(AgWindow *window, GError **err)
     }
 
     file_name = g_strdup_printf("%s.svg", name);
-    g_free(name);
 
     fs = gtk_file_chooser_dialog_new(_("Export Chart as SVG"),
                                      GTK_WINDOW(window),
@@ -829,8 +831,6 @@ ag_window_export(AgWindow *window, GError **err)
     name = ag_chart_get_name(priv->chart);
 
     if ((name == NULL) || (*name == 0)) {
-        g_free(name);
-
         ag_app_message_dialog(
                 GTK_WIDGET(window),
                 GTK_MESSAGE_ERROR,
@@ -846,7 +846,6 @@ ag_window_export(AgWindow *window, GError **err)
     }
 
     file_name = g_strdup_printf("%s.agc", name);
-    g_free(name);
 
     fs = gtk_file_chooser_dialog_new(_("Export Chart"),
                                      GTK_WINDOW(window),
