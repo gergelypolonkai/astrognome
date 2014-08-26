@@ -572,7 +572,7 @@
                                     <xsl:choose>
                                         <xsl:when test="@retrograde='True'">
                                             <text>
-                                                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', 375 + @dist * 35, ',-30) rotate(', @degree - $asc_rotate, ',15,15)')"/></xsl:attribute>
+                                                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', 365 + @dist * 35, ',15) rotate(', @degree - $asc_rotate, ',-20,-20)')"/></xsl:attribute>
                                                 R
                                             </text>
                                         </xsl:when>
