@@ -403,12 +403,12 @@ ag_chart_set_name(AgChart *chart, const gchar *name)
     g_object_notify_by_pspec(G_OBJECT(chart), properties[PROP_NAME]);
 }
 
-gchar *
+const gchar *
 ag_chart_get_name(AgChart *chart)
 {
     AgChartPrivate *priv = ag_chart_get_instance_private(chart);
 
-    return g_strdup(priv->name);
+    return priv->name;
 }
 
 void
@@ -425,12 +425,12 @@ ag_chart_set_country(AgChart *chart, const gchar *country)
     g_object_notify_by_pspec(G_OBJECT(chart), properties[PROP_COUNTRY]);
 }
 
-gchar *
+const gchar *
 ag_chart_get_country(AgChart *chart)
 {
     AgChartPrivate *priv = ag_chart_get_instance_private(chart);
 
-    return g_strdup(priv->country);
+    return priv->country;
 }
 
 void
@@ -447,12 +447,12 @@ ag_chart_set_city(AgChart *chart, const gchar *city)
     g_object_notify_by_pspec(G_OBJECT(chart), properties[PROP_CITY]);
 }
 
-gchar *
+const gchar *
 ag_chart_get_city(AgChart *chart)
 {
     AgChartPrivate *priv = ag_chart_get_instance_private(chart);
 
-    return g_strdup(priv->city);
+    return priv->city;
 }
 
 /**
@@ -1353,6 +1353,7 @@ create_save_doc(AgChart *chart)
     GsweTimestamp   *timestamp;
     GEnumClass      *house_system_class;
     GEnumValue      *enum_value;
+    AgChartPrivate  *priv = ag_chart_get_instance_private(chart);
 
     doc       = xmlNewDoc(BAD_CAST "1.0");
     root_node = xmlNewNode(NULL, BAD_CAST "chartinfo");
@@ -1361,20 +1362,14 @@ create_save_doc(AgChart *chart)
     // Begin <data> node
     data_node = xmlNewChild(root_node, NULL, BAD_CAST "data", NULL);
 
-    value = ag_chart_get_name(chart);
-    xmlNewChild(data_node, NULL, BAD_CAST "name", BAD_CAST value);
-    g_free(value);
+    xmlNewChild(data_node, NULL, BAD_CAST "name", BAD_CAST priv->name);
 
     // Begin <place> node
     place_node = xmlNewChild(data_node, NULL, BAD_CAST "place", NULL);
 
-    value = ag_chart_get_country(chart);
-    xmlNewChild(place_node, NULL, BAD_CAST "country", BAD_CAST value);
-    g_free(value);
+    xmlNewChild(place_node, NULL, BAD_CAST "country", BAD_CAST priv->country);
 
-    value = ag_chart_get_city(chart);
-    xmlNewChild(place_node, NULL, BAD_CAST "city", BAD_CAST value);
-    g_free(value);
+    xmlNewChild(place_node, NULL, BAD_CAST "city", BAD_CAST priv->city);
 
     coordinates = gswe_moment_get_coordinates(GSWE_MOMENT(chart));
 
@@ -1895,7 +1890,8 @@ ag_chart_set_note(AgChart *chart, const gchar *note)
     g_object_notify_by_pspec(G_OBJECT(chart), properties[PROP_NOTE]);
 }
 
-const gchar *ag_chart_get_note(AgChart *chart)
+const gchar *
+ag_chart_get_note(AgChart *chart)
 {
     AgChartPrivate *priv = ag_chart_get_instance_private(chart);
 
