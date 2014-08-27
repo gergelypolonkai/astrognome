@@ -652,7 +652,7 @@
                             </xsl:for-each>
                         </g>
 
-                        <g id="antiscia" style="visibility:hidden">
+                        <g id="antiscia" visibility="hidden">
                             <xsl:for-each select="chartinfo/antiscia/antiscia">
                                 <xsl:variable name="planet1" select="@body1"/>
                                 <xsl:variable name="deg1">

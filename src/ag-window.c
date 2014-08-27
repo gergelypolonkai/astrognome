@@ -1890,6 +1890,13 @@ ag_window_new(AgApp *app, WebKitUserContentManager *manager)
             TRUE, TRUE, 0
         );
 
+    g_signal_connect(
+            priv->chart_web_view,
+            "context-menu",
+            G_CALLBACK(ag_window_chart_context_cb),
+            NULL
+        );
+
     // TODO: translate this error message!
     webkit_web_view_load_html(
             WEBKIT_WEB_VIEW(priv->chart_web_view),
