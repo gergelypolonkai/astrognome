@@ -70,3 +70,9 @@ path.planet-symbol {
     fill: none;
     stroke: #000080;
 }
+
+line.aspect {
+    stroke-width: 1;
+    stroke: #000000;
+    stroke-dasharray: 20,10;
+}
