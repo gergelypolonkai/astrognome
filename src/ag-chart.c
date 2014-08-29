@@ -1737,7 +1737,7 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
                 G_ENUM_CLASS(aspects_class),
                 gswe_aspect_data_get_aspect(aspect_data)
             );
-        xmlNewProp(node, BAD_CAST "type", BAD_CAST enum_value->value_name);
+        xmlNewProp(node, BAD_CAST "type", BAD_CAST enum_value->value_nick);
     }
 
     g_type_class_unref(aspects_class);
