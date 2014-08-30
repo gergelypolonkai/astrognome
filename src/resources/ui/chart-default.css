@@ -65,7 +65,7 @@ line.planet-marker {
     stroke: #555555;
 }
 
-path.planet-symbol {
+.planet-symbol {
     stroke-width: 2;
     fill: none;
     stroke: #000080;
