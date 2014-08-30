@@ -643,7 +643,8 @@
                                 <xsl:variable name="x2" select="$r_aspect * math:cos($rad2)"/>
                                 <xsl:variable name="y2" select="$r_aspect * -math:sin($rad2)"/>
 
-                                <line style="stroke-width:1;stroke:#000000;stroke-dasharray:20,10">
+                                <line class="aspect">
+                                    <xsl:attribute name="class"><xsl:value-of select="concat('aspect aspect-', @type)"/></xsl:attribute>
                                     <xsl:attribute name="x1"><xsl:value-of select="$x1"/></xsl:attribute>
                                     <xsl:attribute name="y1"><xsl:value-of select="$y1"/></xsl:attribute>
                                     <xsl:attribute name="x2"><xsl:value-of select="$x2"/></xsl:attribute>

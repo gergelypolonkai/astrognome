@@ -70,3 +70,61 @@ path.planet-symbol {
     fill: none;
     stroke: #000080;
 }
+
+line.aspect {
+    stroke-width: 1;
+    stroke: #000000;
+    stroke-dasharray: 1,2;
+}
+
+line.aspect-conjuction {
+    stroke-width: 5;
+    stroke: #00cc00;
+    stroke-opacity: 0.5;
+}
+
+line.aspect-sextile {
+    stroke-width: 1
+    stroke: #00cc00;
+    stroke-dasharray: none;
+}
+
+line.aspect-square {
+    stroke: #c00000;
+    stroke-dasharray: none;
+}
+
+line.aspect-trine {
+    stroke: #000080;
+    stroke-dasharray: none;
+}
+
+line.aspect-opposition {
+    stroke: #c00000;
+    stroke-dasharray: 5,5;
+}
+
+line.aspect-semisextile {
+    stroke: #00cc00;
+}
+
+line.aspect-semisquare {
+    stroke: #cc0000;
+    stroke-dasharray: 9,3;
+}
+
+line.aspect-quintile {
+    stroke: #00cc00;
+    stroke-dasharray: 9,3;
+}
+
+line.aspect-sesquisquare {
+}
+
+line.aspect-biquintile {
+    stroke: #00cc00;
+}
+
+line.aspect-quincunx {
+    stroke: #cc0000;
+}
