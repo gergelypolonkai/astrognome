@@ -60,6 +60,7 @@ struct _AgWindowPrivate {
     GtkEntryCompletion *country_comp;
     GtkEntryCompletion *city_comp;
     gchar              *selected_country;
+    gchar              *selected_city;
 };
 
 struct cc_search {
@@ -75,7 +76,7 @@ G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 static void
 ag_window_gear_menu_action(GSimpleAction *action,
                            GVariant      *parameter,
-                           gpointer user_data)
+                           gpointer      user_data)
 {
     GVariant *state;
 
@@ -1682,9 +1683,124 @@ ag_window_country_changed_callback(GtkSearchEntry *country, AgWindow *window)
     }
 }
 
+static gboolean
+ag_window_find_city(GtkTreeModel     *model,
+                    GtkTreePath      *path,
+                    GtkTreeIter      *iter,
+                    struct cc_search *search)
+{
+    gchar    *name,
+             *ccode;
+    gboolean found = FALSE;
+
+    gtk_tree_model_get(
+            model, iter,
+            AG_CITY_NAME, &name,
+            AG_CITY_COUNTRY, &ccode,
+            -1
+        );
+
+    if (g_utf8_collate(search->target, name) == 0) {
+        found = TRUE;
+        search->ret_iter = gtk_tree_iter_copy(iter);
+        search->ret_code = ccode;
+    } else {
+        g_free(ccode);
+    }
+
+    return found;
+}
+
 static void
 ag_window_city_changed_callback(GtkSearchEntry *city, AgWindow *window)
 {
+    struct cc_search search;
+    AgWindowPrivate  *priv = ag_window_get_instance_private(window);
+
+    search.target   = gtk_entry_get_text(GTK_ENTRY(city));
+    search.ret_iter = NULL;
+
+    gtk_tree_model_foreach(
+            city_list,
+            (GtkTreeModelForeachFunc)ag_window_find_city,
+            &search
+        );
+
+    g_free(priv->selected_city);
+
+    if (search.ret_iter != NULL) {
+        gdouble longitude,
+                latitude,
+                altitude;
+        gchar   *name,
+                *ccode;
+
+        gtk_tree_model_get(
+                city_list, search.ret_iter,
+                AG_CITY_COUNTRY, &ccode,
+                AG_CITY_NAME,    &name,
+                AG_CITY_LAT,     &latitude,
+                AG_CITY_LONG,    &longitude,
+                AG_CITY_ALT,     &altitude,
+                -1
+            );
+
+        if (
+                    (priv->selected_country != NULL)
+                    && (strcmp(priv->selected_country, ccode) != 0)
+                ) {
+            return;
+        }
+
+        if (latitude < 0.0) {
+            gtk_toggle_button_set_active(
+                    GTK_TOGGLE_BUTTON(priv->south_lat),
+                    TRUE
+                );
+            gtk_spin_button_set_value(
+                    GTK_SPIN_BUTTON(priv->latitude),
+                    -latitude
+                );
+        } else {
+            gtk_toggle_button_set_active(
+                    GTK_TOGGLE_BUTTON(priv->north_lat),
+                    TRUE
+                );
+            gtk_spin_button_set_value(
+                    GTK_SPIN_BUTTON(priv->latitude),
+                    latitude
+                );
+        }
+
+        if (longitude < 0.0) {
+            gtk_toggle_button_set_active(
+                    GTK_TOGGLE_BUTTON(priv->west_long),
+                    TRUE
+                );
+            gtk_spin_button_set_value(
+                    GTK_SPIN_BUTTON(priv->longitude),
+                    -longitude
+                );
+        } else {
+            gtk_toggle_button_set_active(
+                    GTK_TOGGLE_BUTTON(priv->east_long),
+                    TRUE
+                );
+            gtk_spin_button_set_value(
+                    GTK_SPIN_BUTTON(priv->longitude),
+                    longitude
+                );
+        }
+
+        // TODO: implement setting altitude maybe? Is that really necessary?
+
+        g_debug("City (entry-changed): %s (%s); %.6f, %.6f, %.6f", name, search.ret_code, longitude, latitude, altitude);
+        g_free(name);
+        gtk_tree_iter_free(search.ret_iter);
+        priv->selected_city = search.ret_code;
+    } else {
+        priv->selected_city = NULL;
+    }
 }
 
 static void
