@@ -857,7 +857,6 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
 {
     AgDbSave          *save_data;
     const GValue      *value;
-    GdaValueAttribute attributes;
     gchar             *query,
                       *columns;
     guint             i;
@@ -918,18 +917,16 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
 
     /* country */
     value      = gda_data_model_get_value_at(result, COLUMN_COUNTRY, 0, NULL);
-    attributes = gda_data_model_get_attributes_at(result, COLUMN_COUNTRY, 0);
 
-    if (attributes | GDA_VALUE_ATTR_IS_NULL) {
+    if (GDA_VALUE_HOLDS_NULL(value)) {
         save_data->country = NULL;
     } else {
         save_data->country = g_strdup(g_value_get_string(value));
     }
 
     value      = gda_data_model_get_value_at(result, COLUMN_CITY, 0, NULL);
-    attributes = gda_data_model_get_attributes_at(result, COLUMN_CITY, 0);
 
-    if (attributes | GDA_VALUE_ATTR_IS_NULL) {
+    if (GDA_VALUE_HOLDS_NULL(value)) {
         save_data->city = NULL;
     } else {
         save_data->city = g_strdup(g_value_get_string(value));
@@ -952,9 +949,8 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
     save_data->latitude = g_value_get_double(value);
 
     value      = gda_data_model_get_value_at(result, COLUMN_ALTITUDE, 0, NULL);
-    attributes = gda_data_model_get_attributes_at(result, COLUMN_ALTITUDE, 0);
 
-    if (attributes | GDA_VALUE_ATTR_IS_NULL) {
+    if (GDA_VALUE_HOLDS_NULL(value)) {
         save_data->altitude = DEFAULT_ALTITUDE;
     } else {
         save_data->altitude = g_value_get_double(value);
@@ -1010,9 +1006,8 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
     save_data->house_system = g_strdup(g_value_get_string(value));
 
     value      = gda_data_model_get_value_at(result, COLUMN_NOTE, 0, NULL);
-    attributes = gda_data_model_get_attributes_at(result, 15, 0);
 
-    if (attributes | GDA_VALUE_ATTR_IS_NULL) {
+    if (GDA_VALUE_HOLDS_NULL(value)) {
         save_data->note = NULL;
     } else {
         save_data->note = g_strdup(g_value_get_string(value));

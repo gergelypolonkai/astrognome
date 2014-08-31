@@ -24,6 +24,8 @@ struct _AgWindowPrivate {
     GtkWidget     *selection_toolbar;
     GtkWidget     *stack;
     GtkWidget     *name;
+    GtkWidget     *country;
+    GtkWidget     *city;
     GtkWidget     *north_lat;
     GtkWidget     *south_lat;
     GtkWidget     *latitude;
@@ -55,6 +57,16 @@ struct _AgWindowPrivate {
     GtkListStore  *house_system_model;
     GtkListStore  *db_chart_data;
     AgDbSave      *saved_data;
+    GtkEntryCompletion *country_comp;
+    GtkEntryCompletion *city_comp;
+    gchar              *selected_country;
+    gchar              *selected_city;
+};
+
+struct cc_search {
+    const gchar  *target;
+    GtkTreeIter  *ret_iter;
+    gchar        *ret_code;
 };
 
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
@@ -64,7 +76,7 @@ G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 static void
 ag_window_gear_menu_action(GSimpleAction *action,
                            GVariant      *parameter,
-                           gpointer user_data)
+                           gpointer      user_data)
 {
     GVariant *state;
 
@@ -522,6 +534,11 @@ ag_window_update_from_chart(AgWindow *window)
         );
 
     gtk_entry_set_text(GTK_ENTRY(priv->name), ag_chart_get_name(priv->chart));
+    gtk_entry_set_text(
+            GTK_ENTRY(priv->country),
+            ag_chart_get_country(priv->chart)
+        );
+    gtk_entry_set_text(GTK_ENTRY(priv->city), ag_chart_get_city(priv->chart));
 
     if (ag_chart_get_note(priv->chart)) {
         // TODO: maybe setting length to -1 here is not that good of an idea…
@@ -586,9 +603,8 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     edit_data->db_id = db_id;
 
     edit_data->name = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->name)));
-    // TODO: This will cause problems with imported charts…
-    edit_data->country = NULL;
-    edit_data->city = NULL;
+    edit_data->country = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->country)));
+    edit_data->city = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->city)));
     edit_data->longitude = gtk_spin_button_get_value(
             GTK_SPIN_BUTTON(priv->longitude)
         );
@@ -605,7 +621,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         edit_data->latitude = - edit_data->latitude;
     }
 
-    // TODO: So as this…
+    // TODO: This will cause problems with imported charts
     edit_data->altitude = DEFAULT_ALTITUDE;
     edit_data->year = gtk_spin_button_get_value_as_int(
             GTK_SPIN_BUTTON(priv->year)
@@ -1122,8 +1138,8 @@ ag_window_new_chart_action(GSimpleAction *action,
 
     /* Empty edit tab values */
     gtk_entry_set_text(GTK_ENTRY(priv->name), "");
-    //gtk_entry_set_text(GTK_ENTRY(priv->country), "");
-    //gtk_entry_set_text(GTK_ENTRY(priv->city), "");
+    gtk_entry_set_text(GTK_ENTRY(priv->country), "");
+    gtk_entry_set_text(GTK_ENTRY(priv->city), "");
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->year), (gdouble)1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->month), (gdouble)1);
     gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->day), (gdouble)1);
@@ -1477,6 +1493,49 @@ ag_window_list_selection_changed_cb(GdMainView *view, AgWindow *window)
     // Here it is possible to set button sensitivity later
 }
 
+static gboolean
+ag_window_city_matches(GtkEntryCompletion *city_comp,
+                       const gchar        *key,
+                       GtkTreeIter        *iter,
+                       AgWindow           *window)
+{
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    gchar           *ccode,
+                    *name,
+                    *normalized_name,
+                    *case_normalized_name;
+    gboolean        ret = FALSE;
+
+    gtk_tree_model_get(
+            gtk_entry_completion_get_model(city_comp), iter,
+            AG_CITY_NAME,    &name,
+            AG_CITY_COUNTRY, &ccode,
+            -1
+        );
+
+    if (
+                (priv->selected_country == NULL)
+                || (strcmp(priv->selected_country, ccode) == 0)
+            ) {
+        normalized_name = g_utf8_normalize(name, -1, G_NORMALIZE_ALL);
+
+        if (normalized_name) {
+            case_normalized_name = g_utf8_casefold(normalized_name, -1);
+            if (strncmp(key, case_normalized_name, strlen(key)) == 0) {
+                ret = TRUE;
+            }
+
+            g_free(case_normalized_name);
+            g_free(normalized_name);
+        }
+    }
+
+    g_free(name);
+    g_free(ccode);
+
+    return ret;
+}
+
 static void
 ag_window_init(AgWindow *window)
 {
@@ -1502,6 +1561,21 @@ ag_window_init(AgWindow *window)
             "changed::aspects-char",
             G_CALLBACK(ag_window_display_changed),
             window
+        );
+
+    gtk_entry_completion_set_model(priv->country_comp, country_list);
+    gtk_entry_completion_set_text_column(priv->country_comp, AG_COUNTRY_NAME);
+    gtk_entry_set_completion(GTK_ENTRY(priv->country), priv->country_comp);
+
+    gtk_entry_completion_set_model(priv->city_comp, city_list);
+    gtk_entry_completion_set_text_column(priv->city_comp, AG_CITY_NAME);
+    gtk_entry_completion_set_minimum_key_length(priv->city_comp, 3);
+    gtk_entry_set_completion(GTK_ENTRY(priv->city), priv->city_comp);
+    gtk_entry_completion_set_match_func(
+            priv->city_comp,
+            (GtkEntryCompletionMatchFunc)ag_window_city_matches,
+            window,
+            NULL
         );
 
     house_system_list = gswe_all_house_systems();
@@ -1596,6 +1670,188 @@ ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
     gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), name);
 }
 
+static gboolean
+ag_window_find_country(GtkTreeModel     *model,
+                       GtkTreePath      *path,
+                       GtkTreeIter      *iter,
+                       struct cc_search *search)
+{
+    gchar    *name,
+             *ccode;
+    gboolean found = FALSE;
+
+    gtk_tree_model_get(
+            model, iter,
+            AG_COUNTRY_NAME, &name,
+            AG_COUNTRY_CODE, &ccode,
+            -1
+        );
+
+    if (g_utf8_collate(search->target, name) == 0) {
+        found = TRUE;
+        search->ret_iter = gtk_tree_iter_copy(iter);
+        search->ret_code = ccode;
+    } else {
+        g_free(ccode);
+    }
+
+    return found;
+}
+
+/**
+ * ag_window_country_changed_callback:
+ * @country: the #GtkSearchEntry for country search
+ * @window: the window in which the event happens
+ *
+ * This function is called whenever the text in the country search entry is
+ * changed.
+ */
+static void
+ag_window_country_changed_callback(GtkSearchEntry *country, AgWindow *window)
+{
+    struct cc_search search;
+    AgWindowPrivate  *priv = ag_window_get_instance_private(window);
+
+    search.target   = gtk_entry_get_text(GTK_ENTRY(country));
+    search.ret_iter = NULL;
+
+    gtk_tree_model_foreach(
+            country_list,
+            (GtkTreeModelForeachFunc)ag_window_find_country,
+            &search
+        );
+
+    g_free(priv->selected_country);
+
+    if (search.ret_iter != NULL) {
+        g_debug("Country (entry-changed): %s", search.ret_code);
+        gtk_tree_iter_free(search.ret_iter);
+        priv->selected_country = search.ret_code;
+    } else {
+        priv->selected_country = NULL;
+    }
+}
+
+static gboolean
+ag_window_find_city(GtkTreeModel     *model,
+                    GtkTreePath      *path,
+                    GtkTreeIter      *iter,
+                    struct cc_search *search)
+{
+    gchar    *name,
+             *ccode;
+    gboolean found = FALSE;
+
+    gtk_tree_model_get(
+            model, iter,
+            AG_CITY_NAME, &name,
+            AG_CITY_COUNTRY, &ccode,
+            -1
+        );
+
+    if (g_utf8_collate(search->target, name) == 0) {
+        found = TRUE;
+        search->ret_iter = gtk_tree_iter_copy(iter);
+        search->ret_code = ccode;
+    } else {
+        g_free(ccode);
+    }
+
+    return found;
+}
+
+static void
+ag_window_city_changed_callback(GtkSearchEntry *city, AgWindow *window)
+{
+    struct cc_search search;
+    AgWindowPrivate  *priv = ag_window_get_instance_private(window);
+
+    search.target   = gtk_entry_get_text(GTK_ENTRY(city));
+    search.ret_iter = NULL;
+
+    gtk_tree_model_foreach(
+            city_list,
+            (GtkTreeModelForeachFunc)ag_window_find_city,
+            &search
+        );
+
+    g_free(priv->selected_city);
+
+    if (search.ret_iter != NULL) {
+        gdouble longitude,
+                latitude,
+                altitude;
+        gchar   *name,
+                *ccode;
+
+        gtk_tree_model_get(
+                city_list, search.ret_iter,
+                AG_CITY_COUNTRY, &ccode,
+                AG_CITY_NAME,    &name,
+                AG_CITY_LAT,     &latitude,
+                AG_CITY_LONG,    &longitude,
+                AG_CITY_ALT,     &altitude,
+                -1
+            );
+
+        if (
+                    (priv->selected_country != NULL)
+                    && (strcmp(priv->selected_country, ccode) != 0)
+                ) {
+            return;
+        }
+
+        if (latitude < 0.0) {
+            gtk_toggle_button_set_active(
+                    GTK_TOGGLE_BUTTON(priv->south_lat),
+                    TRUE
+                );
+            gtk_spin_button_set_value(
+                    GTK_SPIN_BUTTON(priv->latitude),
+                    -latitude
+                );
+        } else {
+            gtk_toggle_button_set_active(
+                    GTK_TOGGLE_BUTTON(priv->north_lat),
+                    TRUE
+                );
+            gtk_spin_button_set_value(
+                    GTK_SPIN_BUTTON(priv->latitude),
+                    latitude
+                );
+        }
+
+        if (longitude < 0.0) {
+            gtk_toggle_button_set_active(
+                    GTK_TOGGLE_BUTTON(priv->west_long),
+                    TRUE
+                );
+            gtk_spin_button_set_value(
+                    GTK_SPIN_BUTTON(priv->longitude),
+                    -longitude
+                );
+        } else {
+            gtk_toggle_button_set_active(
+                    GTK_TOGGLE_BUTTON(priv->east_long),
+                    TRUE
+                );
+            gtk_spin_button_set_value(
+                    GTK_SPIN_BUTTON(priv->longitude),
+                    longitude
+                );
+        }
+
+        // TODO: implement setting altitude maybe? Is that really necessary?
+
+        g_debug("City (entry-changed): %s (%s); %.6f, %.6f, %.6f", name, search.ret_code, longitude, latitude, altitude);
+        g_free(name);
+        gtk_tree_iter_free(search.ret_iter);
+        priv->selected_city = search.ret_code;
+    } else {
+        priv->selected_city = NULL;
+    }
+}
+
 static void
 ag_window_class_init(AgWindowClass *klass)
 {
@@ -1634,6 +1890,22 @@ ag_window_class_init(AgWindowClass *klass)
             tab_edit
         );
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, name);
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            country
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            country_comp
+        );
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, city);
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            city_comp
+        );
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, month);
     gtk_widget_class_bind_template_child_private(widget_class, AgWindow, day);
@@ -1731,6 +2003,14 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_name_changed_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_country_changed_callback
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_city_changed_callback
         );
 }
 

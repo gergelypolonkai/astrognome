@@ -16,10 +16,22 @@ while (<TIMEZONES>) {
 }
 close(TIMEZONES);
 
+my $xml_file = IO::File->new('>geodata.xml');
+my $writer = XML::Writer->new(OUTPUT => $xml_file, NEWLINES => 0);
+
+$writer->xmlDecl('utf-8');
+$writer->startTag('geodata');
+$writer->startTag('countries');
+
 open(COUNTRIES, 'countryInfo.txt') or die("Cannot open countryInfo.txt: $!\n");
 while (<COUNTRIES>) {
     my ($country_code, $iso3, $iso_numeric, $fips, $name, $capital, $area, $population, $continent, $tld, $currency_code, $currency_name, $phone, $postal_code_format, $postal_code_regex, $languages, $geonameid, $neighbours, $equivalent_fips_code) = split(/\t/, $_);
     next if ($country_code !~ /^[A-Z]{2}$/);
+
+    $writer->emptyTag('c',
+            'n'   => $name,
+            'c'   => $country_code,
+        );
 
     if ($country_code =~ /^[A-Z]{2}$/) {
         $countries{$country_code} = $name;
@@ -27,13 +39,10 @@ while (<COUNTRIES>) {
 }
 close(COUNTRIES);
 
+$writer->endTag('countries');
+$writer->startTag('places');
+
 open(GEONAMES, "cities.txt") or die("Cannot open cities.txt: $!\n");
-
-my $xml_file = IO::File->new('>geodata.xml');
-my $writer = XML::Writer->new(OUTPUT => $xml_file, NEWLINES => 0);
-
-$writer->xmlDecl('utf-8');
-$writer->startTag('geodata');
 
 while (<GEONAMES>) {
     chomp($_);
@@ -62,6 +71,7 @@ while (<GEONAMES>) {
     print $., "\n" if ($. % 19083 == 0);
 }
 
+$writer->endTag('places');
 $writer->endTag('geodata');
 $writer->end();
 $xml_file->close();
