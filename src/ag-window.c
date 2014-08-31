@@ -1493,6 +1493,49 @@ ag_window_list_selection_changed_cb(GdMainView *view, AgWindow *window)
     // Here it is possible to set button sensitivity later
 }
 
+static gboolean
+ag_window_city_matches(GtkEntryCompletion *city_comp,
+                       const gchar        *key,
+                       GtkTreeIter        *iter,
+                       AgWindow           *window)
+{
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    gchar           *ccode,
+                    *name,
+                    *normalized_name,
+                    *case_normalized_name;
+    gboolean        ret = FALSE;
+
+    gtk_tree_model_get(
+            gtk_entry_completion_get_model(city_comp), iter,
+            AG_CITY_NAME,    &name,
+            AG_CITY_COUNTRY, &ccode,
+            -1
+        );
+
+    if (
+                (priv->selected_country == NULL)
+                || (strcmp(priv->selected_country, ccode) == 0)
+            ) {
+        normalized_name = g_utf8_normalize(name, -1, G_NORMALIZE_ALL);
+
+        if (normalized_name) {
+            case_normalized_name = g_utf8_casefold(normalized_name, -1);
+            if (strncmp(key, case_normalized_name, strlen(key)) == 0) {
+                ret = TRUE;
+            }
+
+            g_free(case_normalized_name);
+            g_free(normalized_name);
+        }
+    }
+
+    g_free(name);
+    g_free(ccode);
+
+    return ret;
+}
+
 static void
 ag_window_init(AgWindow *window)
 {
@@ -1528,6 +1571,12 @@ ag_window_init(AgWindow *window)
     gtk_entry_completion_set_text_column(priv->city_comp, AG_CITY_NAME);
     gtk_entry_completion_set_minimum_key_length(priv->city_comp, 3);
     gtk_entry_set_completion(GTK_ENTRY(priv->city), priv->city_comp);
+    gtk_entry_completion_set_match_func(
+            priv->city_comp,
+            (GtkEntryCompletionMatchFunc)ag_window_city_matches,
+            window,
+            NULL
+        );
 
     house_system_list = gswe_all_house_systems();
     g_list_foreach(house_system_list, (GFunc)ag_window_add_house_system, priv);
