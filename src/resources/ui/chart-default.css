@@ -57,7 +57,7 @@ line.axis {
 }
 
 line.axis-end {
-    marker-end: url(#arrow_end);
+    marker-start: url(#arrow_end);
 }
 
 line.planet-marker {

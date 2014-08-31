@@ -14,15 +14,17 @@
     <xsl:variable name="asc" select="chartinfo/ascmcs/ascendant/@degree_ut" />
     <xsl:variable name="asc_rotate" select="$asc - 180"/>
     <xsl:variable name="PI" select="math:constant('PI', 10)" />
-    <xsl:variable name="r_aspect" select="240" />
+    <xsl:variable name="image_size" select="800" />
+    <xsl:variable name="icon_size" select="30" />
+    <xsl:variable name="r_aspect" select="$image_size * 0.3" />
 
     <xsl:template match="/">
         <svg
             xmlns="http://www.w3.org/2000/svg"
             xmlns:xlink="http://www.w3.org/1999/xlink"
-            version="1.0"
-            width="800"
-            height="800">
+            version="1.0">
+            <xsl:attribute name="width"><xsl:value-of select="$image_size"/></xsl:attribute>
+            <xsl:attribute name="height"><xsl:value-of select="$image_size"/></xsl:attribute>
             <title>
                 <xsl:value-of select="concat(
                     'Natal chart of ',
@@ -62,23 +64,36 @@
                 <xi:include href="gres://default-icons/planet-moon-apogee.xml" />
                 <xi:include href="gres://default-icons/point-vertex.xml" />
 
-                <marker id="arrow_end" orient="auto" refX="-3.5" refY="0.0" style="overflow:visible">
-                    <polygon points="0.0,0.0 7.0,-2.0 5.0,0.0 7.0,2.0" transform="rotate(180)" />
+                <!-- TODO: the size of this arrow should also depend on $image_size -->
+                <marker id="arrow_end" orient="auto" refX="3.5" refY="0.0" style="overflow:visible">
+                    <polygon points="0.0,0.0 7.0,-2.0 5.0,0.0 7.0,2.0" />
                 </marker>
             </defs>
-            <g id="chart" transform="translate(400,400)">
+            <g id="chart">
+                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', $image_size div 2, ',', $image_size div 2, ')')" /></xsl:attribute>
                 <g id="moonless_chart">
                     <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(', $asc_rotate, ',0,0)')" /></xsl:attribute>
                     <g id="base">
-                        <circle id="outer_circle" cx="0" cy="0" r="300" class="thick" />
-                        <circle id="middle_circle" cx="0" cy="0" r="255" class="thin" />
+                        <circle id="outer_circle" cx="0" cy="0" class="thick">
+                            <xsl:attribute name="r"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
+                        </circle>
+                        <circle id="middle_circle" cx="0" cy="0" class="thin">
+                            <xsl:attribute name="r"><xsl:value-of select="$image_size * 0.319"/></xsl:attribute>
+                        </circle>
                         <circle id="inner_circle" cx="0" cy="0" class="thick">
                             <xsl:attribute name="r"><xsl:value-of select="$r_aspect"/></xsl:attribute>
                         </circle>
-                        <circle id="house_circle" cx="0" cy="0" r="70" class="thin" />
-                        <circle id="moon_circle" cx="0" cy="0" r="50" class="thick" style="fill:#00000;stroke:none" />
+                        <circle id="house_circle" cx="0" cy="0" class="thin">
+                            <xsl:attribute name="r"><xsl:value-of select="$image_size * 0.0875"/></xsl:attribute>
+                        </circle>
+                        <circle id="moon_circle" cx="0" cy="0" class="thick" style="fill:#00000;stroke:none">
+                            <xsl:attribute name="r"><xsl:value-of select="$image_size * 0.0625"/></xsl:attribute>
+                        </circle>
 
-                        <line id="aries_start" x1="240" y1="0" x2="300" y2="0" class="degree-thick" />
+                        <line id="aries_start" y1="0" y2="0" class="degree-thick">
+                            <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
+                            <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
+                        </line>
                         <use x="0" y="0" xlink:href="#aries_start" id="taurus_start" transform="rotate(-30,0,0)" class="degree-thick" />
                         <use x="0" y="0" xlink:href="#aries_start" id="gemini_start" transform="rotate(-60,0,0)" class="degree-thick" />
                         <use x="0" y="0" xlink:href="#aries_start" id="cancer_start" transform="rotate(-90,0,0)" class="degree-thick" />
@@ -91,7 +106,10 @@
                         <use x="0" y="0" xlink:href="#aries_start" id="aquarius_start" transform="rotate(-300,0,0)" class="degree-thick" />
                         <use x="0" y="0" xlink:href="#aries_start" id="pisces_start" transform="rotate(-330,0,0)" class="degree-thick" />
 
-                        <line id="deg_10" x1="240" y1="0" x2="255" y2="0" transform="rotate(-10,0,0)" class="degree-thin" />
+                        <line id="deg_10" y1="0" y2="0" transform="rotate(-10,0,0)" class="degree-thin">
+                            <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
+                            <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.31875"/></xsl:attribute>
+                        </line>
                         <use x="0" y="0" xlink:href="#deg_10" id="deg_20" transform="rotate(-10,0,0)" class="degree-thin" />
                         <use x="0" y="0" xlink:href="#deg_10" id="deg_40" transform="rotate(-30,0,0)" class="degree-thin" />
                         <use x="0" y="0" xlink:href="#deg_10" id="deg_50" transform="rotate(-40,0,0)" class="degree-thin" />
@@ -116,7 +134,10 @@
                         <use x="0" y="0" xlink:href="#deg_10" id="deg_340" transform="rotate(-330,0,0)" class="degree-thin" />
                         <use x="0" y="0" xlink:href="#deg_10" id="deg_350" transform="rotate(-340,0,0)" class="degree-thin" />
 
-                        <line id="deg_5" x1="240" y1="0" x2="250" y2="0" transform="rotate(-5,0,0)" class="degree-thin" />
+                        <line id="deg_5" y1="0" y2="0" transform="rotate(-5,0,0)" class="degree-thin">
+                            <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
+                            <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3125"/></xsl:attribute>
+                        </line>
                         <use x="0" y="0" xlink:href="#deg_5" id="#deg_15" transform="rotate(-10,0,0)" class="degree-thin" />
                         <use x="0" y="0" xlink:href="#deg_5" id="#deg_25" transform="rotate(-20,0,0)" class="degree-thin" />
                         <use x="0" y="0" xlink:href="#deg_5" id="#deg_35" transform="rotate(-30,0,0)" class="degree-thin" />
@@ -153,7 +174,10 @@
                         <use x="0" y="0" xlink:href="#deg_5" id="#deg_345" transform="rotate(-340,0,0)" class="degree-thin" />
                         <use x="0" y="0" xlink:href="#deg_5" id="#deg_355" transform="rotate(-350,0,0)" class="degree-thin" />
 
-                        <line id="deg_1" x1="240" y1="0" x2="245" y2="0" transform="rotate(-1,0,0)" class="degree-thin" />
+                        <line id="deg_1" y1="0" y2="0" transform="rotate(-1,0,0)" class="degree-thin">
+                            <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
+                            <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.30625"/></xsl:attribute>
+                        </line>
                         <use x="0" y="0" xlink:href="#deg_1" id="deg_2" transform="rotate(-1,0,0)" class="degree-thin" />
                         <use x="0" y="0" xlink:href="#deg_1" id="deg_3" transform="rotate(-2,0,0)" class="degree-thin" />
                         <use x="0" y="0" xlink:href="#deg_1" id="deg_4" transform="rotate(-3,0,0)" class="degree-thin" />
@@ -442,41 +466,77 @@
                         <use x="0" y="0" xlink:href="#deg_1" id="deg_358" transform="rotate(-357,0,0)" class="degree-thin" />
                         <use x="0" y="0" xlink:href="#deg_1" id="deg_359" transform="rotate(-358,0,0)" class="degree-thin" />
 
-                        <use x="0" y="0" xlink:href="#sign_aries_tmpl" id="sign_aries" transform="rotate(-15,0,0) translate(261,-15) rotate(90,15,15)" class="sign sign-fire" />
-                        <use x="0" y="0" xlink:href="#sign_taurus_tmpl" id="sign_taurus" transform="rotate(-45,0,0) translate(261,-15) rotate(90,15,15)" class="sign sign-earth" />
-                        <use x="0" y="0" xlink:href="#sign_gemini_tmpl" id="sign_gemini" transform="rotate(-75,0,0) translate(261,-15) rotate(90,15,15)" class="sign sign-air" />
-                        <use x="0" y="0" xlink:href="#sign_cancer_tmpl" id="sign_cancer" transform="rotate(-105,0,0) translate(261,-14) rotate(90,15,14)" class="sign sign-water" />
-                        <use x="0" y="0" xlink:href="#sign_leo_tmpl" id="sign_leo" transform="rotate(-135,0,0) translate(264,-15) rotate(90,12,15)" class="sign sign-fire" />
-                        <use x="0" y="0" xlink:href="#sign_virgo_tmpl" id="sign_virgo" transform="rotate(-165,0,0) translate(262,-18) rotate(90,15,18)" class="sign sign-earth" />
-                        <use x="0" y="0" xlink:href="#sign_libra_tmpl" id="sign_libra" transform="rotate(-195,0,0) translate(256,-18) rotate(90,15,18)" class="sign sign-air" />
-                        <use x="0" y="0" xlink:href="#sign_scorpio_tmpl" id="sign_scorpio" transform="rotate(-225,0,0) translate(260,-18) rotate(90,15,18)" class="sign sign-water" />
-                        <use x="0" y="0" xlink:href="#sign_sagittarius_tmpl" id="sign_sagittarius" transform="rotate(-255,0,0) translate(260,-18) rotate(90,15,18)" class="sign sign-fire" />
-                        <use x="0" y="0" xlink:href="#sign_capricorn_tmpl" id="sign_capricorn" transform="rotate(-285,0,0) translate(259,-18) rotate(90,15,18)" class="sign sign-earth" />
-                        <use x="0" y="0" xlink:href="#sign_aquarius_tmpl" id="sign_aquarius" transform="rotate(-315,0,0) translate(253,-18) rotate(90,15,18)" class="sign sign-air" />
-                        <use x="0" y="0" xlink:href="#sign_pisces_tmpl" id="sign_pisces" transform="rotate(-345,0,0) translate(259,-18) rotate(90,15,18)" class="sign sign-water" />
+                        <use x="0" y="0" xlink:href="#sign_aries_tmpl" id="sign_aries" class="sign sign-fire">
+                            <xsl:attribute name="transform">rotate(-15,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_taurus_tmpl" id="sign_taurus" class="sign sign-earth">
+                            <xsl:attribute name="transform">rotate(-45,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_gemini_tmpl" id="sign_gemini" class="sign sign-air">
+                            <xsl:attribute name="transform">rotate(-75,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_cancer_tmpl" id="sign_cancer" class="sign sign-water">
+                            <xsl:attribute name="transform">rotate(-105,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_leo_tmpl" id="sign_leo" class="sign sign-fire">
+                            <xsl:attribute name="transform">rotate(-135,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_virgo_tmpl" id="sign_virgo" class="sign sign-earth">
+                            <xsl:attribute name="transform">rotate(-165,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_libra_tmpl" id="sign_libra" class="sign sign-air">
+                            <xsl:attribute name="transform">rotate(-195,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_scorpio_tmpl" id="sign_scorpio" class="sign sign-water">
+                            <xsl:attribute name="transform">rotate(-225,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_sagittarius_tmpl" id="sign_sagittarius" class="sign sign-fire">
+                            <xsl:attribute name="transform">rotate(-255,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_capricorn_tmpl" id="sign_capricorn" class="sign sign-earth">
+                            <xsl:attribute name="transform">rotate(-285,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_aquarius_tmpl" id="sign_aquarius" class="sign sign-air">
+                            <xsl:attribute name="transform">rotate(-315,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
+                        <use x="0" y="0" xlink:href="#sign_pisces_tmpl" id="sign_pisces" class="sign sign-water">
+                            <xsl:attribute name="transform">rotate(-345,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </use>
 
                         <xsl:for-each select="chartinfo/houses/house">
-                            <line x1="50" y1="0" x2="240" y2="0" class="house-cusp">
+                            <line y1="0" y2="0" class="house-cusp">
+                                <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.0625"/></xsl:attribute>
+                                <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
                                 <xsl:attribute name="id"><xsl:value-of select="concat('house_cusp_', @number)"/></xsl:attribute>
                                 <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', @degree, ')')" /></xsl:attribute>
                             </line>
-                            <line x1="300" y1="0" x2="330" y2="0" class="house-cusp">
+                            <line y1="0" y2="0" class="house-cusp">
+                                <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
+                                <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.4125"/></xsl:attribute>
                                 <xsl:attribute name="id"><xsl:value-of select="concat('house_cusp_', @number, '_outer')"/></xsl:attribute>
                                 <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', @degree, ')')" /></xsl:attribute>
                             </line>
                         </xsl:for-each>
 
-                        <line id="descendent" x1="-320" y1="0" x2="-50" y2="0" transform="rotate(-103.432962,0,0)" class="axis">
-                            <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', $asc, ')')" /></xsl:attribute>
+                        <line id="descendent" y1="0" y2="0" class="axis">
+                            <xsl:attribute name="x1"><xsl:value-of select="- $image_size * 0.4"/></xsl:attribute>
+                            <xsl:attribute name="x2"><xsl:value-of select="- $image_size * 0.0625"/></xsl:attribute>
+                            <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', $asc, ',0,0)')" /></xsl:attribute>
                         </line>
-                        <line id="ascendant" x1="50" y1="0" x2="320" y2="0" class="axis axis-end">
+                        <line id="ascendant" y1="0" y2="0" class="axis axis-end">
+                            <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.4"/></xsl:attribute>
+                            <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.0625"/></xsl:attribute>
                             <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', $asc, ')')" /></xsl:attribute>
                         </line>
                         <xsl:variable name="mc" select="chartinfo/ascmcs/mc/@degree_ut"/>
-                        <line id="ic" x1="-320" y1="0" x2="-50" y2="0" class="axis">
+                        <line id="ic" y1="0" y2="0" class="axis">
+                            <xsl:attribute name="x1"><xsl:value-of select="- $image_size * 0.4"/></xsl:attribute>
+                            <xsl:attribute name="x2"><xsl:value-of select="- $image_size * 0.0625"/></xsl:attribute>
                             <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', $mc, ')')" /></xsl:attribute>
                         </line>
-                        <line id="mc" x1="50" y1="0" x2="320" y2="0" class="axis axis-end">
+                        <line id="mc" y1="0" y2="0" class="axis axis-end">
+                            <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.4"/></xsl:attribute>
+                            <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.0625"/></xsl:attribute>
                             <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', $mc, ')')" /></xsl:attribute>
                         </line>
 
@@ -488,15 +548,19 @@
                                 <g>
                                     <xsl:attribute name="id"><xsl:value-of select="$planet_base"/></xsl:attribute>
                                     <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(', $negative_degree, ',0,0)')"/></xsl:attribute>
-                                    <line x1="230" y1="0" x2="240" y2="0" class="planet-marker">
+                                    <line y1="0" y2="0" class="planet-marker">
+                                        <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.2875"/></xsl:attribute>
+                                        <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
                                         <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base)" /></xsl:attribute>
                                     </line>
-                                    <line x1="300" y1="0" x2="310" y2="0" class="planet-marker">
+                                    <line y1="0" y2="0" class="planet-marker">
+                                        <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
+                                        <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.4"/></xsl:attribute>
                                         <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base, '_outer')" /></xsl:attribute>
                                     </line>
                                     <use class="planet-symbol">
                                         <xsl:attribute name="xlink:href"><xsl:value-of select="concat('#', $planet_base, '_tmpl')"/></xsl:attribute>
-                                        <xsl:attribute name="transform"><xsl:value-of select="concat('translate(330,-15) rotate(', $degree - $asc_rotate ,',15,15)')"/></xsl:attribute>
+                                        <xsl:attribute name="transform"><xsl:value-of select="concat('translate(',$image_size * 0.4125,',-',$icon_size div 2,') rotate(', $degree - $asc_rotate ,',', $icon_size div 2, ',', $icon_size div 2, ')')"/></xsl:attribute>
                                     </use>
                                 </g>
                             </xsl:for-each>
@@ -506,20 +570,24 @@
                                 <g>
                                     <xsl:attribute name="id"><xsl:value-of select="$planet_base"/></xsl:attribute>
                                     <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(', $negative_degree, ',0,0)')"/></xsl:attribute>
-                                    <line x1="230" y1="0" x2="240" y2="0" class="planet-marker">
+                                    <line y1="0" y2="0" class="planet-marker">
+                                        <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.2875"/></xsl:attribute>
+                                        <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
                                         <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base)" /></xsl:attribute>
                                     </line>
-                                    <line x1="300" y1="0" x2="310" y2="0" class="planet-marker">
+                                    <line y1="0" y2="0" class="planet-marker">
+                                        <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
+                                        <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3875"/></xsl:attribute>
                                         <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base, '_outer')" /></xsl:attribute>
                                     </line>
                                     <use class="planet-symbol">
                                         <xsl:attribute name="xlink:href"><xsl:value-of select="concat('#', $planet_base, '_tmpl')"/></xsl:attribute>
-                                        <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', 330 + @dist * 35, ',-15) rotate(', @degree - $asc_rotate ,',15,15)')"/></xsl:attribute>
+                                        <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', $image_size * 0.4125 + @dist * ($icon_size * 1.1666666), ',-', $icon_size div 2, ') rotate(', @degree - $asc_rotate ,',', $icon_size div 2, ',', $icon_size div 2, ')')"/></xsl:attribute>
                                     </use>
                                     <xsl:choose>
                                         <xsl:when test="@retrograde='True'">
                                             <text>
-                                                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', 365 + @dist * 35, ',15) rotate(', @degree - $asc_rotate, ',-20,-20)')"/></xsl:attribute>
+                                                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', $image_size * 0.45625 + @dist * $icon_size * 1.1666666, ',', $icon_size div 2, ') rotate(', @degree - $asc_rotate, ',-', $icon_size * 0.666666, ',-', $icon_size * 0.666666, ')')"/></xsl:attribute>
                                                 R
                                             </text>
                                         </xsl:when>
@@ -530,15 +598,19 @@
                                         <g>
                                             <xsl:attribute name="id"><xsl:value-of select="concat($planet_base, '_desc')"/></xsl:attribute>
                                             <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(', 180 + $negative_degree, ',0,0)')"/></xsl:attribute>
-                                            <line x1="230" y1="0" x2="240" y2="0" class="planet-marker">
+                                            <line y1="0" y2="0" class="planet-marker">
+                                                <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.2875"/></xsl:attribute>
+                                                <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
                                                 <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base)" /></xsl:attribute>
                                             </line>
-                                            <line x1="300" y1="0" x2="310" y2="0" class="planet-marker">
+                                            <line y1="0" y2="0" class="planet-marker">
+                                                <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
+                                                <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3875"/></xsl:attribute>
                                                 <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base, '_outer')" /></xsl:attribute>
                                             </line>
                                             <use class="planet-symbol">
                                                 <xsl:attribute name="xlink:href"><xsl:value-of select="concat('#', $planet_base, '_tmpl')"/></xsl:attribute>
-                                                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(330,-15) rotate(', @degree - $asc_rotate ,',15,15)')"/></xsl:attribute>
+                                                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', $image_size * 0.4125, ',-', $icon_size div 2, ') rotate(', @degree - $asc_rotate ,',', $icon_size div 2, ',', $icon_size div 2, ')')"/></xsl:attribute>
                                             </use>
                                         </g>
                                     </xsl:when>
