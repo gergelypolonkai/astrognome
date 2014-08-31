@@ -730,7 +730,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
 static void
 ag_window_export_svg(AgWindow *window, GError **err)
 {
-    gchar           *name;
+    const gchar     *name;
     gchar           *file_name;
     GtkWidget       *fs;
     gint            response;
@@ -820,7 +820,7 @@ ag_window_export_svg_action(GSimpleAction *action,
 static void
 ag_window_export(AgWindow *window, GError **err)
 {
-    gchar           *name;
+    const gchar     *name;
     gchar           *file_name;
     GtkWidget       *fs;
     gint            response;
