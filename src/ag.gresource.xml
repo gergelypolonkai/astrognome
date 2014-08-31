@@ -20,5 +20,24 @@
     <file>default-icons/sign-aquarius.xml</file>
     <file>default-icons/sign-pisces.xml</file>
     <file>default-icons/planet-sun.svg</file>
+
+    <file>default-icons/planet-sun.xml</file>
+    <file>default-icons/planet-moon.xml</file>
+    <file>default-icons/planet-mercury.xml</file>
+    <file>default-icons/planet-venus.xml</file>
+    <file>default-icons/planet-mars.xml</file>
+    <file>default-icons/planet-jupiter.xml</file>
+    <file>default-icons/planet-saturn.xml</file>
+    <file>default-icons/planet-uranus.xml</file>
+    <file>default-icons/planet-neptune.xml</file>
+    <file>default-icons/planet-pluto.xml</file>
+    <file>default-icons/planet-chiron.xml</file>
+    <file>default-icons/planet-ceres.xml</file>
+    <file>default-icons/planet-pallas.xml</file>
+    <file>default-icons/planet-juno.xml</file>
+    <file>default-icons/planet-vesta.xml</file>
+    <file>default-icons/planet-moon-node.xml</file>
+    <file>default-icons/planet-moon-apogee.xml</file>
+    <file>default-icons/point-vertex.xml</file>
   </gresource>
 </gresources>
