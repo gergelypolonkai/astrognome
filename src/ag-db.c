@@ -456,30 +456,17 @@ static void
 ag_db_init(AgDb *db)
 {
     GdaSqlParser *parser;
-    GFile        *user_data_dir = g_file_new_for_path(g_get_user_data_dir()),
-                 *ag_data_dir   = g_file_get_child(user_data_dir, "astrognome");
+    GFile        *ag_data_dir   = ag_get_user_data_dir();
     AgDbPrivate  *priv          = ag_db_get_instance_private(db);
     gchar        *path          = g_file_get_path(ag_data_dir);
     GError       *err           = NULL;
 
     gda_init();
 
-    if (!g_file_query_exists(ag_data_dir, NULL)) {
-        gchar *path = g_file_get_path(ag_data_dir);
-
-        if (g_mkdir_with_parents(path, 0700) != 0) {
-            g_error(
-                    "Data directory %s does not exist and can not be created.",
-                    path
-                );
-        }
-    }
-
     priv->dsn = g_strdup_printf("SQLite://DB_DIR=%s;DB_NAME=charts", path);
 
     g_free(path);
-    g_object_unref(user_data_dir);
-    g_object_unref(ag_data_dir);
+    g_clear_object(&ag_data_dir);
 
     priv->conn = gda_connection_open_from_string(
             NULL,

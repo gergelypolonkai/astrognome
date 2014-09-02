@@ -1,6 +1,7 @@
 #ifndef __ASTROGNOME_H__
 #define __ASTROGNOME_H__
 
+#include <gtk/gtk.h>
 #include <swe-glib.h>
 
 typedef struct {
@@ -34,6 +35,7 @@ enum {
 
 const gchar *ag_house_system_id_to_nick(GsweHouseSystem house_system);
 GsweHouseSystem ag_house_system_nick_to_id(const gchar *nick);
+GFile *ag_get_user_data_dir(void);
 
 #ifndef GDOUBLE_FROM_LE
 inline static gdouble
