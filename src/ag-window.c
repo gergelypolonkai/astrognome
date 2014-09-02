@@ -48,6 +48,7 @@ struct _AgWindowPrivate {
 
     GtkWidget     *aspect_table;
     GtkWidget     *chart_web_view;
+    GtkWidget     *points_eq;
     GtkAdjustment *year_adjust;
 
     AgSettings    *settings;
@@ -402,6 +403,79 @@ ag_window_redraw_aspect_table(AgWindow *window)
     gtk_widget_show_all(priv->aspect_table);
 }
 
+static void
+ag_window_set_element_point(AgWindow    *window,
+                            GsweElement element,
+                            guint       left,
+                            guint       top)
+{
+    guint            points;
+    GtkWidget        *label;
+    gchar            *points_string;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    points = gswe_moment_get_element_points(
+            GSWE_MOMENT(priv->chart),
+            element
+        );
+
+    if ((label = gtk_grid_get_child_at(
+                GTK_GRID(priv->points_eq),
+                left, top
+            )) == NULL) {
+        label = gtk_label_new("");
+        gtk_grid_attach(GTK_GRID(priv->points_eq), label, left, top, 1, 1);
+        gtk_widget_show(label);
+    }
+
+    points_string = g_strdup_printf("%d", points);
+    gtk_label_set_text(GTK_LABEL(label), points_string);
+    g_free(points_string);
+}
+
+static void
+ag_window_set_quality_point(AgWindow    *window,
+                            GsweQuality quality,
+                            guint       left,
+                            guint       top)
+{
+    guint            points;
+    GtkWidget        *label;
+    gchar            *points_string;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    points = gswe_moment_get_quality_points(
+            GSWE_MOMENT(priv->chart),
+            quality
+        );
+
+    if ((label = gtk_grid_get_child_at(
+                GTK_GRID(priv->points_eq),
+                left, top
+            )) == NULL) {
+        label = gtk_label_new("");
+        gtk_grid_attach(GTK_GRID(priv->points_eq), label, left, top, 1, 1);
+        gtk_widget_show(label);
+    }
+
+    points_string = g_strdup_printf("%d", points);
+    gtk_label_set_text(GTK_LABEL(label), points_string);
+    g_free(points_string);
+}
+
+static void
+ag_window_redraw_points_table(AgWindow *window)
+{
+    ag_window_set_element_point(window, GSWE_ELEMENT_FIRE, 4, 1);
+    ag_window_set_element_point(window, GSWE_ELEMENT_EARTH, 4, 2);
+    ag_window_set_element_point(window, GSWE_ELEMENT_AIR, 4, 3);
+    ag_window_set_element_point(window, GSWE_ELEMENT_WATER, 4, 4);
+
+    ag_window_set_quality_point(window, GSWE_QUALITY_CARDINAL, 1, 5);
+    ag_window_set_quality_point(window, GSWE_QUALITY_FIX, 2, 5);
+    ag_window_set_quality_point(window, GSWE_QUALITY_MUTABLE, 3, 5);
+}
+
 /**
  * ag_window_redraw_chart:
  * @window: the #AgWindow to operate on
@@ -441,6 +515,7 @@ ag_window_redraw_chart(AgWindow *window)
     }
 
     ag_window_redraw_aspect_table(window);
+    ag_window_redraw_points_table(window);
 }
 
 static gboolean
@@ -1387,6 +1462,7 @@ ag_window_display_changed(GSettings *settings, gchar *key, AgWindow *window)
     }
 
     ag_window_redraw_aspect_table(window);
+    ag_window_redraw_points_table(window);
 }
 
 static void
@@ -1990,6 +2066,11 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             selection_toolbar
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            points_eq
         );
 
     gtk_widget_class_bind_template_callback(
