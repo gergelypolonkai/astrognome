@@ -313,7 +313,8 @@ const gchar *action_accels[] = {
     "win.gear-menu",           "F10",               NULL,
     "app.help",                "F1",                NULL,
     "win.change-tab::chart",   "F5",                NULL,
-    "win.change-tab::aspects", "F9",                NULL,
+    "win.change-tab::aspects", "F6",                NULL,
+    "win.change-tab::points",  "F7",                NULL,
     "win.change-tab::edit",    "F4",                NULL,
     NULL
 };

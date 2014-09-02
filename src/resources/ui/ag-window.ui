@@ -7,7 +7,7 @@
         <item>
           <attribute name="label" translatable="yes">Edit</attribute>
           <attribute name="action">win.change-tab</attribute>
-          <attribute name="accel">&lt;F3&gt;</attribute>
+          <attribute name="accel">&lt;F4&gt;</attribute>
           <attribute name="target">edit</attribute>
         </item>
         <item>
