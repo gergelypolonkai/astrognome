@@ -78,10 +78,10 @@ static void
 preferences_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
     AgApp *app = AG_APP(user_data);
-    GtkWindow *window;
 
-    window = ag_app_peek_first_window(app);
-    ag_preferences_show_dialog(window);
+    ag_preferences_show_dialog(
+            gtk_application_get_active_window(GTK_APPLICATION(app))
+        );
 }
 
 static void
@@ -97,26 +97,29 @@ about_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
         NULL
     };
     const gchar *translator_credits = _("translator_credits");
+    AgApp       *app                = AG_APP(user_data);
 
     /* i18n: Please don't translate "Astrognome" (it's marked as translatable
      * for transliteration only */
-    gtk_show_about_dialog(NULL,
-                          "name", _("Astrognome"),
-                          "version", PACKAGE_VERSION,
-                          "comments", _("Astrologers' software for GNOME"),
-                          "authors", authors,
-                          "artists", artists,
-                          "translator_credits", ((strcmp(
-                                                         translator_credits,
-                                                         "translator_credits"
-                                                     ) != 0)
-                                                 ? translator_credits
-                                                 : NULL),
-                          "website", PACKAGE_URL,
-                          "website-label", _("Astrognome Website"),
-                          "license-type", GTK_LICENSE_GPL_3_0,
-                          "logo-icon-name", PACKAGE_TARNAME,
-                          NULL);
+    gtk_show_about_dialog(
+            gtk_application_get_active_window(GTK_APPLICATION(app)),
+            "name", _("Astrognome"),
+            "version", PACKAGE_VERSION,
+            "comments", _("Astrologers' software for GNOME"),
+            "authors", authors,
+            "artists", artists,
+            "translator_credits", ((strcmp(
+                                           translator_credits,
+                                           "translator_credits"
+                                       ) != 0)
+                                   ? translator_credits
+                                   : NULL),
+            "website", PACKAGE_URL,
+            "website-label", _("Astrognome Website"),
+            "license-type", GTK_LICENSE_GPL_3_0,
+            "logo-icon-name", PACKAGE_TARNAME,
+            NULL
+        );
 }
 
 static void
@@ -158,7 +161,7 @@ ag_app_import_file(AgApp *app, GFile *file, AgAppImportType type)
 
     if (chart == NULL) {
         ag_app_message_dialog(
-                NULL,
+                gtk_application_get_active_window(GTK_APPLICATION(app)),
                 GTK_MESSAGE_ERROR,
                 "Error while loading: %s",
                 err->message
@@ -183,6 +186,7 @@ ag_app_import_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
     GSList          *filenames   = NULL;
     const gchar     *target_type = g_variant_get_string(parameter, NULL);
     AgAppImportType type         = AG_APP_IMPORT_NONE;
+    AgApp           *app         = AG_APP(user_data);
 
     if (strncmp("agc", target_type, 3) == 0) {
         type = AG_APP_IMPORT_AGC;
@@ -194,12 +198,14 @@ ag_app_import_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
         g_error("Unknown import type!");
     }
 
-    fs = gtk_file_chooser_dialog_new(_("Select charts"),
-                                     NULL,
-                                     GTK_FILE_CHOOSER_ACTION_OPEN,
-                                     _("_Cancel"), GTK_RESPONSE_CANCEL,
-                                     _("_Import"), GTK_RESPONSE_ACCEPT,
-                                     NULL);
+    fs = gtk_file_chooser_dialog_new(
+            _("Select charts"),
+            gtk_application_get_active_window(GTK_APPLICATION(app)),
+            GTK_FILE_CHOOSER_ACTION_OPEN,
+            _("_Cancel"), GTK_RESPONSE_CANCEL,
+            _("_Import"), GTK_RESPONSE_ACCEPT,
+            NULL
+        );
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_all);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter);
     gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(fs), filter);
@@ -263,7 +269,7 @@ show_help(const gchar *topic, GtkWindow *parent)
 
     if (!gtk_show_uri(screen, uri, gtk_get_current_event_time(), &err)) {
         ag_app_message_dialog(
-                GTK_WIDGET(parent),
+                GTK_WINDOW(parent),
                 GTK_MESSAGE_WARNING,
                 "Unable to display help: %s",
                 err->message
@@ -462,8 +468,8 @@ ag_app_class_init(AgAppClass *klass)
     application_class->open    = ag_app_import;
 }
 
-gint
-ag_app_buttoned_dialog(GtkWidget      *window,
+GtkResponseType
+ag_app_buttoned_dialog(GtkWindow      *window,
                        GtkMessageType message_type,
                        const gchar    *message,
                        const gchar    *first_button_text,
@@ -475,9 +481,7 @@ ag_app_buttoned_dialog(GtkWidget      *window,
     GtkWidget   *dialog;
     GtkWindow   *parent = NULL;
 
-    if (window) {
-        parent = GTK_WINDOW(window);
-    }
+    g_return_val_if_fail(GTK_IS_WINDOW(window), GTK_RESPONSE_NONE);
 
     dialog = gtk_message_dialog_new(
             parent,
@@ -510,7 +514,7 @@ ag_app_buttoned_dialog(GtkWidget      *window,
 }
 
 void
-ag_app_message_dialog(GtkWidget      *window,
+ag_app_message_dialog(GtkWindow      *window,
                       GtkMessageType message_type,
                       gchar          *fmt, ...)
 {
