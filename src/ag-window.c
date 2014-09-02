@@ -422,7 +422,7 @@ ag_window_redraw_chart(AgWindow *window)
 
     if (svg_content == NULL) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_WARNING,
                 "Unable to draw chart: %s",
                 err->message
@@ -741,7 +741,7 @@ ag_window_export_svg(AgWindow *window, GError **err)
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 _("Chart cannot be calculated.")
             );
@@ -758,7 +758,7 @@ ag_window_export_svg(AgWindow *window, GError **err)
 
     if ((name == NULL) || (*name == 0)) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 _("You must enter a name before saving a chart.")
             );
@@ -809,7 +809,7 @@ ag_window_export_svg_action(GSimpleAction *action,
 
     if (err) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 "%s",
                 err->message
@@ -831,7 +831,7 @@ ag_window_export(AgWindow *window, GError **err)
     // We should never enter here, but who knows...
     if (priv->chart == NULL) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 _("Chart cannot be calculated.")
             );
@@ -848,7 +848,7 @@ ag_window_export(AgWindow *window, GError **err)
 
     if ((name == NULL) || (*name == 0)) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 _("You must enter a name before saving a chart.")
             );
@@ -900,7 +900,7 @@ ag_window_export_action(GSimpleAction *action,
 
     if (err) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 "%s", err->message
             );
@@ -934,7 +934,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
                 gint response;
 
                 response = ag_app_buttoned_dialog(
-                        GTK_WIDGET(window),
+                        GTK_WINDOW(window),
                         GTK_MESSAGE_QUESTION,
                         _("Chart is not saved. Do you want to save it?"),
                         _("Save and close"), GTK_RESPONSE_YES,
@@ -947,7 +947,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
                     case GTK_RESPONSE_YES:
                         if (!ag_db_save_chart(db, save_data, &err)) {
                             ag_app_message_dialog(
-                                    GTK_WIDGET(window),
+                                    GTK_WINDOW(window),
                                     GTK_MESSAGE_ERROR,
                                     "Unable to save chart: %s",
                                     err->message
@@ -1001,7 +1001,7 @@ ag_window_save_action(GSimpleAction *action,
 
         if (!ag_db_save_chart(db, save_data, &err)) {
             ag_app_message_dialog(
-                    GTK_WIDGET(window),
+                    GTK_WINDOW(window),
                     GTK_MESSAGE_ERROR,
                     _("Unable to save: %s"),
                     err->message
@@ -1160,7 +1160,7 @@ ag_window_new_chart_action(GSimpleAction *action,
 
     if (priv->chart) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 "This window already has a chart. " \
                 "This should not happen, " \
@@ -1282,7 +1282,7 @@ ag_window_delete_action(GSimpleAction *action,
 
         if (!ag_db_delete_chart(db, id, &err)) {
             ag_app_message_dialog(
-                    GTK_WIDGET(window),
+                    GTK_WINDOW(window),
                     GTK_MESSAGE_ERROR,
                     "Unable to delete chart: %s",
                     (err && err->message)
@@ -1417,7 +1417,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
 
     if (priv->saved_data != NULL) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 "Window chart is not saved. " \
                 "This is a bug, it should not happen here. " \
@@ -1436,7 +1436,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
                  row_id,
                  &err)) == NULL) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 "Could not open chart."
             );
@@ -1453,7 +1453,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
                  &err
             )) == NULL) {
         ag_app_message_dialog(
-                GTK_WIDGET(window),
+                GTK_WINDOW(window),
                 GTK_MESSAGE_ERROR,
                 "Error: %s",
                 err->message

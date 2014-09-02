@@ -53,12 +53,12 @@ void ag_app_run_action(AgApp                   *app,
                        gboolean                is_remote,
                        const AstrognomeOptions *options);
 
-gint ag_app_buttoned_dialog(GtkWidget      *window,
+gint ag_app_buttoned_dialog(GtkWindow      *window,
                             GtkMessageType message_type,
                             const gchar    *message,
                             const gchar    *first_button_text, ...);
 
-void ag_app_message_dialog(GtkWidget      *window,
+void ag_app_message_dialog(GtkWindow      *window,
                            GtkMessageType message_type,
                            gchar          *fmt, ...);
 
