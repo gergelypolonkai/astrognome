@@ -504,6 +504,45 @@
                         </use>
 
                         <xsl:for-each select="chartinfo/houses/house">
+                            <xsl:variable name="next_house" select="@number + 1"/>
+                            <xsl:variable name="next_degree_read">
+                                <xsl:choose>
+                                    <xsl:when test="/chartinfo/houses/house[@number=$next_house]">
+                                        <xsl:value-of select="/chartinfo/houses/house[@number=$next_house]/@degree"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="/chartinfo/houses/house[@number='1']/@degree"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:variable>
+                            <xsl:variable name="next_degree">
+                                <xsl:choose>
+                                    <xsl:when test="$next_degree_read &lt; @degree">
+                                        <xsl:value-of select="$next_degree_read + 360.0"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="$next_degree_read"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:variable>
+                            <xsl:variable name="house_mid_test" select="(@degree + $next_degree) div 2"/>
+                            <xsl:variable name="house_mid">
+                                <xsl:choose>
+                                    <xsl:when test="$house_mid_test &gt; 360.0">
+                                        <xsl:value-of select="$house_mid_test - 360.0"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="$house_mid_test"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:variable>
+                            <text text-anchor="middle">
+                                <xsl:attribute name="font-size"><xsl:value-of select="$image_size * 0.0125"/></xsl:attribute>
+                                <xsl:attribute name="transform">
+                                    rotate(-<xsl:value-of select="$house_mid"/>,0,0) translate(<xsl:value-of select="$image_size * 0.06875"/>,0) rotate(90,0,0)
+                                </xsl:attribute>
+                                <xsl:value-of select="@number"/>
+                            </text>
                             <line y1="0" y2="0" class="house-cusp">
                                 <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.0625"/></xsl:attribute>
                                 <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
