@@ -316,6 +316,7 @@ const gchar *action_accels[] = {
     "win.change-tab::aspects", "F6",                NULL,
     "win.change-tab::points",  "F7",                NULL,
     "win.change-tab::edit",    "F4",                NULL,
+    "win.back",                "<Alt>Left",         "Back", NULL,
     NULL
 };
 
