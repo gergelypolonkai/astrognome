@@ -8,11 +8,7 @@
 #include "config.h"
 #include "astrognome.h"
 
-typedef struct _AgAppPrivate {
-    WebKitUserContentManager *manager;
-} AgAppPrivate;
-
-G_DEFINE_TYPE_WITH_PRIVATE(AgApp, ag_app, GTK_TYPE_APPLICATION);
+G_DEFINE_TYPE(AgApp, ag_app, GTK_TYPE_APPLICATION);
 
 GtkWindow *
 ag_app_peek_first_window(AgApp *app)
@@ -56,9 +52,8 @@ static GtkWidget *
 ag_app_create_window(AgApp *app)
 {
     GtkWidget *window;
-    AgAppPrivate *priv = ag_app_get_instance_private(app);
 
-    window = ag_window_new(app, priv->manager);
+    window = ag_window_new(app);
     gtk_application_add_window(GTK_APPLICATION(app), GTK_WINDOW(window));
     gtk_widget_show_all(window);
 
@@ -432,33 +427,6 @@ ag_app_new(void)
 static void
 ag_app_init(AgApp *app)
 {
-    AgAppPrivate         *priv;
-    GBytes               *css_data;
-    const gchar          *css_source;
-    gsize                css_length;
-    WebKitUserStyleSheet *stylesheet;
-
-    priv = ag_app_get_instance_private(app);
-    priv->manager = webkit_user_content_manager_new();
-
-    css_data = g_resources_lookup_data(
-            "/eu/polonkai/gergely/Astrognome/ui/chart-default.css",
-            G_RESOURCE_LOOKUP_FLAGS_NONE,
-            NULL
-        );
-
-    if ((css_source = g_bytes_get_data(css_data, &css_length)) != NULL) {
-        stylesheet = webkit_user_style_sheet_new(
-                css_source,
-                WEBKIT_USER_CONTENT_INJECT_TOP_FRAME,
-                WEBKIT_USER_STYLE_LEVEL_USER,
-                NULL, NULL
-            );
-        webkit_user_content_manager_add_style_sheet(priv->manager, stylesheet);
-        webkit_user_style_sheet_unref(stylesheet);
-    }
-
-    g_bytes_unref(css_data);
 }
 
 static void

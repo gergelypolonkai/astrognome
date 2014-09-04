@@ -62,6 +62,7 @@ struct _AgWindowPrivate {
     GtkEntryCompletion *city_comp;
     gchar              *selected_country;
     gchar              *selected_city;
+    GList              *style_sheets;
 };
 
 struct cc_search {
@@ -2123,15 +2124,93 @@ ag_window_configure_event_cb(GtkWidget         *widget,
     return FALSE;
 }
 
-GtkWidget *
-ag_window_new(AgApp *app, WebKitUserContentManager *manager)
+static void
+ag_window_add_style_sheet(AgWindow *window, const gchar *path)
 {
-    AgWindow        *window = g_object_new(AG_TYPE_WINDOW, NULL);
-    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    gchar           *css_source;
+    gboolean        source_free = FALSE;
+    AgWindowPrivate *priv       = ag_window_get_instance_private(window);
+
+    if (strncmp("gres://", path, 7) == 0) {
+        gchar  *res_path = g_strdup_printf(
+                "/eu/polonkai/gergely/Astrognome/%s",
+                path + 7
+            );
+        GBytes *css_data = g_resources_lookup_data(
+                res_path,
+                G_RESOURCE_LOOKUP_FLAGS_NONE,
+                NULL
+            );
+
+        css_source  = g_strdup(g_bytes_get_data(css_data, NULL));
+        source_free = TRUE;
+        g_bytes_unref(css_data);
+    } else if (strncmp("raw:", path, 4) == 0) {
+        css_source = (gchar *)path + 4;
+    } else {
+        GFile  *css_file = g_file_new_for_uri(path);
+        GError *err = NULL;
+
+        g_file_load_contents(
+                css_file,
+                NULL,
+                &css_source, NULL,
+                NULL,
+                &err
+            );
+        source_free = TRUE;
+        g_object_unref(css_file);
+    }
+
+    if (css_source) {
+        WebKitUserStyleSheet *style_sheet = webkit_user_style_sheet_new(
+                css_source,
+                WEBKIT_USER_CONTENT_INJECT_TOP_FRAME,
+                WEBKIT_USER_STYLE_LEVEL_USER,
+                NULL, NULL
+            );
+
+        priv->style_sheets = g_list_append(priv->style_sheets, style_sheet);
+
+        if (source_free) {
+            g_free(css_source);
+        }
+    }
+}
+
+static void
+ag_window_update_style_sheets(AgWindow *window)
+{
+    GList                    *item;
+    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
+    WebKitUserContentManager *manager = webkit_web_view_get_user_content_manager(
+            WEBKIT_WEB_VIEW(priv->chart_web_view)
+        );
+
+    webkit_user_content_manager_remove_all_style_sheets(manager);
+
+    for (item = priv->style_sheets; item; item = g_list_next(item)) {
+        WebKitUserStyleSheet *style_sheet = item->data;
+
+        webkit_user_content_manager_add_style_sheet(manager, style_sheet);
+    }
+}
+
+GtkWidget *
+ag_window_new(AgApp *app)
+{
+    AgWindow                 *window  = g_object_new(AG_TYPE_WINDOW, NULL);
+    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
+    WebKitUserContentManager *manager = webkit_user_content_manager_new();
 
     priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
             manager
         );
+    ag_window_add_style_sheet(
+            window,
+            "gres://ui/chart-default.css"
+        );
+    ag_window_update_style_sheets(window);
     gtk_box_pack_end(
             GTK_BOX(priv->tab_chart),
             priv->chart_web_view,
