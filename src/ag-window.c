@@ -1400,8 +1400,8 @@ ag_window_connection_action(GSimpleAction *action,
         );
     static gchar *js         = "aspects = document.getElementById('aspects');\n"   \
                                "antiscia = document.getElementById('antiscia');\n" \
-                               "aspects.setAttribute('visibility', '%s');\n"       \
-                               "antiscia.setAttribute('visibility', '%s');\n";
+                               "aspects.setAttribute('display', '%s');\n"       \
+                               "antiscia.setAttribute('display', '%s');\n";
 
     current_state = g_action_get_state(G_ACTION(action));
 
@@ -1415,10 +1415,10 @@ ag_window_connection_action(GSimpleAction *action,
 
     if (strcmp("aspects", state) == 0) {
         g_debug("Switching to aspects");
-        js_code = g_strdup_printf(js, "visible", "hidden");
+        js_code = g_strdup_printf(js, "block", "none");
     } else if (strcmp("antiscia", state) == 0) {
         g_debug("Switching to antiscia");
-        js_code = g_strdup_printf(js, "hidden", "visible");
+        js_code = g_strdup_printf(js, "none", "block");
     } else {
         g_warning("Connection type '%s' is invalid", state);
     }

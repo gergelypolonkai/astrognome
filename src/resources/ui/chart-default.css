@@ -128,3 +128,9 @@ line.aspect-biquintile {
 line.aspect-quincunx {
     stroke: #cc0000;
 }
+
+line.antiscion {
+    stroke-width: 1;
+    stroke: #000000;
+    stroke-dasharray: 20,10;
+}
