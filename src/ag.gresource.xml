@@ -32,10 +32,13 @@
     <file>default-icons/planet-neptune.xml</file>
     <file>default-icons/planet-pluto.xml</file>
     <file>default-icons/planet-chiron.xml</file>
+    <file>default-icons/planet-pholus.xml</file>
+    <file>default-icons/planet-nessus.xml</file>
     <file>default-icons/planet-ceres.xml</file>
     <file>default-icons/planet-pallas.xml</file>
     <file>default-icons/planet-juno.xml</file>
     <file>default-icons/planet-vesta.xml</file>
+    <file>default-icons/planet-chariklo.xml</file>
     <file>default-icons/planet-moon-node.xml</file>
     <file>default-icons/planet-moon-apogee.xml</file>
     <file>default-icons/point-vertex.xml</file>
