@@ -57,6 +57,7 @@
                 <xi:include href="gres://default-icons/planet-pluto.xml" />
                 <xi:include href="gres://default-icons/planet-chiron.xml" />
                 <xi:include href="gres://default-icons/planet-pholus.xml" />
+                <xi:include href="gres://default-icons/planet-nessus.xml" />
                 <xi:include href="gres://default-icons/planet-ceres.xml" />
                 <xi:include href="gres://default-icons/planet-pallas.xml" />
                 <xi:include href="gres://default-icons/planet-juno.xml" />
