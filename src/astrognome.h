@@ -10,11 +10,13 @@ typedef struct {
     gboolean new_window;
 } AstrognomeOptions;
 
-extern GtkFileFilter *filter_all;
-extern GtkFileFilter *filter_chart;
-extern GtkFileFilter *filter_hor;
-extern GtkTreeModel  *country_list;
-extern GtkTreeModel  *city_list;
+extern GtkFileFilter    *filter_all;
+extern GtkFileFilter    *filter_chart;
+extern GtkFileFilter    *filter_hor;
+extern GtkTreeModel     *country_list;
+extern GtkTreeModel     *city_list;
+extern const GswePlanet used_planets[];
+extern gsize            used_planets_count;
 
 enum {
     AG_COUNTRY_CODE,

@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "astrognome.h"
 #include "ag-db.h"
 #include "ag-chart.h"
 #include "placidus.h"
@@ -221,145 +222,18 @@ ag_chart_finalize(GObject *gobject)
 void
 ag_chart_add_planets(AgChart *chart)
 {
+    int i;
     AgChartPrivate *priv = ag_chart_get_instance_private(chart);
 
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_CHARIKLO, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_CHARIKLO)
-        );
+    for (i = 0; i < used_planets_count; i++) {
+        gswe_moment_add_planet(GSWE_MOMENT(chart), used_planets[i], NULL);
+        priv->planet_list = g_list_prepend(
+                priv->planet_list,
+                GINT_TO_POINTER(used_planets[i])
+            );
+    }
 
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_VESTA, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_VESTA)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_JUNO, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_JUNO)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_PALLAS, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_PALLAS)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_CERES, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_CERES)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_NESSUS, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_NESSUS)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_PHOLUS, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_PHOLUS)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_CHIRON, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_CHIRON)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MOON_APOGEE, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_MOON_APOGEE)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MOON_NODE, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_MOON_NODE)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_PLUTO, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_PLUTO)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_NEPTUNE, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_NEPTUNE)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_URANUS, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_URANUS)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_SATURN, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_SATURN)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_JUPITER, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_JUPITER)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MARS, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_MARS)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_VENUS, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_VENUS)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MERCURY, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_MERCURY)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MOON, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_MOON)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_SUN, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_SUN)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_VERTEX, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_VERTEX)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_ASCENDANT, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_ASCENDANT)
-        );
-
-    gswe_moment_add_planet(GSWE_MOMENT(chart), GSWE_PLANET_MC, NULL);
-    priv->planet_list = g_list_prepend(
-            priv->planet_list,
-            GINT_TO_POINTER(GSWE_PLANET_MC)
-        );
+    priv->planet_list = g_list_reverse(priv->planet_list);
 }
 
 AgChart *

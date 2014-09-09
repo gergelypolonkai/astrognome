@@ -27,6 +27,7 @@ GtkFileFilter *filter_hor   = NULL;
 GtkTreeModel  *country_list = NULL;
 GtkTreeModel  *city_list    = NULL;
 GHashTable    *xinclude_positions;
+gsize         used_planets_count;
 
 const char    *moonStateName[] = {
     "New Moon",
@@ -38,6 +39,32 @@ const char    *moonStateName[] = {
     "Waning Half Moon",
     "Waning Crescent Moon",
     "Dark Moon"
+};
+
+const GswePlanet used_planets[] = {
+    GSWE_PLANET_MC,
+    GSWE_PLANET_ASCENDANT,
+    GSWE_PLANET_VERTEX,
+    GSWE_PLANET_SUN,
+    GSWE_PLANET_MOON,
+    GSWE_PLANET_MERCURY,
+    GSWE_PLANET_VENUS,
+    GSWE_PLANET_MARS,
+    GSWE_PLANET_JUPITER,
+    GSWE_PLANET_SATURN,
+    GSWE_PLANET_URANUS,
+    GSWE_PLANET_NEPTUNE,
+    GSWE_PLANET_PLUTO,
+    GSWE_PLANET_MOON_NODE,
+    GSWE_PLANET_MOON_APOGEE,
+    GSWE_PLANET_CHIRON,
+    GSWE_PLANET_PHOLUS,
+    GSWE_PLANET_NESSUS,
+    GSWE_PLANET_CERES,
+    GSWE_PLANET_PALLAS,
+    GSWE_PLANET_JUNO,
+    GSWE_PLANET_VESTA,
+    GSWE_PLANET_CHARIKLO
 };
 
 void
@@ -357,6 +384,7 @@ main(int argc, char *argv[])
     textdomain(GETTEXT_PACKAGE);
 #endif
 
+    used_planets_count = sizeof(used_planets) / sizeof(GswePlanet);
     LIBXML_TEST_VERSION;
     xmlSubstituteEntitiesDefault(1);
     xmlLoadExtDtdDefaultValue = 1;
