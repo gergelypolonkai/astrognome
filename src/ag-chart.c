@@ -1151,7 +1151,7 @@ AgChart *ag_chart_load_from_placidus_file(GFile  *file,
 }
 
 AgChart *
-ag_chart_new_from_db_save(AgDbSave *save_data, GError **err)
+ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err)
 {
     GsweTimestamp   *timestamp;
     gchar           *house_system_enum_name;
@@ -1782,12 +1782,12 @@ ag_chart_get_note(AgChart *chart)
     return priv->note;
 }
 
-AgDbSave *
+AgDbChartSave *
 ag_chart_get_db_save(AgChart *chart, gint db_id)
 {
     GsweCoordinates *coords;
     AgChartPrivate  *priv      = ag_chart_get_instance_private(chart);
-    AgDbSave        *save_data = g_new0(AgDbSave, 1);
+    AgDbChartSave   *save_data = g_new0(AgDbChartSave, 1);
     GsweTimestamp   *timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
     GEnumClass      *house_system_class;
     GEnumValue      *house_system_enum;

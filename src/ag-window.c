@@ -57,7 +57,7 @@ struct _AgWindowPrivate {
     GtkTextBuffer *note_buffer;
     GtkListStore  *house_system_model;
     GtkListStore  *db_chart_data;
-    AgDbSave      *saved_data;
+    AgDbChartSave      *saved_data;
     GtkEntryCompletion *country_comp;
     GtkEntryCompletion *city_comp;
     gchar              *selected_country;
@@ -644,7 +644,7 @@ ag_window_chart_changed(AgChart *chart, AgWindow *window)
 static void
 ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
 {
-    AgDbSave        *edit_data,
+    AgDbChartSave   *edit_data,
                     *chart_data;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
     gboolean        south,
@@ -674,7 +674,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         gtk_spin_button_update(GTK_SPIN_BUTTON(current));
     }
 
-    edit_data = g_new0(AgDbSave, 1);
+    edit_data = g_new0(AgDbChartSave, 1);
 
     edit_data->db_id = db_id;
 
@@ -749,16 +749,16 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
             : NULL
         ;
 
-    if (ag_db_save_identical(edit_data, chart_data, !set_everything)) {
+    if (ag_db_chart_save_identical(edit_data, chart_data, !set_everything)) {
         g_debug("No redrawing needed");
 
-        ag_db_save_data_free(edit_data);
-        ag_db_save_data_free(chart_data);
+        ag_db_chart_save_free(edit_data);
+        ag_db_chart_save_free(chart_data);
 
         return;
     }
 
-    ag_db_save_data_free(chart_data);
+    ag_db_chart_save_free(chart_data);
 
     g_debug("Recalculating chart data");
 
@@ -800,7 +800,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         ag_chart_set_note(priv->chart, edit_data->note);
     }
 
-    ag_db_save_data_free(edit_data);
+    ag_db_chart_save_free(edit_data);
 }
 
 static void
@@ -990,7 +990,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
     gint            db_id      = (priv->saved_data)
             ? priv->saved_data->db_id
             : -1;
-    AgDbSave        *save_data = NULL;
+    AgDbChartSave   *save_data = NULL;
     AgDb            *db        = ag_db_get();
     GError          *err       = NULL;
     gboolean        ret        = TRUE;
@@ -1000,7 +1000,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
         save_data = ag_chart_get_db_save(priv->chart, db_id);
 
         if (
-                    !ag_db_save_identical(priv->saved_data, save_data, FALSE)
+                    !ag_db_chart_save_identical(priv->saved_data, save_data, FALSE)
                     || !(priv->saved_data)
                     || (priv->saved_data->db_id == -1)
                 ) {
@@ -1021,7 +1021,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
 
                 switch (response) {
                     case GTK_RESPONSE_YES:
-                        if (!ag_db_save_chart(db, save_data, &err)) {
+                        if (!ag_db_chart_save(db, save_data, &err)) {
                             ag_app_message_dialog(
                                     GTK_WINDOW(window),
                                     GTK_MESSAGE_ERROR,
@@ -1052,7 +1052,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
         }
     }
 
-    ag_db_save_data_free(save_data);
+    ag_db_chart_save_free(save_data);
 
     return ret;
 }
@@ -1067,7 +1067,7 @@ ag_window_save_action(GSimpleAction *action,
     AgDb            *db     = ag_db_get();
     GError          *err    = NULL;
     gint            old_id;
-    AgDbSave        *save_data;
+    AgDbChartSave   *save_data;
 
     ag_window_recalculate_chart(window, TRUE);
 
@@ -1075,7 +1075,7 @@ ag_window_save_action(GSimpleAction *action,
         old_id    = (priv->saved_data) ? priv->saved_data->db_id : -1;
         save_data = ag_chart_get_db_save(priv->chart, old_id);
 
-        if (!ag_db_save_chart(db, save_data, &err)) {
+        if (!ag_db_chart_save(db, save_data, &err)) {
             ag_app_message_dialog(
                     GTK_WINDOW(window),
                     GTK_MESSAGE_ERROR,
@@ -1084,7 +1084,7 @@ ag_window_save_action(GSimpleAction *action,
                 );
         }
 
-        ag_db_save_data_free(priv->saved_data);
+        ag_db_chart_save_free(priv->saved_data);
         priv->saved_data = save_data;
     }
 }
@@ -1263,7 +1263,7 @@ ag_window_back_action(GSimpleAction *action,
 
     if (ag_window_can_close(window, TRUE)) {
         g_clear_object(&(priv->chart));
-        ag_db_save_data_free(priv->saved_data);
+        ag_db_chart_save_free(priv->saved_data);
         priv->saved_data = NULL;
 
         ag_window_load_chart_list(window);
@@ -1356,7 +1356,7 @@ ag_window_delete_action(GSimpleAction *action,
         id = atoi(id_str);
         g_free(id_str);
 
-        if (!ag_db_delete_chart(db, id, &err)) {
+        if (!ag_db_chart_delete(db, id, &err)) {
             ag_app_message_dialog(
                     GTK_WINDOW(window),
                     GTK_MESSAGE_ERROR,
@@ -1508,7 +1508,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
 
     g_debug("Loading chart with ID %d", row_id);
 
-    if ((priv->saved_data = ag_db_get_chart_data_by_id(
+    if ((priv->saved_data = ag_db_chart_get_data_by_id(
                  db,
                  row_id,
                  &err)) == NULL) {
@@ -1535,7 +1535,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
                 "Error: %s",
                 err->message
             );
-        ag_db_save_data_free(priv->saved_data);
+        ag_db_chart_save_free(priv->saved_data);
         priv->saved_data = NULL;
 
         return;
@@ -2271,7 +2271,7 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
         g_clear_object(&(priv->chart));
     }
 
-    ag_db_save_data_free(priv->saved_data);
+    ag_db_chart_save_free(priv->saved_data);
 
     priv->chart = chart;
     g_signal_connect(
@@ -2357,7 +2357,7 @@ ag_window_change_tab(AgWindow *window, const gchar *tab_name)
 }
 
 static void
-ag_window_add_chart_to_list(AgDbSave *save_data, AgWindow *window)
+ag_window_add_chart_to_list(AgDbChartSave *save_data, AgWindow *window)
 {
     GtkTreeIter     iter;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
@@ -2392,7 +2392,7 @@ ag_window_load_chart_list(AgWindow *window)
 {
     AgDb   *db         = ag_db_get();
     GError *err        = NULL;
-    GList  *chart_list = ag_db_get_chart_list(db, &err);
+    GList  *chart_list = ag_db_chart_get_list(db, &err);
 
     ag_window_clear_chart_list(window);
     /* With only a few charts, this should be fine. Maybe implementing lazy

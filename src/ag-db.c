@@ -22,50 +22,50 @@ G_DEFINE_QUARK(ag_db_error_quark, ag_db_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgDb, ag_db, G_TYPE_OBJECT);
 
-typedef enum {
-    COLUMN_ID,
-    COLUMN_NAME,
-    COLUMN_COUNTRY,
-    COLUMN_CITY,
-    COLUMN_LONGITUDE,
-    COLUMN_LATITUDE,
-    COLUMN_ALTITUDE,
-    COLUMN_YEAR,
-    COLUMN_MONTH,
-    COLUMN_DAY,
-    COLUMN_HOUR,
-    COLUMN_MINUTE,
-    COLUMN_SECOND,
-    COLUMN_TIMEZONE,
-    COLUMN_HOUSE_SYSTEM,
-    COLUMN_NOTE,
+enum {
+    COLUMN_CHART_ID,
+    COLUMN_CHART_NAME,
+    COLUMN_CHART_COUNTRY,
+    COLUMN_CHART_CITY,
+    COLUMN_CHART_LONGITUDE,
+    COLUMN_CHART_LATITUDE,
+    COLUMN_CHART_ALTITUDE,
+    COLUMN_CHART_YEAR,
+    COLUMN_CHART_MONTH,
+    COLUMN_CHART_DAY,
+    COLUMN_CHART_HOUR,
+    COLUMN_CHART_MINUTE,
+    COLUMN_CHART_SECOND,
+    COLUMN_CHART_TIMEZONE,
+    COLUMN_CHART_HOUSE_SYSTEM,
+    COLUMN_CHART_NOTE,
 
     /* Leave this as the last element */
-    COLUMN_COUNT
-} ChartTableColumn;
+    COLUMN_CHART_COUNT
+};
 
 typedef struct {
-    ChartTableColumn id;
+    int id;
     gchar *name;
-} ChartTableColumnDef;
+} TableColumnDef;
 
-static ChartTableColumnDef chart_table_column[] = {
-    { COLUMN_ID,           "id" },
-    { COLUMN_NAME,         "name" },
-    { COLUMN_COUNTRY,      "country_name" },
-    { COLUMN_CITY,         "city_name" },
-    { COLUMN_LONGITUDE,    "longitude" },
-    { COLUMN_LATITUDE,     "latitude" },
-    { COLUMN_ALTITUDE,     "altitude" },
-    { COLUMN_YEAR,         "year" },
-    { COLUMN_MONTH,        "month" },
-    { COLUMN_DAY,          "day" },
-    { COLUMN_HOUR,         "hour" },
-    { COLUMN_MINUTE,       "minute" },
-    { COLUMN_SECOND,       "second" },
-    { COLUMN_TIMEZONE,     "timezone" },
-    { COLUMN_HOUSE_SYSTEM, "house_system" },
-    { COLUMN_NOTE,         "note" },
+static TableColumnDef chart_table_column[] = {
+    { COLUMN_CHART_ID,           "id" },
+    { COLUMN_CHART_NAME,         "name" },
+    { COLUMN_CHART_COUNTRY,      "country_name" },
+    { COLUMN_CHART_CITY,         "city_name" },
+    { COLUMN_CHART_LONGITUDE,    "longitude" },
+    { COLUMN_CHART_LATITUDE,     "latitude" },
+    { COLUMN_CHART_ALTITUDE,     "altitude" },
+    { COLUMN_CHART_YEAR,         "year" },
+    { COLUMN_CHART_MONTH,        "month" },
+    { COLUMN_CHART_DAY,          "day" },
+    { COLUMN_CHART_HOUR,         "hour" },
+    { COLUMN_CHART_MINUTE,       "minute" },
+    { COLUMN_CHART_SECOND,       "second" },
+    { COLUMN_CHART_TIMEZONE,     "timezone" },
+    { COLUMN_CHART_HOUSE_SYSTEM, "house_system" },
+    { COLUMN_CHART_NOTE,         "note" },
 };
 
 /**
@@ -542,12 +542,12 @@ ag_db_get(void)
 
 /**
  * ag_db_save_data_free:
- * @save_data: the #AgDbSave struct to free
+ * @save_data: the #AgDbChartSave struct to free
  *
  * Frees @save_data and all its fields
  */
 void
-ag_db_save_data_free(AgDbSave *save_data)
+ag_db_chart_save_free(AgDbChartSave *save_data)
 {
     if (!save_data) {
         return;
@@ -577,7 +577,7 @@ ag_db_save_data_free(AgDbSave *save_data)
 }
 
 /**
- * ag_db_save_chart:
+ * ag_db_chart_save:
  * @db: the #AgDb object to operate on
  * @save_data: the data to save.
  * @err: a #GError for storing errors
@@ -589,7 +589,7 @@ ag_db_save_data_free(AgDbSave *save_data)
  * Returns: TRUE if the save succeeds, FALSE otherwise
  */
 gboolean
-ag_db_save_chart(AgDb *db, AgDbSave *save_data,  GError **err)
+ag_db_chart_save(AgDb *db, AgDbChartSave *save_data,  GError **err)
 {
     GError      *local_err   = NULL;
     gboolean    save_success = TRUE;
@@ -780,7 +780,7 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data,  GError **err)
 }
 
 /**
- * ag_db_get_chart_list:
+ * ag_db_chart_get_list:
  * @db: the #AgDb object to operate on
  * @err: a #GError
  *
@@ -788,15 +788,15 @@ ag_db_save_chart(AgDb *db, AgDbSave *save_data,  GError **err)
  * value may be NULL even if there are no charts or if there was an error, you
  * may want to check @err if the return value is NULL.
  *
- * Please be aware that the #AgDbSave objects of the returned value are not
+ * Please be aware that the #AgDbChartSave objects of the returned value are not
  * fully realised chart records. To get one, you need to call
- * ag_db_get_chart_data_by_id()
+ * ag_db_chart_get_data_by_id()
  *
- * Returns: (element-type AgDbSave) (transfer full): the list of all charts, or
- *          or NULL if there are none, or if there is an error.
+ * Returns: (element-type AgDbChartSave) (transfer full): the list of all
+ *          charts, or NULL if there are none, or if there is an error.
  */
 GList *
-ag_db_get_chart_list(AgDb *db, GError **err)
+ag_db_chart_get_list(AgDb *db, GError **err)
 {
     GdaDataModelIter *iter;
     GList            *ret    = NULL;
@@ -814,8 +814,8 @@ ag_db_get_chart_list(AgDb *db, GError **err)
     iter = gda_data_model_create_iter(result);
 
     while (gda_data_model_iter_move_next(iter)) {
-        const GValue *value;
-        AgDbSave     *save_data = g_new0(AgDbSave, 1);
+        const GValue  *value;
+        AgDbChartSave *save_data = g_new0(AgDbChartSave, 1);
 
         value = gda_data_model_iter_get_value_at(iter, 0);
         save_data->db_id = g_value_get_int(value);
@@ -830,19 +830,19 @@ ag_db_get_chart_list(AgDb *db, GError **err)
 }
 
 /**
- * ag_db_get_chart_data_by_id:
+ * ag_db_chart_get_data_by_id:
  * @db: the #AgDb object to operate on
  * @row_id: the ID field of the requested chart
  * @err: a #GError
  *
  * Fetches the specified row from the chart table.
  *
- * Returns: (transfer full): A fully filled #AgDbSave record of the chart
+ * Returns: (transfer full): A fully filled #AgDbChartSave record of the chart
  */
-AgDbSave *
-ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
+AgDbChartSave *
+ag_db_chart_get_data_by_id(AgDb *db, guint row_id, GError **err)
 {
-    AgDbSave          *save_data;
+    AgDbChartSave     *save_data;
     const GValue      *value;
     gchar             *query,
                       *columns;
@@ -852,7 +852,7 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
 
     columns = NULL;
 
-    for (i = 1; i < COLUMN_COUNT; i++) {
+    for (i = 1; i < COLUMN_CHART_COUNT; i++) {
         gchar *tmp;
 
         if (i == 1) {
@@ -892,18 +892,28 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
         return NULL;
     }
 
-    save_data = g_new0(AgDbSave, 1);
+    save_data = g_new0(AgDbChartSave, 1);
 
     /* id */
-    value            = gda_data_model_get_value_at(result, COLUMN_ID, 0, NULL);
+    value = gda_data_model_get_value_at(
+            result,
+            COLUMN_CHART_ID,
+            0,
+            NULL
+        );
     save_data->db_id = g_value_get_int(value);
 
     /* name */
-    value           = gda_data_model_get_value_at(result, COLUMN_NAME, 0, NULL);
+    value = gda_data_model_get_value_at(
+            result,
+            COLUMN_CHART_NAME,
+            0,
+            NULL
+        );
     save_data->name = g_strdup(g_value_get_string(value));
 
     /* country */
-    value      = gda_data_model_get_value_at(result, COLUMN_COUNTRY, 0, NULL);
+    value = gda_data_model_get_value_at(result, COLUMN_CHART_COUNTRY, 0, NULL);
 
     if (GDA_VALUE_HOLDS_NULL(value)) {
         save_data->country = NULL;
@@ -911,7 +921,7 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
         save_data->country = g_strdup(g_value_get_string(value));
     }
 
-    value      = gda_data_model_get_value_at(result, COLUMN_CITY, 0, NULL);
+    value = gda_data_model_get_value_at(result, COLUMN_CHART_CITY, 0, NULL);
 
     if (GDA_VALUE_HOLDS_NULL(value)) {
         save_data->city = NULL;
@@ -919,23 +929,23 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
         save_data->city = g_strdup(g_value_get_string(value));
     }
 
-    value                = gda_data_model_get_value_at(
+    value = gda_data_model_get_value_at(
             result,
-            COLUMN_LONGITUDE,
+            COLUMN_CHART_LONGITUDE,
             0,
             NULL
         );
     save_data->longitude = g_value_get_double(value);
 
-    value               = gda_data_model_get_value_at(
+    value = gda_data_model_get_value_at(
             result,
-            COLUMN_LATITUDE,
+            COLUMN_CHART_LATITUDE,
             0,
             NULL
         );
     save_data->latitude = g_value_get_double(value);
 
-    value      = gda_data_model_get_value_at(result, COLUMN_ALTITUDE, 0, NULL);
+    value = gda_data_model_get_value_at(result, COLUMN_CHART_ALTITUDE, 0, NULL);
 
     if (GDA_VALUE_HOLDS_NULL(value)) {
         save_data->altitude = DEFAULT_ALTITUDE;
@@ -943,56 +953,61 @@ ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err)
         save_data->altitude = g_value_get_double(value);
     }
 
-    value           = gda_data_model_get_value_at(result, COLUMN_YEAR, 0, NULL);
+    value = gda_data_model_get_value_at(
+            result,
+            COLUMN_CHART_YEAR,
+            0,
+            NULL
+        );
     save_data->year = g_value_get_int(value);
 
-    value            = gda_data_model_get_value_at(
+    value = gda_data_model_get_value_at(
             result,
-            COLUMN_MONTH,
+            COLUMN_CHART_MONTH,
             0,
             NULL
         );
     save_data->month = g_value_get_uint(value);
 
-    value          = gda_data_model_get_value_at(result, COLUMN_DAY, 0, NULL);
+    value = gda_data_model_get_value_at(result, COLUMN_CHART_DAY, 0, NULL);
     save_data->day = g_value_get_uint(value);
 
-    value           = gda_data_model_get_value_at(result, COLUMN_HOUR, 0, NULL);
+    value = gda_data_model_get_value_at(result, COLUMN_CHART_HOUR, 0, NULL);
     save_data->hour = g_value_get_uint(value);
 
-    value             = gda_data_model_get_value_at(
+    value = gda_data_model_get_value_at(
             result,
-            COLUMN_MINUTE,
+            COLUMN_CHART_MINUTE,
             0,
             NULL
         );
     save_data->minute = g_value_get_uint(value);
 
-    value             = gda_data_model_get_value_at(
+    value = gda_data_model_get_value_at(
             result,
-            COLUMN_SECOND,
+            COLUMN_CHART_SECOND,
             0,
             NULL
         );
     save_data->second = g_value_get_uint(value);
 
-    value               = gda_data_model_get_value_at(
+    value = gda_data_model_get_value_at(
             result,
-            COLUMN_TIMEZONE,
+            COLUMN_CHART_TIMEZONE,
             0,
             NULL
         );
     save_data->timezone = g_value_get_double(value);
 
-    value                   = gda_data_model_get_value_at(
+    value = gda_data_model_get_value_at(
             result,
-            COLUMN_HOUSE_SYSTEM,
+            COLUMN_CHART_HOUSE_SYSTEM,
             0,
             NULL
         );
     save_data->house_system = g_strdup(g_value_get_string(value));
 
-    value      = gda_data_model_get_value_at(result, COLUMN_NOTE, 0, NULL);
+    value = gda_data_model_get_value_at(result, COLUMN_CHART_NOTE, 0, NULL);
 
     if (GDA_VALUE_HOLDS_NULL(value)) {
         save_data->note = NULL;
@@ -1038,17 +1053,19 @@ string_collate(const gchar *str1, const gchar *str2)
 }
 
 /**
- * ag_db_save_identical:
- * @a: the first #AgDbSave structure
- * @b: the second #AgDbSave structure
+ * ag_db_chart_save_identical:
+ * @a: the first #AgDbChartSave structure
+ * @b: the second #AgDbChartSave structure
  *
- * Compares two #AgDbSave structures and their contents.
+ * Compares two #AgDbChartSave structures and their contents.
  *
  * Returns: TRUE if the two structs hold equal values (strings are also compared
  *          with string_collate()), FALSE otherwise
  */
 gboolean
-ag_db_save_identical(const AgDbSave *a, const AgDbSave *b, gboolean chart_only)
+ag_db_chart_save_identical(const AgDbChartSave *a,
+                     const AgDbChartSave *b,
+                     gboolean            chart_only)
 {
     if (a == b) {
         g_debug("identical: Equal");
@@ -1156,7 +1173,7 @@ ag_db_save_identical(const AgDbSave *a, const AgDbSave *b, gboolean chart_only)
 }
 
 gboolean
-ag_db_delete_chart(AgDb *db, gint row_id, GError **err)
+ag_db_chart_delete(AgDb *db, gint row_id, GError **err)
 {
     AgDbPrivate *priv = ag_db_get_instance_private(db);
     GValue      id    = G_VALUE_INIT;
