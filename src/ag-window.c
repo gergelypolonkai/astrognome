@@ -1654,6 +1654,8 @@ ag_window_init(AgWindow *window)
             NULL
         );
 
+    // Fill the house system model and set the combo box on the Edit tab to the
+    // default one
     house_system_list = gswe_all_house_systems();
     g_list_foreach(house_system_list, (GFunc)ag_window_add_house_system, priv);
     g_list_free(house_system_list);
