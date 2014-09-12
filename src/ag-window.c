@@ -16,6 +16,7 @@
 #include "ag-chart.h"
 #include "ag-settings.h"
 #include "ag-db.h"
+#include "ag-display-theme.h"
 
 struct _AgWindowPrivate {
     GtkWidget     *header_bar;
@@ -40,6 +41,7 @@ struct _AgWindowPrivate {
     GtkWidget     *second;
     GtkWidget     *timezone;
     GtkWidget     *house_system;
+    GtkWidget     *display_theme;
 
     GtkWidget     *tab_list;
     GtkWidget     *tab_chart;
@@ -63,6 +65,8 @@ struct _AgWindowPrivate {
     gchar              *selected_country;
     gchar              *selected_city;
     GList              *style_sheets;
+    AgDisplayTheme     *theme;
+    GtkListStore       *display_theme_model;
 };
 
 struct cc_search {
@@ -1110,6 +1114,121 @@ ag_window_delete_event_callback(AgWindow *window,
 }
 
 static void
+ag_window_clear_style_sheets(AgWindow *window)
+{
+    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
+    WebKitUserContentManager *manager = webkit_web_view_get_user_content_manager(
+            WEBKIT_WEB_VIEW(priv->chart_web_view)
+        );
+
+    webkit_user_content_manager_remove_all_style_sheets(manager);
+    g_list_free_full(
+            priv->style_sheets,
+            (GDestroyNotify)webkit_user_style_sheet_unref
+        );
+    priv->style_sheets = NULL;
+}
+
+static void
+ag_window_add_style_sheet(AgWindow *window, const gchar *path)
+{
+    gchar           *css_source;
+    gboolean        source_free = FALSE;
+    AgWindowPrivate *priv       = ag_window_get_instance_private(window);
+
+    if (strncmp("gres://", path, 7) == 0) {
+        gchar  *res_path = g_strdup_printf(
+                "/eu/polonkai/gergely/Astrognome/%s",
+                path + 7
+            );
+        GBytes *css_data = g_resources_lookup_data(
+                res_path,
+                G_RESOURCE_LOOKUP_FLAGS_NONE,
+                NULL
+            );
+
+        css_source  = g_strdup(g_bytes_get_data(css_data, NULL));
+        source_free = TRUE;
+        g_bytes_unref(css_data);
+    } else if (strncmp("raw:", path, 4) == 0) {
+        css_source = (gchar *)path + 4;
+    } else {
+        GFile  *css_file = g_file_new_for_uri(path);
+        GError *err = NULL;
+
+        g_file_load_contents(
+                css_file,
+                NULL,
+                &css_source, NULL,
+                NULL,
+                &err
+            );
+        source_free = TRUE;
+        g_object_unref(css_file);
+    }
+
+    if (css_source) {
+        WebKitUserStyleSheet *style_sheet = webkit_user_style_sheet_new(
+                css_source,
+                WEBKIT_USER_CONTENT_INJECT_TOP_FRAME,
+                WEBKIT_USER_STYLE_LEVEL_USER,
+                NULL, NULL
+            );
+
+        priv->style_sheets = g_list_append(priv->style_sheets, style_sheet);
+
+        if (source_free) {
+            g_free(css_source);
+        }
+    }
+}
+
+static void
+ag_window_update_style_sheets(AgWindow *window)
+{
+    GList                    *item;
+    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
+    WebKitUserContentManager *manager = webkit_web_view_get_user_content_manager(
+            WEBKIT_WEB_VIEW(priv->chart_web_view)
+        );
+
+    webkit_user_content_manager_remove_all_style_sheets(manager);
+
+    for (item = priv->style_sheets; item; item = g_list_next(item)) {
+        WebKitUserStyleSheet *style_sheet = item->data;
+
+        webkit_user_content_manager_add_style_sheet(manager, style_sheet);
+    }
+}
+
+static void
+ag_window_set_theme(AgWindow *window, AgDisplayTheme *theme)
+{
+    gchar *css,
+          *css_final;
+
+    ag_window_clear_style_sheets(window);
+
+    // Add the default style sheet
+    ag_window_add_style_sheet(
+            window,
+            "gres://ui/chart-default.css"
+        );
+
+    if (theme) {
+        css = ag_display_theme_to_css(theme);
+        css_final = g_strdup_printf("raw:%s", css);
+        g_free(css);
+
+        ag_window_add_style_sheet(window, css_final);
+
+        g_free(css_final);
+    }
+
+    ag_window_update_style_sheets(window);
+}
+
+static void
 ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 {
     GtkWidget       *active_tab;
@@ -1126,6 +1245,23 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 
     if (strcmp("chart", active_tab_name) == 0) {
         gtk_widget_set_size_request(active_tab, 600, 600);
+        if (priv->theme == NULL) {
+            AgSettings           *settings;
+            GSettings            *main_settings;
+            gint                 default_theme;
+
+            settings      = ag_settings_get();
+            main_settings = ag_settings_peek_main_settings(settings);
+            default_theme = g_settings_get_int(
+                    main_settings,
+                    "default-display-theme"
+                );
+            g_object_unref(settings);
+
+            priv->theme = ag_display_theme_get_by_id(default_theme);
+
+            ag_window_set_theme(window, priv->theme);
+        }
     }
 
     if (strcmp("list", active_tab_name) == 0) {
@@ -1197,6 +1333,37 @@ ag_window_set_default_house_system(GtkTreeModel *model,
 
     if (house_system == row_house_system) {
         gtk_combo_box_set_active_iter(GTK_COMBO_BOX(priv->house_system), iter);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static gboolean
+ag_window_set_default_display_theme(GtkTreeModel *model,
+                                    GtkTreePath  *path,
+                                    GtkTreeIter  *iter,
+                                    AgWindow     *window)
+{
+    gint            row_display_theme;
+    AgWindowPrivate *priv          = ag_window_get_instance_private(window);
+    AgSettings      *settings      = ag_settings_get();
+    GSettings       *main_settings = ag_settings_peek_main_settings(settings);
+    gint            default_theme  = g_settings_get_int(
+            main_settings,
+            "default-display-theme"
+        );
+
+    g_clear_object(&settings);
+    gtk_tree_model_get(
+            model, iter,
+            0, &row_display_theme,
+            -1
+        );
+
+    if (default_theme == row_display_theme) {
+        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(priv->display_theme), iter);
 
         return TRUE;
     }
@@ -1482,6 +1649,21 @@ ag_window_add_house_system(GsweHouseSystemInfo *house_system_info,
 }
 
 static void
+ag_window_add_display_theme(AgDisplayTheme *display_theme,
+                            AgWindowPrivate *priv)
+{
+    GtkTreeIter iter;
+
+    gtk_list_store_append(priv->display_theme_model, &iter);
+    gtk_list_store_set(
+            priv->display_theme_model, &iter,
+            0, display_theme->id,
+            1, display_theme->name,
+            -1
+        );
+}
+
+static void
 ag_window_list_item_activated_cb(GdMainView        *view,
                                  const gchar       *id,
                                  const GtkTreePath *path,
@@ -1618,8 +1800,10 @@ ag_window_init(AgWindow *window)
 {
     GtkAccelGroup   *accel_group;
     GSettings       *main_settings;
-    GList           *house_system_list;
-    GtkCellRenderer *house_system_renderer;
+    GList           *house_system_list,
+                    *display_theme_list;
+    GtkCellRenderer *house_system_renderer,
+                    *display_theme_renderer;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     gtk_widget_init_template(GTK_WIDGET(window));
@@ -1675,6 +1859,32 @@ ag_window_init(AgWindow *window)
     gtk_cell_layout_set_attributes(
             GTK_CELL_LAYOUT(priv->house_system),
             house_system_renderer,
+            "text", 1,
+            NULL
+        );
+
+    display_theme_list = ag_display_theme_get_list();
+    g_list_foreach(
+            display_theme_list,
+            (GFunc)ag_window_add_display_theme,
+            priv
+        );
+    g_list_free_full(display_theme_list, (GDestroyNotify)ag_display_theme_free);
+    gtk_tree_model_foreach(
+            GTK_TREE_MODEL(priv->display_theme_model),
+            (GtkTreeModelForeachFunc)ag_window_set_default_display_theme,
+            window
+        );
+
+    display_theme_renderer = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(
+            GTK_CELL_LAYOUT(priv->display_theme),
+            display_theme_renderer,
+            TRUE
+        );
+    gtk_cell_layout_set_attributes(
+            GTK_CELL_LAYOUT(priv->display_theme),
+            display_theme_renderer,
             "text", 1,
             NULL
         );
@@ -1931,6 +2141,26 @@ ag_window_city_changed_callback(GtkSearchEntry *city, AgWindow *window)
     }
 }
 
+void
+ag_window_display_theme_changed_cb(GtkComboBox *combo_box,
+                                   AgWindow    *window)
+{
+    GtkTreeIter     iter;
+    gint            theme_id;
+    AgDisplayTheme  *theme;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    gtk_combo_box_get_active_iter(combo_box, &iter);
+    gtk_tree_model_get(
+            GTK_TREE_MODEL(priv->display_theme_model), &iter,
+            0, &theme_id,
+            -1
+        );
+
+    theme = ag_display_theme_get_by_id(theme_id);
+    ag_window_set_theme(window, theme);
+}
+
 static void
 ag_window_class_init(AgWindowClass *klass)
 {
@@ -2075,6 +2305,16 @@ ag_window_class_init(AgWindowClass *klass)
             AgWindow,
             points_eq
         );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            display_theme
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            display_theme_model
+        );
 
     gtk_widget_class_bind_template_callback(
             widget_class,
@@ -2095,6 +2335,10 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_city_changed_callback
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_display_theme_changed_cb
         );
 }
 
@@ -2124,78 +2368,6 @@ ag_window_configure_event_cb(GtkWidget         *widget,
     return FALSE;
 }
 
-static void
-ag_window_add_style_sheet(AgWindow *window, const gchar *path)
-{
-    gchar           *css_source;
-    gboolean        source_free = FALSE;
-    AgWindowPrivate *priv       = ag_window_get_instance_private(window);
-
-    if (strncmp("gres://", path, 7) == 0) {
-        gchar  *res_path = g_strdup_printf(
-                "/eu/polonkai/gergely/Astrognome/%s",
-                path + 7
-            );
-        GBytes *css_data = g_resources_lookup_data(
-                res_path,
-                G_RESOURCE_LOOKUP_FLAGS_NONE,
-                NULL
-            );
-
-        css_source  = g_strdup(g_bytes_get_data(css_data, NULL));
-        source_free = TRUE;
-        g_bytes_unref(css_data);
-    } else if (strncmp("raw:", path, 4) == 0) {
-        css_source = (gchar *)path + 4;
-    } else {
-        GFile  *css_file = g_file_new_for_uri(path);
-        GError *err = NULL;
-
-        g_file_load_contents(
-                css_file,
-                NULL,
-                &css_source, NULL,
-                NULL,
-                &err
-            );
-        source_free = TRUE;
-        g_object_unref(css_file);
-    }
-
-    if (css_source) {
-        WebKitUserStyleSheet *style_sheet = webkit_user_style_sheet_new(
-                css_source,
-                WEBKIT_USER_CONTENT_INJECT_TOP_FRAME,
-                WEBKIT_USER_STYLE_LEVEL_USER,
-                NULL, NULL
-            );
-
-        priv->style_sheets = g_list_append(priv->style_sheets, style_sheet);
-
-        if (source_free) {
-            g_free(css_source);
-        }
-    }
-}
-
-static void
-ag_window_update_style_sheets(AgWindow *window)
-{
-    GList                    *item;
-    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
-    WebKitUserContentManager *manager = webkit_web_view_get_user_content_manager(
-            WEBKIT_WEB_VIEW(priv->chart_web_view)
-        );
-
-    webkit_user_content_manager_remove_all_style_sheets(manager);
-
-    for (item = priv->style_sheets; item; item = g_list_next(item)) {
-        WebKitUserStyleSheet *style_sheet = item->data;
-
-        webkit_user_content_manager_add_style_sheet(manager, style_sheet);
-    }
-}
-
 GtkWidget *
 ag_window_new(AgApp *app)
 {
@@ -2206,11 +2378,7 @@ ag_window_new(AgApp *app)
     priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
             manager
         );
-    ag_window_add_style_sheet(
-            window,
-            "gres://ui/chart-default.css"
-        );
-    ag_window_update_style_sheets(window);
+    ag_window_set_theme(window, NULL);
     gtk_box_pack_end(
             GTK_BOX(priv->tab_chart),
             priv->chart_web_view,

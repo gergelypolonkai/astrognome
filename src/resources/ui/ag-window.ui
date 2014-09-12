@@ -114,6 +114,14 @@
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="display_theme_model">
+    <columns>
+      <!-- column-name display-theme-id -->
+      <column type="gint"/>
+      <!-- column-name display-theme-name -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkTextBuffer" id="note_buffer">
   </object>
   <object class="GtkListStore" id="db_chart_data">
@@ -792,6 +800,15 @@
                         <property name="group">toolbar_aspect</property>
                         <property name="action_name">win.connection</property>
                         <property name="action_target">'antiscia'</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkComboBox" id="display_theme">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="model">display_theme_model</property>
+                        <property name="id_column">1</property>
+                        <signal name="changed" handler="ag_window_display_theme_changed_cb" swapped="no"/>
                       </object>
                     </child>
                   </object>
