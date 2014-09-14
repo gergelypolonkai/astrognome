@@ -1795,18 +1795,45 @@ ag_window_city_matches(GtkEntryCompletion *city_comp,
     return ret;
 }
 
+gboolean
+ag_window_chart_context_cb(WebKitWebView       *web_view,
+                           GtkWidget           *default_menu,
+                           WebKitHitTestResult *hit_test_result,
+                           gboolean            triggered_with_keyboard,
+                           gpointer user_data)
+{
+    return TRUE;
+}
+
 static void
 ag_window_init(AgWindow *window)
 {
-    GtkAccelGroup   *accel_group;
-    GSettings       *main_settings;
-    GList           *house_system_list,
-                    *display_theme_list;
-    GtkCellRenderer *house_system_renderer,
-                    *display_theme_renderer;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GtkAccelGroup            *accel_group;
+    GSettings                *main_settings;
+    GList                    *house_system_list,
+                             *display_theme_list;
+    GtkCellRenderer          *house_system_renderer,
+                             *display_theme_renderer;
+    WebKitUserContentManager *manager = webkit_user_content_manager_new();
+    AgWindowPrivate          *priv = ag_window_get_instance_private(window);
 
     gtk_widget_init_template(GTK_WIDGET(window));
+
+    priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
+            manager
+        );
+    gtk_box_pack_end(
+            GTK_BOX(priv->tab_chart),
+            priv->chart_web_view,
+            TRUE, TRUE, 0
+        );
+
+    g_signal_connect(
+            priv->chart_web_view,
+            "context-menu",
+            G_CALLBACK(ag_window_chart_context_cb),
+            NULL
+        );
 
     priv->settings = ag_settings_get();
     main_settings  = ag_settings_peek_main_settings(priv->settings);
@@ -2342,16 +2369,6 @@ ag_window_class_init(AgWindowClass *klass)
         );
 }
 
-gboolean
-ag_window_chart_context_cb(WebKitWebView       *web_view,
-                           GtkWidget           *default_menu,
-                           WebKitHitTestResult *hit_test_result,
-                           gboolean            triggered_with_keyboard,
-                           gpointer user_data)
-{
-    return TRUE;
-}
-
 static gboolean
 ag_window_configure_event_cb(GtkWidget         *widget,
                              GdkEventConfigure *event,
@@ -2373,24 +2390,6 @@ ag_window_new(AgApp *app)
 {
     AgWindow                 *window  = g_object_new(AG_TYPE_WINDOW, NULL);
     AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
-    WebKitUserContentManager *manager = webkit_user_content_manager_new();
-
-    priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
-            manager
-        );
-    ag_window_set_theme(window, NULL);
-    gtk_box_pack_end(
-            GTK_BOX(priv->tab_chart),
-            priv->chart_web_view,
-            TRUE, TRUE, 0
-        );
-
-    g_signal_connect(
-            priv->chart_web_view,
-            "context-menu",
-            G_CALLBACK(ag_window_chart_context_cb),
-            NULL
-        );
 
     // TODO: translate this error message!
     webkit_web_view_load_html(
