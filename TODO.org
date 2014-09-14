@@ -1,67 +1,162 @@
 
-* Port to other Linux distros
+* Refine UI                                                     :version_1.0:
+  The UI is a bit messy right now, especially the aspect/antiscia
+  changer buttons and the display theme changer combo box on the chart
+  view.
 
-* Package for other distros
+  For the display themes, a menu button with a popover may be the best
+  option. That would need a nice icon, though (possibly with some
+  planet and aspect symbols).
 
-- Debian
-- Ubuntu
-- Arch
-- Gentoo
+  The current view switcher (a menubutton) doesn’t show its accels
+  (maybe because of the radio menu items?). Maybe it should be put
+  back to a GtkStackSwitcher. The original place for that is now used
+  up by the window title and the chart name, so a new place must be
+  found for it.
 
-* Preview images
 
-The database (or a cache directory) should contain a preview image of
-each chart. The chart list screen should show a small box with the
-name and the preview image. Upon mouseover the image should
-blur/darken and some chart data (maybe customizable?) may get drawn
-over it.
+* Issue an error message for missing resources
+
+  If a gres:// link cannot be loaded by the XML loaders, Astrognome
+  should issue an error message, stating that this is either a bug in
+  the current chart theme (in 2.0+) or in Astrognome itself.
+
+* [#C] Port to other Linux distros                              :version_1.0:
+
+* Package for different distros [0/5]                           :version_1.0:
+  - [ ] Fedora
+  - [ ] Debian
+  - [ ] Ubuntu
+  - [ ] Arch
+  - [ ] Gentoo
+
+* Preview images                                                :version_1.0:
+
+  The database (or more likely the cache directory) should contain a
+  preview image of each chart. The chart list screen should show a
+  small box with the name and the preview image. Upon mouseover the
+  image should blur/darken and some chart data (maybe customizable?)
+  may get drawn over it.
+
+* Customizable accels                                           :version_2.0:
+
+  Accels should be customizable, and they may also get some more sane
+  defaults. Right now they are imitating Placidus, which, in turn, is
+  not very intuitive.
+
+  The accel customization may get its place on the Preferences dialog.
 
 * Chart cleanup
 
-* Chart manipulation
+* DONE Chart manipulation                                       :version_1.0:
 
-* Synastries
+* Synastries                                                    :version_2.0:
 
-* Transits
+* Transits                                                      :version_2.0:
 
-* Progressions
+* Progressions                                                  :version_2.0:
 
-* Stepping through time without actually modifying the chart data
+* Stepping through time without actually modifying the chart data :version_1.0:
 
-* Application settings
+* Application settings                                          :version_2.0:
+  - [-] Default display properties [1/10]
+    - [X] Traditional view
 
-** Default display properties
+     Personal (inner) planets, Ptolemaic aspects only, nothing else
 
-*** Traditional view
+    - [ ] Show/hide major aspects
+    - [ ] Show/hide minor aspects
+    - [ ] Show/hide astiscia/contrantiscia
+    - [ ] Show/hide personal planets
+    - [ ] Show/hide outer planets
+    - [ ] Show/hide dwarf planets and asteroids
+    - [ ] Show/hide fixed stars
+    - [ ] Show/hide hidden ascendant
+    - [ ] Show/hide vertex/anti-vertex
 
-Personal (inner) planets, Ptolemaic aspects only, nothing else
+  - [ ] Different symbols for some planets [0/3]
+    - [ ] Uranus
+    - [ ] Pluto
+    - [ ] Pholus
 
-*** Show/hide major aspects
+* Regiomontanus import                                          :version_2.0:
 
-*** Show/hide minor aspects
+* Custom location database                                      :version_2.0:
 
-*** Show/hide astiscia/contrantiscia
+* Chart export as different image types                         :version_1.0:
 
-*** Show/hide personal planets
+* Chart printing                                                :version_2.0:
 
-*** Show/hide outer planets
+* [#C] Port to Windows                                          :version_2.0:
 
-*** Show/hide dwarf planets and asteroids
+* Future aspect table ideas
 
-*** Show/hide fixed stars
+  The aspect table may be redesigned a bit. Currently it’s just a
+  GtkGrid with images or characters.
 
-*** Show/hide hidden ascendant
+** How about extending GtkGrid itself?
 
-*** Show/hide vertex/anti-vertex
+** Column/row highlighting
 
-** Symbol of Uranus and Pluto
+   If possible, the row and column where the mouse points to, should
+   be highlighted. This, of course, should have a setting to disable
+   this behaviour. Another option is to create divisor lines between
+   the rows and columns.
 
-* Regiomontanus import
+** Aspect/antiscion changer
 
-* Custom location database
+   The aspects table should utilise the same changer as the chart to
+   show different relations between the planets.
 
-* Chart export as different image types
+** Apply display themes
 
-* Chart printing
+   The aspect and antiscion table should use the same display theme as
+   the chart. If a planet, aspect or antiscion axis is not in the
+   display theme, it should not be visible on the table.
 
-* Port to Windows
+* Display themes
+
+** Implement the original Astrognome theme
+
+   The software created by Jean-André Santoni has its own list of
+   planets, which is more than Classic, but obviously less than
+   Everything.
+
+** Arabic parts and fixed stars
+
+   As soon as SWE-GLib supports them, of course
+
+* Chart themes
+
+  This can get hard. What if Astrognome 1.0 supports 10 planets, 2.0
+  supports 15, and I use a chart theme for 1.0 in 2.0 (or vice verse)?
+  In such cases a warning should be presented to the user.
+
+  I may use fallback icons (yeah… how?), but they may look really ugly
+  on the custom theme.
+
+* Add the East point
+
+  SWE-GLib doesn’t support it yet. It is the equatorial ascendant, and
+  is calculated by Swiss Ephemeris, which presents it in ascmcs\[4\].
+
+* Support for Julian calendar
+
+  It may be usable for only in the backends, like when importing a
+  Placidus file with Julian date. SWE-GLib doesn’t support it yet.
+
+* Cloud export (and maybe import)
+
+  GNOME Online Accounts supports some popular cloud services. It may
+  be a good idea to implement saving, and possibly loading to/from
+  there.
+
+* Dynamic chart size
+
+  Right some planets may disappear from the chart because they get too
+  far from the chart ring (due to @dist).
+
+  The maximum @dist value can be get with the following XPath
+  expression:
+
+  /chartinfo/bodies/body/@dist[not(. < ../../body/@dist)][1]
