@@ -23,7 +23,6 @@ G_BEGIN_DECLS
 
 typedef struct _AgSettings        AgSettings;
 typedef struct _AgSettingsClass   AgSettingsClass;
-typedef struct _AgSettingsPrivate AgSettingsPrivate;
 
 struct _AgSettings {
     GObject parent_instance;
@@ -39,7 +38,6 @@ AgSettings *ag_settings_get(void);
 
 GSettings *ag_settings_peek_main_settings(AgSettings *settings);
 GSettings *ag_settings_peek_window_settings(AgSettings *settings);
-GSettings *ag_settings_peek_chart_settings(AgSettings *settings);
 
 G_END_DECLS
 

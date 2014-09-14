@@ -2,6 +2,7 @@
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
     xmlns:math="http://exslt.org/math">
     <xsl:output
         method="xml"
@@ -17,6 +18,49 @@
     <xsl:variable name="image_size" select="800" />
     <xsl:variable name="icon_size" select="30" />
     <xsl:variable name="r_aspect" select="$image_size * 0.3" />
+
+    <xsl:template name="planet-template">
+        <xsl:param name="planet_name"/>
+        <xsl:param name="planet_base"/>
+        <xsl:param name="rotate"/>
+        <xsl:param name="dist"/>
+        <xsl:param name="retrograde"/>
+        <xsl:param name="upside-down"/>
+
+        <g xmlns="http://www.w3.org/2000/svg">
+            <xsl:attribute name="id">planet-<xsl:value-of select="$planet_name"/></xsl:attribute>
+            <xsl:attribute name="class">planet planet-<xsl:value-of select="$planet_name"/></xsl:attribute>
+            <xsl:attribute name="transform">rotate(<xsl:value-of select="-$rotate"/>, 0, 0)</xsl:attribute>
+            <line y1="0" y2="0" class="planet-marker">
+                <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.2875"/></xsl:attribute>
+                <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
+            </line>
+            <line y1="0" y2="0" class="planet-marker">
+                <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
+                <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3875"/></xsl:attribute>
+            </line>
+            <g>
+              <xsl:attribute name="transform">translate(<xsl:value-of select="$image_size * 0.4125 + $dist * ($icon_size * 1.1666666)"/>, <xsl:value-of select="-$icon_size div 2"/>) rotate(<xsl:value-of select="$rotate - $asc_rotate"/>, <xsl:value-of select="$icon_size div 2"/>, <xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                <use class="planet-symbol">
+                    <xsl:attribute name="xlink:href">#<xsl:value-of select="$planet_base"/>_tmpl</xsl:attribute>
+                    <xsl:choose>
+                        <xsl:when test="$upside-down='yes'">
+                            <xsl:attribute name="transform">rotate(180, <xsl:value-of select="$icon_size div 2"/>, <xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
+                        </xsl:when>
+                    </xsl:choose>
+                </use>
+                <xsl:choose>
+                    <xsl:when test="$retrograde='True'">
+                        <text>
+                            <xsl:attribute name="font-size"><xsl:value-of select="$icon_size div 2"/></xsl:attribute>
+                            <xsl:attribute name="transform">translate(<xsl:value-of select="$icon_size"/>, <xsl:value-of select="$icon_size * 1.5"/>)</xsl:attribute>
+                            R
+                        </text>
+                    </xsl:when>
+                </xsl:choose>
+            </g>
+        </g>
+    </xsl:template>
 
     <xsl:template match="/">
         <svg
@@ -505,7 +549,9 @@
                         <use x="0" y="0" xlink:href="#sign_pisces_tmpl" id="sign_pisces" class="sign sign-water">
                             <xsl:attribute name="transform">rotate(-345,0,0) translate(<xsl:value-of select="$image_size * 0.32625"/>,-<xsl:value-of select="$icon_size div 2"/>) rotate(90,<xsl:value-of select="$icon_size div 2"/>,<xsl:value-of select="$icon_size div 2"/>)</xsl:attribute>
                         </use>
+                    </g>
 
+                    <g id="houes">
                         <xsl:for-each select="chartinfo/houses/house">
                             <xsl:variable name="next_house" select="@number + 1"/>
                             <xsl:variable name="next_degree_read">
@@ -581,191 +627,151 @@
                             <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.0625"/></xsl:attribute>
                             <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(-', $mc, ')')" /></xsl:attribute>
                         </line>
+                    </g>
 
-                        <g id="planets">
-                            <xsl:for-each select="chartinfo/ascmcs/vertex">
-                                <xsl:variable name="planet_base">point_vertex</xsl:variable>
-                                <xsl:variable name="degree"><xsl:value-of select="@degree_ut" /></xsl:variable>
-                                <xsl:variable name="negative_degree"><xsl:value-of select="0 - $degree" /></xsl:variable>
-                                <g>
-                                    <xsl:attribute name="id"><xsl:value-of select="$planet_base"/></xsl:attribute>
-                                    <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(', $negative_degree, ',0,0)')"/></xsl:attribute>
-                                    <line y1="0" y2="0" class="planet-marker">
-                                        <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.2875"/></xsl:attribute>
-                                        <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
-                                        <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base)" /></xsl:attribute>
-                                    </line>
-                                    <line y1="0" y2="0" class="planet-marker">
-                                        <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
-                                        <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.4"/></xsl:attribute>
-                                        <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base, '_outer')" /></xsl:attribute>
-                                    </line>
-                                    <use class="planet-symbol">
-                                        <xsl:attribute name="xlink:href"><xsl:value-of select="concat('#', $planet_base, '_tmpl')"/></xsl:attribute>
-                                        <xsl:attribute name="transform"><xsl:value-of select="concat('translate(',$image_size * 0.4125,',-',$icon_size div 2,') rotate(', $degree - $asc_rotate ,',', $icon_size div 2, ',', $icon_size div 2, ')')"/></xsl:attribute>
-                                    </use>
-                                </g>
-                            </xsl:for-each>
-                            <xsl:for-each select="chartinfo/bodies/body">
-                                <xsl:variable name="planet_base" select="substring(translate(@name, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 6)"/>
-                                <xsl:variable name="negative_degree"><xsl:value-of select="0 - @degree"/></xsl:variable>
-                                <g>
-                                    <xsl:attribute name="id"><xsl:value-of select="$planet_base"/></xsl:attribute>
-                                    <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(', $negative_degree, ',0,0)')"/></xsl:attribute>
-                                    <line y1="0" y2="0" class="planet-marker">
-                                        <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.2875"/></xsl:attribute>
-                                        <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
-                                        <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base)" /></xsl:attribute>
-                                    </line>
-                                    <line y1="0" y2="0" class="planet-marker">
-                                        <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
-                                        <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3875"/></xsl:attribute>
-                                        <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base, '_outer')" /></xsl:attribute>
-                                    </line>
-                                    <use class="planet-symbol">
-                                        <xsl:attribute name="xlink:href"><xsl:value-of select="concat('#', $planet_base, '_tmpl')"/></xsl:attribute>
-                                        <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', $image_size * 0.4125 + @dist * ($icon_size * 1.1666666), ',-', $icon_size div 2, ') rotate(', @degree - $asc_rotate ,',', $icon_size div 2, ',', $icon_size div 2, ')')"/></xsl:attribute>
-                                    </use>
-                                    <xsl:choose>
-                                        <xsl:when test="@retrograde='True'">
-                                            <text>
-                                                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', $image_size * 0.45625 + @dist * $icon_size * 1.1666666, ',', $icon_size div 2, ') rotate(', @degree - $asc_rotate, ',-', $icon_size * 0.666666, ',-', $icon_size * 0.666666, ')')"/></xsl:attribute>
-                                                R
-                                            </text>
-                                        </xsl:when>
-                                    </xsl:choose>
-                                </g>
+                    <g id="planets">
+                        <xsl:for-each select="chartinfo/ascmcs/vertex">
+                            <xsl:call-template name="planet-template">
+                                <xsl:with-param name="planet_name">vertex</xsl:with-param>
+                                <xsl:with-param name="rotate"><xsl:value-of select="@degree_ut"/></xsl:with-param>
+                                <xsl:with-param name="planet_base">point_vertex</xsl:with-param>
+                                <!-- TODO: dist must be calculated for Vertex, too! -->
+                                <xsl:with-param name="dist">0</xsl:with-param>
+                                <xsl:with-param name="retrograde">False</xsl:with-param>
+                            </xsl:call-template>
+                        </xsl:for-each>
+                        <xsl:for-each select="chartinfo/bodies/body">
+                            <xsl:call-template name="planet-template">
+                                <xsl:with-param name="planet_name"><xsl:value-of select="@name"/></xsl:with-param>
+                                <xsl:with-param name="rotate"><xsl:value-of select="@degree"/></xsl:with-param>
+                                <xsl:with-param name="planet_base">planet_<xsl:value-of select="translate(@name, '-', '_')"/></xsl:with-param>
+                                <xsl:with-param name="dist"><xsl:value-of select="@dist"/></xsl:with-param>
+                                <xsl:with-param name="retrograde"><xsl:value-of select="@retrograde"/></xsl:with-param>
+                            </xsl:call-template>
+
+                            <xsl:choose>
+                                <xsl:when test="@name='moon-node'">
+                                    <xsl:call-template name="planet-template">
+                                        <xsl:with-param name="planet_name"><xsl:value-of select="@name"/>-desc</xsl:with-param>
+                                        <xsl:with-param name="rotate"><xsl:value-of select="180 + @degree"/></xsl:with-param>
+                                        <xsl:with-param name="planet_base">planet_moon_node</xsl:with-param>
+                                        <xsl:with-param name="dist"><xsl:value-of select="@dist"/></xsl:with-param>
+                                        <xsl:with-param name="retrograde"><xsl:value-of select="@retrograde"/></xsl:with-param>
+                                        <xsl:with-param name="upside-down">yes</xsl:with-param>
+                                    </xsl:call-template>
+                                </xsl:when>
+                            </xsl:choose>
+                        </xsl:for-each>
+                    </g>
+
+                    <g id="aspects">
+                        <xsl:for-each select="chartinfo/aspects/aspect">
+                            <xsl:variable name="planet1" select="@body1"/>
+                            <xsl:variable name="deg1">
                                 <xsl:choose>
-                                    <xsl:when test="@name='GSWE_PLANET_MOON_NODE'">
-                                        <g>
-                                            <xsl:attribute name="id"><xsl:value-of select="concat($planet_base, '_desc')"/></xsl:attribute>
-                                            <xsl:attribute name="transform"><xsl:value-of select="concat('rotate(', 180 + $negative_degree, ',0,0)')"/></xsl:attribute>
-                                            <line y1="0" y2="0" class="planet-marker">
-                                                <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.2875"/></xsl:attribute>
-                                                <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
-                                                <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base)" /></xsl:attribute>
-                                            </line>
-                                            <line y1="0" y2="0" class="planet-marker">
-                                                <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.375"/></xsl:attribute>
-                                                <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3875"/></xsl:attribute>
-                                                <xsl:attribute name="id"><xsl:value-of select="concat('mark_', $planet_base, '_outer')" /></xsl:attribute>
-                                            </line>
-                                            <use class="planet-symbol">
-                                                <xsl:attribute name="xlink:href"><xsl:value-of select="concat('#', $planet_base, '_tmpl')"/></xsl:attribute>
-                                                <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', $image_size * 0.4125, ',-', $icon_size div 2, ') rotate(', @degree - $asc_rotate ,',', $icon_size div 2, ',', $icon_size div 2, ')')"/></xsl:attribute>
-                                            </use>
-                                        </g>
+                                    <xsl:when test="$planet1='ascendant'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
                                     </xsl:when>
+                                    <xsl:when test="$planet1='mc'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/mc/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:when test="$planet1='vertex'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/vertex/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="/chartinfo/bodies/body[@name=$planet1]/@degree" />
+                                    </xsl:otherwise>
                                 </xsl:choose>
-                            </xsl:for-each>
-                        </g>
+                            </xsl:variable>
+                            <xsl:variable name="rad1" select="$deg1 * $PI div 180"/>
+                            <xsl:variable name="x1" select="$r_aspect * math:cos($rad1)"/>
+                            <xsl:variable name="y1" select="$r_aspect * -math:sin($rad1)"/>
 
-                        <g id="aspects">
-                            <xsl:for-each select="chartinfo/aspects/aspect">
-                                <xsl:variable name="planet1" select="@body1"/>
-                                <xsl:variable name="deg1">
-                                    <xsl:choose>
-                                        <xsl:when test="$planet1='GSWE_PLANET_ASCENDANT'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:when test="$planet1='GSWE_PLANET_MC'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/mc/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:when test="$planet1='GSWE_PLANET_VERTEX'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/vertex/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:otherwise>
-                                            <xsl:value-of select="/chartinfo/bodies/body[@name=$planet1]/@degree" />
-                                        </xsl:otherwise>
-                                    </xsl:choose>
-                                </xsl:variable>
-                                <xsl:variable name="rad1" select="$deg1 * $PI div 180"/>
-                                <xsl:variable name="x1" select="$r_aspect * math:cos($rad1)"/>
-                                <xsl:variable name="y1" select="$r_aspect * -math:sin($rad1)"/>
+                            <xsl:variable name="planet2" select="@body2"/>
+                            <xsl:variable name="deg2">
+                                <xsl:choose>
+                                    <xsl:when test="$planet2='ascendant'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:when test="$planet2='mc'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/mc/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:when test="$planet2='vertex'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/vertex/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="/chartinfo/bodies/body[@name=$planet2]/@degree" />
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:variable>
+                            <xsl:variable name="rad2" select="$deg2 * $PI div 180"/>
+                            <xsl:variable name="x2" select="$r_aspect * math:cos($rad2)"/>
+                            <xsl:variable name="y2" select="$r_aspect * -math:sin($rad2)"/>
 
-                                <xsl:variable name="planet2" select="@body2"/>
-                                <xsl:variable name="deg2">
-                                    <xsl:choose>
-                                        <xsl:when test="$planet2='GSWE_PLANET_ASCENDANT'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:when test="$planet2='GSWE_PLANET_MC'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/mc/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:when test="$planet2='GSWE_PLANET_VERTEX'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/vertex/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:otherwise>
-                                            <xsl:value-of select="/chartinfo/bodies/body[@name=$planet2]/@degree" />
-                                        </xsl:otherwise>
-                                    </xsl:choose>
-                                </xsl:variable>
-                                <xsl:variable name="rad2" select="$deg2 * $PI div 180"/>
-                                <xsl:variable name="x2" select="$r_aspect * math:cos($rad2)"/>
-                                <xsl:variable name="y2" select="$r_aspect * -math:sin($rad2)"/>
+                            <line class="aspect">
+                                <xsl:attribute name="id">aspect-<xsl:value-of select="$planet1"/>-<xsl:value-of select="$planet2"/></xsl:attribute>
+                                <xsl:attribute name="class">aspect aspect-<xsl:value-of select="@type"/> aspect-<xsl:value-of select="$planet1"/> aspect-<xsl:value-of select="$planet2"/></xsl:attribute>
+                                <xsl:attribute name="x1"><xsl:value-of select="$x1"/></xsl:attribute>
+                                <xsl:attribute name="y1"><xsl:value-of select="$y1"/></xsl:attribute>
+                                <xsl:attribute name="x2"><xsl:value-of select="$x2"/></xsl:attribute>
+                                <xsl:attribute name="y2"><xsl:value-of select="$y2"/></xsl:attribute>
+                            </line>
+                        </xsl:for-each>
+                    </g>
 
-                                <line class="aspect">
-                                    <xsl:attribute name="class"><xsl:value-of select="concat('aspect aspect-', @type)"/></xsl:attribute>
-                                    <xsl:attribute name="x1"><xsl:value-of select="$x1"/></xsl:attribute>
-                                    <xsl:attribute name="y1"><xsl:value-of select="$y1"/></xsl:attribute>
-                                    <xsl:attribute name="x2"><xsl:value-of select="$x2"/></xsl:attribute>
-                                    <xsl:attribute name="y2"><xsl:value-of select="$y2"/></xsl:attribute>
-                                </line>
-                            </xsl:for-each>
-                        </g>
+                    <g id="antiscia" display="none">
+                        <xsl:for-each select="chartinfo/antiscia/antiscia">
+                            <xsl:variable name="planet1" select="@body1"/>
+                            <xsl:variable name="deg1">
+                                <xsl:choose>
+                                    <xsl:when test="$planet1='ascendant'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:when test="$planet1='mc'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/mc/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:when test="$planet1='vertex'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/vertex/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="/chartinfo/bodies/body[@name=$planet1]/@degree" />
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:variable>
+                            <xsl:variable name="rad1" select="$deg1 * $PI div 180"/>
+                            <xsl:variable name="x1" select="$r_aspect * math:cos($rad1)"/>
+                            <xsl:variable name="y1" select="$r_aspect * -math:sin($rad1)"/>
 
-                        <g id="antiscia" visibility="hidden">
-                            <xsl:for-each select="chartinfo/antiscia/antiscia">
-                                <xsl:variable name="planet1" select="@body1"/>
-                                <xsl:variable name="deg1">
-                                    <xsl:choose>
-                                        <xsl:when test="$planet1='GSWE_PLANET_ASCENDANT'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:when test="$planet1='GSWE_PLANET_MC'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/mc/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:when test="$planet1='GSWE_PLANET_VERTEX'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/vertex/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:otherwise>
-                                            <xsl:value-of select="/chartinfo/bodies/body[@name=$planet1]/@degree" />
-                                        </xsl:otherwise>
-                                    </xsl:choose>
-                                </xsl:variable>
-                                <xsl:variable name="rad1" select="$deg1 * $PI div 180"/>
-                                <xsl:variable name="x1" select="$r_aspect * math:cos($rad1)"/>
-                                <xsl:variable name="y1" select="$r_aspect * -math:sin($rad1)"/>
+                            <xsl:variable name="planet2" select="@body2"/>
+                            <xsl:variable name="deg2">
+                                <xsl:choose>
+                                    <xsl:when test="$planet2='ascendant'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:when test="$planet2='mc'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/mc/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:when test="$planet2='vertex'">
+                                        <xsl:value-of select="/chartinfo/ascmcs/vertex/@degree_ut" />
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="/chartinfo/bodies/body[@name=$planet2]/@degree" />
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:variable>
+                            <xsl:variable name="rad2" select="$deg2 * $PI div 180"/>
+                            <xsl:variable name="x2" select="$r_aspect * math:cos($rad2)"/>
+                            <xsl:variable name="y2" select="$r_aspect * -math:sin($rad2)"/>
 
-                                <xsl:variable name="planet2" select="@body2"/>
-                                <xsl:variable name="deg2">
-                                    <xsl:choose>
-                                        <xsl:when test="$planet2='GSWE_PLANET_ASCENDANT'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/ascendant/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:when test="$planet2='GSWE_PLANET_MC'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/mc/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:when test="$planet2='GSWE_PLANET_VERTEX'">
-                                            <xsl:value-of select="/chartinfo/ascmcs/vertex/@degree_ut" />
-                                        </xsl:when>
-                                        <xsl:otherwise>
-                                            <xsl:value-of select="/chartinfo/bodies/body[@name=$planet2]/@degree" />
-                                        </xsl:otherwise>
-                                    </xsl:choose>
-                                </xsl:variable>
-                                <xsl:variable name="rad2" select="$deg2 * $PI div 180"/>
-                                <xsl:variable name="x2" select="$r_aspect * math:cos($rad2)"/>
-                                <xsl:variable name="y2" select="$r_aspect * -math:sin($rad2)"/>
-
-                                <line style="stroke-width:1;stroke:#000000;stroke-dasharray:20,10">
-                                    <xsl:attribute name="x1"><xsl:value-of select="$x1"/></xsl:attribute>
-                                    <xsl:attribute name="y1"><xsl:value-of select="$y1"/></xsl:attribute>
-                                    <xsl:attribute name="x2"><xsl:value-of select="$x2"/></xsl:attribute>
-                                    <xsl:attribute name="y2"><xsl:value-of select="$y2"/></xsl:attribute>
-                                </line>
-                            </xsl:for-each>
-                        </g>
+                            <line class="antiscion">
+                                <xsl:attribute name="id">antiscion-<xsl:value-of select="$planet1"/>-<xsl:value-of select="$planet2"/></xsl:attribute>
+                                <xsl:attribute name="class">antiscion antiscion-<xsl:value-of select="@axis"/> antiscion-<xsl:value-of select="$planet1"/> antiscion-<xsl:value-of select="$planet2"/></xsl:attribute>
+                                <xsl:attribute name="x1"><xsl:value-of select="$x1"/></xsl:attribute>
+                                <xsl:attribute name="y1"><xsl:value-of select="$y1"/></xsl:attribute>
+                                <xsl:attribute name="x2"><xsl:value-of select="$x2"/></xsl:attribute>
+                                <xsl:attribute name="y2"><xsl:value-of select="$y2"/></xsl:attribute>
+                            </line>
+                        </xsl:for-each>
                     </g>
                 </g>
             </g>

@@ -57,7 +57,7 @@ AgChart *ag_chart_load_from_agc(GFile  *file,
 AgChart *ag_chart_load_from_placidus_file(GFile  *file,
                                           GError **err);
 
-AgChart *ag_chart_new_from_db_save(AgDbSave *save_data, GError **err);
+AgChart *ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err);
 
 void ag_chart_save_to_file(AgChart *chart,
                            GFile   *file,
@@ -92,7 +92,7 @@ void ag_chart_set_note(AgChart *chart, const gchar *note);
 
 const gchar *ag_chart_get_note(AgChart *chart);
 
-AgDbSave *ag_chart_get_db_save(AgChart *chart, gint db_id);
+AgDbChartSave *ag_chart_get_db_save(AgChart *chart, gint db_id);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);

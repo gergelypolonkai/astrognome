@@ -22,6 +22,11 @@
             <summary>The default house system</summary>
             <description>The house system to use by default in new charts</description>
         </key>
+        <key name="default-display-theme" type="i">
+            <default>-1</default>
+            <summary>The ID of the default display theme to use</summary>
+            <description>The database ID of the display theme to be used when a chart is created/opened.</description>
+        </key>
     </schema>
     <schema id="eu.polonkai.gergely.Astrognome.state" path="/eu/polonkai/gergely/Astrognome/state/">
         <child name="window" schema="eu.polonkai.gergely.Astrognome.state.window" />
@@ -42,13 +47,6 @@
             <default>600</default>
             <summary>Height of new windows</summary>
             <description>The height of newly created windows.</description>
-        </key>
-    </schema>
-    <schema id="eu.polonkai.gergely.Astrognome.state.chart" path="/eu/polonkai/gergely/Astrognome/state/chart/">
-        <key name="classic-only" type="b">
-            <default>false</default>
-            <summary>Use the classical view</summary>
-            <description>Use the classical view: planets only between Sun and Saturn, only Ptolemaic aspects, no antiscia.</description>
         </key>
     </schema>
 </schemalist>

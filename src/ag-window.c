@@ -16,6 +16,7 @@
 #include "ag-chart.h"
 #include "ag-settings.h"
 #include "ag-db.h"
+#include "ag-display-theme.h"
 
 struct _AgWindowPrivate {
     GtkWidget     *header_bar;
@@ -40,6 +41,7 @@ struct _AgWindowPrivate {
     GtkWidget     *second;
     GtkWidget     *timezone;
     GtkWidget     *house_system;
+    GtkWidget     *display_theme;
 
     GtkWidget     *tab_list;
     GtkWidget     *tab_chart;
@@ -57,11 +59,14 @@ struct _AgWindowPrivate {
     GtkTextBuffer *note_buffer;
     GtkListStore  *house_system_model;
     GtkListStore  *db_chart_data;
-    AgDbSave      *saved_data;
+    AgDbChartSave      *saved_data;
     GtkEntryCompletion *country_comp;
     GtkEntryCompletion *city_comp;
     gchar              *selected_country;
     gchar              *selected_city;
+    GList              *style_sheets;
+    AgDisplayTheme     *theme;
+    GtkListStore       *display_theme_model;
 };
 
 struct cc_search {
@@ -643,7 +648,7 @@ ag_window_chart_changed(AgChart *chart, AgWindow *window)
 static void
 ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
 {
-    AgDbSave        *edit_data,
+    AgDbChartSave   *edit_data,
                     *chart_data;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
     gboolean        south,
@@ -673,7 +678,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         gtk_spin_button_update(GTK_SPIN_BUTTON(current));
     }
 
-    edit_data = g_new0(AgDbSave, 1);
+    edit_data = g_new0(AgDbChartSave, 1);
 
     edit_data->db_id = db_id;
 
@@ -748,16 +753,16 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
             : NULL
         ;
 
-    if (ag_db_save_identical(edit_data, chart_data, !set_everything)) {
+    if (ag_db_chart_save_identical(edit_data, chart_data, !set_everything)) {
         g_debug("No redrawing needed");
 
-        ag_db_save_data_free(edit_data);
-        ag_db_save_data_free(chart_data);
+        ag_db_chart_save_free(edit_data);
+        ag_db_chart_save_free(chart_data);
 
         return;
     }
 
-    ag_db_save_data_free(chart_data);
+    ag_db_chart_save_free(chart_data);
 
     g_debug("Recalculating chart data");
 
@@ -799,7 +804,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         ag_chart_set_note(priv->chart, edit_data->note);
     }
 
-    ag_db_save_data_free(edit_data);
+    ag_db_chart_save_free(edit_data);
 }
 
 static void
@@ -989,7 +994,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
     gint            db_id      = (priv->saved_data)
             ? priv->saved_data->db_id
             : -1;
-    AgDbSave        *save_data = NULL;
+    AgDbChartSave   *save_data = NULL;
     AgDb            *db        = ag_db_get();
     GError          *err       = NULL;
     gboolean        ret        = TRUE;
@@ -999,7 +1004,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
         save_data = ag_chart_get_db_save(priv->chart, db_id);
 
         if (
-                    !ag_db_save_identical(priv->saved_data, save_data, FALSE)
+                    !ag_db_chart_save_identical(priv->saved_data, save_data, FALSE)
                     || !(priv->saved_data)
                     || (priv->saved_data->db_id == -1)
                 ) {
@@ -1020,7 +1025,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
 
                 switch (response) {
                     case GTK_RESPONSE_YES:
-                        if (!ag_db_save_chart(db, save_data, &err)) {
+                        if (!ag_db_chart_save(db, save_data, &err)) {
                             ag_app_message_dialog(
                                     GTK_WINDOW(window),
                                     GTK_MESSAGE_ERROR,
@@ -1051,7 +1056,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
         }
     }
 
-    ag_db_save_data_free(save_data);
+    ag_db_chart_save_free(save_data);
 
     return ret;
 }
@@ -1066,7 +1071,7 @@ ag_window_save_action(GSimpleAction *action,
     AgDb            *db     = ag_db_get();
     GError          *err    = NULL;
     gint            old_id;
-    AgDbSave        *save_data;
+    AgDbChartSave   *save_data;
 
     ag_window_recalculate_chart(window, TRUE);
 
@@ -1074,7 +1079,7 @@ ag_window_save_action(GSimpleAction *action,
         old_id    = (priv->saved_data) ? priv->saved_data->db_id : -1;
         save_data = ag_chart_get_db_save(priv->chart, old_id);
 
-        if (!ag_db_save_chart(db, save_data, &err)) {
+        if (!ag_db_chart_save(db, save_data, &err)) {
             ag_app_message_dialog(
                     GTK_WINDOW(window),
                     GTK_MESSAGE_ERROR,
@@ -1083,7 +1088,7 @@ ag_window_save_action(GSimpleAction *action,
                 );
         }
 
-        ag_db_save_data_free(priv->saved_data);
+        ag_db_chart_save_free(priv->saved_data);
         priv->saved_data = save_data;
     }
 }
@@ -1109,6 +1114,130 @@ ag_window_delete_event_callback(AgWindow *window,
 }
 
 static void
+ag_window_clear_style_sheets(AgWindow *window)
+{
+    WebKitUserContentManager *manager;
+    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
+
+    g_debug("Clearing style sheets");
+
+    manager = webkit_web_view_get_user_content_manager(
+            WEBKIT_WEB_VIEW(priv->chart_web_view)
+        );
+
+    webkit_user_content_manager_remove_all_style_sheets(manager);
+    g_list_free_full(
+            priv->style_sheets,
+            (GDestroyNotify)webkit_user_style_sheet_unref
+        );
+    priv->style_sheets = NULL;
+}
+
+static void
+ag_window_add_style_sheet(AgWindow *window, const gchar *path)
+{
+    gchar           *css_source;
+    gboolean        source_free = FALSE;
+    AgWindowPrivate *priv       = ag_window_get_instance_private(window);
+
+    if (strncmp("gres://", path, 7) == 0) {
+        gchar  *res_path = g_strdup_printf(
+                "/eu/polonkai/gergely/Astrognome/%s",
+                path + 7
+            );
+        GBytes *css_data = g_resources_lookup_data(
+                res_path,
+                G_RESOURCE_LOOKUP_FLAGS_NONE,
+                NULL
+            );
+
+        css_source  = g_strdup(g_bytes_get_data(css_data, NULL));
+        source_free = TRUE;
+        g_bytes_unref(css_data);
+    } else if (strncmp("raw:", path, 4) == 0) {
+        css_source = (gchar *)path + 4;
+    } else {
+        GFile  *css_file = g_file_new_for_uri(path);
+        GError *err = NULL;
+
+        g_file_load_contents(
+                css_file,
+                NULL,
+                &css_source, NULL,
+                NULL,
+                &err
+            );
+        source_free = TRUE;
+        g_object_unref(css_file);
+    }
+
+    if (css_source) {
+        WebKitUserStyleSheet *style_sheet = webkit_user_style_sheet_new(
+                css_source,
+                WEBKIT_USER_CONTENT_INJECT_TOP_FRAME,
+                WEBKIT_USER_STYLE_LEVEL_USER,
+                NULL, NULL
+            );
+
+        priv->style_sheets = g_list_append(priv->style_sheets, style_sheet);
+
+        if (source_free) {
+            g_free(css_source);
+        }
+    }
+}
+
+static void
+ag_window_update_style_sheets(AgWindow *window)
+{
+    GList                    *item;
+    WebKitUserContentManager *manager;
+    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
+
+    g_debug("Updating style sheets");
+
+    manager = webkit_web_view_get_user_content_manager(
+            WEBKIT_WEB_VIEW(priv->chart_web_view)
+        );
+
+    webkit_user_content_manager_remove_all_style_sheets(manager);
+
+    for (item = priv->style_sheets; item; item = g_list_next(item)) {
+        WebKitUserStyleSheet *style_sheet = item->data;
+
+        webkit_user_content_manager_add_style_sheet(manager, style_sheet);
+    }
+}
+
+static void
+ag_window_set_theme(AgWindow *window, AgDisplayTheme *theme)
+{
+    gchar *css,
+          *css_final;
+
+    g_debug("Setting theme to %s", (theme) ? theme->name : "no theme");
+    ag_window_clear_style_sheets(window);
+
+    // Add the default style sheet
+    ag_window_add_style_sheet(
+            window,
+            "gres://ui/chart-default.css"
+        );
+
+    if (theme) {
+        css = ag_display_theme_to_css(theme);
+        css_final = g_strdup_printf("raw:%s", css);
+        g_free(css);
+
+        ag_window_add_style_sheet(window, css_final);
+
+        g_free(css_final);
+    }
+
+    ag_window_update_style_sheets(window);
+}
+
+static void
 ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 {
     GtkWidget       *active_tab;
@@ -1125,6 +1254,23 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 
     if (strcmp("chart", active_tab_name) == 0) {
         gtk_widget_set_size_request(active_tab, 600, 600);
+        if (priv->theme == NULL) {
+            AgSettings           *settings;
+            GSettings            *main_settings;
+            gint                 default_theme;
+
+            settings      = ag_settings_get();
+            main_settings = ag_settings_peek_main_settings(settings);
+            default_theme = g_settings_get_int(
+                    main_settings,
+                    "default-display-theme"
+                );
+            g_object_unref(settings);
+
+            priv->theme = ag_display_theme_get_by_id(default_theme);
+
+            ag_window_set_theme(window, priv->theme);
+        }
     }
 
     if (strcmp("list", active_tab_name) == 0) {
@@ -1203,6 +1349,37 @@ ag_window_set_default_house_system(GtkTreeModel *model,
     return FALSE;
 }
 
+static gboolean
+ag_window_set_default_display_theme(GtkTreeModel *model,
+                                    GtkTreePath  *path,
+                                    GtkTreeIter  *iter,
+                                    AgWindow     *window)
+{
+    gint            row_display_theme;
+    AgWindowPrivate *priv          = ag_window_get_instance_private(window);
+    AgSettings      *settings      = ag_settings_get();
+    GSettings       *main_settings = ag_settings_peek_main_settings(settings);
+    gint            default_theme  = g_settings_get_int(
+            main_settings,
+            "default-display-theme"
+        );
+
+    g_clear_object(&settings);
+    gtk_tree_model_get(
+            model, iter,
+            0, &row_display_theme,
+            -1
+        );
+
+    if (default_theme == row_display_theme) {
+        gtk_combo_box_set_active_iter(GTK_COMBO_BOX(priv->display_theme), iter);
+
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 static void
 ag_window_new_chart_action(GSimpleAction *action,
                            GVariant      *parameter,
@@ -1262,7 +1439,7 @@ ag_window_back_action(GSimpleAction *action,
 
     if (ag_window_can_close(window, TRUE)) {
         g_clear_object(&(priv->chart));
-        ag_db_save_data_free(priv->saved_data);
+        ag_db_chart_save_free(priv->saved_data);
         priv->saved_data = NULL;
 
         ag_window_load_chart_list(window);
@@ -1355,7 +1532,7 @@ ag_window_delete_action(GSimpleAction *action,
         id = atoi(id_str);
         g_free(id_str);
 
-        if (!ag_db_delete_chart(db, id, &err)) {
+        if (!ag_db_chart_delete(db, id, &err)) {
             ag_app_message_dialog(
                     GTK_WINDOW(window),
                     GTK_MESSAGE_ERROR,
@@ -1399,8 +1576,8 @@ ag_window_connection_action(GSimpleAction *action,
         );
     static gchar *js         = "aspects = document.getElementById('aspects');\n"   \
                                "antiscia = document.getElementById('antiscia');\n" \
-                               "aspects.setAttribute('visibility', '%s');\n"       \
-                               "antiscia.setAttribute('visibility', '%s');\n";
+                               "aspects.setAttribute('display', '%s');\n"       \
+                               "antiscia.setAttribute('display', '%s');\n";
 
     current_state = g_action_get_state(G_ACTION(action));
 
@@ -1414,10 +1591,10 @@ ag_window_connection_action(GSimpleAction *action,
 
     if (strcmp("aspects", state) == 0) {
         g_debug("Switching to aspects");
-        js_code = g_strdup_printf(js, "visible", "hidden");
+        js_code = g_strdup_printf(js, "block", "none");
     } else if (strcmp("antiscia", state) == 0) {
         g_debug("Switching to antiscia");
-        js_code = g_strdup_printf(js, "hidden", "visible");
+        js_code = g_strdup_printf(js, "none", "block");
     } else {
         g_warning("Connection type '%s' is invalid", state);
     }
@@ -1481,6 +1658,21 @@ ag_window_add_house_system(GsweHouseSystemInfo *house_system_info,
 }
 
 static void
+ag_window_add_display_theme(AgDisplayTheme *display_theme,
+                            AgWindowPrivate *priv)
+{
+    GtkTreeIter iter;
+
+    gtk_list_store_append(priv->display_theme_model, &iter);
+    gtk_list_store_set(
+            priv->display_theme_model, &iter,
+            0, display_theme->id,
+            1, display_theme->name,
+            -1
+        );
+}
+
+static void
 ag_window_list_item_activated_cb(GdMainView        *view,
                                  const gchar       *id,
                                  const GtkTreePath *path,
@@ -1507,7 +1699,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
 
     g_debug("Loading chart with ID %d", row_id);
 
-    if ((priv->saved_data = ag_db_get_chart_data_by_id(
+    if ((priv->saved_data = ag_db_chart_get_data_by_id(
                  db,
                  row_id,
                  &err)) == NULL) {
@@ -1534,7 +1726,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
                 "Error: %s",
                 err->message
             );
-        ag_db_save_data_free(priv->saved_data);
+        ag_db_chart_save_free(priv->saved_data);
         priv->saved_data = NULL;
 
         return;
@@ -1612,16 +1804,45 @@ ag_window_city_matches(GtkEntryCompletion *city_comp,
     return ret;
 }
 
+gboolean
+ag_window_chart_context_cb(WebKitWebView       *web_view,
+                           GtkWidget           *default_menu,
+                           WebKitHitTestResult *hit_test_result,
+                           gboolean            triggered_with_keyboard,
+                           gpointer user_data)
+{
+    return TRUE;
+}
+
 static void
 ag_window_init(AgWindow *window)
 {
-    GtkAccelGroup   *accel_group;
-    GSettings       *main_settings;
-    GList           *house_system_list;
-    GtkCellRenderer *house_system_renderer;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GtkAccelGroup            *accel_group;
+    GSettings                *main_settings;
+    GList                    *house_system_list,
+                             *display_theme_list;
+    GtkCellRenderer          *house_system_renderer,
+                             *display_theme_renderer;
+    WebKitUserContentManager *manager = webkit_user_content_manager_new();
+    AgWindowPrivate          *priv = ag_window_get_instance_private(window);
 
     gtk_widget_init_template(GTK_WIDGET(window));
+
+    priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
+            manager
+        );
+    gtk_box_pack_end(
+            GTK_BOX(priv->tab_chart),
+            priv->chart_web_view,
+            TRUE, TRUE, 0
+        );
+
+    g_signal_connect(
+            priv->chart_web_view,
+            "context-menu",
+            G_CALLBACK(ag_window_chart_context_cb),
+            NULL
+        );
 
     priv->settings = ag_settings_get();
     main_settings  = ag_settings_peek_main_settings(priv->settings);
@@ -1674,6 +1895,32 @@ ag_window_init(AgWindow *window)
     gtk_cell_layout_set_attributes(
             GTK_CELL_LAYOUT(priv->house_system),
             house_system_renderer,
+            "text", 1,
+            NULL
+        );
+
+    display_theme_list = ag_display_theme_get_list();
+    g_list_foreach(
+            display_theme_list,
+            (GFunc)ag_window_add_display_theme,
+            priv
+        );
+    g_list_free_full(display_theme_list, (GDestroyNotify)ag_display_theme_free);
+    gtk_tree_model_foreach(
+            GTK_TREE_MODEL(priv->display_theme_model),
+            (GtkTreeModelForeachFunc)ag_window_set_default_display_theme,
+            window
+        );
+
+    display_theme_renderer = gtk_cell_renderer_text_new();
+    gtk_cell_layout_pack_start(
+            GTK_CELL_LAYOUT(priv->display_theme),
+            display_theme_renderer,
+            TRUE
+        );
+    gtk_cell_layout_set_attributes(
+            GTK_CELL_LAYOUT(priv->display_theme),
+            display_theme_renderer,
             "text", 1,
             NULL
         );
@@ -1930,6 +2177,26 @@ ag_window_city_changed_callback(GtkSearchEntry *city, AgWindow *window)
     }
 }
 
+void
+ag_window_display_theme_changed_cb(GtkComboBox *combo_box,
+                                   AgWindow    *window)
+{
+    GtkTreeIter     iter;
+    gint            theme_id;
+    AgDisplayTheme  *theme;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    gtk_combo_box_get_active_iter(combo_box, &iter);
+    gtk_tree_model_get(
+            GTK_TREE_MODEL(priv->display_theme_model), &iter,
+            0, &theme_id,
+            -1
+        );
+
+    theme = ag_display_theme_get_by_id(theme_id);
+    ag_window_set_theme(window, theme);
+}
+
 static void
 ag_window_class_init(AgWindowClass *klass)
 {
@@ -2074,6 +2341,16 @@ ag_window_class_init(AgWindowClass *klass)
             AgWindow,
             points_eq
         );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            display_theme
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            display_theme_model
+        );
 
     gtk_widget_class_bind_template_callback(
             widget_class,
@@ -2095,16 +2372,10 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             ag_window_city_changed_callback
         );
-}
-
-gboolean
-ag_window_chart_context_cb(WebKitWebView       *web_view,
-                           GtkWidget           *default_menu,
-                           WebKitHitTestResult *hit_test_result,
-                           gboolean            triggered_with_keyboard,
-                           gpointer user_data)
-{
-    return TRUE;
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_display_theme_changed_cb
+        );
 }
 
 static gboolean
@@ -2124,26 +2395,10 @@ ag_window_configure_event_cb(GtkWidget         *widget,
 }
 
 GtkWidget *
-ag_window_new(AgApp *app, WebKitUserContentManager *manager)
+ag_window_new(AgApp *app)
 {
-    AgWindow        *window = g_object_new(AG_TYPE_WINDOW, NULL);
-    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
-
-    priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
-            manager
-        );
-    gtk_box_pack_end(
-            GTK_BOX(priv->tab_chart),
-            priv->chart_web_view,
-            TRUE, TRUE, 0
-        );
-
-    g_signal_connect(
-            priv->chart_web_view,
-            "context-menu",
-            G_CALLBACK(ag_window_chart_context_cb),
-            NULL
-        );
+    AgWindow                 *window  = g_object_new(AG_TYPE_WINDOW, NULL);
+    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
 
     // TODO: translate this error message!
     webkit_web_view_load_html(
@@ -2192,7 +2447,7 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
         g_clear_object(&(priv->chart));
     }
 
-    ag_db_save_data_free(priv->saved_data);
+    ag_db_chart_save_free(priv->saved_data);
 
     priv->chart = chart;
     g_signal_connect(
@@ -2278,7 +2533,7 @@ ag_window_change_tab(AgWindow *window, const gchar *tab_name)
 }
 
 static void
-ag_window_add_chart_to_list(AgDbSave *save_data, AgWindow *window)
+ag_window_add_chart_to_list(AgDbChartSave *save_data, AgWindow *window)
 {
     GtkTreeIter     iter;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
@@ -2313,7 +2568,7 @@ ag_window_load_chart_list(AgWindow *window)
 {
     AgDb   *db         = ag_db_get();
     GError *err        = NULL;
-    GList  *chart_list = ag_db_get_chart_list(db, &err);
+    GList  *chart_list = ag_db_chart_get_list(db, &err);
 
     ag_window_clear_chart_list(window);
     /* With only a few charts, this should be fine. Maybe implementing lazy

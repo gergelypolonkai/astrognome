@@ -30,7 +30,7 @@ struct _AgDbClass {
     GObjectClass parent_class;
 };
 
-typedef struct _AgDbSave {
+typedef struct _AgDbChartSave {
     gint db_id;
     gchar *name;
     gchar *country;
@@ -47,7 +47,7 @@ typedef struct _AgDbSave {
     gdouble timezone;
     gchar *house_system;
     gchar *note;
-} AgDbSave;
+} AgDbChartSave;
 
 typedef enum {
     AG_DB_ERROR_NO_CHART,
@@ -58,21 +58,21 @@ GType ag_db_get_type(void) G_GNUC_CONST;
 
 AgDb *ag_db_get(void);
 
-void ag_db_save_data_free(AgDbSave *save_data);
+void ag_db_chart_save_free(AgDbChartSave *save_data);
 
-gboolean ag_db_save_chart(AgDb      *db,
-                          AgDbSave  *save_data,
-                          GError    **err);
+gboolean ag_db_chart_save(AgDb           *db,
+                          AgDbChartSave  *save_data,
+                          GError         **err);
 
-GList *ag_db_get_chart_list(AgDb *db, GError **err);
+GList *ag_db_chart_get_list(AgDb *db, GError **err);
 
-AgDbSave *ag_db_get_chart_data_by_id(AgDb *db, guint row_id, GError **err);
+AgDbChartSave *ag_db_chart_get_data_by_id(AgDb *db, guint row_id, GError **err);
 
-gboolean ag_db_delete_chart(AgDb *db, gint row_id, GError **err);
+gboolean ag_db_chart_delete(AgDb *db, gint row_id, GError **err);
 
-gboolean ag_db_save_identical(const AgDbSave *a,
-                              const AgDbSave *b,
-                              gboolean chart_only);
+gboolean ag_db_chart_save_identical(const AgDbChartSave *a,
+                                    const AgDbChartSave *b,
+                                    gboolean            chart_only);
 
 #define AG_DB_ERROR (ag_db_error_quark())
 GQuark ag_db_error_quark(void);

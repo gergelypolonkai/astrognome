@@ -10,11 +10,19 @@
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="display_theme_model">
+    <columns>
+      <!-- column-name display-theme-id -->
+      <column type="gchararray"/>
+      <!-- column-name display-theme-name -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <template class="AgPreferences" parent="GtkDialog">
     <property name="can_focus">False</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox1">
+      <object class="GtkBox">
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
@@ -37,7 +45,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkGrid" id="grid2">
+          <object class="GtkGrid">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
@@ -86,7 +94,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label1">
+              <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Default house system</property>
@@ -99,13 +107,36 @@
             <child>
               <object class="GtkComboBox" id="house_system">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can_focus">True</property>
                 <property name="model">house_system_model</property>
                 <property name="id_column">0</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="top_attach">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Default display theme</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="display_theme">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="model">display_theme_model</property>
+                <property name="id_column">0</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">4</property>
               </packing>
             </child>
           </object>

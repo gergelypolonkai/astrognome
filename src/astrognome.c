@@ -27,6 +27,7 @@ GtkFileFilter *filter_hor   = NULL;
 GtkTreeModel  *country_list = NULL;
 GtkTreeModel  *city_list    = NULL;
 GHashTable    *xinclude_positions;
+gsize         used_planets_count;
 
 const char    *moonStateName[] = {
     "New Moon",
@@ -38,6 +39,32 @@ const char    *moonStateName[] = {
     "Waning Half Moon",
     "Waning Crescent Moon",
     "Dark Moon"
+};
+
+const GswePlanet used_planets[] = {
+    GSWE_PLANET_MC,
+    GSWE_PLANET_ASCENDANT,
+    GSWE_PLANET_VERTEX,
+    GSWE_PLANET_SUN,
+    GSWE_PLANET_MOON,
+    GSWE_PLANET_MERCURY,
+    GSWE_PLANET_VENUS,
+    GSWE_PLANET_MARS,
+    GSWE_PLANET_JUPITER,
+    GSWE_PLANET_SATURN,
+    GSWE_PLANET_URANUS,
+    GSWE_PLANET_NEPTUNE,
+    GSWE_PLANET_PLUTO,
+    GSWE_PLANET_MOON_NODE,
+    GSWE_PLANET_MOON_APOGEE,
+    GSWE_PLANET_CHIRON,
+    GSWE_PLANET_PHOLUS,
+    GSWE_PLANET_NESSUS,
+    GSWE_PLANET_CERES,
+    GSWE_PLANET_PALLAS,
+    GSWE_PLANET_JUNO,
+    GSWE_PLANET_VESTA,
+    GSWE_PLANET_CHARIKLO
 };
 
 void
@@ -188,6 +215,102 @@ ag_house_system_nick_to_id(const gchar *nick)
     return GSWE_HOUSE_SYSTEM_NONE;
 }
 
+const gchar *
+ag_planet_id_to_nick(GswePlanet planet)
+{
+    GEnumClass *planet_class;
+    GEnumValue *enum_value;
+
+    planet_class = g_type_class_ref(GSWE_TYPE_PLANET);
+    enum_value = g_enum_get_value(planet_class, planet);
+
+    if (enum_value) {
+        return enum_value->value_nick;
+    }
+
+    return NULL;
+}
+
+GswePlanet
+ag_planet_nick_to_id(const gchar *nick)
+{
+    GEnumClass *planet_class;
+    GEnumValue *enum_value;
+
+    planet_class = g_type_class_ref(GSWE_TYPE_PLANET);
+    enum_value = g_enum_get_value_by_nick(planet_class, nick);
+
+    if (enum_value) {
+        return enum_value->value;
+    }
+
+    return GSWE_PLANET_NONE;
+}
+
+const gchar *
+ag_aspect_id_to_nick(GsweAspect aspect)
+{
+    GEnumClass *aspect_class;
+    GEnumValue *enum_value;
+
+    aspect_class = g_type_class_ref(GSWE_TYPE_ASPECT);
+    enum_value = g_enum_get_value(aspect_class, aspect);
+
+    if (enum_value) {
+        return enum_value->value_nick;
+    }
+
+    return NULL;
+}
+
+GsweAspect
+ag_aspect_nick_to_id(const gchar *nick)
+{
+    GEnumClass *aspect_class;
+    GEnumValue *enum_value;
+
+    aspect_class = g_type_class_ref(GSWE_TYPE_ASPECT);
+    enum_value = g_enum_get_value_by_nick(aspect_class, nick);
+
+    if (enum_value) {
+        return enum_value->value;
+    }
+
+    return GSWE_ASPECT_NONE;
+}
+
+const gchar *
+ag_antiscion_axis_id_to_nick(GsweAntiscionAxis antiscion_axis)
+{
+    GEnumClass *antiscion_axis_class;
+    GEnumValue *enum_value;
+
+    antiscion_axis_class = g_type_class_ref(GSWE_TYPE_ANTISCION_AXIS);
+    enum_value = g_enum_get_value(antiscion_axis_class, antiscion_axis);
+
+    if (enum_value) {
+        return enum_value->value_nick;
+    }
+
+    return NULL;
+}
+
+GsweAntiscionAxis
+ag_antiscion_axis_nick_to_id(const gchar *nick)
+{
+    GEnumClass *antiscion_axis_class;
+    GEnumValue *enum_value;
+
+    antiscion_axis_class = g_type_class_ref(GSWE_TYPE_ANTISCION_AXIS);
+    enum_value = g_enum_get_value_by_nick(antiscion_axis_class, nick);
+
+    if (enum_value) {
+        return enum_value->value;
+    }
+
+    return GSWE_ANTISCION_AXIS_NONE;
+}
+
 /**
  * ag_get_user_data_dir:
  *
@@ -261,6 +384,7 @@ main(int argc, char *argv[])
     textdomain(GETTEXT_PACKAGE);
 #endif
 
+    used_planets_count = sizeof(used_planets) / sizeof(GswePlanet);
     LIBXML_TEST_VERSION;
     xmlSubstituteEntitiesDefault(1);
     xmlLoadExtDtdDefaultValue = 1;

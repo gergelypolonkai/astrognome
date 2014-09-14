@@ -10,11 +10,13 @@ typedef struct {
     gboolean new_window;
 } AstrognomeOptions;
 
-extern GtkFileFilter *filter_all;
-extern GtkFileFilter *filter_chart;
-extern GtkFileFilter *filter_hor;
-extern GtkTreeModel  *country_list;
-extern GtkTreeModel  *city_list;
+extern GtkFileFilter    *filter_all;
+extern GtkFileFilter    *filter_chart;
+extern GtkFileFilter    *filter_hor;
+extern GtkTreeModel     *country_list;
+extern GtkTreeModel     *city_list;
+extern const GswePlanet used_planets[];
+extern gsize            used_planets_count;
 
 enum {
     AG_COUNTRY_CODE,
@@ -35,6 +37,16 @@ enum {
 
 const gchar *ag_house_system_id_to_nick(GsweHouseSystem house_system);
 GsweHouseSystem ag_house_system_nick_to_id(const gchar *nick);
+
+const gchar *ag_planet_id_to_nick(GswePlanet planet);
+GswePlanet ag_planet_nick_to_id(const gchar *nick);
+
+const gchar *ag_aspect_id_to_nick(GsweAspect aspect);
+GsweAspect ag_aspect_nick_to_id(const gchar *nick);
+
+const gchar *ag_antiscion_axis_id_to_nick(GsweAntiscionAxis antiscion_axis);
+GsweAntiscionAxis ag_antiscion_axis_nick_to_id(const gchar *nick);
+
 GFile *ag_get_user_data_dir(void);
 
 #ifndef GDOUBLE_FROM_LE
