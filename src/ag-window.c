@@ -1116,8 +1116,12 @@ ag_window_delete_event_callback(AgWindow *window,
 static void
 ag_window_clear_style_sheets(AgWindow *window)
 {
+    WebKitUserContentManager *manager;
     AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
-    WebKitUserContentManager *manager = webkit_web_view_get_user_content_manager(
+
+    g_debug("Clearing style sheets");
+
+    manager = webkit_web_view_get_user_content_manager(
             WEBKIT_WEB_VIEW(priv->chart_web_view)
         );
 
@@ -1187,8 +1191,12 @@ static void
 ag_window_update_style_sheets(AgWindow *window)
 {
     GList                    *item;
+    WebKitUserContentManager *manager;
     AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
-    WebKitUserContentManager *manager = webkit_web_view_get_user_content_manager(
+
+    g_debug("Updating style sheets");
+
+    manager = webkit_web_view_get_user_content_manager(
             WEBKIT_WEB_VIEW(priv->chart_web_view)
         );
 
@@ -1207,6 +1215,7 @@ ag_window_set_theme(AgWindow *window, AgDisplayTheme *theme)
     gchar *css,
           *css_final;
 
+    g_debug("Setting theme to %s", (theme) ? theme->name : "no theme");
     ag_window_clear_style_sheets(window);
 
     // Add the default style sheet
