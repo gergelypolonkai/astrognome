@@ -1,3 +1,4 @@
+#+STARTUP: indent
 
 * Refine UI                                                     :version_1.0:
   The UI is a bit messy right now, especially the aspect/antiscia
@@ -13,7 +14,6 @@
   back to a GtkStackSwitcher. The original place for that is now used
   up by the window title and the chart name, so a new place must be
   found for it.
-
 
 * Issue an error message for missing resources
 
@@ -56,7 +56,11 @@
 
 * Progressions                                                  :version_2.0:
 
-* Stepping through time without actually modifying the chart data :version_1.0:
+* Time stepping                                                 :version_1.0:
+
+  Stepping through time without actually modifying the saved chart
+  data. The result would be a moving chart while it won't complain
+  about saving upon close.
 
 * Application settings                                          :version_2.0:
   - [-] Default display properties [1/10]
@@ -81,9 +85,14 @@
 
 * Regiomontanus import                                          :version_2.0:
 
-* Custom location database                                      :version_2.0:
+* Chart export as different image types [2/3]                   :version_1.0:
 
-* Chart export as different image types                         :version_1.0:
+  - [X] SVG
+  - [X] JPEG
+  - [ ] PNG
+
+  Other formats supported by GDK-PixBuf are considered useless, and
+  most people should be able to open these types.
 
 * Chart printing                                                :version_2.0:
 
@@ -116,13 +125,18 @@
 
 * Display themes
 
+  Currently, display themes can display/hide chart parts based on CSS
+  rules. Maybe actually removing planets from the chart would make
+  more sense. This, however, is not possible with aspects and
+  antiscion axes. SWE-GLib should provide a solution to this.
+
 ** Implement the original Astrognome theme
 
    The software created by Jean-André Santoni has its own list of
    planets, which is more than Classic, but obviously less than
    Everything.
 
-** Arabic parts and fixed stars
+** Arabic parts and fixed stars                                :version_2.0:
 
    As soon as SWE-GLib supports them, of course
 
@@ -135,26 +149,26 @@
   I may use fallback icons (yeah… how?), but they may look really ugly
   on the custom theme.
 
-* Add the East point
+* Add the East point                                            :version_2.0:
 
   SWE-GLib doesn’t support it yet. It is the equatorial ascendant, and
   is calculated by Swiss Ephemeris, which presents it in ascmcs\[4\].
 
-* Support for Julian calendar
+* Support for Julian calendar                                   :version_2.0:
 
   It may be usable for only in the backends, like when importing a
   Placidus file with Julian date. SWE-GLib doesn’t support it yet.
 
-* Cloud export (and maybe import)
+* Cloud export (and maybe import)                               :version_2.0:
 
   GNOME Online Accounts supports some popular cloud services. It may
   be a good idea to implement saving, and possibly loading to/from
   there.
 
-* Dynamic chart size
+* Dynamic chart size                                            :version_1.0:
 
-  Right some planets may disappear from the chart because they get too
-  far from the chart ring (due to @dist).
+  Right now some planets may disappear from the chart because they get
+  too far from the chart ring (due to @dist).
 
   The maximum @dist value can be get with the following XPath
   expression:
