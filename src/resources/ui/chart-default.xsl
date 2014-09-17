@@ -8,7 +8,7 @@
         method="xml"
         media-type="image/svg+xml"
         doctype-public="-//W3C//DTD SVG 1.0//EN"
-        doctype-system="http://www.w3.org/TR/2001/PR-SVG-20010719/DTD/svg10.dtd"
+        doctype-system="http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd"
         version="1.0"
         encoding="UTF-8"
         indent="yes"/>
@@ -185,41 +185,41 @@
                             <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
                             <xsl:attribute name="x2"><xsl:value-of select="$image_size * 0.3125"/></xsl:attribute>
                         </line>
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_15" transform="rotate(-10,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_25" transform="rotate(-20,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_35" transform="rotate(-30,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_45" transform="rotate(-40,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_55" transform="rotate(-50,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_65" transform="rotate(-60,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_75" transform="rotate(-70,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_85" transform="rotate(-80,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_95" transform="rotate(-90,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_105" transform="rotate(-100,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_115" transform="rotate(-110,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_125" transform="rotate(-120,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_135" transform="rotate(-130,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_145" transform="rotate(-140,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_155" transform="rotate(-150,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_165" transform="rotate(-160,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_175" transform="rotate(-170,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_185" transform="rotate(-180,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_195" transform="rotate(-190,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_205" transform="rotate(-200,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_215" transform="rotate(-210,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_225" transform="rotate(-220,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_235" transform="rotate(-230,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_245" transform="rotate(-240,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_255" transform="rotate(-250,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_265" transform="rotate(-260,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_275" transform="rotate(-270,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_285" transform="rotate(-280,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_295" transform="rotate(-290,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_305" transform="rotate(-300,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_315" transform="rotate(-310,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_325" transform="rotate(-320,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_335" transform="rotate(-330,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_345" transform="rotate(-340,0,0)" class="degree-thin" />
-                        <use x="0" y="0" xlink:href="#deg_5" id="#deg_355" transform="rotate(-350,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_15" transform="rotate(-10,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_25" transform="rotate(-20,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_35" transform="rotate(-30,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_45" transform="rotate(-40,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_55" transform="rotate(-50,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_65" transform="rotate(-60,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_75" transform="rotate(-70,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_85" transform="rotate(-80,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_95" transform="rotate(-90,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_105" transform="rotate(-100,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_115" transform="rotate(-110,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_125" transform="rotate(-120,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_135" transform="rotate(-130,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_145" transform="rotate(-140,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_155" transform="rotate(-150,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_165" transform="rotate(-160,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_175" transform="rotate(-170,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_185" transform="rotate(-180,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_195" transform="rotate(-190,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_205" transform="rotate(-200,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_215" transform="rotate(-210,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_225" transform="rotate(-220,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_235" transform="rotate(-230,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_245" transform="rotate(-240,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_255" transform="rotate(-250,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_265" transform="rotate(-260,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_275" transform="rotate(-270,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_285" transform="rotate(-280,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_295" transform="rotate(-290,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_305" transform="rotate(-300,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_315" transform="rotate(-310,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_325" transform="rotate(-320,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_335" transform="rotate(-330,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_345" transform="rotate(-340,0,0)" class="degree-thin" />
+                        <use x="0" y="0" xlink:href="#deg_5" id="deg_355" transform="rotate(-350,0,0)" class="degree-thin" />
 
                         <line id="deg_1" y1="0" y2="0" transform="rotate(-1,0,0)" class="degree-thin">
                             <xsl:attribute name="x1"><xsl:value-of select="$image_size * 0.3"/></xsl:attribute>
