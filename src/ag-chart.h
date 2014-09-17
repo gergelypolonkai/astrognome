@@ -43,6 +43,8 @@ struct _AgChartClass {
     GsweMomentClass parent_class;
 };
 
+typedef void (*AgChartSaveImageFunc)(AgChart *, GFile *, GError **);
+
 GType ag_chart_get_type(void) G_GNUC_CONST;
 
 AgChart *ag_chart_new_full(GsweTimestamp   *timestamp,

@@ -45,8 +45,8 @@
     </section>
     <section>
       <item>
-        <attribute name="label" translatable="yes">Export as SVG</attribute>
-        <attribute name="action">win.export-svg</attribute>
+        <attribute name="label" translatable="yes">Export as image…</attribute>
+        <attribute name="action">win.export-image</attribute>
       </item>
     </section>
     <section>
