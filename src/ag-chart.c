@@ -10,6 +10,9 @@
 #include <locale.h>
 #include <math.h>
 #include <string.h>
+#include <librsvg/rsvg.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <glib/gi18n.h>
 
 #include "config.h"
 #include "astrognome.h"
@@ -40,6 +43,10 @@ typedef enum {
     XML_CONVERT_DOUBLE,
     XML_CONVERT_INT
 } XmlConvertType;
+
+#if !LIBRSVG_HAVE_CSS
+# error "We need RSVG CSS support to export charts as images!"
+#endif
 
 G_DEFINE_QUARK(ag_chart_error_quark, ag_chart_error);
 
@@ -1388,7 +1395,11 @@ ag_chart_sort_planets_by_position(GswePlanetData *planet1,
 }
 
 gchar *
-ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
+ag_chart_create_svg(
+        AgChart  *chart,
+        gsize    *length,
+        gboolean rendering,
+        GError   **err)
 {
     xmlDocPtr         doc = create_save_doc(chart),
                       xslt_doc,
@@ -1401,7 +1412,8 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
                       antiscia_node = NULL,
                       node          = NULL;
     gchar             *value,
-                      *save_content = NULL;
+                      *save_content = NULL,
+                      **params;
     const gchar       *xslt_content;
     GList             *houses,
                       *house,
@@ -1705,15 +1717,22 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
         return NULL;
     }
 
+    params = g_new0(gchar *, 3);
+    params[0] = "rendering";
+    params[1] = (rendering) ? "'yes'" : "'no'";
+
     // libxml2 messes up the output, as it prints decimal floating point
     // numbers in a localized format. It is not good in locales that use a
     // character for decimal separator other than a dot. So let's just use the
     // C locale until the SVG is generated.
     current_locale = uselocale(newlocale(LC_ALL, "C", 0));
-    svg_doc        = xsltApplyStylesheet(xslt_proc, doc, NULL);
+
+    svg_doc        = xsltApplyStylesheet(xslt_proc, doc, (const char **)params);
+
     uselocale(current_locale);
     xsltFreeStylesheet(xslt_proc);
     xmlFreeDoc(doc);
+    g_free(params);
 
     // Now, svg_doc contains the generated SVG file
 
@@ -1747,7 +1766,7 @@ ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
     gchar *svg;
     gsize length;
 
-    if ((svg = ag_chart_create_svg(chart, &length, err)) == NULL) {
+    if ((svg = ag_chart_create_svg(chart, &length, TRUE, err)) == NULL) {
         return;
     }
 
@@ -1762,6 +1781,72 @@ ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
             NULL,
             err
         );
+}
+
+void
+ag_chart_export_jpg_to_file(AgChart *chart, GFile *file, GError **err)
+{
+    gchar      *svg,
+               *jpg;
+    gsize      svg_length,
+               jpg_length;
+    RsvgHandle *svg_handle;
+    GdkPixbuf  *pixbuf;
+
+    if ((svg = ag_chart_create_svg(chart, &svg_length, TRUE, err)) == NULL) {
+        return;
+    }
+
+    if ((svg_handle = rsvg_handle_new_from_data(
+                 (const guint8 *)svg,
+                svg_length,
+                err
+            )) == NULL) {
+        g_free(svg);
+
+        return;
+    }
+
+    g_free(svg);
+
+    if ((pixbuf = rsvg_handle_get_pixbuf(svg_handle)) == NULL) {
+        g_set_error(
+                err,
+                AG_CHART_ERROR, AG_CHART_ERROR_RENDERING_ERROR,
+                _("Unknown rendering error")
+            );
+
+        return;
+    }
+
+    if (!gdk_pixbuf_save_to_buffer(
+                pixbuf,
+                &jpg,
+                &jpg_length,
+                "jpeg",
+                err,
+                NULL
+            )) {
+        g_object_unref(pixbuf);
+
+        return;
+    }
+
+    g_object_unref(pixbuf);
+
+    g_file_replace_contents(
+            file,
+            (const gchar *)jpg,
+            jpg_length,
+            NULL,
+            FALSE,
+            G_FILE_CREATE_NONE,
+            NULL,
+            NULL,
+            err
+        );
+
+    g_free(jpg);
 }
 
 void

@@ -496,6 +496,7 @@ ag_window_redraw_chart(AgWindow *window)
     gchar           *svg_content = ag_chart_create_svg(
             priv->chart,
             &length,
+            FALSE,
             &err
         );
 
@@ -808,12 +809,12 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
 }
 
 static void
-ag_window_export_svg(AgWindow *window, GError **err)
+ag_window_export_image(AgWindow *window, GError **err)
 {
     const gchar     *name;
-    gchar           *file_name;
     GtkWidget       *fs;
     gint            response;
+    GError          *local_err = NULL;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     ag_window_recalculate_chart(window, TRUE);
@@ -851,41 +852,200 @@ ag_window_export_svg(AgWindow *window, GError **err)
         return;
     }
 
-    file_name = g_strdup_printf("%s.svg", name);
-
     fs = gtk_file_chooser_dialog_new(_("Export Chart as SVG"),
                                      GTK_WINDOW(window),
                                      GTK_FILE_CHOOSER_ACTION_SAVE,
                                      _("_Cancel"), GTK_RESPONSE_CANCEL,
                                      _("_Save"), GTK_RESPONSE_ACCEPT,
                                      NULL);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_svg);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_jpg);
+    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(fs), filter_svg);
     gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
     gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
-    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), TRUE);
-    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fs), file_name);
-    g_free(file_name);
+    // Due to file name modifying later (depending on the file type selection),
+    // we must do this manually
+    gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(fs), FALSE);
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fs), name);
 
-    response = gtk_dialog_run(GTK_DIALOG(fs));
-    gtk_widget_hide(fs);
+    while (TRUE) {
+        response = gtk_dialog_run(GTK_DIALOG(fs));
+        gtk_widget_hide(fs);
 
-    if (response == GTK_RESPONSE_ACCEPT) {
-        GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(fs));
+        if (response == GTK_RESPONSE_ACCEPT) {
+            GFile         *file = gtk_file_chooser_get_file(
+                    GTK_FILE_CHOOSER(fs)
+                );
+            GtkFileFilter *filter = gtk_file_chooser_get_filter(
+                    GTK_FILE_CHOOSER(fs)
+                );
+            gchar *filename = g_file_get_uri(file),
+                  *extension,
+                  *current_extension;
+            AgChartSaveImageFunc save_func = NULL;
+            gboolean can_save = FALSE;
 
-        ag_chart_export_svg_to_file(priv->chart, file, err);
+            if (filter == filter_svg) {
+                extension = ".svg";
+                save_func = &ag_chart_export_svg_to_file;
+            } else if (filter == filter_jpg) {
+                extension = ".jpg";
+                save_func = &ag_chart_export_jpg_to_file;
+            } else {
+                g_warning("Unknown file type");
+                gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(fs), filter_svg);
+            }
+
+            current_extension = g_utf8_strrchr(filename, -1, '.');
+
+            if (current_extension == NULL) {
+                gchar *tmp;
+
+                tmp = filename;
+                filename = g_strdup_printf("%s%s", tmp, extension);
+                g_free(tmp);
+            } else {
+                GFileInfo         *fileinfo;
+                GFile             *tmp_file;
+                gboolean          valid;
+                GtkFileFilterInfo filter_info;
+
+                tmp_file = g_file_new_for_uri(filename);
+                fileinfo = g_file_query_info(
+                        tmp_file,
+                        G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
+                        G_FILE_QUERY_INFO_NONE,
+                        NULL,
+                        NULL
+                    );
+                g_object_unref(tmp_file);
+
+                filter_info.contains =
+                        GTK_FILE_FILTER_URI
+                        | GTK_FILE_FILTER_DISPLAY_NAME;
+                filter_info.uri          = filename;
+                filter_info.display_name = g_file_info_get_display_name(
+                        fileinfo
+                    );
+
+                valid = gtk_file_filter_filter(filter, &filter_info);
+                g_object_unref(fileinfo);
+
+                if (!valid) {
+                    GtkResponseType response;
+                    gchar           *message,
+                                    *new_filename;
+
+                    new_filename = g_strdup_printf("%s%s", filename, extension);
+
+                    message = g_strdup_printf(
+                            "File extension doesn’t match the chosen format. " \
+                            "Do you want Astrognome to append the correct " \
+                            "extension (the new filename will be %s) or " \
+                            "choose a new name?",
+                            new_filename
+                        );
+
+                    response = ag_app_buttoned_dialog(
+                            GTK_WINDOW(window),
+                            GTK_MESSAGE_QUESTION,
+                            message,
+                            "Cancel",           GTK_RESPONSE_CANCEL,
+                            "Append extension", GTK_RESPONSE_APPLY,
+                            "Choose new file",  GTK_RESPONSE_NO,
+                            NULL
+                        );
+
+                    if (response == GTK_RESPONSE_APPLY) {
+                        g_free(filename);
+                        filename = new_filename;
+                    } else {
+                        g_free(filename);
+                        g_clear_object(&file);
+
+                        if (response == GTK_RESPONSE_NO) {
+                            continue;
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            g_clear_object(&file);
+            file = g_file_new_for_uri(filename);
+            g_free(filename);
+
+            // Now check if a file under the modified name exists
+            if (g_file_query_exists(file, NULL)) {
+                GtkResponseType sub_response;
+                gchar           *message;
+                GFileInfo       *fileinfo;
+
+                fileinfo = g_file_query_info(
+                        file,
+                        G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
+                        G_FILE_QUERY_INFO_NONE,
+                        NULL,
+                        NULL
+                    );
+                message = g_strdup_printf(
+                        "File %s already exists. Do you want to overwrite it?",
+                        g_file_info_get_display_name(fileinfo)
+                    );
+                g_object_unref(fileinfo);
+
+                sub_response = ag_app_buttoned_dialog(
+                        GTK_WINDOW(window), GTK_MESSAGE_QUESTION,
+                        message,
+                        _("No"),  GTK_RESPONSE_NO,
+                        _("Yes"), GTK_RESPONSE_YES,
+                        NULL
+                    );
+
+                g_free(message);
+
+                can_save = (sub_response == GTK_RESPONSE_YES);
+            } else {
+                can_save = TRUE;
+            }
+
+            if (can_save) {
+                g_clear_error(&local_err);
+                save_func(priv->chart, file, &local_err);
+
+                if (local_err) {
+                    ag_app_message_dialog(
+                            GTK_WINDOW(window),
+                            GTK_MESSAGE_ERROR,
+                            "%s",
+                            local_err->message
+                        );
+                }
+
+                g_clear_object(&file);
+
+                break;
+            }
+
+            g_clear_object(&file);
+        } else {
+            break;
+        }
     }
 
     gtk_widget_destroy(fs);
 }
 
 static void
-ag_window_export_svg_action(GSimpleAction *action,
-                            GVariant      *parameter,
-                            gpointer      user_data)
+ag_window_export_image_action(GSimpleAction *action,
+                              GVariant      *parameter,
+                              gpointer      user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
-    GError *err = NULL;
+    GError   *err    = NULL;
 
-    ag_window_export_svg(window, &err);
+    ag_window_export_image(window, &err);
 
     if (err) {
         ag_app_message_dialog(
@@ -898,7 +1058,7 @@ ag_window_export_svg_action(GSimpleAction *action,
 }
 
 static void
-ag_window_export(AgWindow *window, GError **err)
+ag_window_export_agc(AgWindow *window, GError **err)
 {
     const gchar     *name;
     gchar           *file_name;
@@ -968,15 +1128,15 @@ ag_window_export(AgWindow *window, GError **err)
 }
 
 static void
-ag_window_export_action(GSimpleAction *action,
-                        GVariant      *parameter,
-                        gpointer      user_data)
+ag_window_export_agc_action(GSimpleAction *action,
+                            GVariant      *parameter,
+                            gpointer      user_data)
 {
     AgWindow *window = AG_WINDOW(user_data);
     GError   *err    = NULL;
 
     ag_window_recalculate_chart(window, TRUE);
-    ag_window_export(window, &err);
+    ag_window_export_agc(window, &err);
 
     if (err) {
         ag_app_message_dialog(
@@ -1612,19 +1772,19 @@ ag_window_connection_action(GSimpleAction *action,
 }
 
 static GActionEntry win_entries[] = {
-    { "close",      ag_window_close_action,          NULL, NULL,        NULL },
-    { "save",       ag_window_save_action,           NULL, NULL,        NULL },
-    { "export",     ag_window_export_action,         NULL, NULL,        NULL },
-    { "export-svg", ag_window_export_svg_action,     NULL, NULL,        NULL },
-    { "view-menu",  ag_window_view_menu_action,      NULL, "false",     NULL },
-    { "gear-menu",  ag_window_gear_menu_action,      NULL, "false",     NULL },
-    { "change-tab", ag_window_change_tab_action,     "s",  "'edit'",    NULL },
-    { "new-chart",  ag_window_new_chart_action,      NULL, NULL,        NULL },
-    { "back",       ag_window_back_action,           NULL, NULL,        NULL },
-    { "refresh",    ag_window_refresh_action,        NULL, NULL,        NULL },
-    { "selection",  ag_window_selection_mode_action, NULL, "false",     NULL },
-    { "delete",     ag_window_delete_action,         NULL, NULL,        NULL },
-    { "connection", ag_window_connection_action,     "s",  "'aspects'", NULL },
+    { "close",        ag_window_close_action,          NULL, NULL,        NULL },
+    { "save",         ag_window_save_action,           NULL, NULL,        NULL },
+    { "export-agc",   ag_window_export_agc_action,     NULL, NULL,        NULL },
+    { "export-image", ag_window_export_image_action,   NULL, NULL,        NULL },
+    { "view-menu",    ag_window_view_menu_action,      NULL, "false",     NULL },
+    { "gear-menu",    ag_window_gear_menu_action,      NULL, "false",     NULL },
+    { "change-tab",   ag_window_change_tab_action,     "s",  "'edit'",    NULL },
+    { "new-chart",    ag_window_new_chart_action,      NULL, NULL,        NULL },
+    { "back",         ag_window_back_action,           NULL, NULL,        NULL },
+    { "refresh",      ag_window_refresh_action,        NULL, NULL,        NULL },
+    { "selection",    ag_window_selection_mode_action, NULL, "false",     NULL },
+    { "delete",       ag_window_delete_action,         NULL, NULL,        NULL },
+    { "connection",   ag_window_connection_action,     "s",  "'aspects'", NULL },
 };
 
 static void

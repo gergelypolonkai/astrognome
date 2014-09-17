@@ -17,6 +17,7 @@ typedef enum {
     AG_CHART_ERROR_NOT_IMPLEMENTED,
     AG_CHART_ERROR_INVALID_PLAC_FILE,
     AG_CHART_ERROR_UNSUPPORTED_PLAC_FILE,
+    AG_CHART_ERROR_RENDERING_ERROR,
 } AgChartError;
 
 #define AG_TYPE_CHART         (ag_chart_get_type())
@@ -43,6 +44,8 @@ struct _AgChartClass {
     GsweMomentClass parent_class;
 };
 
+typedef void (*AgChartSaveImageFunc)(AgChart *, GFile *, GError **);
+
 GType ag_chart_get_type(void) G_GNUC_CONST;
 
 AgChart *ag_chart_new_full(GsweTimestamp   *timestamp,
@@ -67,6 +70,10 @@ void ag_chart_export_svg_to_file(AgChart *chart,
                                  GFile   *file,
                                  GError  **err);
 
+void ag_chart_export_jpg_to_file(AgChart *chart,
+                                 GFile   *file,
+                                 GError  **err);
+
 void ag_chart_set_name(AgChart     *chart,
                        const gchar *name);
 
@@ -82,9 +89,10 @@ void ag_chart_set_city(AgChart     *chart,
 
 const gchar *ag_chart_get_city(AgChart *chart);
 
-gchar *ag_chart_create_svg(AgChart *chart,
-                           gsize   *length,
-                           GError  **err);
+gchar *ag_chart_create_svg(AgChart  *chart,
+                           gsize    *length,
+                           gboolean rendering,
+                           GError   **err);
 
 GList *ag_chart_get_planets(AgChart *chart);
 

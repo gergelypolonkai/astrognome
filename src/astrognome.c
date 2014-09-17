@@ -24,6 +24,8 @@ GtkBuilder    *builder;
 GtkFileFilter *filter_all   = NULL;
 GtkFileFilter *filter_chart = NULL;
 GtkFileFilter *filter_hor   = NULL;
+GtkFileFilter *filter_svg   = NULL;
+GtkFileFilter *filter_jpg   = NULL;
 GtkTreeModel  *country_list = NULL;
 GtkTreeModel  *city_list    = NULL;
 GHashTable    *xinclude_positions;
@@ -84,6 +86,18 @@ init_filters(void)
     gtk_file_filter_set_name(filter_hor, _("Placidus charts"));
     gtk_file_filter_add_pattern(filter_hor, "*.hor");
     g_object_ref_sink(filter_hor);
+
+    filter_svg = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_svg, _("SVG image"));
+    gtk_file_filter_add_pattern(filter_svg, "*.svg");
+    g_object_ref_sink(filter_svg);
+
+    filter_jpg = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_jpg, _("JPEG image"));
+    gtk_file_filter_add_pattern(filter_jpg, "*.jpg");
+    gtk_file_filter_add_pattern(filter_jpg, "*.jpe");
+    gtk_file_filter_add_pattern(filter_jpg, "*.jpeg");
+    g_object_ref_sink(filter_jpg);
 }
 
 static int

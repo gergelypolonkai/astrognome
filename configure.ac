@@ -37,6 +37,8 @@ PKG_CHECK_MODULES([LIBXML], [libxml-2.0])
 PKG_CHECK_MODULES([LIBXSLT], [libexslt])
 PKG_CHECK_MODULES([WEBKIT], [webkit2gtk-4.0])
 PKG_CHECK_MODULES([GDA], [libgda-5.0 libgda-sqlite-5.0])
+PKG_CHECK_MODULES([PIXBUF], [gdk-pixbuf-2.0])
+PKG_CHECK_MODULES([RSVG], [librsvg-2.0])
 PKG_CHECK_MODULES([SWE_GLIB], [swe-glib >= 2.1.0])
 
 LIBGD_INIT([
