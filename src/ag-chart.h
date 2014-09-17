@@ -84,9 +84,10 @@ void ag_chart_set_city(AgChart     *chart,
 
 const gchar *ag_chart_get_city(AgChart *chart);
 
-gchar *ag_chart_create_svg(AgChart *chart,
-                           gsize   *length,
-                           GError  **err);
+gchar *ag_chart_create_svg(AgChart  *chart,
+                           gsize    *length,
+                           gboolean rendering,
+                           GError   **err);
 
 GList *ag_chart_get_planets(AgChart *chart);
 

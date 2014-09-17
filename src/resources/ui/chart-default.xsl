@@ -69,6 +69,15 @@
             version="1.0">
             <xsl:attribute name="width"><xsl:value-of select="$image_size"/></xsl:attribute>
             <xsl:attribute name="height"><xsl:value-of select="$image_size"/></xsl:attribute>
+
+            <xsl:choose>
+              <xsl:when test="$rendering='yes'">
+                <style type="text/css">
+                  <xi:include href="gres://ui/chart-default.css" parse="text"/>
+                </style>
+              </xsl:when>
+            </xsl:choose>
+
             <title>
                 <xsl:value-of select="concat(
                     'Natal chart of ',
@@ -116,6 +125,16 @@
                     <polygon points="0.0,0.0 7.0,-2.0 5.0,0.0 7.0,2.0" />
                 </marker>
             </defs>
+
+            <xsl:choose>
+              <xsl:when test="$rendering='yes'">
+                <rect id="background" x="0" y="0">
+                  <xsl:attribute name="width"><xsl:value-of select="$image_size"/></xsl:attribute>
+                  <xsl:attribute name="height"><xsl:value-of select="$image_size"/></xsl:attribute>
+                </rect>
+              </xsl:when>
+            </xsl:choose>
+
             <g id="chart">
                 <xsl:attribute name="transform"><xsl:value-of select="concat('translate(', $image_size div 2, ',', $image_size div 2, ')')" /></xsl:attribute>
                 <g id="moonless_chart">

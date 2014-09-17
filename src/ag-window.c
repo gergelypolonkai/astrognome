@@ -496,6 +496,7 @@ ag_window_redraw_chart(AgWindow *window)
     gchar           *svg_content = ag_chart_create_svg(
             priv->chart,
             &length,
+            FALSE,
             &err
         );
 

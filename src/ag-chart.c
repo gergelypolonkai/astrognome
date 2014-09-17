@@ -1393,7 +1393,11 @@ ag_chart_sort_planets_by_position(GswePlanetData *planet1,
 }
 
 gchar *
-ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
+ag_chart_create_svg(
+        AgChart  *chart,
+        gsize    *length,
+        gboolean rendering,
+        GError   **err)
 {
     xmlDocPtr         doc = create_save_doc(chart),
                       xslt_doc,
@@ -1406,7 +1410,8 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
                       antiscia_node = NULL,
                       node          = NULL;
     gchar             *value,
-                      *save_content = NULL;
+                      *save_content = NULL,
+                      **params;
     const gchar       *xslt_content;
     GList             *houses,
                       *house,
@@ -1710,15 +1715,22 @@ ag_chart_create_svg(AgChart *chart, gsize *length, GError **err)
         return NULL;
     }
 
+    params = g_new0(gchar *, 3);
+    params[0] = "rendering";
+    params[1] = (rendering) ? "'yes'" : "'no'";
+
     // libxml2 messes up the output, as it prints decimal floating point
     // numbers in a localized format. It is not good in locales that use a
     // character for decimal separator other than a dot. So let's just use the
     // C locale until the SVG is generated.
     current_locale = uselocale(newlocale(LC_ALL, "C", 0));
-    svg_doc        = xsltApplyStylesheet(xslt_proc, doc, NULL);
+
+    svg_doc        = xsltApplyStylesheet(xslt_proc, doc, (const char **)params);
+
     uselocale(current_locale);
     xsltFreeStylesheet(xslt_proc);
     xmlFreeDoc(doc);
+    g_free(params);
 
     // Now, svg_doc contains the generated SVG file
 
@@ -1752,7 +1764,7 @@ ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
     gchar *svg;
     gsize length;
 
-    if ((svg = ag_chart_create_svg(chart, &length, err)) == NULL) {
+    if ((svg = ag_chart_create_svg(chart, &length, TRUE, err)) == NULL) {
         return;
     }
 
