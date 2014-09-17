@@ -10,6 +10,7 @@
 #include <locale.h>
 #include <math.h>
 #include <string.h>
+#include <librsvg/rsvg.h>
 
 #include "config.h"
 #include "astrognome.h"
@@ -40,6 +41,10 @@ typedef enum {
     XML_CONVERT_DOUBLE,
     XML_CONVERT_INT
 } XmlConvertType;
+
+#if !LIBRSVG_HAVE_CSS
+# error "We need RSVG CSS support to export charts as images!"
+#endif
 
 G_DEFINE_QUARK(ag_chart_error_quark, ag_chart_error);
 
