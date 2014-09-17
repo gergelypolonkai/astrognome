@@ -17,6 +17,7 @@ typedef enum {
     AG_CHART_ERROR_NOT_IMPLEMENTED,
     AG_CHART_ERROR_INVALID_PLAC_FILE,
     AG_CHART_ERROR_UNSUPPORTED_PLAC_FILE,
+    AG_CHART_ERROR_RENDERING_ERROR,
 } AgChartError;
 
 #define AG_TYPE_CHART         (ag_chart_get_type())
@@ -66,6 +67,10 @@ void ag_chart_save_to_file(AgChart *chart,
                            GError  **err);
 
 void ag_chart_export_svg_to_file(AgChart *chart,
+                                 GFile   *file,
+                                 GError  **err);
+
+void ag_chart_export_jpg_to_file(AgChart *chart,
                                  GFile   *file,
                                  GError  **err);
 

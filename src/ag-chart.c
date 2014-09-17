@@ -11,6 +11,8 @@
 #include <math.h>
 #include <string.h>
 #include <librsvg/rsvg.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
+#include <glib/gi18n.h>
 
 #include "config.h"
 #include "astrognome.h"
@@ -1779,6 +1781,72 @@ ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
             NULL,
             err
         );
+}
+
+void
+ag_chart_export_jpg_to_file(AgChart *chart, GFile *file, GError **err)
+{
+    gchar      *svg,
+               *jpg;
+    gsize      svg_length,
+               jpg_length;
+    RsvgHandle *svg_handle;
+    GdkPixbuf  *pixbuf;
+
+    if ((svg = ag_chart_create_svg(chart, &svg_length, TRUE, err)) == NULL) {
+        return;
+    }
+
+    if ((svg_handle = rsvg_handle_new_from_data(
+                 (const guint8 *)svg,
+                svg_length,
+                err
+            )) == NULL) {
+        g_free(svg);
+
+        return;
+    }
+
+    g_free(svg);
+
+    if ((pixbuf = rsvg_handle_get_pixbuf(svg_handle)) == NULL) {
+        g_set_error(
+                err,
+                AG_CHART_ERROR, AG_CHART_ERROR_RENDERING_ERROR,
+                _("Unknown rendering error")
+            );
+
+        return;
+    }
+
+    if (!gdk_pixbuf_save_to_buffer(
+                pixbuf,
+                &jpg,
+                &jpg_length,
+                "jpeg",
+                err,
+                NULL
+            )) {
+        g_object_unref(pixbuf);
+
+        return;
+    }
+
+    g_object_unref(pixbuf);
+
+    g_file_replace_contents(
+            file,
+            (const gchar *)jpg,
+            jpg_length,
+            NULL,
+            FALSE,
+            G_FILE_CREATE_NONE,
+            NULL,
+            NULL,
+            err
+        );
+
+    g_free(jpg);
 }
 
 void

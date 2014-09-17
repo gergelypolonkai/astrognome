@@ -14,6 +14,7 @@ extern GtkFileFilter    *filter_all;
 extern GtkFileFilter    *filter_chart;
 extern GtkFileFilter    *filter_hor;
 extern GtkFileFilter    *filter_svg;
+extern GtkFileFilter    *filter_jpg;
 extern GtkTreeModel     *country_list;
 extern GtkTreeModel     *city_list;
 extern const GswePlanet used_planets[];
