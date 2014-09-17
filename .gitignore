@@ -100,3 +100,4 @@ Makefile.in
 /docs/reference/*/xml/
 /docs/reference/*/html/
 /gtk-doc.make
+.dir-locals.el

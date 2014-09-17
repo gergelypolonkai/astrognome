@@ -36,3 +36,9 @@ astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS) $(LIBXML_LIBS) $(LIBXSLT_LIBS) $
 astrognome_LDFLAGS = -rdynamic
 astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) $(LIBXML_CFLAGS) $(LIBXSLT_CFLAGS) $(WEBKIT_CFLAGS) $(GDA_CFLAGS) $(PIXBUF_CFLAGS) $(RSVG_CFLAGS) -Wall
 
+# The following two lines generate a .dir-locals.el file, so
+# company-mode won’t die due to unknown includes
+.dir-locals.el:
+	@echo $(astrognome_CFLAGS) | ./gen-dir-locals-el.sh
+
+.PHONY: .dir-locals.el
