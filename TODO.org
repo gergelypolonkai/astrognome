@@ -174,3 +174,39 @@
   expression:
 
   /chartinfo/bodies/body/@dist[not(. < ../../body/@dist)][1]
+
+* Default location                                              :version_2.0:
+
+This is needed for the Now cart. A default location should be set in
+the preferences window, which can be used by either Now charts and as
+a default for new charts, although I’m not sure about the latter.
+
+* Create nice icons                                             :version_1.0:
+
+Most icons, especially for planets, are ugly. @droid242 is already on
+it to create some nice ones.
+
+* Create an antiscia table                                      :version_1.0:
+
+There is only an aspects table present. We need an antiscia table,
+too.
+
+* Apply dislay theme to aspects/antiscia tables                 :version_1.0:
+
+* Create a nice help file                                       :version_1.0:
+
+* Add printing support
+
+That sounds nice, but what should a printed chart contain? Chart and
+aspects, for sure, and some chart data, too. Maybe an antiscia table,
+if they are displayed at all.
+
+* Add a chart information to the chart tab
+
+In the chart tab, only the name of the chart can be seen. A chart info
+display, like Placidus’ status bar, would be nice.
+
+One idea is to use an info button on the header bar that displays the
+chart info in a PopOver. This should be bound to an intuitive key
+binding (Alt-Enter, Ctrl-I, I don’t know). A status bar is the other
+option, but that doesn’t seem to GNOMEish…
