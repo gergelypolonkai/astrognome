@@ -498,6 +498,7 @@ ag_window_redraw_chart(AgWindow *window)
             priv->chart,
             &length,
             FALSE,
+            NULL,
             &err
         );
 
@@ -1034,7 +1035,7 @@ ag_window_export_image(AgWindow *window, GError **err)
 
             if (can_save) {
                 g_clear_error(&local_err);
-                save_func(priv->chart, file, &local_err);
+                save_func(priv->chart, file, priv->theme, &local_err);
 
                 if (local_err) {
                     ag_app_message_dialog(
@@ -1394,11 +1395,14 @@ ag_window_update_style_sheets(AgWindow *window)
 static void
 ag_window_set_theme(AgWindow *window, AgDisplayTheme *theme)
 {
-    gchar *css,
-          *css_final;
+    gchar           *css,
+                    *css_final;
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
     g_debug("Setting theme to %s", (theme) ? theme->name : "no theme");
     ag_window_clear_style_sheets(window);
+
+    priv->theme = theme;
 
     // Add the default style sheet
     ag_window_add_style_sheet(

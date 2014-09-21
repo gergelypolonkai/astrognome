@@ -75,6 +75,9 @@
                 <style type="text/css">
                   <xi:include href="gres://ui/chart-default.css" parse="text"/>
                 </style>
+                <style type="text/css">
+                  <xsl:value-of select="$additional-css"/>
+                </style>
               </xsl:when>
             </xsl:choose>
 

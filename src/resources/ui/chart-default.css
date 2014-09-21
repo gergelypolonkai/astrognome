@@ -84,7 +84,7 @@ line.aspect-conjuction {
 }
 
 line.aspect-sextile {
-    stroke-width: 1
+    stroke-width: 1;
     stroke: #00cc00;
     stroke-dasharray: none;
 }
