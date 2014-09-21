@@ -47,14 +47,14 @@ allCountries.zip:
 
 allCountries.txt: allCountries.zip
 	$(AM_V_GEN) if test -x $(UNZIP); then \
-	    $(UNZIP) allCountries.zip; \
+	    $(UNZIP) -o allCountries.zip && test -f allCountries.txt && touch allCountries.txt; \
 	else \
 	    echo "unzip could not be found in your PATH."; \
 	    echo "It is needed to create geodata.xml!"; \
-	fi; \
+	fi;
 
 cities.txt: allCountries.txt
-	$(AWK) -f geonames_process.awk allCountries.txt > $@ ; \
+	$(AM_V_GEN) $(AWK) -f geonames_process.awk allCountries.txt > $@
 
 geodata.xml: countryInfo.txt timeZones.txt cities.txt
 	$(AM_V_GEN) if test -x "$(PERL)"; then \
