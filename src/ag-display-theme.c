@@ -54,6 +54,11 @@ ag_display_theme_to_css(AgDisplayTheme *theme)
     gchar   *ret;
     GString *css = NULL;
 
+    // Null themes are possible, deal with it!
+    if (theme == NULL) {
+        return g_strdup("");
+    }
+
     if (theme->planets_include) {
         css = g_string_new(planet_none);
     } else {
