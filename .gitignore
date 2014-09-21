@@ -32,6 +32,9 @@ Makefile.in
 /compile
 /tags
 /TAGS
+/GTAGS
+/GRTAGS
+/GPATH
 /data/*.gschema.valid
 /data/astrognome.desktop
 /data/astrognome.desktop.in
