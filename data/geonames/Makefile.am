@@ -45,16 +45,16 @@ allCountries.zip:
 	    fi; \
 	fi;
 
-cities.txt: allCountries.zip
+allCountries.txt: allCountries.zip
 	$(AM_V_GEN) if test -x $(UNZIP); then \
 	    $(UNZIP) allCountries.zip; \
 	else \
 	    echo "unzip could not be found in your PATH."; \
 	    echo "It is needed to create geodata.xml!"; \
 	fi; \
-	if test -f allCountries.txt; then \
-	    $(AWK) -f geonames_process.awk allCountries.txt > $@ ; \
-	fi
+
+cities.txt: allCountries.txt
+	$(AWK) -f geonames_process.awk allCountries.txt > $@ ; \
 
 geodata.xml: countryInfo.txt timeZones.txt cities.txt
 	$(AM_V_GEN) if test -x "$(PERL)"; then \
