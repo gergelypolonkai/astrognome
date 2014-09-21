@@ -4,41 +4,11 @@
 #include "astrognome.h"
 #include "ag-display-theme.h"
 
-static gchar *planet_all = ".planet {\n" \
-                           "    visibility: visible;\n" \
-                           "}\n";
-
-static gchar *planet_none = ".planet {\n" \
-                            "    visibility: hidden;\n" \
-                            " }\n";
-
-static gchar *planet_tmpl = ".planet-%s {\n" \
-                            "    visibility: %s !important;\n" \
-                            "}\n";
-
-static gchar *aspect_all = ".aspect {\n" \
-                           "    visibility: visible;\n" \
-                           "}\n";
-
-static gchar *aspect_none = ".aspect {\n" \
-                            "    visibility: hidden;\n" \
-                            " }\n";
-
-static gchar *aspect_tmpl = ".aspect-%s {\n" \
-                            "    visibility: %s !important;\n" \
-                            "}\n";
-
-static gchar *antiscion_all = ".antiscion {\n" \
-                              "    visibility: visible;\n" \
-                              "}\n";
-
-static gchar *antiscion_none = ".antiscion {\n" \
-                               "    visibility: hidden;\n" \
-                               "}\n";
-
-static gchar *antiscion_tmpl = ".antiscion-%s {\n" \
-                            "    visibility: %s !important;\n" \
-                            "}\n";
+static gchar *planet_rule           = ".planet-%s { visibility: hidden; }\n";
+static gchar *aspect_type_rule      = ".aspect-%s { visibility: hidden; }\n";
+static gchar *aspect_planet_rule    = ".aspect-p-%s { visibility: hidden; }\n";
+static gchar *antiscion_type_rule   = ".antiscion-%s { visibility: hidden; }\n";
+static gchar *antiscion_planet_rule = ".antiscion-p-%s { visibility: hidden; }\n";
 
 static AgDisplayTheme **builtin_themes = NULL;
 static gchar          *builtin_theme_name[AG_DISPLAY_THEME_COUNT] = {
@@ -50,7 +20,10 @@ static gchar          *builtin_theme_name[AG_DISPLAY_THEME_COUNT] = {
 gchar *
 ag_display_theme_to_css(AgDisplayTheme *theme)
 {
-    GList   *i;
+    gint    i;
+    GList   *l,
+            *all_aspects,
+            *all_antiscion_axes;
     gchar   *ret;
     GString *css = NULL;
 
@@ -59,68 +32,72 @@ ag_display_theme_to_css(AgDisplayTheme *theme)
         return g_strdup("");
     }
 
-    if (theme->planets_include) {
-        css = g_string_new(planet_none);
-    } else {
-        css = g_string_new(planet_all);
+    css = g_string_sized_new(300);
+
+    // Go through the used_planets array. If any of them is not listed
+    // by @theme, add a rule to hide it, and the respective aspects
+    // and antiscia
+    for (i = 0; i < used_planets_count; i++) {
+        gboolean in_list;
+
+        in_list = (g_list_find(theme->planets, GINT_TO_POINTER(used_planets[i])) != NULL);
+
+        if (theme->planets_include != in_list) {
+            const gchar *planet_name;
+
+            planet_name = ag_planet_id_to_nick(used_planets[i]);
+
+            g_string_append_printf(css, planet_rule, planet_name);
+            g_string_append_printf(css, aspect_planet_rule, planet_name);
+            g_string_append_printf(css, antiscion_planet_rule, planet_name);
+        }
     }
 
-    for (i = theme->planets; i; i = g_list_next(i)) {
-        const gchar *planet_name;
+    // Go through gswe_all_aspects(). If any of them is not listed by
+    // @theme, add a rule to hide it
+    all_aspects = gswe_all_aspects();
 
-        planet_name = ag_planet_id_to_nick(GPOINTER_TO_INT(i->data));
+    for (l = all_aspects; l; l = g_list_next(l)) {
+        const gchar    *aspect_type;
+        gboolean       in_list;
+        GsweAspect     aspect;
+        GsweAspectInfo *aspect_info = l->data;
 
-        g_string_append_printf(
-                css,
-                planet_tmpl,
-                planet_name,
-                (theme->planets_include) ? "visible" : "hidden"
-            );
+        aspect      = gswe_aspect_info_get_aspect(aspect_info);
+        in_list     = (g_list_find(theme->aspects, GINT_TO_POINTER(aspect)) != NULL);
+        aspect_type = ag_aspect_id_to_nick(aspect);
+
+        if (theme->aspects_include != in_list) {
+            g_string_append_printf(css, aspect_type_rule, aspect_type);
+        }
     }
 
-    if (theme->aspects_include) {
-        g_string_append(css, aspect_none);
-    } else {
-        g_string_append(css, aspect_all);
+    g_list_free(all_aspects);
+
+    // Go through gswe_all_antiscion_axes(). If any of them is not
+    // listed by @theme, add a rule to hide it
+    all_antiscion_axes = gswe_all_antiscion_axes();
+
+    for (l = all_antiscion_axes; l; l = g_list_next(l)) {
+        const gchar           *antiscion_axis_type;
+        gboolean              in_list;
+        GsweAntiscionAxis     antiscion_axis;
+        GsweAntiscionAxisInfo *antiscion_axis_info = l->data;
+
+        antiscion_axis      = gswe_antiscion_axis_info_get_axis(antiscion_axis_info);
+        in_list             = (g_list_find(theme->antiscia, GINT_TO_POINTER(antiscion_axis)) != NULL);
+        antiscion_axis_type = ag_antiscion_axis_id_to_nick(antiscion_axis);
+
+        if (theme->antiscia_include != in_list) {
+            g_string_append_printf(css, antiscion_type_rule, antiscion_axis_type);
+        }
     }
 
-    for (i = theme->aspects; i; i = g_list_next(i)) {
-        const gchar *aspect_name;
-
-        aspect_name = ag_aspect_id_to_nick(GPOINTER_TO_INT(i->data));
-
-        g_string_append_printf(
-                css,
-                aspect_tmpl,
-                aspect_name,
-                (theme->aspects_include) ? "visible" : "hidden"
-            );
-    }
-
-    if (theme->antiscia_include) {
-        g_string_append(css, antiscion_none);
-    } else {
-        g_string_append(css, antiscion_all);
-    }
-
-    for (i = theme->antiscia; i; i = g_list_next(i)) {
-        const gchar *antiscion_axis_name;
-
-        antiscion_axis_name = ag_antiscion_axis_id_to_nick(
-                GPOINTER_TO_INT(i->data)
-            );
-
-        g_string_append_printf(
-                css,
-                antiscion_tmpl,
-                antiscion_axis_name,
-                (theme->antiscia_include) ? "visible" : "hidden"
-            );
-    }
+    g_list_free(all_antiscion_axes);
 
     ret = g_string_free(css, FALSE);
 
-    g_debug("%s", ret);
+    g_debug("Generated CSS:\n%s\n", ret);
 
     return ret;
 }
