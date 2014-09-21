@@ -498,6 +498,7 @@ ag_window_redraw_chart(AgWindow *window)
             priv->chart,
             &length,
             FALSE,
+            NULL,
             &err
         );
 
@@ -1034,7 +1035,7 @@ ag_window_export_image(AgWindow *window, GError **err)
 
             if (can_save) {
                 g_clear_error(&local_err);
-                save_func(priv->chart, file, &local_err);
+                save_func(priv->chart, file, priv->theme, &local_err);
 
                 if (local_err) {
                     ag_app_message_dialog(

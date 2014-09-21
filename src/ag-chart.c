@@ -1395,11 +1395,11 @@ ag_chart_sort_planets_by_position(GswePlanetData *planet1,
 }
 
 gchar *
-ag_chart_create_svg(
-        AgChart  *chart,
-        gsize    *length,
-        gboolean rendering,
-        GError   **err)
+ag_chart_create_svg(AgChart        *chart,
+                    gsize          *length,
+                    gboolean       rendering,
+                    AgDisplayTheme *theme,
+                    GError         **err)
 {
     xmlDocPtr         doc = create_save_doc(chart),
                       xslt_doc,
@@ -1412,6 +1412,7 @@ ag_chart_create_svg(
                       antiscia_node = NULL,
                       node          = NULL;
     gchar             *value,
+                      *css,
                       *save_content = NULL,
                       **params;
     const gchar       *xslt_content;
@@ -1717,9 +1718,21 @@ ag_chart_create_svg(
         return NULL;
     }
 
-    params = g_new0(gchar *, 3);
+    params    = g_new0(gchar *, 5);
     params[0] = "rendering";
     params[1] = (rendering) ? "'yes'" : "'no'";
+    css       = ag_display_theme_to_css(theme);
+
+    // This seems to be a dirty hack, but it should do for a while
+    if (strlen(css) == 0) {
+        params[2] = NULL;
+        params[3] = NULL;
+    } else {
+        params[2] = "additional-css";
+        params[3] = g_strdup_printf("\"%s\"", css);
+    }
+
+    g_free(css);
 
     // libxml2 messes up the output, as it prints decimal floating point
     // numbers in a localized format. It is not good in locales that use a
@@ -1732,6 +1745,7 @@ ag_chart_create_svg(
     uselocale(current_locale);
     xsltFreeStylesheet(xslt_proc);
     xmlFreeDoc(doc);
+    g_free(params[3]);
     g_free(params);
 
     // Now, svg_doc contains the generated SVG file
@@ -1761,12 +1775,15 @@ ag_chart_get_planets(AgChart *chart)
 }
 
 void
-ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
+ag_chart_export_svg_to_file(AgChart        *chart,
+                            GFile          *file,
+                            AgDisplayTheme *theme,
+                            GError         **err)
 {
     gchar *svg;
     gsize length;
 
-    if ((svg = ag_chart_create_svg(chart, &length, TRUE, err)) == NULL) {
+    if ((svg = ag_chart_create_svg(chart, &length, TRUE, theme, err)) == NULL) {
         return;
     }
 
@@ -1784,7 +1801,10 @@ ag_chart_export_svg_to_file(AgChart *chart, GFile *file, GError **err)
 }
 
 void
-ag_chart_export_jpg_to_file(AgChart *chart, GFile *file, GError **err)
+ag_chart_export_jpg_to_file(AgChart        *chart,
+                            GFile          *file,
+                            AgDisplayTheme *theme,
+                            GError         **err)
 {
     gchar      *svg,
                *jpg;
@@ -1793,7 +1813,13 @@ ag_chart_export_jpg_to_file(AgChart *chart, GFile *file, GError **err)
     RsvgHandle *svg_handle;
     GdkPixbuf  *pixbuf;
 
-    if ((svg = ag_chart_create_svg(chart, &svg_length, TRUE, err)) == NULL) {
+    if ((svg = ag_chart_create_svg(
+                chart,
+                &svg_length,
+                TRUE,
+                theme,
+                err
+            )) == NULL) {
         return;
     }
 

@@ -6,6 +6,7 @@
 #include <swe-glib.h>
 
 #include "ag-db.h"
+#include "ag-display-theme.h"
 
 G_BEGIN_DECLS
 
@@ -44,7 +45,7 @@ struct _AgChartClass {
     GsweMomentClass parent_class;
 };
 
-typedef void (*AgChartSaveImageFunc)(AgChart *, GFile *, GError **);
+typedef void (*AgChartSaveImageFunc)(AgChart *, GFile *, AgDisplayTheme *, GError **);
 
 GType ag_chart_get_type(void) G_GNUC_CONST;
 
@@ -66,13 +67,15 @@ void ag_chart_save_to_file(AgChart *chart,
                            GFile   *file,
                            GError  **err);
 
-void ag_chart_export_svg_to_file(AgChart *chart,
-                                 GFile   *file,
-                                 GError  **err);
+void ag_chart_export_svg_to_file(AgChart        *chart,
+                                 GFile          *file,
+                                 AgDisplayTheme *theme,
+                                 GError         **err);
 
-void ag_chart_export_jpg_to_file(AgChart *chart,
-                                 GFile   *file,
-                                 GError  **err);
+void ag_chart_export_jpg_to_file(AgChart        *chart,
+                                 GFile          *file,
+                                 AgDisplayTheme *theme,
+                                 GError         **err);
 
 void ag_chart_set_name(AgChart     *chart,
                        const gchar *name);
@@ -89,10 +92,11 @@ void ag_chart_set_city(AgChart     *chart,
 
 const gchar *ag_chart_get_city(AgChart *chart);
 
-gchar *ag_chart_create_svg(AgChart  *chart,
-                           gsize    *length,
-                           gboolean rendering,
-                           GError   **err);
+gchar *ag_chart_create_svg(AgChart        *chart,
+                           gsize          *length,
+                           gboolean       rendering,
+                           AgDisplayTheme *theme,
+                           GError         **err);
 
 GList *ag_chart_get_planets(AgChart *chart);
 
