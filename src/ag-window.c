@@ -42,6 +42,7 @@ struct _AgWindowPrivate {
     GtkWidget     *timezone;
     GtkWidget     *house_system;
     GtkWidget     *display_theme;
+    GtkWidget     *toolbar_aspect;
 
     GtkWidget     *tab_list;
     GtkWidget     *tab_chart;
@@ -1619,6 +1620,7 @@ ag_window_back_action(GSimpleAction *action,
     g_debug("Back button pressed");
 
     if (ag_window_can_close(window, TRUE)) {
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toolbar_aspect), TRUE);
         g_clear_object(&(priv->chart));
         ag_db_chart_save_free(priv->saved_data);
         priv->saved_data = NULL;
@@ -2531,6 +2533,11 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             display_theme_model
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            toolbar_aspect
         );
 
     gtk_widget_class_bind_template_callback(
