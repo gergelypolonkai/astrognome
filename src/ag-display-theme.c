@@ -134,11 +134,11 @@ ag_display_theme_get_builtin(gint id)
     }
 
     // If the theme is already created, return it
-    if (builtin_themes[-id] != NULL) {
-        return builtin_themes[-id];
+    if (builtin_themes[-id - 1] != NULL) {
+        return builtin_themes[-id - 1];
     }
 
-    theme = builtin_themes[-id] = g_new0(AgDisplayTheme, 1);
+    builtin_themes[-id - 1] = theme = g_new0(AgDisplayTheme, 1);
 
     switch (id) {
         case AG_DISPLAY_THEME_ALL:
@@ -240,8 +240,9 @@ ag_display_theme_get_list(void)
     GList *ret = NULL;
 
     for (i = 1; i <= AG_DISPLAY_THEME_COUNT; i++) {
-        AgDisplayTheme *theme = ag_display_theme_get_builtin(-i);
+        AgDisplayTheme *theme;
 
+        theme = ag_display_theme_get_builtin(-i);
         ret = g_list_append(ret, theme);
     }
 
