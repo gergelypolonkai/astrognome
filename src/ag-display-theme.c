@@ -44,6 +44,7 @@ static AgDisplayTheme **builtin_themes = NULL;
 static gchar          *builtin_theme_name[AG_DISPLAY_THEME_COUNT] = {
     NC_("Display theme name", "Everything"),
     NC_("Display theme name", "Classic"),
+    NC_("Display theme name", "No comets"),
 };
 
 gchar *
@@ -220,6 +221,67 @@ ag_display_theme_get_builtin(gint id)
             theme->aspects = g_list_prepend(
                     theme->aspects,
                     GINT_TO_POINTER(GSWE_ASPECT_SEXTILE)
+                );
+
+            break;
+
+        case AG_DISPLAY_THEME_NO_COMETS:
+            // TODO: If SWE-GLib would support it, we could programatically get
+            //       classic planets and aspects here, thus, if it is messed up,
+            //       we need to fix it only once.
+            theme->id               = id;
+            theme->name             = gettext(builtin_theme_name[-id - 1]);
+            theme->builtin          = TRUE;
+            theme->planets_include  = TRUE;
+            theme->planets          = NULL;
+            theme->aspects_include  = FALSE;
+            theme->aspects          = NULL;
+            theme->antiscia_include = FALSE;
+            theme->antiscia         = NULL;
+
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_SUN)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_MOON)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_MERCURY)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_VENUS)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_MARS)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_JUPITER)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_SATURN)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_URANUS)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_NEPTUNE)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_PLUTO)
+                );
+            theme->planets = g_list_prepend(
+                    theme->planets,
+                    GINT_TO_POINTER(GSWE_PLANET_MOON_NODE)
                 );
 
             break;

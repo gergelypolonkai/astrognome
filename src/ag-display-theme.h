@@ -16,10 +16,11 @@ typedef struct _AgDisplayTheme {
 } AgDisplayTheme;
 
 enum {
-    AG_DISPLAY_THEME_ALL     = -1,
-    AG_DISPLAY_THEME_CLASSIC = -2,
+    AG_DISPLAY_THEME_ALL       = -1,
+    AG_DISPLAY_THEME_CLASSIC   = -2,
+    AG_DISPLAY_THEME_NO_COMETS = -3,
     AG_DISPLAY_THEME_PREV,
-    AG_DISPLAY_THEME_COUNT   = - AG_DISPLAY_THEME_PREV + 1
+    AG_DISPLAY_THEME_COUNT     = - AG_DISPLAY_THEME_PREV + 1
 };
 
 gchar *ag_display_theme_to_css(AgDisplayTheme *display_theme);
