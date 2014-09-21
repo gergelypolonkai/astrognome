@@ -119,6 +119,7 @@
                 <xi:include href="gres://default-icons/planet-juno.xml" />
                 <xi:include href="gres://default-icons/planet-vesta.xml" />
                 <xi:include href="gres://default-icons/planet-chariklo.xml" />
+                <xi:include href="gres://default-icons/planet-asbolus.xml" />
                 <xi:include href="gres://default-icons/planet-moon-node.xml" />
                 <xi:include href="gres://default-icons/planet-moon-apogee.xml" />
                 <xi:include href="gres://default-icons/point-vertex.xml" />

@@ -66,7 +66,8 @@ const GswePlanet used_planets[] = {
     GSWE_PLANET_PALLAS,
     GSWE_PLANET_JUNO,
     GSWE_PLANET_VESTA,
-    GSWE_PLANET_CHARIKLO
+    GSWE_PLANET_CHARIKLO,
+    GSWE_PLANET_ASBOLUS
 };
 
 void
