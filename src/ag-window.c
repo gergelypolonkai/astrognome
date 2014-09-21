@@ -555,6 +555,8 @@ ag_window_set_house_system(GtkTreeModel *model,
 void
 ag_window_update_from_chart(AgWindow *window)
 {
+    gchar           *country,
+                    *city;
     AgWindowPrivate *priv        = ag_window_get_instance_private(window);
     GsweTimestamp   *timestamp   = gswe_moment_get_timestamp(
             GSWE_MOMENT(priv->chart)
@@ -615,11 +617,30 @@ ag_window_update_from_chart(AgWindow *window)
         );
 
     gtk_entry_set_text(GTK_ENTRY(priv->name), ag_chart_get_name(priv->chart));
-    gtk_entry_set_text(
-            GTK_ENTRY(priv->country),
-            ag_chart_get_country(priv->chart)
-        );
-    gtk_entry_set_text(GTK_ENTRY(priv->city), ag_chart_get_city(priv->chart));
+
+    if ((country = ag_chart_get_country(priv->chart)) != NULL) {
+        gtk_entry_set_text(
+                GTK_ENTRY(priv->country),
+                ag_chart_get_country(priv->chart)
+            );
+    } else {
+        gtk_entry_set_text(
+                GTK_ENTRY(priv->country),
+                ""
+            );
+    }
+
+    if ((city = ag_chart_get_city(priv->chart)) != NULL) {
+        gtk_entry_set_text(
+                GTK_ENTRY(priv->city),
+                ag_chart_get_city(priv->chart)
+            );
+    } else {
+        gtk_entry_set_text(
+                GTK_ENTRY(priv->city),
+                ""
+            );
+    }
 
     if (ag_chart_get_note(priv->chart)) {
         // TODO: maybe setting length to -1 here is not that good of an idea…
