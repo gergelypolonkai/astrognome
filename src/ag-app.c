@@ -60,6 +60,36 @@ ag_app_create_window(AgApp *app)
     return window;
 }
 
+static GtkWidget *
+ag_app_get_usable_window(AgApp *app)
+{
+    GtkWidget *window;
+    GList     *l;
+
+    // Favour current window
+    window = GTK_WIDGET(gtk_application_get_active_window(GTK_APPLICATION(app)));
+
+    if (AG_IS_WINDOW(window) && ag_window_is_usable(AG_WINDOW(window))) {
+        return window;
+    }
+
+    // Otherwise, let’s use the first existing, usable window
+    for (
+                l = gtk_application_get_windows(GTK_APPLICATION(app));
+                l;
+                l = g_list_next(l)
+            ) {
+        if (AG_IS_WINDOW(l->data) && ag_window_is_usable(AG_WINDOW(l->data))) {
+            return l->data;
+        }
+    }
+
+    // If we are still here, no usable windows were found. Let’s create one
+    window = ag_app_create_window(app);
+
+    return window;
+}
+
 static void
 new_window_cb(GSimpleAction *action, GVariant *parameter, gpointer user_data)
 {
@@ -165,11 +195,12 @@ ag_app_import_file(AgApp *app, GFile *file, AgAppImportType type)
         return;
     }
 
-    window = ag_app_create_window(app);
+    window = ag_app_get_usable_window(app);
     ag_window_set_chart(AG_WINDOW(window), chart);
     ag_window_update_from_chart(AG_WINDOW(window));
     g_action_group_activate_action(G_ACTION_GROUP(window), "save", NULL);
     ag_window_change_tab(AG_WINDOW(window), "chart");
+    gtk_window_present(GTK_WINDOW(window));
 }
 
 static void
