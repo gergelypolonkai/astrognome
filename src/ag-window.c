@@ -2767,3 +2767,20 @@ ag_window_load_chart_list(AgWindow *window)
 
     return TRUE;
 }
+
+/**
+ * ag_window_is_usable:
+ * @window: an #AgWindow to test
+ *
+ * Checks if the given window is usable for new charts. Usability is
+ * currently means that it has no charts open.
+ *
+ * Returns: TRUE if @window is usable, FALSE otherwise
+ */
+gboolean
+ag_window_is_usable(AgWindow *window)
+{
+    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+
+    return (priv->current_tab == priv->tab_list);
+}
