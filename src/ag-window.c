@@ -556,7 +556,7 @@ ag_window_set_house_system(GtkTreeModel *model,
 void
 ag_window_update_from_chart(AgWindow *window)
 {
-    gchar           *country,
+    const gchar     *country,
                     *city;
     AgWindowPrivate *priv        = ag_window_get_instance_private(window);
     GsweTimestamp   *timestamp   = gswe_moment_get_timestamp(
@@ -565,6 +565,30 @@ ag_window_update_from_chart(AgWindow *window)
     GsweCoordinates *coordinates = gswe_moment_get_coordinates(
             GSWE_MOMENT(priv->chart)
         );
+
+    if ((country = ag_chart_get_country(priv->chart)) != NULL) {
+        gtk_entry_set_text(
+                GTK_ENTRY(priv->country),
+                ag_chart_get_country(priv->chart)
+            );
+    } else {
+        gtk_entry_set_text(
+                GTK_ENTRY(priv->country),
+                ""
+            );
+    }
+
+    if ((city = ag_chart_get_city(priv->chart)) != NULL) {
+        gtk_entry_set_text(
+                GTK_ENTRY(priv->city),
+                ag_chart_get_city(priv->chart)
+            );
+    } else {
+        gtk_entry_set_text(
+                GTK_ENTRY(priv->city),
+                ""
+            );
+    }
 
     gtk_spin_button_set_value(
             GTK_SPIN_BUTTON(priv->year),
@@ -618,30 +642,6 @@ ag_window_update_from_chart(AgWindow *window)
         );
 
     gtk_entry_set_text(GTK_ENTRY(priv->name), ag_chart_get_name(priv->chart));
-
-    if ((country = ag_chart_get_country(priv->chart)) != NULL) {
-        gtk_entry_set_text(
-                GTK_ENTRY(priv->country),
-                ag_chart_get_country(priv->chart)
-            );
-    } else {
-        gtk_entry_set_text(
-                GTK_ENTRY(priv->country),
-                ""
-            );
-    }
-
-    if ((city = ag_chart_get_city(priv->chart)) != NULL) {
-        gtk_entry_set_text(
-                GTK_ENTRY(priv->city),
-                ag_chart_get_city(priv->chart)
-            );
-    } else {
-        gtk_entry_set_text(
-                GTK_ENTRY(priv->city),
-                ""
-            );
-    }
 
     if (ag_chart_get_note(priv->chart)) {
         // TODO: maybe setting length to -1 here is not that good of an idea…
