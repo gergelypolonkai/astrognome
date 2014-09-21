@@ -130,6 +130,21 @@
   more sense. This, however, is not possible with aspects and
   antiscion axes. SWE-GLib should provide a solution to this.
 
+  Planet visibility checklist:
+  - planets are visible by default
+  - is the planet excluded from the theme? If so, add rule
+    .planet-<planetname> { visibility: hidden; }
+
+  Aspect visibility checklist:
+  - aspects are visible by default
+  - is this type of aspect has to be visible? If no, add rule
+    .aspect-<aspecttype> {visibility: hidden; }
+  - is planet1 visible? If no, .aspect-p-<planet1> {visibility: hidden; }
+  - repeat for planet2
+
+  Antiscion visibility checklist:
+  - same as for aspects
+
 ** Implement the original Astrognome theme
 
    The software created by Jean-André Santoni has its own list of

@@ -733,7 +733,7 @@
 
                             <line class="aspect">
                                 <xsl:attribute name="id">aspect-<xsl:value-of select="$planet1"/>-<xsl:value-of select="$planet2"/></xsl:attribute>
-                                <xsl:attribute name="class">aspect aspect-<xsl:value-of select="@type"/> aspect-<xsl:value-of select="$planet1"/> aspect-<xsl:value-of select="$planet2"/></xsl:attribute>
+                                <xsl:attribute name="class">aspect aspect-<xsl:value-of select="@type"/> aspect-p-<xsl:value-of select="$planet1"/> aspect-p-<xsl:value-of select="$planet2"/></xsl:attribute>
                                 <xsl:attribute name="x1"><xsl:value-of select="$x1"/></xsl:attribute>
                                 <xsl:attribute name="y1"><xsl:value-of select="$y1"/></xsl:attribute>
                                 <xsl:attribute name="x2"><xsl:value-of select="$x2"/></xsl:attribute>
@@ -788,7 +788,7 @@
 
                             <line class="antiscion">
                                 <xsl:attribute name="id">antiscion-<xsl:value-of select="$planet1"/>-<xsl:value-of select="$planet2"/></xsl:attribute>
-                                <xsl:attribute name="class">antiscion antiscion-<xsl:value-of select="@axis"/> antiscion-<xsl:value-of select="$planet1"/> antiscion-<xsl:value-of select="$planet2"/></xsl:attribute>
+                                <xsl:attribute name="class">antiscion antiscion-<xsl:value-of select="@axis"/> antiscion-p-<xsl:value-of select="$planet1"/> antiscion-p-<xsl:value-of select="$planet2"/></xsl:attribute>
                                 <xsl:attribute name="x1"><xsl:value-of select="$x1"/></xsl:attribute>
                                 <xsl:attribute name="y1"><xsl:value-of select="$y1"/></xsl:attribute>
                                 <xsl:attribute name="x2"><xsl:value-of select="$x2"/></xsl:attribute>
