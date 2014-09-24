@@ -1739,17 +1739,9 @@ ag_chart_create_svg(AgChart        *chart,
     params    = g_new0(gchar *, 5);
     params[0] = "rendering";
     params[1] = (rendering) ? "'yes'" : "'no'";
+    params[2] = "additional-css";
     css       = ag_display_theme_to_css(theme);
-
-    // This seems to be a dirty hack, but it should do for a while
-    if (strlen(css) == 0) {
-        params[2] = NULL;
-        params[3] = NULL;
-    } else {
-        params[2] = "additional-css";
-        params[3] = g_strdup_printf("\"%s\"", css);
-    }
-
+    params[3] = g_strdup_printf("\"%s\"", css);
     g_free(css);
 
     // libxml2 messes up the output, as it prints decimal floating point
