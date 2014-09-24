@@ -138,3 +138,8 @@ line.antiscion {
 #background {
     fill: #ffffff;
 }
+
+#moon {
+    fill: #c0c0c0;
+    stroke-width: 0;
+}

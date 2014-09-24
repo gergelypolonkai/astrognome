@@ -1426,7 +1426,8 @@ ag_chart_create_svg(AgChart        *chart,
     GsweAspectData    *aspect_data;
     GEnumClass        *planets_class,
                       *aspects_class,
-                      *antiscia_class;
+                      *antiscia_class,
+                      *moon_phase_class;
     gint              save_length;
     xsltStylesheetPtr xslt_proc;
     locale_t          current_locale;
@@ -1437,6 +1438,8 @@ ag_chart_create_svg(AgChart        *chart,
     gboolean          first;
     guint             dist;
     gdouble           first_pos;
+    GsweMoonPhaseData *moon_phase_data;
+    GEnumValue        *enum_value;
 
     root_node = xmlDocGetRootElement(doc);
 
@@ -1527,7 +1530,6 @@ ag_chart_create_svg(AgChart        *chart,
                 planet = g_list_next(planet)
             ) {
         planet_data = planet->data;
-        GEnumValue *enum_value;
         gdouble    position;
 
         if (
@@ -1596,7 +1598,6 @@ ag_chart_create_svg(AgChart        *chart,
                 aspect = g_list_next(aspect)
             ) {
         GswePlanetData *planet_data;
-        GEnumValue     *enum_value;
 
         aspect_data = aspect->data;
 
@@ -1641,7 +1642,6 @@ ag_chart_create_svg(AgChart        *chart,
             ) {
         GswePlanetData    *planet_data;
         GsweAntiscionData *antiscion_data = antiscion->data;
-        GEnumValue        *enum_value;
 
         if (gswe_antiscion_data_get_axis(
                     antiscion_data) == GSWE_ANTISCION_AXIS_NONE
@@ -1671,6 +1671,24 @@ ag_chart_create_svg(AgChart        *chart,
             );
         xmlNewProp(node, BAD_CAST "axis", BAD_CAST enum_value->value_nick);
     }
+
+    g_debug("Getting Moon phase");
+
+    moon_phase_data = gswe_moment_get_moon_phase(GSWE_MOMENT(chart), NULL);
+
+    moon_phase_class = g_type_class_ref(GSWE_TYPE_MOON_PHASE);
+    enum_value = g_enum_get_value(G_ENUM_CLASS(moon_phase_class), gswe_moon_phase_data_get_phase(moon_phase_data));
+    value = g_malloc0(12);
+    g_ascii_dtostr(value, 12, gswe_moon_phase_data_get_illumination(moon_phase_data));
+
+    node = xmlNewChild(root_node, NULL, BAD_CAST "moonphase", NULL);
+
+    xmlNewProp(node, BAD_CAST "phase", BAD_CAST enum_value->value_nick);
+    xmlNewProp(node, BAD_CAST "illumination", BAD_CAST value);
+
+    g_free(value);
+    g_type_class_unref(moon_phase_class);
+    gswe_moon_phase_data_unref(moon_phase_data);
 
     g_type_class_unref(planets_class);
 
