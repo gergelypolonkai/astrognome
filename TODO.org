@@ -15,6 +15,18 @@
   up by the window title and the chart name, so a new place must be
   found for it.
 
+  There is no preview image right now in the list view. AgChart may
+  have an ag_chart_get_pixbuf() function that generates the preview
+  image. It should use a very limited display theme (maybe with Sun as
+  its only planet and no aspects nor antiscia). Generating this pixbuf
+  on the fly would be very resource intensive, so caching should also
+  be introduced. This way ag_chart_get_pixbuf() should check the cache
+  dir first. The cached file's name should be generated from the chart
+  related data, location and timestamp. Changing the name or city name
+  would not change the chart itself. If this seems to be slow for
+  bigger amount of charts, a worker idle function may be introduced,
+  as suggested in ag_window_load_chart_list().
+
 * Issue an error message for missing resources
 
   If a gres:// link cannot be loaded by the XML loaders, Astrognome
