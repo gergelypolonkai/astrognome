@@ -192,7 +192,7 @@
   be a good idea to implement saving, and possibly loading to/from
   there.
 
-* Dynamic chart size                                            :version_1.0:
+* DONE Dynamic chart size                                       :version_1.0:
 
   Right now some planets may disappear from the chart because they get
   too far from the chart ring (due to @dist).
