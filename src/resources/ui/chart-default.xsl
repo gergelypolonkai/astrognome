@@ -18,6 +18,7 @@
     <xsl:variable name="image_size" select="800" />
     <xsl:variable name="icon_size" select="30" />
     <xsl:variable name="r_aspect" select="$image_size * 0.3" />
+    <xsl:variable name="r_moon" select="$image_size * 0.0625" />
 
     <xsl:template name="planet-template">
         <xsl:param name="planet_name"/>
@@ -157,7 +158,7 @@
                             <xsl:attribute name="r"><xsl:value-of select="$image_size * 0.0875"/></xsl:attribute>
                         </circle>
                         <circle id="moon_circle" cx="0" cy="0" class="thick" style="fill:#00000;stroke:none">
-                            <xsl:attribute name="r"><xsl:value-of select="$image_size * 0.0625"/></xsl:attribute>
+                            <xsl:attribute name="r"><xsl:value-of select="$r_moon"/></xsl:attribute>
                         </circle>
 
                         <line id="aries_start" y1="0" y2="0" class="degree-thick">
@@ -796,6 +797,75 @@
                             </line>
                         </xsl:for-each>
                     </g>
+                </g>
+                <g id="moon">
+                    <xsl:variable name="moon_illum" select="/chartinfo/moonphase/@illumination"/>
+                    <xsl:variable name="moon_orig_percent">
+                        <xsl:choose>
+                            <xsl:when test="$moon_illum &gt; 50">
+                                <xsl:value-of select="100 - $moon_illum"/>
+                            </xsl:when>
+
+                            <xsl:otherwise>
+                                <xsl:value-of select="$moon_illum"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:variable>
+                    <xsl:variable name="moon_phase" select="/chartinfo/moonphase/@phase"/>
+                    <xsl:variable name="moon_percent" select="$moon_orig_percent * 2 div 100"/>
+                    <xsl:variable name="moon_x" select="$r_moon * (1 - $moon_percent)"/>
+                    <xsl:variable name="moon_r2" select="$moon_x div (math:power(math:sin(math:atan($moon_x div $r_moon)), 2) * 2)"/>
+                    <xsl:choose>
+                        <xsl:when test="$moon_phase='full'">
+                            <circle id="moon" cx="0" cy="0">
+                                <xsl:attribute name="r"><xsl:value-of select="$r_moon"/></xsl:attribute>
+                            </circle>
+                        </xsl:when>
+
+                        <xsl:when test="substring($moon_phase, 1, 2)='wa'">
+                            <path id="moon">
+                                <xsl:attribute name="d">
+                                    m 0,<xsl:value-of select="$r_moon"/>
+                                    <xsl:choose>
+                                        <xsl:when test="substring($moon_phase, 1, 3)='wan'">
+                                            a <xsl:value-of select="$r_moon"/>,<xsl:value-of select="$r_moon"/> 0 0,1 0,-<xsl:value-of select="2 * $r_moon"/>
+                                            <xsl:choose>
+                                                <xsl:when test="$moon_illum &lt; 50">
+                                                    a <xsl:value-of select="$moon_r2"/>,<xsl:value-of select="$moon_r2"/> 0 0,0 0,<xsl:value-of select="2 * $r_moon"/>
+                                                </xsl:when>
+
+                                                <xsl:when test="$moon_illum = 50">
+                                                    l 0,<xsl:value-of select="2 * $r_moon"/>
+                                                </xsl:when>
+
+                                                <xsl:when test="$moon_illum &gt; 50">
+                                                    a <xsl:value-of select="$moon_r2"/>,<xsl:value-of select="$moon_r2"/> 0 0,1 0,<xsl:value-of select="2 * $r_moon"/>
+                                                </xsl:when>
+                                            </xsl:choose>
+                                        </xsl:when>
+
+                                        <xsl:when test="substring($moon_phase, 1, 3)='wax'">
+                                            a <xsl:value-of select="$r_moon"/>,<xsl:value-of select="$r_moon"/> 0 0,0 0,-<xsl:value-of select="2 * $r_moon"/>
+                                            <xsl:choose>
+                                                <xsl:when test="$moon_illum &lt; 50">
+                                                    a <xsl:value-of select="$moon_r2"/>,<xsl:value-of select="$moon_r2"/> 0 0,1 0,<xsl:value-of select="2 * $r_moon"/>
+                                                </xsl:when>
+
+                                                <xsl:when test="$moon_illum = 50">
+                                                    l 0,<xsl:value-of select="2 * $r_moon"/>
+                                                </xsl:when>
+
+                                                <xsl:when test="$moon_illum &gt; 50">
+                                                    a <xsl:value-of select="$moon_r2"/>,<xsl:value-of select="$moon_r2"/> 0 0,0 0,<xsl:value-of select="2 * $r_moon"/>
+                                                </xsl:when>
+                                            </xsl:choose>
+                                        </xsl:when>
+                                    </xsl:choose>
+                                    z
+                                </xsl:attribute>
+                            </path>
+                        </xsl:when>
+                    </xsl:choose>
                 </g>
             </g>
         </svg>
