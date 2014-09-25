@@ -720,7 +720,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         gtk_spin_button_update(GTK_SPIN_BUTTON(current));
     }
 
-    edit_data = g_new0(AgDbChartSave, 1);
+    edit_data = ag_db_chart_save_new();
 
     edit_data->db_id = db_id;
 
@@ -798,13 +798,13 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     if (ag_db_chart_save_identical(edit_data, chart_data, !set_everything)) {
         g_debug("No redrawing needed");
 
-        ag_db_chart_save_free(edit_data);
-        ag_db_chart_save_free(chart_data);
+        ag_db_chart_save_unref(edit_data);
+        ag_db_chart_save_unref(chart_data);
 
         return;
     }
 
-    ag_db_chart_save_free(chart_data);
+    ag_db_chart_save_unref(chart_data);
 
     g_debug("Recalculating chart data");
 
@@ -846,7 +846,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         ag_chart_set_note(priv->chart, edit_data->note);
     }
 
-    ag_db_chart_save_free(edit_data);
+    ag_db_chart_save_unref(edit_data);
 }
 
 static void
@@ -1257,7 +1257,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
         }
     }
 
-    ag_db_chart_save_free(save_data);
+    ag_db_chart_save_unref(save_data);
 
     return ret;
 }
@@ -1289,7 +1289,7 @@ ag_window_save_action(GSimpleAction *action,
                 );
         }
 
-        ag_db_chart_save_free(priv->saved_data);
+        ag_db_chart_save_unref(priv->saved_data);
         priv->saved_data = save_data;
     }
 }
@@ -1644,7 +1644,7 @@ ag_window_back_action(GSimpleAction *action,
     if (ag_window_can_close(window, TRUE)) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toolbar_aspect), TRUE);
         g_clear_object(&(priv->chart));
-        ag_db_chart_save_free(priv->saved_data);
+        ag_db_chart_save_unref(priv->saved_data);
         priv->saved_data = NULL;
 
         ag_window_load_chart_list(window);
@@ -1931,7 +1931,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
                 "Error: %s",
                 err->message
             );
-        ag_db_chart_save_free(priv->saved_data);
+        ag_db_chart_save_unref(priv->saved_data);
         priv->saved_data = NULL;
 
         return;
@@ -2657,7 +2657,7 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
         g_clear_object(&(priv->chart));
     }
 
-    ag_db_chart_save_free(priv->saved_data);
+    ag_db_chart_save_unref(priv->saved_data);
 
     priv->chart = chart;
     g_signal_connect(
