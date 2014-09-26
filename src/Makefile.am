@@ -1,15 +1,27 @@
 RESOURCE_DIR = $(srcdir)/resources
 resource_files = $(shell glib-compile-resources --sourcedir=$(RESOURCE_DIR) --generate-dependencies $(srcdir)/ag.gresource.xml)
 
+ag_enum_headers = ag-icon-view.h
+
 ag-resources.c: ag.gresource.xml $(resource_files)
 	glib-compile-resources --target=$@ --sourcedir=$(RESOURCE_DIR) --generate-source --c-name ag $(srcdir)/ag.gresource.xml
 
 ag-resources.h: ag.gresource.xml $(resource_files)
 	glib-compile-resources --target=$@ --sourcedir=$(RESOURCE_DIR) --generate-header --c-name ag $(srcdir)/ag.gresource.xml
 
+ag-enumtypes.h: $(ag_enum_headers) ag-enumtypes.h.template
+	$(GLIB_MKENUMS) --template $(filter %.template,$^) $(filter-out %.template,$^) > \
+	ag-enumtypes.h.tmp && mv ag-enumtypes.h.tmp ag-enumtypes.h
+
+ag-enumtypes.c: $(ag_enum_headers) ag-enumtypes.c.template
+	$(GLIB_MKENUMS) --template $(filter %.template,$^) $(filter-out %.template,$^) > \
+	ag-enumtypes.c.tmp && mv ag-enumtypes.c.tmp ag-enumtypes.c
+
 BUILT_SOURCES = \
 				ag-resources.h \
 				ag-resources.c \
+				ag-enumtypes.h \
+				ag-enumtypes.c \
 				$(NULL)
 
 astrognome_source_files = \
@@ -20,6 +32,7 @@ astrognome_source_files = \
 						  ag-preferences.c    \
 						  ag-db.c             \
 						  ag-display-theme.c  \
+						  ag-icon-view.c      \
 						  ag-chart-renderer.c \
 						  astrognome.c        \
 						  $(NULL)

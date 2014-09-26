@@ -40,8 +40,8 @@ Makefile.in
 /data/astrognome.desktop.in
 
 # Generated files
-/src/ag-resources.c
-/src/ag-resources.h
+/src/ag-resources.[ch]
+/src/ag-enumtypes.[ch]
 
 # Geonames related things
 /data/geonames/*.txt
