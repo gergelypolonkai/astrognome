@@ -42,13 +42,8 @@ PKG_CHECK_MODULES([RSVG], [librsvg-2.0])
 PKG_CHECK_MODULES([SWE_GLIB], [swe-glib >= 2.1.0])
 PKG_CHECK_MODULES([CAIRO], [cairo]);
 
-LIBGD_INIT([
-    main-view
-])
-
 AC_CONFIG_FILES([
     Makefile
-    libgd/Makefile
     src/Makefile
     help/Makefile
     po/Makefile.in
