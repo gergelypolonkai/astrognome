@@ -124,26 +124,6 @@
   </object>
   <object class="GtkTextBuffer" id="note_buffer">
   </object>
-  <object class="GtkListStore" id="db_chart_data">
-    <columns>
-      <!-- column-name id -->
-      <column type="gchararray"/>
-      <!-- column-name uri -->
-      <column type="gchararray"/>
-      <!-- column-name name -->
-      <column type="gchararray"/>
-      <!-- column-name secondary-text -->
-      <column type="gchararray"/>
-      <!-- column-name icon -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name mtime -->
-      <column type="gint64"/>
-      <!-- column-name selected -->
-      <column type="gboolean"/>
-      <!-- column-name pulse -->
-      <column type="guint"/>
-    </columns>
-  </object>
   <object class="GtkEntryCompletion" id="country_comp">
     <property name="inline_completion">True</property>
   </object>
@@ -338,8 +318,8 @@
                   <object class="GtkButton">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="action_name">win.selection</property>
                     <property name="label" translatable="yes">Cancel</property>
+                    <signal name="clicked" handler="ag_window_selection_mode_cancel_cb" object="AgWindow" swapped="no"/>
                   </object>
                 </child>
               </object>
@@ -363,6 +343,21 @@
             <property name="vexpand">True</property>
             <property name="hexpand">True</property>
             <signal name="notify::visible-child" handler="ag_window_tab_changed_cb" object="AgWindow" swapped="no"/>
+            <child>
+              <object class="GtkScrolledWindow" id="tab_list">
+                <child>
+                  <object class="AgIconView" id="chart_list">
+                    <signal name="item-activated" handler="ag_window_list_item_activated_cb" object="AgWindow" swapped="no"/>
+                    <signal name="selection-changed" handler="ag_window_list_selection_changed_cb" object="AgWindow" swapped="no"/>
+                    <signal name="notify::mode" handler="ag_window_icon_view_mode_cb" object="AgWindow" swapped="no"/>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="name">list</property>
+                <property name="title" translatable="yes">Chart list</property>
+              </packing>
+            </child>
             <child>
               <object class="GtkGrid" id="tab_edit">
                 <property name="visible">True</property>

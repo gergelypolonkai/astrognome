@@ -39,6 +39,12 @@ typedef struct _AgDbPrivate {
 G_DEFINE_QUARK(ag_db_error_quark, ag_db_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgDb, ag_db, G_TYPE_OBJECT);
+G_DEFINE_BOXED_TYPE(
+        AgDbChartSave,
+        ag_db_chart_save,
+        (GBoxedCopyFunc)ag_db_chart_save_ref,
+        (GBoxedFreeFunc)ag_db_chart_save_unref
+    );
 
 enum {
     COLUMN_CHART_ID,
@@ -564,7 +570,7 @@ ag_db_get(void)
  *
  * Frees @save_data and all its fields
  */
-void
+static void
 ag_db_chart_save_free(AgDbChartSave *save_data)
 {
     if (!save_data) {
@@ -592,6 +598,30 @@ ag_db_chart_save_free(AgDbChartSave *save_data)
     }
 
     g_free(save_data);
+}
+
+AgDbChartSave *
+ag_db_chart_save_ref(AgDbChartSave *save_data)
+{
+    if (save_data == NULL) {
+        return NULL;
+    }
+
+    save_data->refcount++;
+
+    return save_data;
+}
+
+void
+ag_db_chart_save_unref(AgDbChartSave *save_data)
+{
+    if (save_data == NULL) {
+        return;
+    }
+
+    if (--save_data->refcount == 0) {
+        ag_db_chart_save_free(save_data);
+    }
 }
 
 /**
@@ -797,6 +827,17 @@ ag_db_chart_save(AgDb *db, AgDbChartSave *save_data,  GError **err)
     return save_success;
 }
 
+AgDbChartSave *
+ag_db_chart_save_new(void)
+{
+    AgDbChartSave *save_data;
+
+    save_data = g_new0(AgDbChartSave, 1);
+    save_data->refcount = 1;
+
+    return save_data;
+}
+
 /**
  * ag_db_chart_get_list:
  * @db: the #AgDb object to operate on
@@ -833,7 +874,7 @@ ag_db_chart_get_list(AgDb *db, GError **err)
 
     while (gda_data_model_iter_move_next(iter)) {
         const GValue  *value;
-        AgDbChartSave *save_data = g_new0(AgDbChartSave, 1);
+        AgDbChartSave *save_data = ag_db_chart_save_new();
 
         value = gda_data_model_iter_get_value_at(iter, 0);
         save_data->db_id = g_value_get_int(value);
@@ -910,7 +951,7 @@ ag_db_chart_get_data_by_id(AgDb *db, guint row_id, GError **err)
         return NULL;
     }
 
-    save_data = g_new0(AgDbChartSave, 1);
+    save_data = ag_db_chart_save_new();
 
     /* id */
     value = gda_data_model_get_value_at(
@@ -1082,8 +1123,8 @@ string_collate(const gchar *str1, const gchar *str2)
  */
 gboolean
 ag_db_chart_save_identical(const AgDbChartSave *a,
-                     const AgDbChartSave *b,
-                     gboolean            chart_only)
+                           const AgDbChartSave *b,
+                           gboolean            chart_only)
 {
     if (a == b) {
         g_debug("identical: Equal");

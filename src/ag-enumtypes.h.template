@@ -1,0 +1,42 @@
+/*** BEGIN file-header ***/
+/* ag-enumtypes.h - Enumeration types for Astrognome
+ *
+ * Copyright © 2013  Gergely Polonkai
+ *
+ * Astrognome is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation; either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * Astrognome is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this library; if not, see <http://www.gnu.org/licenses/>.
+ */
+#ifndef __AG_ENUM_TYPES_H__
+#define __AG_ENUM_TYPES_H__
+
+#include <glib-object.h>
+
+/*** END file-header ***/
+
+/*** BEGIN file-production ***/
+
+/* enumerations from "@filename@" */
+
+#include "@filename@"
+/*** END file-production ***/
+
+/*** BEGIN value-header ***/
+GType @enum_name@_get_type(void);
+#define @ENUMPREFIX@_TYPE_@ENUMSHORT@ (@enum_name@_get_type())
+/*** END value-header ***/
+
+/*** BEGIN file-tail ***/
+
+#endif /* __AG_ENUM_TYPES_H__ */
+/*** END file-tail ***/
+

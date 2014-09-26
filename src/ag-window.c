@@ -22,8 +22,6 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <webkit2/webkit2.h>
-#include <libgd/gd-main-view.h>
-#include <libgd/gd-main-view-generic.h>
 #include <gtk/gtk.h>
 
 #include <swe-glib.h>
@@ -35,6 +33,7 @@
 #include "ag-settings.h"
 #include "ag-db.h"
 #include "ag-display-theme.h"
+#include "ag-icon-view.h"
 
 struct _AgWindowPrivate {
     GtkWidget     *header_bar;
@@ -72,12 +71,12 @@ struct _AgWindowPrivate {
     GtkWidget     *points_eq;
     GtkAdjustment *year_adjust;
 
+    GtkWidget     *chart_list;
     AgSettings    *settings;
     AgChart       *chart;
     gboolean      aspect_table_populated;
     GtkTextBuffer *note_buffer;
     GtkListStore  *house_system_model;
-    GtkListStore  *db_chart_data;
     AgDbChartSave      *saved_data;
     GtkEntryCompletion *country_comp;
     GtkEntryCompletion *city_comp;
@@ -720,7 +719,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         gtk_spin_button_update(GTK_SPIN_BUTTON(current));
     }
 
-    edit_data = g_new0(AgDbChartSave, 1);
+    edit_data = ag_db_chart_save_new();
 
     edit_data->db_id = db_id;
 
@@ -798,13 +797,13 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     if (ag_db_chart_save_identical(edit_data, chart_data, !set_everything)) {
         g_debug("No redrawing needed");
 
-        ag_db_chart_save_free(edit_data);
-        ag_db_chart_save_free(chart_data);
+        ag_db_chart_save_unref(edit_data);
+        ag_db_chart_save_unref(chart_data);
 
         return;
     }
 
-    ag_db_chart_save_free(chart_data);
+    ag_db_chart_save_unref(chart_data);
 
     g_debug("Recalculating chart data");
 
@@ -846,7 +845,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         ag_chart_set_note(priv->chart, edit_data->note);
     }
 
-    ag_db_chart_save_free(edit_data);
+    ag_db_chart_save_unref(edit_data);
 }
 
 static void
@@ -1257,7 +1256,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
         }
     }
 
-    ag_db_chart_save_free(save_data);
+    ag_db_chart_save_unref(save_data);
 
     return ret;
 }
@@ -1289,7 +1288,7 @@ ag_window_save_action(GSimpleAction *action,
                 );
         }
 
-        ag_db_chart_save_free(priv->saved_data);
+        ag_db_chart_save_unref(priv->saved_data);
         priv->saved_data = save_data;
     }
 }
@@ -1644,7 +1643,7 @@ ag_window_back_action(GSimpleAction *action,
     if (ag_window_can_close(window, TRUE)) {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toolbar_aspect), TRUE);
         g_clear_object(&(priv->chart));
-        ag_db_chart_save_free(priv->saved_data);
+        ag_db_chart_save_unref(priv->saved_data);
         priv->saved_data = NULL;
 
         ag_window_load_chart_list(window);
@@ -1662,30 +1661,23 @@ ag_window_refresh_action(GSimpleAction *action,
 }
 
 static void
-ag_window_selection_mode_action(GSimpleAction *action,
-                                GVariant      *parameter,
-                                gpointer      user_data)
+ag_window_set_selection_mode(AgWindow *window, gboolean state)
 {
-    GVariant        *state;
-    gboolean        new_state;
     GtkStyleContext *style;
-    AgWindow        *window = AG_WINDOW(user_data);
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
-
-    state = g_action_get_state(G_ACTION(action));
-    new_state = !g_variant_get_boolean(state);
-    g_action_change_state(G_ACTION(action), g_variant_new_boolean(new_state));
-    g_variant_unref(state);
 
     style = gtk_widget_get_style_context(priv->header_bar);
 
-    if (new_state) {
+    if (state) {
         gtk_header_bar_set_show_close_button(
                 GTK_HEADER_BAR(priv->header_bar),
                 FALSE
             );
         gtk_style_context_add_class(style, "selection-mode");
-        gd_main_view_set_selection_mode(GD_MAIN_VIEW(priv->tab_list), TRUE);
+        ag_icon_view_set_mode(
+                AG_ICON_VIEW(priv->chart_list),
+                AG_ICON_VIEW_MODE_SELECTION
+            );
         gtk_widget_hide(priv->new_back_stack);
         gtk_stack_set_visible_child_name(
                 GTK_STACK(priv->menubutton_stack),
@@ -1697,7 +1689,10 @@ ag_window_selection_mode_action(GSimpleAction *action,
                 TRUE
             );
         gtk_style_context_remove_class(style, "selection-mode");
-        gd_main_view_set_selection_mode(GD_MAIN_VIEW(priv->tab_list), FALSE);
+        ag_icon_view_set_mode(
+                AG_ICON_VIEW(priv->chart_list),
+                AG_ICON_VIEW_MODE_NORMAL
+            );
         gtk_widget_show_all(priv->new_back_stack);
         gtk_stack_set_visible_child_name(
                 GTK_STACK(priv->menubutton_stack),
@@ -1707,37 +1702,62 @@ ag_window_selection_mode_action(GSimpleAction *action,
 }
 
 static void
+ag_window_icon_view_mode_cb(AgIconView *icon_view,
+                            GParamSpec *pspec,
+                            AgWindow   *window)
+{
+    AgIconViewMode mode       = ag_icon_view_get_mode(icon_view);
+    GVariant       *state_var = g_variant_new_boolean(
+            (mode == AG_ICON_VIEW_MODE_SELECTION)
+        );
+
+    g_action_group_activate_action(
+            G_ACTION_GROUP(window),
+            "selection",
+            state_var
+        );
+}
+
+static void
+ag_window_selection_mode_action(GSimpleAction *action,
+                                GVariant      *parameter,
+                                gpointer      user_data)
+{
+    GVariant        *state;
+    gboolean        new_state;
+    AgWindow        *window = AG_WINDOW(user_data);
+
+    state = g_action_get_state(G_ACTION(action));
+    new_state = !g_variant_get_boolean(state);
+    g_action_change_state(G_ACTION(action), g_variant_new_boolean(new_state));
+    g_variant_unref(state);
+
+    g_debug("Set selection mode: %d", new_state);
+
+    ag_window_set_selection_mode(window, new_state);
+}
+
+static void
 ag_window_delete_action(GSimpleAction *action,
                         GVariant      *parameter,
                         gpointer      user_data)
 {
     GList           *selection,
                     *item;
-    GtkTreeModel    *model;
     AgWindow        *window = AG_WINDOW(user_data);
     AgWindowPrivate *priv   = ag_window_get_instance_private(window);
     AgDb            *db     = ag_db_get();
 
-    selection = gd_main_view_get_selection(GD_MAIN_VIEW(priv->tab_list));
-    model     = gd_main_view_get_model(GD_MAIN_VIEW(priv->tab_list));
+    selection = ag_icon_view_get_selected_items(AG_ICON_VIEW(priv->chart_list));
 
     for (item = selection; item; item = g_list_next(item)) {
-        GtkTreePath *path = item->data;
-        GtkTreeIter iter;
-        gchar       *id_str;
-        gint        id;
-        GError      *err = NULL;
+        GtkTreePath   *path = item->data;
+        GError        *err = NULL;
+        AgDbChartSave *save_data;
 
-        gtk_tree_model_get_iter(model, &iter, path);
-        gtk_tree_model_get(
-                model, &iter,
-                GD_MAIN_COLUMN_ID, &id_str,
-                -1
-            );
-        id = atoi(id_str);
-        g_free(id_str);
+        save_data = ag_icon_view_get_chart_save_at_path(AG_ICON_VIEW(priv->chart_list), path);
 
-        if (!ag_db_chart_delete(db, id, &err)) {
+        if (!ag_db_chart_delete(db, save_data->db_id, &err)) {
             ag_app_message_dialog(
                     GTK_WINDOW(window),
                     GTK_MESSAGE_ERROR,
@@ -1748,6 +1768,8 @@ ag_window_delete_action(GSimpleAction *action,
                 );
         }
     }
+
+    ag_icon_view_remove_selected(AG_ICON_VIEW(priv->chart_list));
 
     g_action_group_activate_action(G_ACTION_GROUP(window), "selection", NULL);
     g_action_group_activate_action(G_ACTION_GROUP(window), "refresh", NULL);
@@ -1827,7 +1849,7 @@ static GActionEntry win_entries[] = {
     { "new-chart",    ag_window_new_chart_action,      NULL, NULL,        NULL },
     { "back",         ag_window_back_action,           NULL, NULL,        NULL },
     { "refresh",      ag_window_refresh_action,        NULL, NULL,        NULL },
-    { "selection",    ag_window_selection_mode_action, NULL, "false",     NULL },
+    { "selection",    ag_window_selection_mode_action, "b",  "false",     NULL },
     { "delete",       ag_window_delete_action,         NULL, NULL,        NULL },
     { "connection",   ag_window_connection_action,     "s",  "'aspects'", NULL },
 };
@@ -1878,15 +1900,14 @@ ag_window_add_display_theme(AgDisplayTheme *display_theme,
 }
 
 static void
-ag_window_list_item_activated_cb(GdMainView        *view,
-                                 const gchar       *id,
+ag_window_list_item_activated_cb(AgIconView        *icon_view,
                                  const GtkTreePath *path,
                                  AgWindow          *window)
 {
-    guint           row_id = atoi(id);
     AgWindowPrivate *priv  = ag_window_get_instance_private(window);
     AgDb            *db    = ag_db_get();
     GError          *err   = NULL;
+    AgDbChartSave   *save_data;
 
     if (priv->saved_data != NULL) {
         ag_app_message_dialog(
@@ -1902,11 +1923,17 @@ ag_window_list_item_activated_cb(GdMainView        *view,
         return;
     }
 
-    g_debug("Loading chart with ID %d", row_id);
+    save_data = ag_icon_view_get_chart_save_at_path(icon_view, path);
+
+    if (save_data == NULL) {
+        return;
+    }
+
+    g_debug("Loading chart with ID %d", save_data->db_id);
 
     if ((priv->saved_data = ag_db_chart_get_data_by_id(
                  db,
-                 row_id,
+                 save_data->db_id,
                  &err)) == NULL) {
         ag_app_message_dialog(
                 GTK_WINDOW(window),
@@ -1931,7 +1958,7 @@ ag_window_list_item_activated_cb(GdMainView        *view,
                 "Error: %s",
                 err->message
             );
-        ag_db_chart_save_free(priv->saved_data);
+        ag_db_chart_save_unref(priv->saved_data);
         priv->saved_data = NULL;
 
         return;
@@ -1943,13 +1970,13 @@ ag_window_list_item_activated_cb(GdMainView        *view,
 }
 
 static void
-ag_window_list_selection_changed_cb(GdMainView *view, AgWindow *window)
+ag_window_list_selection_changed_cb(AgIconView *view, AgWindow *window)
 {
     GList           *selection;
     guint           count;
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
-    selection = gd_main_view_get_selection(view);
+    selection = ag_icon_view_get_selected_items(view);
 
     if ((count = g_list_length(selection)) > 0) {
         gtk_revealer_set_reveal_child(
@@ -2128,32 +2155,6 @@ ag_window_init(AgWindow *window)
             display_theme_renderer,
             "text", 1,
             NULL
-        );
-
-    priv->tab_list = GTK_WIDGET(gd_main_view_new(GD_MAIN_VIEW_ICON));
-    gtk_stack_add_titled(
-            GTK_STACK(priv->stack),
-            priv->tab_list,
-            "list",
-            "Chart list"
-        );
-
-    gd_main_view_set_selection_mode(GD_MAIN_VIEW(priv->tab_list), FALSE);
-    gd_main_view_set_model(
-            GD_MAIN_VIEW(priv->tab_list),
-            GTK_TREE_MODEL(priv->db_chart_data)
-        );
-    g_signal_connect(
-            priv->tab_list,
-            "item-activated",
-            G_CALLBACK(ag_window_list_item_activated_cb),
-            window
-        );
-    g_signal_connect(
-            priv->tab_list,
-            "view-selection-changed",
-            G_CALLBACK(ag_window_list_selection_changed_cb),
-            window
         );
 
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
@@ -2403,11 +2404,34 @@ ag_window_display_theme_changed_cb(GtkComboBox *combo_box,
 }
 
 static void
+ag_window_destroy(GtkWidget *widget)
+{
+    AgWindowPrivate *priv = ag_window_get_instance_private(AG_WINDOW(widget));
+
+    // Destroy the signal handlers on priv->stack, as “tab” switching
+    // can cause trouble during destroy. However, this function might
+    // get called multiple times for the same object, in which case
+    // priv->stack is NULL.
+    if (priv->stack) {
+        g_signal_handlers_destroy(priv->stack);
+    }
+
+    GTK_WIDGET_CLASS(ag_window_parent_class)->destroy(widget);
+}
+
+static void
+ag_window_selection_mode_cancel_cb(GtkButton *button, AgWindow *window)
+{
+    ag_window_set_selection_mode(window, FALSE);
+}
+
+static void
 ag_window_class_init(AgWindowClass *klass)
 {
     GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
     GtkWidgetClass *widget_class  = GTK_WIDGET_CLASS(klass);
 
+    widget_class->destroy = ag_window_destroy;
     gobject_class->dispose = ag_window_dispose;
 
     gtk_widget_class_set_template_from_resource(
@@ -2428,11 +2452,6 @@ ag_window_class_init(AgWindowClass *klass)
             widget_class,
             AgWindow,
             menubutton_stack
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            db_chart_data
         );
     gtk_widget_class_bind_template_child_private(
             widget_class,
@@ -2561,6 +2580,16 @@ ag_window_class_init(AgWindowClass *klass)
             AgWindow,
             toolbar_aspect
         );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            tab_list
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            chart_list
+        );
 
     gtk_widget_class_bind_template_callback(
             widget_class,
@@ -2585,6 +2614,22 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_display_theme_changed_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_list_item_activated_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_list_selection_changed_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_icon_view_mode_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_selection_mode_cancel_cb
         );
 }
 
@@ -2657,7 +2702,7 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
         g_clear_object(&(priv->chart));
     }
 
-    ag_db_chart_save_free(priv->saved_data);
+    ag_db_chart_save_unref(priv->saved_data);
 
     priv->chart = chart;
     g_signal_connect(
@@ -2745,32 +2790,9 @@ ag_window_change_tab(AgWindow *window, const gchar *tab_name)
 static void
 ag_window_add_chart_to_list(AgDbChartSave *save_data, AgWindow *window)
 {
-    GtkTreeIter     iter;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
-    gchar           *id   = g_strdup_printf("%d", save_data->db_id);
-
-    gtk_list_store_append(priv->db_chart_data, &iter);
-    gtk_list_store_set(
-            priv->db_chart_data, &iter,
-            0, id,              /* ID             */
-            1, NULL,            /* URI            */
-            2, save_data->name, /* Primary text   */
-            3, NULL,            /* Secondary text */
-            4, NULL,            /* Icon           */
-            5, 0,               /* mtime          */
-            6, FALSE,           /* Selected       */
-            7, 0,               /* Pulse          */
-            -1
-        );
-    g_free(id);
-}
-
-static void
-ag_window_clear_chart_list(AgWindow *window)
-{
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
 
-    gtk_list_store_clear(priv->db_chart_data);
+    ag_icon_view_add_chart(AG_ICON_VIEW(priv->chart_list), save_data);
 }
 
 gboolean
@@ -2780,7 +2802,6 @@ ag_window_load_chart_list(AgWindow *window)
     GError *err        = NULL;
     GList  *chart_list = ag_db_chart_get_list(db, &err);
 
-    ag_window_clear_chart_list(window);
     /* With only a few charts, this should be fine. Maybe implementing lazy
      * loading would be a better idea. See:
      * http://blogs.gnome.org/ebassi/documentation/lazy-loading/

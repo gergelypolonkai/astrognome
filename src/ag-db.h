@@ -65,7 +65,11 @@ typedef struct _AgDbChartSave {
     gdouble timezone;
     gchar *house_system;
     gchar *note;
+    gint refcount;
 } AgDbChartSave;
+
+GType ag_db_chart_save_get_type(void);
+#define AG_TYPE_DB_CHART_SAVE (ag_db_chart_save_get_type())
 
 typedef enum {
     AG_DB_ERROR_NO_CHART,
@@ -76,11 +80,15 @@ GType ag_db_get_type(void) G_GNUC_CONST;
 
 AgDb *ag_db_get(void);
 
-void ag_db_chart_save_free(AgDbChartSave *save_data);
-
 gboolean ag_db_chart_save(AgDb           *db,
                           AgDbChartSave  *save_data,
                           GError         **err);
+
+AgDbChartSave *ag_db_chart_save_new(void);
+
+AgDbChartSave *ag_db_chart_save_ref(AgDbChartSave *save_data);
+
+void ag_db_chart_save_unref(AgDbChartSave *save_data);
 
 GList *ag_db_chart_get_list(AgDb *db, GError **err);
 
