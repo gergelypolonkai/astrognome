@@ -18,7 +18,11 @@ enum {
 static void ag_chart_renderer_dispose(GObject *gobject);
 static void ag_chart_renderer_finalize(GObject *gobject);
 
-G_DEFINE_TYPE_WITH_PRIVATE(AgChartRenderer, ag_chart_renderer, GTK_TYPE_CELL_RENDERER_PIXBUF);
+G_DEFINE_TYPE_WITH_PRIVATE(
+        AgChartRenderer,
+        ag_chart_renderer,
+        GTK_TYPE_CELL_RENDERER_PIXBUF
+    );
 
 static void
 ag_chart_renderer_render(GtkCellRenderer      *renderer,
@@ -28,7 +32,9 @@ ag_chart_renderer_render(GtkCellRenderer      *renderer,
                          const GdkRectangle   *cell_area,
                          GtkCellRendererState flags)
 {
-    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(AG_CHART_RENDERER(renderer));
+    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(
+            AG_CHART_RENDERER(renderer)
+        );
     int             margin;
     GtkStyleContext *context = gtk_widget_get_style_context(widget);
     GdkPixbuf       *pixbuf;
@@ -46,21 +52,50 @@ ag_chart_renderer_render(GtkCellRenderer      *renderer,
 
     cairo_translate(cr, cell_area->x, cell_area->y);
 
-    margin = MAX(AG_CHART_RENDERER_TILE_MARGIN, (int)((cell_area->width - AG_CHART_RENDERER_TILE_SIZE) / 2));
+    margin = MAX(
+            AG_CHART_RENDERER_TILE_MARGIN,
+            (int)((cell_area->width - AG_CHART_RENDERER_TILE_SIZE) / 2)
+        );
 
     g_object_get(renderer, "pixbuf", &pixbuf, NULL);
 
     if (pixbuf != NULL) {
-        GdkRectangle area = {margin, margin, AG_CHART_RENDERER_TILE_SIZE, AG_CHART_RENDERER_TILE_SIZE};
+        GdkRectangle area = {
+                margin,
+                margin,
+                AG_CHART_RENDERER_TILE_SIZE,
+                AG_CHART_RENDERER_TILE_SIZE
+            };
 
         g_debug("Rendering chart with preview image");
 
-        GTK_CELL_RENDERER_CLASS(ag_chart_renderer_parent_class)->render(renderer, cr, widget, &area, &area, flags);
+        GTK_CELL_RENDERER_CLASS(ag_chart_renderer_parent_class)->render(
+                renderer,
+                cr,
+                widget,
+                &area,
+                &area,
+                flags
+            );
     } else {
+        gtk_render_frame(
+                context,
+                cr,
+                margin,
+                margin,
+                AG_CHART_RENDERER_TILE_SIZE,
+                AG_CHART_RENDERER_TILE_SIZE
+            );
         g_debug("Rendering chart without preview image");
 
-        gtk_render_frame(context, cr, margin, margin, AG_CHART_RENDERER_TILE_SIZE, AG_CHART_RENDERER_TILE_SIZE);
-        gtk_render_background(context, cr, margin, margin, AG_CHART_RENDERER_TILE_SIZE, AG_CHART_RENDERER_TILE_SIZE);
+        gtk_render_background(
+                context,
+                cr,
+                margin,
+                margin,
+                AG_CHART_RENDERER_TILE_SIZE,
+                AG_CHART_RENDERER_TILE_SIZE
+            );
     }
 
     gtk_style_context_restore(context);
@@ -72,12 +107,17 @@ ag_chart_renderer_render(GtkCellRenderer      *renderer,
              check_x,
              check_y;
 
-        gtk_cell_renderer_get_padding(GTK_CELL_RENDERER(renderer), &xpad, &ypad);
+        gtk_cell_renderer_get_padding(
+                GTK_CELL_RENDERER(renderer),
+                &xpad, &ypad
+            );
 
         if (gtk_widget_get_direction(widget) == GTK_TEXT_DIR_RTL) {
             x_offset = xpad;
         } else {
-            x_offset = cell_area->width - AG_CHART_RENDERER_CHECK_ICON_SIZE - xpad;
+            x_offset = cell_area->width
+                - AG_CHART_RENDERER_CHECK_ICON_SIZE
+                - xpad;
         }
 
         check_x = x_offset;
@@ -90,9 +130,30 @@ ag_chart_renderer_render(GtkCellRenderer      *renderer,
             gtk_style_context_set_state(context, GTK_STATE_FLAG_CHECKED);
         }
 
-        gtk_render_background(context, cr, check_x, check_y, AG_CHART_RENDERER_CHECK_ICON_SIZE, AG_CHART_RENDERER_CHECK_ICON_SIZE);
-        gtk_render_frame(context, cr, check_x, check_y, AG_CHART_RENDERER_CHECK_ICON_SIZE, AG_CHART_RENDERER_CHECK_ICON_SIZE);
-        gtk_render_check(context, cr, check_x, check_y, AG_CHART_RENDERER_CHECK_ICON_SIZE, AG_CHART_RENDERER_CHECK_ICON_SIZE);
+        gtk_render_background(
+                context,
+                cr,
+                check_x,
+                check_y,
+                AG_CHART_RENDERER_CHECK_ICON_SIZE,
+                AG_CHART_RENDERER_CHECK_ICON_SIZE
+            );
+        gtk_render_frame(
+                context,
+                cr,
+                check_x,
+                check_y,
+                AG_CHART_RENDERER_CHECK_ICON_SIZE,
+                AG_CHART_RENDERER_CHECK_ICON_SIZE
+            );
+        gtk_render_check(
+                context,
+                cr,
+                check_x,
+                check_y,
+                AG_CHART_RENDERER_CHECK_ICON_SIZE,
+                AG_CHART_RENDERER_CHECK_ICON_SIZE
+            );
 
         gtk_style_context_restore(context);
     }
@@ -101,9 +162,12 @@ ag_chart_renderer_render(GtkCellRenderer      *renderer,
 }
 
 void
-ag_chart_renderer_set_css_class(AgChartRenderer *chart_renderer, const gchar *css_class)
+ag_chart_renderer_set_css_class(AgChartRenderer *chart_renderer,
+                                const gchar *css_class)
 {
-    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(chart_renderer);
+    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(
+            chart_renderer
+        );
 
     g_free(priv->css_class);
     priv->css_class = g_strdup(css_class);
@@ -112,7 +176,9 @@ ag_chart_renderer_set_css_class(AgChartRenderer *chart_renderer, const gchar *cs
 const gchar *
 ag_chart_renderer_get_css_class(AgChartRenderer *chart_renderer)
 {
-    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(chart_renderer);
+    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(
+            chart_renderer
+        );
 
     return priv->css_class;
 }
@@ -120,7 +186,9 @@ ag_chart_renderer_get_css_class(AgChartRenderer *chart_renderer)
 void
 ag_chart_renderer_set_checked(AgChartRenderer *chart_renderer, gboolean checked)
 {
-    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(chart_renderer);
+    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(
+            chart_renderer
+        );
 
     priv->checked = checked;
 }
@@ -128,15 +196,20 @@ ag_chart_renderer_set_checked(AgChartRenderer *chart_renderer, gboolean checked)
 gboolean
 ag_chart_renderer_get_checked(AgChartRenderer *chart_renderer)
 {
-    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(chart_renderer);
+    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(
+            chart_renderer
+        );
 
     return priv->checked;
 }
 
 void
-ag_chart_renderer_set_toggle_visible(AgChartRenderer *chart_renderer, gboolean toggle_visible)
+ag_chart_renderer_set_toggle_visible(AgChartRenderer *chart_renderer,
+                                     gboolean toggle_visible)
 {
-    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(chart_renderer);
+    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(
+            chart_renderer
+        );
 
     priv->toggle_visible = toggle_visible;
 }
@@ -144,7 +217,9 @@ ag_chart_renderer_set_toggle_visible(AgChartRenderer *chart_renderer, gboolean t
 gboolean
 ag_chart_renderer_get_toggle_visible(AgChartRenderer *chart_renderer)
 {
-    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(chart_renderer);
+    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(
+            chart_renderer
+        );
 
     return priv->toggle_visible;
 }
@@ -159,17 +234,26 @@ ag_chart_renderer_get_property(GObject    *gobject,
 
     switch (prop_id) {
         case AG_CHART_RENDERER_PROP_CSS_CLASS:
-            g_value_set_string(value, ag_chart_renderer_get_css_class(chart_renderer));
+            g_value_set_string(
+                    value,
+                    ag_chart_renderer_get_css_class(chart_renderer)
+                );
 
             break;
 
         case AG_CHART_RENDERER_PROP_CHECKED:
-            g_value_set_boolean(value, ag_chart_renderer_get_checked(chart_renderer));
+            g_value_set_boolean(
+                    value,
+                    ag_chart_renderer_get_checked(chart_renderer)
+                );
 
             break;
 
         case AG_CHART_RENDERER_PROP_TOGGLE_VISIBLE:
-            g_value_set_boolean(value, ag_chart_renderer_get_toggle_visible(chart_renderer));
+            g_value_set_boolean(
+                    value,
+                    ag_chart_renderer_get_toggle_visible(chart_renderer)
+                );
 
             break;
 
@@ -190,17 +274,26 @@ ag_chart_renderer_set_property(GObject      *gobject,
 
     switch (prop_id) {
         case AG_CHART_RENDERER_PROP_CSS_CLASS:
-            ag_chart_renderer_set_css_class(chart_renderer, g_value_get_string(value));
+            ag_chart_renderer_set_css_class(
+                    chart_renderer,
+                    g_value_get_string(value)
+                );
 
             break;
 
         case AG_CHART_RENDERER_PROP_CHECKED:
-            ag_chart_renderer_set_checked(chart_renderer, g_value_get_boolean(value));
+            ag_chart_renderer_set_checked(
+                    chart_renderer,
+                    g_value_get_boolean(value)
+                );
 
             break;
 
         case AG_CHART_RENDERER_PROP_TOGGLE_VISIBLE:
-            ag_chart_renderer_set_toggle_visible(chart_renderer, g_value_get_boolean(value));
+            ag_chart_renderer_set_toggle_visible(
+                    chart_renderer,
+                    g_value_get_boolean(value)
+                );
 
             break;
 
@@ -275,7 +368,9 @@ ag_chart_renderer_class_init(AgChartRendererClass *klass)
 static void
 ag_chart_renderer_init(AgChartRenderer *chart_renderer)
 {
-    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(chart_renderer);
+    AgChartRendererPrivate *priv = ag_chart_renderer_get_instance_private(
+            chart_renderer
+        );
 
     priv->checked = FALSE;
     priv->toggle_visible = FALSE;
