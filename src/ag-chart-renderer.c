@@ -67,8 +67,6 @@ ag_chart_renderer_render(GtkCellRenderer      *renderer,
                 AG_CHART_RENDERER_TILE_SIZE
             };
 
-        g_debug("Rendering chart with preview image");
-
         GTK_CELL_RENDERER_CLASS(ag_chart_renderer_parent_class)->render(
                 renderer,
                 cr,
@@ -86,8 +84,6 @@ ag_chart_renderer_render(GtkCellRenderer      *renderer,
                 AG_CHART_RENDERER_TILE_SIZE,
                 AG_CHART_RENDERER_TILE_SIZE
             );
-        g_debug("Rendering chart without preview image");
-
         gtk_render_background(
                 context,
                 cr,
