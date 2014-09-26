@@ -318,8 +318,8 @@
                   <object class="GtkButton">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="action_name">win.selection</property>
                     <property name="label" translatable="yes">Cancel</property>
+                    <signal name="clicked" handler="ag_window_selection_mode_cancel_cb" object="AgWindow" swapped="no"/>
                   </object>
                 </child>
               </object>
@@ -349,6 +349,7 @@
                   <object class="AgIconView" id="chart_list">
                     <signal name="item-activated" handler="ag_window_list_item_activated_cb" object="AgWindow" swapped="no"/>
                     <signal name="selection-changed" handler="ag_window_list_selection_changed_cb" object="AgWindow" swapped="no"/>
+                    <signal name="notify::mode" handler="ag_window_icon_view_mode_cb" object="AgWindow" swapped="no"/>
                   </object>
                 </child>
               </object>

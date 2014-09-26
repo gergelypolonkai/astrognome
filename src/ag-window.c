@@ -1661,24 +1661,14 @@ ag_window_refresh_action(GSimpleAction *action,
 }
 
 static void
-ag_window_selection_mode_action(GSimpleAction *action,
-                                GVariant      *parameter,
-                                gpointer      user_data)
+ag_window_set_selection_mode(AgWindow *window, gboolean state)
 {
-    GVariant        *state;
-    gboolean        new_state;
     GtkStyleContext *style;
-    AgWindow        *window = AG_WINDOW(user_data);
     AgWindowPrivate *priv = ag_window_get_instance_private(window);
-
-    state = g_action_get_state(G_ACTION(action));
-    new_state = !g_variant_get_boolean(state);
-    g_action_change_state(G_ACTION(action), g_variant_new_boolean(new_state));
-    g_variant_unref(state);
 
     style = gtk_widget_get_style_context(priv->header_bar);
 
-    if (new_state) {
+    if (state) {
         gtk_header_bar_set_show_close_button(
                 GTK_HEADER_BAR(priv->header_bar),
                 FALSE
@@ -1709,6 +1699,42 @@ ag_window_selection_mode_action(GSimpleAction *action,
                 "list"
             );
     }
+}
+
+static void
+ag_window_icon_view_mode_cb(AgIconView *icon_view,
+                            GParamSpec *pspec,
+                            AgWindow   *window)
+{
+    AgIconViewMode mode       = ag_icon_view_get_mode(icon_view);
+    GVariant       *state_var = g_variant_new_boolean(
+            (mode == AG_ICON_VIEW_MODE_SELECTION)
+        );
+
+    g_action_group_activate_action(
+            G_ACTION_GROUP(window),
+            "selection",
+            state_var
+        );
+}
+
+static void
+ag_window_selection_mode_action(GSimpleAction *action,
+                                GVariant      *parameter,
+                                gpointer      user_data)
+{
+    GVariant        *state;
+    gboolean        new_state;
+    AgWindow        *window = AG_WINDOW(user_data);
+
+    state = g_action_get_state(G_ACTION(action));
+    new_state = !g_variant_get_boolean(state);
+    g_action_change_state(G_ACTION(action), g_variant_new_boolean(new_state));
+    g_variant_unref(state);
+
+    g_debug("Set selection mode: %d", new_state);
+
+    ag_window_set_selection_mode(window, new_state);
 }
 
 static void
@@ -1823,7 +1849,7 @@ static GActionEntry win_entries[] = {
     { "new-chart",    ag_window_new_chart_action,      NULL, NULL,        NULL },
     { "back",         ag_window_back_action,           NULL, NULL,        NULL },
     { "refresh",      ag_window_refresh_action,        NULL, NULL,        NULL },
-    { "selection",    ag_window_selection_mode_action, NULL, "false",     NULL },
+    { "selection",    ag_window_selection_mode_action, "b",  "false",     NULL },
     { "delete",       ag_window_delete_action,         NULL, NULL,        NULL },
     { "connection",   ag_window_connection_action,     "s",  "'aspects'", NULL },
 };
@@ -2394,6 +2420,12 @@ ag_window_destroy(GtkWidget *widget)
 }
 
 static void
+ag_window_selection_mode_cancel_cb(GtkButton *button, AgWindow *window)
+{
+    ag_window_set_selection_mode(window, FALSE);
+}
+
+static void
 ag_window_class_init(AgWindowClass *klass)
 {
     GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
@@ -2590,6 +2622,14 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_list_selection_changed_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_icon_view_mode_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_selection_mode_cancel_cb
         );
 }
 
