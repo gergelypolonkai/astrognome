@@ -40,6 +40,7 @@ PKG_CHECK_MODULES([GDA], [libgda-5.0 libgda-sqlite-5.0])
 PKG_CHECK_MODULES([PIXBUF], [gdk-pixbuf-2.0])
 PKG_CHECK_MODULES([RSVG], [librsvg-2.0])
 PKG_CHECK_MODULES([SWE_GLIB], [swe-glib >= 2.1.0])
+PKG_CHECK_MODULES([CAIRO], [cairo]);
 
 LIBGD_INIT([
     main-view

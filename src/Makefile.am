@@ -20,6 +20,7 @@ astrognome_source_files = \
 						  ag-preferences.c    \
 						  ag-db.c             \
 						  ag-display-theme.c  \
+						  ag-chart-renderer.c \
 						  astrognome.c        \
 						  $(NULL)
 
@@ -32,9 +33,9 @@ AM_CPPFLAGS = -DG_LOG_DOMAIN=\"Astrognome\" -DLOCALEDIR=\"$(localedir)\" -DPKGDA
 bin_PROGRAMS = astrognome
 
 astrognome_SOURCES = $(astrognome_source_files) $(BUILT_SOURCES)
-astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS) $(LIBXML_LIBS) $(LIBXSLT_LIBS) $(WEBKIT_LIBS) $(GDA_LIBS) $(PIXBUF_LIBS) $(RSVG_LIBS) $(top_builddir)/libgd/libgd.la
+astrognome_LDADD = $(SWE_GLIB_LIBS) $(GTK_LIBS) $(LIBXML_LIBS) $(LIBXSLT_LIBS) $(WEBKIT_LIBS) $(GDA_LIBS) $(PIXBUF_LIBS) $(RSVG_LIBS) $(CAIRO_LIBS) $(top_builddir)/libgd/libgd.la
 astrognome_LDFLAGS = -rdynamic
-astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) $(LIBXML_CFLAGS) $(LIBXSLT_CFLAGS) $(WEBKIT_CFLAGS) $(GDA_CFLAGS) $(PIXBUF_CFLAGS) $(RSVG_CFLAGS) -Wall
+astrognome_CFLAGS = $(SWE_GLIB_CFLAGS) $(CFLAGS) $(GTK_CFLAGS) $(LIBXML_CFLAGS) $(LIBXSLT_CFLAGS) $(WEBKIT_CFLAGS) $(GDA_CFLAGS) $(PIXBUF_CFLAGS) $(RSVG_CFLAGS) $(CAIRO_CFLAGS) -Wall
 
 # The following two lines generate a .dir-locals.el file, so
 # company-mode won’t die due to unknown includes
