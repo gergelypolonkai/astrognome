@@ -1,0 +1,51 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      type="guide"
+      id="keyboard-navigation">
+    <info>
+        <revision version="0.1" date="2013-09-22" status="candidate" />
+        <link type="guide" xref="index#getting-started" />
+
+        <credit type="author copyright">
+            <name>Gergely Polonkai</name>
+            <email its:translate="no">gergely@polonkai.eu</email>
+            <years>2013</years>
+        </credit>
+
+        <xi:include href="legal.xml" />
+
+        <desc>Navigating with the keyboard</desc>
+    </info>
+
+    <title>Navigating with the keyboard</title>
+
+    <p>You can switch between views with predefined keys:</p>
+
+    <terms>
+      <item>
+        <title>List view</title>
+        <p><keyseq><key>Alt</key><key>Left Arrow</key></keyseq>, or if your keyboard has one, <key>Back</key>. Naturally, this will do nothing in the list view.</p>
+      </item>
+
+      <item>
+        <title>Chart edit</title>
+        <p><key>F4</key>. This, and the following keys only work if a chart is loaded (e.g. not in the list view).</p>
+      </item>
+
+      <item>
+        <title>Chart view</title>
+        <p><key>F5</key></p>
+      </item>
+
+      <item>
+        <title>Aspect and antiscion tables</title>
+        <p><key>F6</key></p>
+      </item>
+
+      <item>
+        <title>Point tables</title>
+        <p><key>F7</key></p>
+      </item>
+    </terms>
+</page>

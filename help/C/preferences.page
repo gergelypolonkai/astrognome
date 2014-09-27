@@ -1,0 +1,48 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      type="guide"
+      id="preferences">
+    <info>
+        <revision version="0.1" date="2013-09-22" status="candidate" />
+        <link type="guide" xref="index#customization" />
+
+        <credit type="author copyright">
+            <name>Gergely Polonkai</name>
+            <email its:translate="no">gergely@polonkai.eu</email>
+            <years>2013</years>
+        </credit>
+
+        <xi:include href="legal.xml" />
+
+        <desc>Preferences</desc>
+    </info>
+
+    <title>Preferences</title>
+
+    <p>You can set different aspects of <app>Astrognome</app> in the Preferences dialog, which is accessible by pressing <keyseq><key>Ctrl</key><key>P</key></keyseq>, or from <guiseq><gui style="menu">Astrognome</gui> <gui style="menuitem">Preferences</gui></guiseq>.</p>
+
+    <note><p>All settings, except the default house system and default display theme have immediate effects in all open Astrognome windows.</p></note>
+
+    <section>
+      <title>New windows start maximized</title>
+
+      <p>If this option is enabled, newly created windows will be maximized by default.</p>
+    </section>
+
+    <section>
+      <title>Use UTF-8 characters for planet/aspect symbols</title>
+      <p>The <link href="http://en.wikipedia.org/wiki/List_of_Unicode_characters">UTF-8 standard</link> lists several planet and aspect symbols. If you want to see these characters in the aspect, antiscion and point tables, check this box</p>
+    </section>
+
+    <section>
+      <title>Default house system</title>
+      <p>The house system to use by default in new charts.</p>
+      <note><p><app>Astrognome</app> saves the house system information with every chart. This means if you load a chart, that saved house system will be used instead of the default one.</p></note>
+    </section>
+
+    <section>
+      <title>Default display theme</title>
+      <p>The default <link xref="display-themes">display theme</link> to use in newly opened charts.</p>
+    </section>
+</page>

@@ -1,0 +1,35 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      type="guide"
+      id="your-first-chart">
+    <info>
+        <revision version="0.1" date="2013-09-22" status="candidate" />
+        <link type="guide" xref="index#getting-started" />
+
+        <credit type="author copyright">
+            <name>Gergely Polonkai</name>
+            <email its:translate="no">gergely@polonkai.eu</email>
+            <years>2013</years>
+        </credit>
+
+        <xi:include href="legal.xml" />
+
+        <desc>Creating natal charts</desc>
+    </info>
+
+    <title>Your first chart</title>
+
+    <p>Creating a natal chart is as easy as pressing <keyseq><key>Ctrl</key><key>N</key></keyseq> (or using either <guiseq><gui style="menu">Astrognome</gui> <gui style="menuitem">New chart</gui></guiseq>) and entering a name, a date and a location. To show the actual chart, press <key>F5</key> or use <guiseq><gui style="button">View menu</gui> <gui style="menuitem">Chart</gui></guiseq>.</p>
+
+    <figure>
+      <title>Chart edit</title>
+      <desc>Editing a chart’s data</desc>
+      <media type="image" src="figures/chart-edit.png" width="700">
+      </media>
+    </figure>
+
+    <note>
+      <p>Creating a new chart while viewing one will open a new window. If you are on the chart list screen, the current window will be used.</p>
+    </note>
+</page>
