@@ -1227,8 +1227,6 @@ ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err)
 {
     GsweTimestamp   *timestamp;
     gchar           *house_system_enum_name;
-    GTypeClass      *house_system_class;
-    GEnumValue      *enum_value;
     GsweHouseSystem house_system;
     AgChart         *chart;
 
@@ -1243,26 +1241,8 @@ ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err)
     }
 
     house_system_enum_name = g_utf8_strdown(save_data->house_system, -1);
-    house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
-
-    if ((enum_value = g_enum_get_value_by_nick(
-                G_ENUM_CLASS(house_system_class),
-                house_system_enum_name
-            )) == NULL) {
-        g_free(house_system_enum_name);
-        g_set_error(
-                err,
-                AG_CHART_ERROR, AG_CHART_ERROR_INVALID_HOUSE_SYSTEM,
-                "Invalid house system: '%s'",
-                save_data->house_system
-            );
-
-        return NULL;
-    }
-
+    house_system = ag_house_system_nick_to_id(house_system_enum_name);
     g_free(house_system_enum_name);
-
-    house_system = enum_value->value;
 
     timestamp = gswe_timestamp_new_from_gregorian_full(
             save_data->year, save_data->month, save_data->day,
