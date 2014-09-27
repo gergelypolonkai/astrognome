@@ -28,5 +28,5 @@
       <item><p>PNG</p></item>
     </list>
 
-    <p>To use this feature, use <guiseq><gui style="button">Gear menu</gui> <gui style="menuitem">Export as image…</gui></guiseq>.</p>
+    <p>To use this feature, use <guiseq><gui style="button">Menu button</gui> <gui style="menuitem">Export as image…</gui></guiseq>.</p>
 </page>
