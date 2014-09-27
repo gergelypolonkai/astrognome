@@ -1997,7 +1997,7 @@ ag_chart_get_db_save(AgChart *chart, gint db_id)
 {
     GsweCoordinates *coords;
     AgChartPrivate  *priv      = ag_chart_get_instance_private(chart);
-    AgDbChartSave   *save_data = ag_db_chart_save_new();
+    AgDbChartSave   *save_data = ag_db_chart_save_new(TRUE);
     GsweTimestamp   *timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
     GEnumClass      *house_system_class;
     GEnumValue      *house_system_enum;

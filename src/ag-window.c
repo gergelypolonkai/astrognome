@@ -736,7 +736,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         gtk_spin_button_update(GTK_SPIN_BUTTON(current));
     }
 
-    edit_data = ag_db_chart_save_new();
+    edit_data = ag_db_chart_save_new(TRUE);
 
     edit_data->db_id = db_id;
 

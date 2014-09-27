@@ -50,6 +50,7 @@ struct _AgDbClass {
 
 typedef struct _AgDbChartSave {
     gint db_id;
+    gboolean populated;
     gchar *name;
     gchar *country;
     gchar *city;
@@ -84,7 +85,7 @@ gboolean ag_db_chart_save(AgDb           *db,
                           AgDbChartSave  *save_data,
                           GError         **err);
 
-AgDbChartSave *ag_db_chart_save_new(void);
+AgDbChartSave *ag_db_chart_save_new(gboolean populated);
 
 AgDbChartSave *ag_db_chart_save_ref(AgDbChartSave *save_data);
 
