@@ -93,6 +93,22 @@ struct cc_search {
     gchar        *ret_code;
 };
 
+enum {
+    PREVIEW_STATE_STARTED,
+    PREVIEW_STATE_LOADING,
+    PREVIEW_STATE_COMPLETE,
+    PREVIEW_STATE_FINISHED
+};
+
+typedef struct {
+    guint      load_state;
+    guint      load_id;
+    AgIconView *icon_view;
+    gint       n_items;
+    gint       n_loaded;
+    GList      *items;
+} LoadIdleData;
+
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
@@ -2787,26 +2803,84 @@ ag_window_change_tab(AgWindow *window, const gchar *tab_name)
         );
 }
 
-static void
-ag_window_add_chart_to_list(AgDbChartSave *save_data, AgWindow *window)
+static gboolean
+ag_window_add_chart(LoadIdleData *idle_data)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    AgDbChartSave *save_data;
 
-    ag_icon_view_add_chart(AG_ICON_VIEW(priv->chart_list), save_data);
+    g_assert(
+            (idle_data->load_state == PREVIEW_STATE_STARTED)
+            || (idle_data->load_state == PREVIEW_STATE_LOADING)
+        );
+
+    if (!idle_data->items) {
+        idle_data->load_state = PREVIEW_STATE_COMPLETE;
+
+        return FALSE;
+    }
+
+    if (!idle_data->n_items) {
+        idle_data->n_items = g_list_length(idle_data->items);
+        idle_data->n_loaded = 0;
+        idle_data->load_state = PREVIEW_STATE_LOADING;
+    }
+
+    save_data = g_list_nth_data(idle_data->items, idle_data->n_loaded);
+
+    g_assert(save_data);
+
+    ag_icon_view_add_chart(idle_data->icon_view, save_data);
+
+    idle_data->n_loaded++;
+
+    // TODO: maybe a progress bar should update somewhere during loading?
+
+    if (idle_data->n_loaded == idle_data->n_items) {
+        idle_data->load_state = PREVIEW_STATE_COMPLETE;
+        idle_data->n_loaded = 0;
+        idle_data->n_items = 0;
+        g_list_free(idle_data->items);
+        idle_data->items = NULL;
+
+        return FALSE;
+    } else {
+        return TRUE;
+    }
+}
+
+static void
+ag_window_cleanup_load_items(LoadIdleData *idle_data)
+{
+    g_assert(idle_data->load_state == PREVIEW_STATE_COMPLETE);
+
+    g_free(idle_data);
 }
 
 gboolean
 ag_window_load_chart_list(AgWindow *window)
 {
-    AgDb   *db         = ag_db_get();
-    GError *err        = NULL;
-    GList  *chart_list = ag_db_chart_get_list(db, &err);
+    LoadIdleData    *idle_data;
+    AgDb            *db         = ag_db_get();
+    GError          *err        = NULL;
+    GList           *chart_list = ag_db_chart_get_list(db, &err);
+    AgWindowPrivate *priv       = ag_window_get_instance_private(window);
 
-    /* With only a few charts, this should be fine. Maybe implementing lazy
-     * loading would be a better idea. See:
-     * http://blogs.gnome.org/ebassi/documentation/lazy-loading/
-     */
-    g_list_foreach(chart_list, (GFunc)ag_window_add_chart_to_list, window);
+    /* Lazy loading of charts with previews. Idea is from
+     * http://blogs.gnome.org/ebassi/documentation/lazy-loading/ */
+
+    idle_data = g_new(LoadIdleData, 1);
+    idle_data->items = chart_list;
+    idle_data->n_items = 0;
+    idle_data->n_loaded = 0;
+    idle_data->icon_view = AG_ICON_VIEW(priv->chart_list);
+    idle_data->load_state = PREVIEW_STATE_STARTED;
+
+    idle_data->load_id = g_idle_add_full(
+            G_PRIORITY_DEFAULT_IDLE,
+            (GSourceFunc)ag_window_add_chart,
+            idle_data,
+            (GDestroyNotify)ag_window_cleanup_load_items
+        );
 
     return TRUE;
 }
