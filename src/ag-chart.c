@@ -1892,16 +1892,15 @@ ag_chart_export_svg_to_file(AgChart        *chart,
         );
 }
 
-void
-ag_chart_export_jpg_to_file(AgChart        *chart,
-                            GFile          *file,
-                            AgDisplayTheme *theme,
-                            GError         **err)
+GdkPixbuf *
+ag_chart_get_pixbuf(AgChart        *chart,
+                    guint          image_size,
+                    guint          icon_size,
+                    AgDisplayTheme *theme,
+                    GError         **err)
 {
-    gchar      *svg,
-               *jpg;
-    gsize      svg_length,
-               jpg_length;
+    gchar      *svg;
+    gsize      svg_length;
     RsvgHandle *svg_handle;
     GdkPixbuf  *pixbuf;
 
@@ -1910,10 +1909,11 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
                 &svg_length,
                 TRUE,
                 theme,
-                0, 0,
+                image_size,
+                icon_size,
                 err
             )) == NULL) {
-        return;
+        return NULL;
     }
 
     if ((svg_handle = rsvg_handle_new_from_data(
@@ -1923,7 +1923,7 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
             )) == NULL) {
         g_free(svg);
 
-        return;
+        return NULL;
     }
 
     g_free(svg);
@@ -1935,6 +1935,25 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
                 _("Unknown rendering error")
             );
 
+        return NULL;
+    }
+
+    return pixbuf;
+}
+
+void
+ag_chart_export_jpg_to_file(AgChart        *chart,
+                            GFile          *file,
+                            AgDisplayTheme *theme,
+                            GError         **err)
+{
+    gchar      *jpg;
+    gsize      jpg_length;
+    GdkPixbuf  *pixbuf;
+
+    pixbuf = ag_chart_get_pixbuf(chart, 0, 0, theme, err);
+
+    if (pixbuf == NULL) {
         return;
     }
 
