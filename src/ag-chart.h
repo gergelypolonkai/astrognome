@@ -91,7 +91,9 @@ AgChart *ag_chart_load_from_agc(GFile  *file,
 AgChart *ag_chart_load_from_placidus_file(GFile  *file,
                                           GError **err);
 
-AgChart *ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err);
+AgChart *ag_chart_new_from_db_save(AgDbChartSave *save_data,
+                                   gboolean      preview,
+                                   GError        **err);
 
 void ag_chart_save_to_file(AgChart *chart,
                            GFile   *file,

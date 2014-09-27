@@ -1223,7 +1223,9 @@ AgChart *ag_chart_load_from_placidus_file(GFile  *file,
 }
 
 AgChart *
-ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err)
+ag_chart_new_from_db_save(AgDbChartSave *save_data,
+                          gboolean preview,
+                          GError **err)
 {
     GsweTimestamp   *timestamp;
     gchar           *house_system_enum_name;
@@ -1250,13 +1252,23 @@ ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err)
             save_data->timezone
         );
 
-    chart = ag_chart_new_full(
-            timestamp,
-            save_data->longitude,
-            save_data->latitude,
-            save_data->altitude,
-            house_system
-        );
+    if (preview) {
+        chart = ag_chart_new_preview(
+                timestamp,
+                save_data->longitude,
+                save_data->latitude,
+                save_data->altitude,
+                house_system
+            );
+    } else {
+        chart = ag_chart_new_full(
+                timestamp,
+                save_data->longitude,
+                save_data->latitude,
+                save_data->altitude,
+                house_system
+            );
+    }
 
     ag_chart_set_name(chart, save_data->name);
     ag_chart_set_country(chart, save_data->country);

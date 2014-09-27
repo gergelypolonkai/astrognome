@@ -1967,6 +1967,7 @@ ag_window_list_item_activated_cb(AgIconView        *icon_view,
 
     if ((priv->chart = ag_chart_new_from_db_save(
                  priv->saved_data,
+                 FALSE,
                  &err
             )) == NULL) {
         ag_app_message_dialog(
