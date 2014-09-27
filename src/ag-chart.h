@@ -79,6 +79,12 @@ AgChart *ag_chart_new_full(GsweTimestamp   *timestamp,
                            gdouble         altitude,
                            GsweHouseSystem house_system);
 
+AgChart *ag_chart_new_preview(GsweTimestamp   *timestamp,
+                              gdouble         longitude,
+                              gdouble         latitude,
+                              gdouble         altitude,
+                              GsweHouseSystem house_system);
+
 AgChart *ag_chart_load_from_agc(GFile  *file,
                                 GError **err);
 

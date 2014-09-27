@@ -308,6 +308,33 @@ ag_chart_new_full(GsweTimestamp   *timestamp,
     return chart;
 }
 
+AgChart *
+ag_chart_new_preview(GsweTimestamp   *timestamp,
+                     gdouble         longitude,
+                     gdouble         latitude,
+                     gdouble         altitude,
+                     GsweHouseSystem house_system)
+{
+    static const GswePlanet planets[] = {
+            GSWE_PLANET_SUN,
+            GSWE_PLANET_ASCENDANT,
+            GSWE_PLANET_MC
+        };
+    static const gint planet_count = sizeof(planets) / sizeof(GswePlanet);
+
+    AgChart *chart = ag_chart_new_generic(
+            timestamp,
+            longitude,
+            latitude,
+            altitude,
+            house_system
+        );
+
+    ag_chart_add_planets(chart, planets, planet_count);
+
+    return chart;
+}
+
 void
 ag_chart_set_name(AgChart *chart, const gchar *name)
 {
