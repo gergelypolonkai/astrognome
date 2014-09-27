@@ -1457,6 +1457,7 @@ ag_chart_create_svg(AgChart        *chart,
                     gboolean       rendering,
                     AgDisplayTheme *theme,
                     guint          image_size,
+                    guint          icon_size,
                     GError         **err)
 {
     xmlDocPtr         doc = create_save_doc(chart),
@@ -1803,16 +1804,17 @@ ag_chart_create_svg(AgChart        *chart,
     g_free(css);
     params[4] = "chart-size";
     params[6] = "image-size";
+    params[8] = "icon-size";
 
     if (image_size == 0) {
         params[5] = g_strdup_printf("%d", AG_CHART_DEFAULT_RING_SIZE);
         params[7] = g_strdup("0");
+        params[9] = g_strdup("0");
     } else {
         params[5] = g_strdup("0");
         params[7] = g_strdup_printf("%d", image_size);
+        params[9] = g_strdup_printf("%d", icon_size);
     }
-    params[8] = "icon-size";
-    params[9] = g_strdup_printf("%d", AG_CHART_DEFAULT_ICON_SIZE);
 
     // libxml2 messes up the output, as it prints decimal floating point
     // numbers in a localized format. It is not good in locales that use a
@@ -1871,7 +1873,7 @@ ag_chart_export_svg_to_file(AgChart        *chart,
                  &length,
                  TRUE,
                  theme,
-                 0,
+                 0, 0,
                  err
             )) == NULL) {
         return;
@@ -1908,14 +1910,14 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
                 &svg_length,
                 TRUE,
                 theme,
-                0,
+                0, 0,
                 err
             )) == NULL) {
         return;
     }
 
     if ((svg_handle = rsvg_handle_new_from_data(
-                 (const guint8 *)svg,
+                (const guint8 *)svg,
                 svg_length,
                 err
             )) == NULL) {

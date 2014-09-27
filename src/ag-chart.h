@@ -129,6 +129,7 @@ gchar *ag_chart_create_svg(AgChart        *chart,
                            gboolean       rendering,
                            AgDisplayTheme *theme,
                            guint          image_size,
+                           guint          icon_size,
                            GError         **err);
 
 GList *ag_chart_get_planets(AgChart *chart);
