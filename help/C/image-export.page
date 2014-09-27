@@ -1,0 +1,22 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      type="guide"
+      id="image-export">
+    <info>
+        <revision version="0.1" date="2013-09-22" status="candidate" />
+        <link type="guide" xref="index" />
+
+        <credit type="author copyright">
+            <name>Gergely Polonkai</name>
+            <email its:translate="no">gergely@polonkai.eu</email>
+            <years>2013</years>
+        </credit>
+
+        <xi:include href="legal.xml" />
+
+        <desc>Exporting images</desc>
+    </info>
+
+    <title>Exporting images</title>
+</page>
