@@ -1,7 +1,11 @@
+#include <gdk-pixbuf/gdk-pixbuf.h>
+
 #include "ag-enumtypes.h"
 #include "ag-icon-view.h"
 #include "ag-db.h"
 #include "ag-chart-renderer.h"
+#include "ag-display-theme.h"
+#include "ag-chart.h"
 
 typedef struct _AgIconViewPrivate {
     AgIconViewMode  mode;
@@ -19,6 +23,7 @@ enum {
 enum {
     AG_ICON_VIEW_COLUMN_SELECTED,
     AG_ICON_VIEW_COLUMN_ITEM,
+    AG_ICON_VIEW_COLUMN_PIXBUF,
     AG_ICON_VIEW_COLUMN_COLUMNS
 };
 
@@ -38,7 +43,10 @@ ag_icon_view_set_mode(AgIconView *icon_view, AgIconViewMode mode)
             ag_icon_view_unselect_all(icon_view);
         }
 
-        ag_chart_renderer_set_toggle_visible(priv->thumb_renderer, (mode == AG_ICON_VIEW_MODE_SELECTION));
+        ag_chart_renderer_set_toggle_visible(
+                priv->thumb_renderer,
+                (mode == AG_ICON_VIEW_MODE_SELECTION)
+            );
 
         gtk_widget_queue_draw(GTK_WIDGET(icon_view));
 
@@ -122,12 +130,18 @@ ag_icon_view_button_press_event_cb(GtkWidget      *widget,
     GtkIconView *gtk_icon_view = GTK_ICON_VIEW(widget);
     AgIconView  *ag_icon_view  = AG_ICON_VIEW(widget);
 
-    path = gtk_icon_view_get_path_at_pos(gtk_icon_view, ((GdkEventButton *)event)->x, ((GdkEventButton *)event)->y);
+    path = gtk_icon_view_get_path_at_pos(
+            gtk_icon_view,
+            ((GdkEventButton *)event)->x,
+            ((GdkEventButton *)event)->y
+        );
 
     if (path != NULL) {
         gboolean      selected;
         AgDbChartSave *chart_save;
-        GtkListStore  *store = GTK_LIST_STORE(gtk_icon_view_get_model(gtk_icon_view));
+        GtkListStore  *store = GTK_LIST_STORE(gtk_icon_view_get_model(
+                gtk_icon_view)
+            );
 
         if (event->button == GDK_BUTTON_SECONDARY) {
             ag_icon_view_set_mode(ag_icon_view, AG_ICON_VIEW_MODE_SELECTION);
@@ -137,9 +151,18 @@ ag_icon_view_button_press_event_cb(GtkWidget      *widget,
             GtkTreeIter iter;
 
             if (gtk_tree_model_get_iter(GTK_TREE_MODEL(store), &iter, path)) {
-                gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, AG_ICON_VIEW_COLUMN_SELECTED, &selected, AG_ICON_VIEW_COLUMN_ITEM, &chart_save, -1);
+                gtk_tree_model_get(
+                        GTK_TREE_MODEL(store), &iter,
+                        AG_ICON_VIEW_COLUMN_SELECTED, &selected,
+                        AG_ICON_VIEW_COLUMN_ITEM, &chart_save,
+                        -1
+                    );
 
-                gtk_list_store_set(store, &iter, AG_ICON_VIEW_COLUMN_SELECTED, !selected, -1);
+                gtk_list_store_set(
+                        store, &iter,
+                        AG_ICON_VIEW_COLUMN_SELECTED, !selected,
+                        -1
+                    );
 
                 ag_icon_view_selection_changed(ag_icon_view);
             }
@@ -181,22 +204,6 @@ ag_icon_view_class_init(AgIconViewClass *klass)
 }
 
 static void
-ag_icon_view_chart_renderer_func(GtkCellLayout   *layout,
-                                 GtkCellRenderer *renderer,
-                                 GtkTreeModel    *model,
-                                 GtkTreeIter     *iter,
-                                 AgIconView      *icon_view)
-{
-    AgDbChartSave *chart_save;
-
-    gtk_tree_model_get(model, iter, AG_ICON_VIEW_COLUMN_ITEM, &chart_save, -1);
-
-    if (chart_save) {
-        g_object_set(renderer, "pixbuf", NULL, NULL);
-    }
-}
-
-static void
 ag_icon_view_text_renderer_func(GtkCellLayout   *layout,
                                 GtkCellRenderer *renderer,
                                 GtkTreeModel    *model,
@@ -226,7 +233,8 @@ ag_icon_view_init(AgIconView *icon_view)
     priv->model = gtk_list_store_new(
             AG_ICON_VIEW_COLUMN_COLUMNS,
             G_TYPE_BOOLEAN,
-            AG_TYPE_DB_CHART_SAVE
+            AG_TYPE_DB_CHART_SAVE,
+            GDK_TYPE_PIXBUF
         );
     gtk_icon_view_set_model(
             GTK_ICON_VIEW(icon_view),
@@ -267,6 +275,12 @@ ag_icon_view_init(AgIconView *icon_view)
             GTK_CELL_RENDERER(priv->thumb_renderer),
             "checked", AG_ICON_VIEW_COLUMN_SELECTED
         );
+    gtk_cell_layout_add_attribute(
+            GTK_CELL_LAYOUT(icon_view),
+            GTK_CELL_RENDERER(priv->thumb_renderer),
+            "pixbuf", AG_ICON_VIEW_COLUMN_PIXBUF
+        );
+/*
     gtk_cell_layout_set_cell_data_func(
             GTK_CELL_LAYOUT(icon_view),
             GTK_CELL_RENDERER(priv->thumb_renderer),
@@ -274,6 +288,7 @@ ag_icon_view_init(AgIconView *icon_view)
             icon_view,
             NULL
         );
+*/
 
     priv->text_renderer = gtk_cell_renderer_text_new();
     gtk_cell_renderer_set_alignment(
@@ -298,15 +313,49 @@ void
 ag_icon_view_add_chart(AgIconView *icon_view, AgDbChartSave *chart_save)
 {
     GtkTreeIter       iter;
-    AgIconViewPrivate *priv = ag_icon_view_get_instance_private(icon_view);
+    AgChart           *chart;
+    AgIconViewPrivate *priv      = ag_icon_view_get_instance_private(icon_view);
+    AgDisplayTheme    *theme     = ag_display_theme_get_preview_theme();
+    AgDbChartSave     *save_data = chart_save;
+    AgDb              *db        = ag_db_get();
+    GdkPixbuf         *pixbuf    = NULL;
 
     g_debug("Adding chart for %s", chart_save->name);
+
+    if (!chart_save->populated) {
+        save_data = ag_db_chart_get_data_by_id(
+                db,
+                chart_save->db_id,
+                NULL
+        );
+    } else {
+        save_data = ag_db_chart_save_ref(chart_save);
+    }
+
+    g_object_unref(db);
+
+    chart = ag_chart_new_from_db_save(
+            save_data,
+            TRUE,
+            NULL
+        );
+
+    pixbuf = ag_chart_get_pixbuf(
+            chart,
+            AG_CHART_RENDERER_TILE_SIZE,
+            AG_CHART_RENDERER_ICON_SIZE,
+            theme,
+            NULL
+        );
+
+    g_object_unref(chart);
 
     gtk_list_store_append(priv->model, &iter);
     gtk_list_store_set(
             priv->model, &iter,
             AG_ICON_VIEW_COLUMN_SELECTED, FALSE,
-            AG_ICON_VIEW_COLUMN_ITEM, chart_save,
+            AG_ICON_VIEW_COLUMN_ITEM,     save_data,
+            AG_ICON_VIEW_COLUMN_PIXBUF,   pixbuf,
             -1
         );
 }
