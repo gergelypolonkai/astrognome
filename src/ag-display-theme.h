@@ -49,4 +49,6 @@ GList *ag_display_theme_get_list(void);
 
 void ag_display_theme_free(AgDisplayTheme *display_theme);
 
+AgDisplayTheme *ag_display_theme_get_preview_theme(void);
+
 #endif /* __AG_DISPLAY_THEME_H__ */
