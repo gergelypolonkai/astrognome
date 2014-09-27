@@ -245,28 +245,30 @@ ag_chart_finalize(GObject *gobject)
 }
 
 void
-ag_chart_add_planets(AgChart *chart)
+ag_chart_add_planets(AgChart          *chart,
+                     const GswePlanet *planets,
+                     guint            planet_count)
 {
     int i;
     AgChartPrivate *priv = ag_chart_get_instance_private(chart);
 
-    for (i = 0; i < used_planets_count; i++) {
-        gswe_moment_add_planet(GSWE_MOMENT(chart), used_planets[i], NULL);
+    for (i = 0; i < planet_count; i++) {
+        gswe_moment_add_planet(GSWE_MOMENT(chart), planets[i], NULL);
         priv->planet_list = g_list_prepend(
                 priv->planet_list,
-                GINT_TO_POINTER(used_planets[i])
+                GINT_TO_POINTER(planets[i])
             );
     }
 
     priv->planet_list = g_list_reverse(priv->planet_list);
 }
 
-AgChart *
-ag_chart_new_full(GsweTimestamp   *timestamp,
-                  gdouble         longitude,
-                  gdouble         latitude,
-                  gdouble         altitude,
-                  GsweHouseSystem house_system)
+static AgChart *
+ag_chart_new_generic(GsweTimestamp   *timestamp,
+                     gdouble         longitude,
+                     gdouble         latitude,
+                     gdouble         altitude,
+                     GsweHouseSystem house_system)
 {
     AgChart         *chart;
     GsweCoordinates *coords = g_new0(GsweCoordinates, 1);
@@ -283,7 +285,52 @@ ag_chart_new_full(GsweTimestamp   *timestamp,
 
     g_free(coords);
 
-    ag_chart_add_planets(chart);
+    return chart;
+}
+
+AgChart *
+ag_chart_new_full(GsweTimestamp   *timestamp,
+                  gdouble         longitude,
+                  gdouble         latitude,
+                  gdouble         altitude,
+                  GsweHouseSystem house_system)
+{
+    AgChart *chart = ag_chart_new_generic(
+            timestamp,
+            longitude,
+            latitude,
+            altitude,
+            house_system
+        );
+
+    ag_chart_add_planets(chart, used_planets, used_planets_count);
+
+    return chart;
+}
+
+AgChart *
+ag_chart_new_preview(GsweTimestamp   *timestamp,
+                     gdouble         longitude,
+                     gdouble         latitude,
+                     gdouble         altitude,
+                     GsweHouseSystem house_system)
+{
+    static const GswePlanet planets[] = {
+            GSWE_PLANET_SUN,
+            GSWE_PLANET_ASCENDANT,
+            GSWE_PLANET_MC
+        };
+    static const gint planet_count = sizeof(planets) / sizeof(GswePlanet);
+
+    AgChart *chart = ag_chart_new_generic(
+            timestamp,
+            longitude,
+            latitude,
+            altitude,
+            house_system
+        );
+
+    ag_chart_add_planets(chart, planets, planet_count);
 
     return chart;
 }
@@ -1176,12 +1223,12 @@ AgChart *ag_chart_load_from_placidus_file(GFile  *file,
 }
 
 AgChart *
-ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err)
+ag_chart_new_from_db_save(AgDbChartSave *save_data,
+                          gboolean preview,
+                          GError **err)
 {
     GsweTimestamp   *timestamp;
     gchar           *house_system_enum_name;
-    GTypeClass      *house_system_class;
-    GEnumValue      *enum_value;
     GsweHouseSystem house_system;
     AgChart         *chart;
 
@@ -1196,26 +1243,8 @@ ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err)
     }
 
     house_system_enum_name = g_utf8_strdown(save_data->house_system, -1);
-    house_system_class = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
-
-    if ((enum_value = g_enum_get_value_by_nick(
-                G_ENUM_CLASS(house_system_class),
-                house_system_enum_name
-            )) == NULL) {
-        g_free(house_system_enum_name);
-        g_set_error(
-                err,
-                AG_CHART_ERROR, AG_CHART_ERROR_INVALID_HOUSE_SYSTEM,
-                "Invalid house system: '%s'",
-                save_data->house_system
-            );
-
-        return NULL;
-    }
-
+    house_system = ag_house_system_nick_to_id(house_system_enum_name);
     g_free(house_system_enum_name);
-
-    house_system = enum_value->value;
 
     timestamp = gswe_timestamp_new_from_gregorian_full(
             save_data->year, save_data->month, save_data->day,
@@ -1223,13 +1252,23 @@ ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err)
             save_data->timezone
         );
 
-    chart = ag_chart_new_full(
-            timestamp,
-            save_data->longitude,
-            save_data->latitude,
-            save_data->altitude,
-            house_system
-        );
+    if (preview) {
+        chart = ag_chart_new_preview(
+                timestamp,
+                save_data->longitude,
+                save_data->latitude,
+                save_data->altitude,
+                house_system
+            );
+    } else {
+        chart = ag_chart_new_full(
+                timestamp,
+                save_data->longitude,
+                save_data->latitude,
+                save_data->altitude,
+                house_system
+            );
+    }
 
     ag_chart_set_name(chart, save_data->name);
     ag_chart_set_country(chart, save_data->country);
@@ -1417,6 +1456,8 @@ ag_chart_create_svg(AgChart        *chart,
                     gsize          *length,
                     gboolean       rendering,
                     AgDisplayTheme *theme,
+                    guint          image_size,
+                    guint          icon_size,
                     GError         **err)
 {
     xmlDocPtr         doc = create_save_doc(chart),
@@ -1754,13 +1795,26 @@ ag_chart_create_svg(AgChart        *chart,
         return NULL;
     }
 
-    params    = g_new0(gchar *, 5);
+    params    = g_new0(gchar *, 11);
     params[0] = "rendering";
     params[1] = (rendering) ? "'yes'" : "'no'";
     params[2] = "additional-css";
     css       = ag_display_theme_to_css(theme);
     params[3] = g_strdup_printf("\"%s\"", css);
     g_free(css);
+    params[4] = "chart-size";
+    params[6] = "image-size";
+    params[8] = "icon-size";
+
+    if (image_size == 0) {
+        params[5] = g_strdup_printf("%d", AG_CHART_DEFAULT_RING_SIZE);
+        params[7] = g_strdup("0");
+        params[9] = g_strdup("0");
+    } else {
+        params[5] = g_strdup("0");
+        params[7] = g_strdup_printf("%d", image_size);
+        params[9] = g_strdup_printf("%d", icon_size);
+    }
 
     // libxml2 messes up the output, as it prints decimal floating point
     // numbers in a localized format. It is not good in locales that use a
@@ -1774,6 +1828,9 @@ ag_chart_create_svg(AgChart        *chart,
     xsltFreeStylesheet(xslt_proc);
     xmlFreeDoc(doc);
     g_free(params[3]);
+    g_free(params[5]);
+    g_free(params[7]);
+    g_free(params[9]);
     g_free(params);
 
     // Now, svg_doc contains the generated SVG file
@@ -1811,7 +1868,14 @@ ag_chart_export_svg_to_file(AgChart        *chart,
     gchar *svg;
     gsize length;
 
-    if ((svg = ag_chart_create_svg(chart, &length, TRUE, theme, err)) == NULL) {
+    if ((svg = ag_chart_create_svg(
+                 chart,
+                 &length,
+                 TRUE,
+                 theme,
+                 0, 0,
+                 err
+            )) == NULL) {
         return;
     }
 
@@ -1828,16 +1892,15 @@ ag_chart_export_svg_to_file(AgChart        *chart,
         );
 }
 
-void
-ag_chart_export_jpg_to_file(AgChart        *chart,
-                            GFile          *file,
-                            AgDisplayTheme *theme,
-                            GError         **err)
+GdkPixbuf *
+ag_chart_get_pixbuf(AgChart        *chart,
+                    guint          image_size,
+                    guint          icon_size,
+                    AgDisplayTheme *theme,
+                    GError         **err)
 {
-    gchar      *svg,
-               *jpg;
-    gsize      svg_length,
-               jpg_length;
+    gchar      *svg;
+    gsize      svg_length;
     RsvgHandle *svg_handle;
     GdkPixbuf  *pixbuf;
 
@@ -1846,19 +1909,21 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
                 &svg_length,
                 TRUE,
                 theme,
+                image_size,
+                icon_size,
                 err
             )) == NULL) {
-        return;
+        return NULL;
     }
 
     if ((svg_handle = rsvg_handle_new_from_data(
-                 (const guint8 *)svg,
+                (const guint8 *)svg,
                 svg_length,
                 err
             )) == NULL) {
         g_free(svg);
 
-        return;
+        return NULL;
     }
 
     g_free(svg);
@@ -1870,6 +1935,25 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
                 _("Unknown rendering error")
             );
 
+        return NULL;
+    }
+
+    return pixbuf;
+}
+
+void
+ag_chart_export_jpg_to_file(AgChart        *chart,
+                            GFile          *file,
+                            AgDisplayTheme *theme,
+                            GError         **err)
+{
+    gchar      *jpg;
+    gsize      jpg_length;
+    GdkPixbuf  *pixbuf;
+
+    pixbuf = ag_chart_get_pixbuf(chart, 0, 0, theme, err);
+
+    if (pixbuf == NULL) {
         return;
     }
 
@@ -1926,7 +2010,7 @@ ag_chart_get_db_save(AgChart *chart, gint db_id)
 {
     GsweCoordinates *coords;
     AgChartPrivate  *priv      = ag_chart_get_instance_private(chart);
-    AgDbChartSave   *save_data = ag_db_chart_save_new();
+    AgDbChartSave   *save_data = ag_db_chart_save_new(TRUE);
     GsweTimestamp   *timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
     GEnumClass      *house_system_class;
     GEnumValue      *house_system_enum;

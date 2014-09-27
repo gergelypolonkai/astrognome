@@ -22,9 +22,13 @@
 #include <glib-object.h>
 #include <gtk/gtk.h>
 #include <swe-glib.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 
 #include "ag-db.h"
 #include "ag-display-theme.h"
+
+#define AG_CHART_DEFAULT_RING_SIZE 600
+#define AG_CHART_DEFAULT_ICON_SIZE 30
 
 G_BEGIN_DECLS
 
@@ -63,7 +67,10 @@ struct _AgChartClass {
     GsweMomentClass parent_class;
 };
 
-typedef void (*AgChartSaveImageFunc)(AgChart *, GFile *, AgDisplayTheme *, GError **);
+typedef void (*AgChartSaveImageFunc)(AgChart *,
+                                     GFile *,
+                                     AgDisplayTheme *,
+                                     GError **);
 
 GType ag_chart_get_type(void) G_GNUC_CONST;
 
@@ -73,13 +80,21 @@ AgChart *ag_chart_new_full(GsweTimestamp   *timestamp,
                            gdouble         altitude,
                            GsweHouseSystem house_system);
 
+AgChart *ag_chart_new_preview(GsweTimestamp   *timestamp,
+                              gdouble         longitude,
+                              gdouble         latitude,
+                              gdouble         altitude,
+                              GsweHouseSystem house_system);
+
 AgChart *ag_chart_load_from_agc(GFile  *file,
                                 GError **err);
 
 AgChart *ag_chart_load_from_placidus_file(GFile  *file,
                                           GError **err);
 
-AgChart *ag_chart_new_from_db_save(AgDbChartSave *save_data, GError **err);
+AgChart *ag_chart_new_from_db_save(AgDbChartSave *save_data,
+                                   gboolean      preview,
+                                   GError        **err);
 
 void ag_chart_save_to_file(AgChart *chart,
                            GFile   *file,
@@ -114,6 +129,8 @@ gchar *ag_chart_create_svg(AgChart        *chart,
                            gsize          *length,
                            gboolean       rendering,
                            AgDisplayTheme *theme,
+                           guint          image_size,
+                           guint          icon_size,
                            GError         **err);
 
 GList *ag_chart_get_planets(AgChart *chart);
@@ -123,6 +140,12 @@ void ag_chart_set_note(AgChart *chart, const gchar *note);
 const gchar *ag_chart_get_note(AgChart *chart);
 
 AgDbChartSave *ag_chart_get_db_save(AgChart *chart, gint db_id);
+
+GdkPixbuf *ag_chart_get_pixbuf(AgChart        *chart,
+                               guint          image_size,
+                               guint          icon_size,
+                               AgDisplayTheme *theme,
+                               GError         **err);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);

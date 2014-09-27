@@ -659,6 +659,14 @@ ag_db_chart_save(AgDb *db, AgDbChartSave *save_data,  GError **err)
                 note         = G_VALUE_INIT;
     AgDbPrivate *priv = ag_db_get_instance_private(db);
 
+    if (save_data == NULL) {
+        g_error("Trying to save a NULL chart!");
+    }
+
+    if (!save_data->populated) {
+        g_error("Only populated chart data can be saved!");
+    }
+
     g_value_init(&name, G_TYPE_STRING);
     g_value_set_string(&name, save_data->name);
 
@@ -828,12 +836,13 @@ ag_db_chart_save(AgDb *db, AgDbChartSave *save_data,  GError **err)
 }
 
 AgDbChartSave *
-ag_db_chart_save_new(void)
+ag_db_chart_save_new(gboolean populated)
 {
     AgDbChartSave *save_data;
 
     save_data = g_new0(AgDbChartSave, 1);
     save_data->refcount = 1;
+    save_data->populated = populated;
 
     return save_data;
 }
@@ -874,7 +883,7 @@ ag_db_chart_get_list(AgDb *db, GError **err)
 
     while (gda_data_model_iter_move_next(iter)) {
         const GValue  *value;
-        AgDbChartSave *save_data = ag_db_chart_save_new();
+        AgDbChartSave *save_data = ag_db_chart_save_new(FALSE);
 
         value = gda_data_model_iter_get_value_at(iter, 0);
         save_data->db_id = g_value_get_int(value);
@@ -951,7 +960,7 @@ ag_db_chart_get_data_by_id(AgDb *db, guint row_id, GError **err)
         return NULL;
     }
 
-    save_data = ag_db_chart_save_new();
+    save_data = ag_db_chart_save_new(TRUE);
 
     /* id */
     value = gda_data_model_get_value_at(

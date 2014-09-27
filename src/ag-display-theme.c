@@ -35,6 +35,8 @@ static gchar          *builtin_theme_name[AG_DISPLAY_THEME_COUNT] = {
     NC_("Display theme name", "No comets"),
 };
 
+static AgDisplayTheme *preview_theme = NULL;
+
 gchar *
 ag_display_theme_to_css(AgDisplayTheme *theme)
 {
@@ -336,4 +338,28 @@ ag_display_theme_free(AgDisplayTheme *display_theme)
     g_list_free(display_theme->aspects);
     g_list_free(display_theme->antiscia);
     g_free(display_theme);
+}
+
+AgDisplayTheme *
+ag_display_theme_get_preview_theme(void)
+{
+    if (!preview_theme) {
+        preview_theme           = g_new0(AgDisplayTheme, 1);
+        preview_theme->id       = 0;
+        preview_theme->name             = "Preview theme";
+        preview_theme->builtin          = TRUE;
+        preview_theme->planets_include  = TRUE;
+        preview_theme->planets          = NULL;
+        preview_theme->aspects_include  = TRUE;
+        preview_theme->aspects          = NULL;
+        preview_theme->antiscia_include = TRUE;
+        preview_theme->antiscia         = NULL;
+
+        preview_theme->planets = g_list_prepend(
+                preview_theme->planets,
+                GINT_TO_POINTER(GSWE_PLANET_SUN)
+            );
+    }
+
+    return preview_theme;
 }
