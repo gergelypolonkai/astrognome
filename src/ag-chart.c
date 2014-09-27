@@ -245,28 +245,30 @@ ag_chart_finalize(GObject *gobject)
 }
 
 void
-ag_chart_add_planets(AgChart *chart)
+ag_chart_add_planets(AgChart          *chart,
+                     const GswePlanet *planets,
+                     guint            planet_count)
 {
     int i;
     AgChartPrivate *priv = ag_chart_get_instance_private(chart);
 
-    for (i = 0; i < used_planets_count; i++) {
-        gswe_moment_add_planet(GSWE_MOMENT(chart), used_planets[i], NULL);
+    for (i = 0; i < planet_count; i++) {
+        gswe_moment_add_planet(GSWE_MOMENT(chart), planets[i], NULL);
         priv->planet_list = g_list_prepend(
                 priv->planet_list,
-                GINT_TO_POINTER(used_planets[i])
+                GINT_TO_POINTER(planets[i])
             );
     }
 
     priv->planet_list = g_list_reverse(priv->planet_list);
 }
 
-AgChart *
-ag_chart_new_full(GsweTimestamp   *timestamp,
-                  gdouble         longitude,
-                  gdouble         latitude,
-                  gdouble         altitude,
-                  GsweHouseSystem house_system)
+static AgChart *
+ag_chart_new_generic(GsweTimestamp   *timestamp,
+                     gdouble         longitude,
+                     gdouble         latitude,
+                     gdouble         altitude,
+                     GsweHouseSystem house_system)
 {
     AgChart         *chart;
     GsweCoordinates *coords = g_new0(GsweCoordinates, 1);
@@ -283,7 +285,25 @@ ag_chart_new_full(GsweTimestamp   *timestamp,
 
     g_free(coords);
 
-    ag_chart_add_planets(chart);
+    return chart;
+}
+
+AgChart *
+ag_chart_new_full(GsweTimestamp   *timestamp,
+                  gdouble         longitude,
+                  gdouble         latitude,
+                  gdouble         altitude,
+                  GsweHouseSystem house_system)
+{
+    AgChart *chart = ag_chart_new_generic(
+            timestamp,
+            longitude,
+            latitude,
+            altitude,
+            house_system
+        );
+
+    ag_chart_add_planets(chart, used_planets, used_planets_count);
 
     return chart;
 }
