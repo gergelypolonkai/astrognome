@@ -120,6 +120,7 @@ gchar *ag_chart_create_svg(AgChart        *chart,
                            gsize          *length,
                            gboolean       rendering,
                            AgDisplayTheme *theme,
+                           guint          image_size,
                            GError         **err);
 
 GList *ag_chart_get_planets(AgChart *chart);

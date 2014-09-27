@@ -1417,6 +1417,7 @@ ag_chart_create_svg(AgChart        *chart,
                     gsize          *length,
                     gboolean       rendering,
                     AgDisplayTheme *theme,
+                    guint          image_size,
                     GError         **err)
 {
     xmlDocPtr         doc = create_save_doc(chart),
@@ -1762,9 +1763,15 @@ ag_chart_create_svg(AgChart        *chart,
     params[3] = g_strdup_printf("\"%s\"", css);
     g_free(css);
     params[4] = "chart-size";
-    params[5] = g_strdup_printf("%d", AG_CHART_DEFAULT_RING_SIZE);
     params[6] = "image-size";
-    params[7] = "0";
+
+    if (image_size == 0) {
+        params[5] = g_strdup_printf("%d", AG_CHART_DEFAULT_RING_SIZE);
+        params[7] = g_strdup("0");
+    } else {
+        params[5] = g_strdup("0");
+        params[7] = g_strdup_printf("%d", image_size);
+    }
     params[8] = "icon-size";
     params[9] = g_strdup_printf("%d", AG_CHART_DEFAULT_ICON_SIZE);
 
@@ -1781,6 +1788,7 @@ ag_chart_create_svg(AgChart        *chart,
     xmlFreeDoc(doc);
     g_free(params[3]);
     g_free(params[5]);
+    g_free(params[7]);
     g_free(params[9]);
     g_free(params);
 
@@ -1819,7 +1827,14 @@ ag_chart_export_svg_to_file(AgChart        *chart,
     gchar *svg;
     gsize length;
 
-    if ((svg = ag_chart_create_svg(chart, &length, TRUE, theme, err)) == NULL) {
+    if ((svg = ag_chart_create_svg(
+                 chart,
+                 &length,
+                 TRUE,
+                 theme,
+                 0,
+                 err
+            )) == NULL) {
         return;
     }
 
@@ -1854,6 +1869,7 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
                 &svg_length,
                 TRUE,
                 theme,
+                0,
                 err
             )) == NULL) {
         return;

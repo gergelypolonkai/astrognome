@@ -532,6 +532,7 @@ ag_window_redraw_chart(AgWindow *window)
             &length,
             FALSE,
             NULL,
+            0,
             &err
         );
 
