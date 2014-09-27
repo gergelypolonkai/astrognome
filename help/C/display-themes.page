@@ -5,7 +5,7 @@
       id="display-themes">
     <info>
         <revision version="0.1" date="2013-09-22" status="candidate" />
-        <link type="guide" xref="index" />
+        <link type="guide" xref="index#customization" />
 
         <credit type="author copyright">
             <name>Gergely Polonkai</name>
@@ -15,8 +15,31 @@
 
         <xi:include href="legal.xml" />
 
-        <desc>Choosing the right display theme</desc>
+        <desc>Using display themes</desc>
     </info>
 
     <title>Choosing the right display theme</title>
+
+    <p><app>Astrognome</app> has the concept of display themes. A display theme is a ruleset of which planets, aspects and antiscia should the chart view and the table views show.</p>
+
+    <p><app>Astrognome</app> has three built in themes:</p>
+
+    <terms>
+      <item>
+        <title>Everything</title>
+        <p>This displays everything <app>Astrognome</app> knows about: each planet, comet, theoretical/imaginary points, everything.</p>
+      </item>
+
+      <item>
+        <title>Classic</title>
+        <p>This is the classic view, used by the early astrologers. It shows planets only up to Saturn, and uses only the Ptolemaic (major) aspects. Also, it doesn’t show any antiscia.</p>
+      </item>
+
+      <item>
+        <title>No comets</title>
+        <p>This is the same as Everything, except it doesn’t include the comets and dwarf planets (<app>Astrognome</app>, like most astrologers, treat Pluto as a planet, not a dwarf).</p>
+      </item>
+    </terms>
+
+    <p>You can choose the right display theme with the display theme chooser above the chart, or change the default display theme in the <link xref="preferences">Preferences</link> dialog.</p>
 </page>

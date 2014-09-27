@@ -5,7 +5,7 @@
       id="keyboard-navigation">
     <info>
         <revision version="0.1" date="2013-09-22" status="candidate" />
-        <link type="guide" xref="index" />
+        <link type="guide" xref="index#getting-started" />
 
         <credit type="author copyright">
             <name>Gergely Polonkai</name>
@@ -19,4 +19,33 @@
     </info>
 
     <title>Navigating with the keyboard</title>
+
+    <p>You can switch between views with predefined keys:</p>
+
+    <terms>
+      <item>
+        <title>List view</title>
+        <p><keyseq><key>Alt</key><key>Left Arrow</key></keyseq>, or if your keyboard has one, <key>Back</key>. Naturally, this will do nothing in the list view.</p>
+      </item>
+
+      <item>
+        <title>Chart edit</title>
+        <p><key>F4</key>. This, and the following keys only work if a chart is loaded (e.g. not in the list view).</p>
+      </item>
+
+      <item>
+        <title>Chart view</title>
+        <p><key>F5</key></p>
+      </item>
+
+      <item>
+        <title>Aspect and antiscion tables</title>
+        <p><key>F6</key></p>
+      </item>
+
+      <item>
+        <title>Point tables</title>
+        <p><key>F7</key></p>
+      </item>
+    </terms>
 </page>

@@ -1,0 +1,58 @@
+<page xmlns="http://projectmallard.org/1.0/"
+      xmlns:its="http://www.w3.org/2005/11/its"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      type="guide" style="2column task"
+      id="chart-parts">
+  <info>
+    <revision version="0.1" date="2014-09-27" status="candidate"/>
+    <link type="guide" xref="index#chart-reading"/>
+
+    <credit type="author copyright">
+      <name>Gergely Polonkai</name>
+      <email its:translate="no">gergely@polonkai.eu</email>
+      <years>2013-2014</years>
+    </credit>
+
+    <xi:include href="legal.xml"/>
+
+    <desc>Parts of a natal chart</desc>
+  </info>
+
+  <title>Parts of a natal chart</title>
+
+  <section>
+    <title>The chart wheel</title>
+    <p>The chart wheel consists of several rings.</p>
+
+    <list>
+      <item><p>The outermost ring hold the <link xref="#planets">planets</link>.</p></item>
+      <item><p>The next ring shows the symbols of the zodiac.</p></item>
+      <item><p>The third ring holds the degree signs. The longest lines denote each 10°, the mid-sized ones appear at every 5°, and the small ones show every 1°.</p></item>
+      <item><p>The next ring is the most wide, giving place for the <link xref="#aspects">aspect and antiscion lines</link>.</p></item>
+      <item><p>The fifth ring contains the house numbers.</p></item>
+      <item><p>The innermost ring contains the <link xref="#moon">Moon phase</link> at the time of the chart.</p></item>
+    </list>
+  </section>
+
+  <section id="planets">
+    <title>Planets</title>
+
+    <p>The planets’ ring shows all the planets included in the current <link xref="display-themes">display theme</link>.</p>
+  </section>
+
+  <section id="aspects">
+    <title>Aspects and antiscia</title>
+
+    <p>Depending on the user’s choice, the fourth ring of the chart holds the aspect or the antiscion lines.</p>
+
+    <p>Aspect lines are color coded: green lines mark the harmonic, red lines the disharmonic aspects.</p>
+
+    <note><p>Neither the naming nor the categories are cast into stone. Some astrologer schools state that an aspect may be harmonic or disharmonic based on the planets involve.</p></note>
+  </section>
+
+  <section id="moon">
+    <title>The Moon phase</title>
+
+    <p>The innermost circle depicts the Moon at the time of the chart. Most schools never inspect this aspect of a moment, as they don’t think it has any impact on the person’s life. We included this information merely for educational reasons.</p>
+  </section>
+</page>

@@ -5,7 +5,7 @@
       id="image-export">
     <info>
         <revision version="0.1" date="2013-09-22" status="candidate" />
-        <link type="guide" xref="index" />
+        <link type="guide" xref="index#getting-started" />
 
         <credit type="author copyright">
             <name>Gergely Polonkai</name>
@@ -15,8 +15,18 @@
 
         <xi:include href="legal.xml" />
 
-        <desc>Exporting images</desc>
+        <desc>Exporting images of charts</desc>
     </info>
 
     <title>Exporting images</title>
+
+    <p><app>Astrognome</app> can save your natal charts in different image formats:</p>
+
+    <list>
+      <item><p>SVG (vectorized, also used internally by <app>Astrognome</app>)</p></item>
+      <item><p>JPEG</p></item>
+      <item><p>PNG</p></item>
+    </list>
+
+    <p>To use this feature, use <guiseq><gui style="button">Gear menu</gui> <gui style="menuitem">Export as image…</gui></guiseq>.</p>
 </page>

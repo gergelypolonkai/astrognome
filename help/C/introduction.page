@@ -16,10 +16,19 @@
 
         <xi:include href="legal.xml" />
 
-        <desc>What is <app>Astrognome</app>?</desc>
+        <desc>Introduction</desc>
     </info>
 
     <title>Introduction</title>
 
-    <p><app>Astrognome</app> is an astrologers' software for the GNOME Desktop.</p>
+    <p><app>Astrognome</app> is an astrologers’ software for the GNOME Desktop which can be used to create natal charts.</p>
+
+    <p><app>Astrognome</app> can display positions of the Solar System’s planets and several comets and theoretical/imaginary points on the sky (see also <link xref="chart-parts"/>.</p>
+
+    <figure>
+      <title>Astrognome</title>
+      <desc>Screenshot of Astrognome</desc>
+      <media type="image" src="figures/astrognome.png" width="700">
+      </media>
+    </figure>
 </page>
