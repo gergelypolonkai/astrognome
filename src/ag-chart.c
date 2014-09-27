@@ -1754,13 +1754,19 @@ ag_chart_create_svg(AgChart        *chart,
         return NULL;
     }
 
-    params    = g_new0(gchar *, 5);
+    params    = g_new0(gchar *, 11);
     params[0] = "rendering";
     params[1] = (rendering) ? "'yes'" : "'no'";
     params[2] = "additional-css";
     css       = ag_display_theme_to_css(theme);
     params[3] = g_strdup_printf("\"%s\"", css);
     g_free(css);
+    params[4] = "chart-size";
+    params[5] = g_strdup_printf("%d", AG_CHART_DEFAULT_RING_SIZE);
+    params[6] = "image-size";
+    params[7] = "0";
+    params[8] = "icon-size";
+    params[9] = g_strdup_printf("%d", AG_CHART_DEFAULT_ICON_SIZE);
 
     // libxml2 messes up the output, as it prints decimal floating point
     // numbers in a localized format. It is not good in locales that use a
@@ -1774,6 +1780,8 @@ ag_chart_create_svg(AgChart        *chart,
     xsltFreeStylesheet(xslt_proc);
     xmlFreeDoc(doc);
     g_free(params[3]);
+    g_free(params[5]);
+    g_free(params[9]);
     g_free(params);
 
     // Now, svg_doc contains the generated SVG file

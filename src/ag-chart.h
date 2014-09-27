@@ -26,6 +26,9 @@
 #include "ag-db.h"
 #include "ag-display-theme.h"
 
+#define AG_CHART_DEFAULT_RING_SIZE 600
+#define AG_CHART_DEFAULT_ICON_SIZE 30
+
 G_BEGIN_DECLS
 
 typedef enum {
@@ -63,7 +66,10 @@ struct _AgChartClass {
     GsweMomentClass parent_class;
 };
 
-typedef void (*AgChartSaveImageFunc)(AgChart *, GFile *, AgDisplayTheme *, GError **);
+typedef void (*AgChartSaveImageFunc)(AgChart *,
+                                     GFile *,
+                                     AgDisplayTheme *,
+                                     GError **);
 
 GType ag_chart_get_type(void) G_GNUC_CONST;
 
