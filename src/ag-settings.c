@@ -17,6 +17,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 #include "ag-settings.h"
+#include "astrognome.h"
 
 #define SETTINGS_SCHEMA_ID_MAIN   "eu.polonkai.gergely.Astrognome"
 #define SETTINGS_SCHEMA_ID_WINDOW "eu.polonkai.gergely.Astrognome.state.window"
@@ -97,4 +98,21 @@ ag_settings_peek_window_settings(AgSettings *settings)
     AgSettingsPrivate *priv = ag_settings_get_instance_private(settings);
 
     return priv->settings_window;
+}
+
+GsweHouseSystem
+ag_settings_get_house_system(AgSettings *settings)
+{
+    gchar             *house_system_nick;
+    GsweHouseSystem   house_system;
+    AgSettingsPrivate *priv = ag_settings_get_instance_private(settings);
+
+    house_system_nick = g_settings_get_string(
+            priv->settings_main,
+            "default-house-system"
+        );
+    house_system = ag_house_system_nick_to_id(house_system_nick);
+    g_free(house_system_nick);
+
+    return house_system;
 }
