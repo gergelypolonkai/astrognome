@@ -27,7 +27,28 @@
   bigger amount of charts, a worker idle function may be introduced,
   as suggested in ag_window_load_chart_list().
 
-* Issue an error message for missing resources
+  After the chart editing part of the UI is done, the help screenshots
+  must be taken again.
+
+* Ease navigation                                               :version_1.0:
+
+Since the migration to GtkIconView the chart list became very hard to
+navigate.
+
+** Chart search
+
+The chart list should be searchable either by starting typing or with
+a key combination, like Ctrl+F.
+
+** Configurable preview size
+
+Chart preview size should be configurable. However, below a certain
+value (I'd guess around 150px) it would become unreadable. The lower
+boundary should be around 3 times the checkbox size (right now that is
+set to 40px). Under a certain value (e.g. when a degree's size gets
+below 2px) a warning should be issued.
+
+* Issue an error message for missing resources                  :version_1.0:
 
   If a gres:// link cannot be loaded by the XML loaders, Astrognome
   should issue an error message, stating that this is either a bug in
@@ -42,7 +63,7 @@
   - [ ] Arch
   - [ ] Gentoo
 
-* Preview images                                                :version_1.0:
+* DONE Preview images                                           :version_1.0:
 
   The database (or more likely the cache directory) should contain a
   preview image of each chart. The chart list screen should show a
@@ -58,7 +79,21 @@
 
   The accel customization may get its place on the Preferences dialog.
 
-* Chart cleanup
+* Chart cleanup                                                 :version_1.0:
+
+The chart is still messy under some circumstances, especially with the
+"Everything" display theme. Multiple conjuctions, or conjuctions with
+the Vertex and the descending Moon node (these latter two are not
+subject to the dist calculation) cause serious overlaps.
+
+Vertex and the descending node can be added to the body list, thus
+they would get their own dist value. However, if a new theoretical
+point gets added to Astrognome (like the East point soon), it will
+make another exemption, which is pretty unlucky.
+
+The icon size is currently a parameter of the XSLT. It may become
+dependent on the chart's size (currently, for the big chart it's
+20:1).
 
 * DONE Chart manipulation                                       :version_1.0:
 
@@ -222,13 +257,13 @@ too.
 
 * Create a nice help file                                       :version_1.0:
 
-* Add printing support
+* Add printing support                                          :version_2.0:
 
 That sounds nice, but what should a printed chart contain? Chart and
 aspects, for sure, and some chart data, too. Maybe an antiscia table,
 if they are displayed at all.
 
-* Add a chart information to the chart tab
+* Add a chart information to the chart tab                      :version_1.0:
 
 In the chart tab, only the name of the chart can be seen. A chart info
 display, like Placidus’ status bar, would be nice.
