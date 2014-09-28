@@ -37,6 +37,7 @@
 #include "ag-db.h"
 #include "ag-chart.h"
 #include "placidus.h"
+#include "ag-settings.h"
 
 typedef struct _AgChartPrivate {
     gchar *name;
@@ -1228,9 +1229,9 @@ ag_chart_new_from_db_save(AgDbChartSave *save_data,
                           GError **err)
 {
     GsweTimestamp   *timestamp;
-    gchar           *house_system_enum_name;
     GsweHouseSystem house_system;
     AgChart         *chart;
+    AgSettings      *settings;
 
     if (save_data == NULL) {
         g_set_error(
@@ -1242,9 +1243,9 @@ ag_chart_new_from_db_save(AgDbChartSave *save_data,
         return NULL;
     }
 
-    house_system_enum_name = g_utf8_strdown(save_data->house_system, -1);
-    house_system = ag_house_system_nick_to_id(house_system_enum_name);
-    g_free(house_system_enum_name);
+    settings = ag_settings_get();
+    house_system = ag_settings_get_house_system(settings);
+    g_object_unref(settings);
 
     timestamp = gswe_timestamp_new_from_gregorian_full(
             save_data->year, save_data->month, save_data->day,

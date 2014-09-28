@@ -718,6 +718,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     GsweTimestamp   *timestamp;
     GtkWidget       *current;
     gint            db_id = (priv->saved_data) ? priv->saved_data->db_id : -1;
+    AgSettings      *settings;
 
     south = gtk_toggle_button_get_active(
             GTK_TOGGLE_BUTTON(priv->south_lat)
@@ -790,15 +791,6 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         g_error("House system is not set! This is clearly a bug.");
     }
 
-    gtk_tree_model_get(
-            GTK_TREE_MODEL(priv->house_system_model),
-            &house_system_iter,
-            0, &house_system,
-            -1
-        );
-    edit_data->house_system = g_strdup(
-            ag_house_system_id_to_nick(house_system)
-        );
     gtk_text_buffer_get_bounds(priv->note_buffer, &start_iter, &end_iter);
     edit_data->note = gtk_text_buffer_get_text(
             priv->note_buffer,
@@ -823,6 +815,10 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     ag_db_chart_save_unref(chart_data);
 
     g_debug("Recalculating chart data");
+
+    settings = ag_settings_get();
+    house_system = ag_settings_get_house_system(settings);
+    g_object_unref(settings);
 
     // TODO: Set timezone according to the city selected!
     if (priv->chart == NULL) {
