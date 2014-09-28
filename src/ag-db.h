@@ -64,7 +64,6 @@ typedef struct _AgDbChartSave {
     guint minute;
     guint second;
     gdouble timezone;
-    gchar *house_system;
     gchar *note;
     gint refcount;
 } AgDbChartSave;

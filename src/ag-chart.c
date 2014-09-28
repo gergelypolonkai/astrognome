@@ -2013,8 +2013,6 @@ ag_chart_get_db_save(AgChart *chart, gint db_id)
     AgChartPrivate  *priv      = ag_chart_get_instance_private(chart);
     AgDbChartSave   *save_data = ag_db_chart_save_new(TRUE);
     GsweTimestamp   *timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
-    GEnumClass      *house_system_class;
-    GEnumValue      *house_system_enum;
 
     save_data->db_id = db_id;
 
@@ -2048,13 +2046,6 @@ ag_chart_get_db_save(AgChart *chart, gint db_id)
             NULL
         );
     save_data->timezone     = gswe_timestamp_get_gregorian_timezone(timestamp);
-    house_system_class      = g_type_class_ref(GSWE_TYPE_HOUSE_SYSTEM);
-    house_system_enum       = g_enum_get_value(
-            house_system_class,
-            gswe_moment_get_house_system(GSWE_MOMENT(chart))
-        );
-    save_data->house_system = g_strdup(house_system_enum->value_nick);
-    g_type_class_unref(house_system_class);
     save_data->note         = g_strdup(priv->note);
 
     return save_data;
