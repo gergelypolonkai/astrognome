@@ -85,6 +85,7 @@ struct _AgWindowPrivate {
     GList              *style_sheets;
     AgDisplayTheme     *theme;
     GtkListStore       *display_theme_model;
+    gulong             chart_changed_handler;
 };
 
 struct cc_search {
@@ -832,22 +833,19 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
 
     // TODO: Set timezone according to the city selected!
     if (priv->chart == NULL) {
+        AgChart *chart;
+
         timestamp = gswe_timestamp_new_from_gregorian_full(
                 edit_data->year, edit_data->month, edit_data->day,
                 edit_data->hour, edit_data->minute, edit_data->second, 0,
                 edit_data->timezone
             );
-        priv->chart = ag_chart_new_full(
+        chart = ag_chart_new_full(
                 timestamp,
                 edit_data->longitude, edit_data->latitude, edit_data->altitude,
                 house_system
             );
-        g_signal_connect(
-                priv->chart,
-                "changed",
-                G_CALLBACK(ag_window_chart_changed),
-                window
-            );
+        ag_window_set_chart(window, chart);
         ag_window_redraw_chart(window);
     } else {
         gswe_moment_set_house_system(GSWE_MOMENT(priv->chart), house_system);
@@ -1928,6 +1926,7 @@ ag_window_list_item_activated_cb(AgIconView        *icon_view,
                                  const GtkTreePath *path,
                                  AgWindow          *window)
 {
+    AgChart         *chart;
     GET_PRIV(window);
     AgDb            *db    = ag_db_get();
     GError          *err   = NULL;
@@ -1972,7 +1971,7 @@ ag_window_list_item_activated_cb(AgIconView        *icon_view,
         g_clear_object(&(priv->chart));
     }
 
-    if ((priv->chart = ag_chart_new_from_db_save(
+    if ((chart = ag_chart_new_from_db_save(
                  priv->saved_data,
                  FALSE,
                  &err
@@ -1988,6 +1987,8 @@ ag_window_list_item_activated_cb(AgIconView        *icon_view,
 
         return;
     }
+
+    ag_window_set_chart(window, chart);
 
     ag_window_update_from_chart(window);
 
@@ -2192,7 +2193,7 @@ ag_window_init(AgWindow *window)
             NULL
         );
 
-    priv->chart    = NULL;
+    ag_window_set_chart(window, NULL);
 
     g_action_map_add_action_entries(
             G_ACTION_MAP(window),
@@ -2780,10 +2781,9 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
     GET_PRIV(window);
 
     if (priv->chart != NULL) {
-        g_signal_handlers_disconnect_by_func(
+        g_signal_handler_disconnect(
                 priv->chart,
-                ag_window_chart_changed,
-                window
+                priv->chart_changed_handler
             );
         g_clear_object(&(priv->chart));
     }
@@ -2791,14 +2791,21 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
     ag_db_chart_save_unref(priv->saved_data);
 
     priv->chart = chart;
-    g_signal_connect(
-            priv->chart,
-            "changed",
-            G_CALLBACK(ag_window_chart_changed),
-            window
-        );
-    g_object_ref(chart);
-    priv->saved_data = ag_chart_get_db_save(chart, -1);
+
+    if (chart) {
+        priv->chart_changed_handler = g_signal_connect(
+                priv->chart,
+                "changed",
+                G_CALLBACK(ag_window_chart_changed),
+                window
+            );
+        g_object_ref(chart);
+        priv->saved_data = ag_chart_get_db_save(chart, -1);
+    } else {
+        priv->saved_data = NULL;
+    }
+
+    g_object_notify_by_pspec(G_OBJECT(window), properties[PROP_CHART]);
 }
 
 AgChart *
