@@ -1,34 +1,51 @@
 #+STARTUP: indent
 
 * Refine UI                                                     :version_1.0:
-  The UI is a bit messy right now, especially the aspect/antiscia
-  changer buttons and the display theme changer combo box on the chart
-  view.
+The UI is a bit messy right now, especially the aspect/antiscia
+changer buttons and the display theme changer combo box on the chart
+view.
 
-  For the display themes, a menu button with a popover may be the best
-  option. That would need a nice icon, though (possibly with some
-  planet and aspect symbols).
+** TODO Redesign display theme and house system chooser
 
-  The current view switcher (a menubutton) doesn’t show its accels
-  (maybe because of the radio menu items?). Maybe it should be put
-  back to a GtkStackSwitcher. The original place for that is now used
-  up by the window title and the chart name, so a new place must be
-  found for it.
+For these, a menu button with a popover may be the best option. That
+would need a nice icon, though (possibly with some planet and aspect
+symbols).
 
-  There is no preview image right now in the list view. AgChart may
-  have an ag_chart_get_pixbuf() function that generates the preview
-  image. It should use a very limited display theme (maybe with Sun as
-  its only planet and no aspects nor antiscia). Generating this pixbuf
-  on the fly would be very resource intensive, so caching should also
-  be introduced. This way ag_chart_get_pixbuf() should check the cache
-  dir first. The cached file's name should be generated from the chart
-  related data, location and timestamp. Changing the name or city name
-  would not change the chart itself. If this seems to be slow for
-  bigger amount of charts, a worker idle function may be introduced,
-  as suggested in ag_window_load_chart_list().
+** TODO Redesign view switcher
 
-  After the chart editing part of the UI is done, the help screenshots
-  must be taken again.
+The current view switcher (a menubutton) doesn’t show its accels
+(maybe because of the radio menu items?). Maybe it should be put back
+to a GtkStackSwitcher. The original place for that is now used up by
+the window title and the chart name, so a new place must be found for
+it.
+
+** DONE Preview images
+
+There is no preview image right now in the list view. AgChart may have
+an ag_chart_get_pixbuf() function that generates the preview image. It
+should use a very limited display theme (maybe with Sun as its only
+planet and no aspects nor antiscia). Generating this pixbuf on the fly
+would be very resource intensive, so caching should also be
+introduced. This way ag_chart_get_pixbuf() should check the cache dir
+first. The cached file's name should be generated from the chart
+related data, location and timestamp. Changing the name or city name
+would not change the chart itself. If this seems to be slow for bigger
+amount of charts, a worker idle function may be introduced, as
+suggested in ag_window_load_chart_list().
+
+** DONE Update help
+
+After the chart editing part of the UI is done, the help screenshots
+must be taken again.
+
+** TODO Add a progress bar for the list screen
+
+When there are many charts, loading the previews may take long. A
+progress bar should show the state of loading.
+
+Another (slightly better) idea is to load charts to the list withou
+previews, and load/generate the images afterwards. The same idle
+functionality could do this, either.
 
 * Ease navigation                                               :version_1.0:
 
