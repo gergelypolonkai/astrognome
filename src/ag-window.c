@@ -1658,7 +1658,10 @@ ag_window_back_action(GSimpleAction *action,
     g_debug("Back button pressed");
 
     if (ag_window_can_close(window, TRUE)) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->toolbar_aspect), TRUE);
+        gtk_toggle_button_set_active(
+                GTK_TOGGLE_BUTTON(priv->toolbar_aspect),
+                TRUE
+            );
         g_clear_object(&(priv->chart));
         ag_db_chart_save_unref(priv->saved_data);
         priv->saved_data = NULL;

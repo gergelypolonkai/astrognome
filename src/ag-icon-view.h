@@ -56,7 +56,8 @@ void ag_icon_view_add_chart(AgIconView *icon_view, AgDbChartSave *chart_save);
 
 GList *ag_icon_view_get_selected_items(AgIconView *icon_view);
 
-AgDbChartSave *ag_icon_view_get_chart_save_at_path(AgIconView *icon_view, const GtkTreePath *path);
+AgDbChartSave *ag_icon_view_get_chart_save_at_path(AgIconView *icon_view,
+                                                   const GtkTreePath *path);
 
 void ag_icon_view_select_all(AgIconView *icon_view);
 
