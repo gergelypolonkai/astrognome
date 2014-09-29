@@ -75,7 +75,7 @@ void ag_window_settings_save(GtkWindow *window,
 
 void ag_window_change_tab(AgWindow *window, const gchar *tab_name);
 
-gboolean ag_window_load_chart_list(AgWindow *window);
+gboolean ag_window_reload_chart_list(AgWindow *window);
 
 gboolean ag_window_is_usable(AgWindow *window);
 

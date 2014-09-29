@@ -470,3 +470,11 @@ ag_icon_view_remove_selected(AgIconView *icon_view)
 
     ag_icon_view_selection_changed(icon_view);
 }
+
+void
+ag_icon_view_remove_all(AgIconView *icon_view)
+{
+    AgIconViewPrivate *priv = ag_icon_view_get_instance_private(icon_view);
+
+    gtk_list_store_clear(priv->model);
+}

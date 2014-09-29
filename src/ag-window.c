@@ -1666,7 +1666,7 @@ ag_window_back_action(GSimpleAction *action,
         ag_db_chart_save_unref(priv->saved_data);
         priv->saved_data = NULL;
 
-        ag_window_load_chart_list(window);
+        ag_window_reload_chart_list(window);
         gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
         gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), NULL);
     }
@@ -1677,7 +1677,7 @@ ag_window_refresh_action(GSimpleAction *action,
                          GVariant      *parameter,
                          gpointer      user_data)
 {
-    ag_window_load_chart_list(AG_WINDOW(user_data));
+    ag_window_reload_chart_list(AG_WINDOW(user_data));
 }
 
 static void
@@ -2862,13 +2862,15 @@ ag_window_cleanup_load_items(LoadIdleData *idle_data)
 }
 
 gboolean
-ag_window_load_chart_list(AgWindow *window)
+ag_window_reload_chart_list(AgWindow *window)
 {
     LoadIdleData    *idle_data;
     AgDb            *db         = ag_db_get();
     GError          *err        = NULL;
     GList           *chart_list = ag_db_chart_get_list(db, &err);
     AgWindowPrivate *priv       = ag_window_get_instance_private(window);
+
+    ag_icon_view_remove_all(AG_ICON_VIEW(priv->chart_list));
 
     /* Lazy loading of charts with previews. Idea is from
      * http://blogs.gnome.org/ebassi/documentation/lazy-loading/ */

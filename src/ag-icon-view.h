@@ -65,6 +65,8 @@ void ag_icon_view_unselect_all(AgIconView *icon_view);
 
 void ag_icon_view_remove_selected(AgIconView *icon_view);
 
+void ag_icon_view_remove_all(AgIconView *icon_view);
+
 G_END_DECLS
 
 #endif /* __AG_ICON_VIEW_H__ */
