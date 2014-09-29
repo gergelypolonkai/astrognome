@@ -109,9 +109,17 @@ typedef struct {
     GList      *items;
 } LoadIdleData;
 
+enum {
+    PROP_0,
+    PROP_CHART,
+    PROP_COUNT
+};
+
 G_DEFINE_QUARK(ag_window_error_quark, ag_window_error);
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
+
+static GParamSpec *properties[PROP_COUNT];
 
 static void
 ag_window_gear_menu_action(GSimpleAction *action,
@@ -2443,6 +2451,48 @@ ag_window_selection_mode_cancel_cb(GtkButton *button, AgWindow *window)
 }
 
 static void
+ag_window_set_property(GObject      *gobject,
+                       guint        prop_id,
+                       const GValue *value,
+                       GParamSpec   *pspec)
+{
+    AgWindow *window = AG_WINDOW(gobject);
+
+    switch (prop_id) {
+        case PROP_CHART:
+            ag_window_set_chart(window, (g_value_get_object(value)));
+
+            break;
+
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, pspec);
+
+            break;
+    }
+}
+
+static void
+ag_window_get_property(GObject    *gobject,
+                       guint      prop_id,
+                       GValue     *value,
+                       GParamSpec *pspec)
+{
+    AgWindowPrivate *priv = ag_window_get_instance_private(AG_WINDOW(gobject));
+
+    switch (prop_id) {
+        case PROP_CHART:
+            g_value_set_object(value, priv->chart);
+
+            break;
+
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, pspec);
+
+            break;
+    }
+}
+
+static void
 ag_window_class_init(AgWindowClass *klass)
 {
     GObjectClass   *gobject_class = G_OBJECT_CLASS(klass);
@@ -2450,6 +2500,25 @@ ag_window_class_init(AgWindowClass *klass)
 
     widget_class->destroy = ag_window_destroy;
     gobject_class->dispose = ag_window_dispose;
+    gobject_class->set_property = ag_window_set_property;
+    gobject_class->get_property = ag_window_get_property;
+
+    properties[PROP_CHART] = g_param_spec_object(
+            "chart",
+            "Chart",
+            "The AgChart associated with this window",
+            AG_TYPE_CHART,
+            G_PARAM_STATIC_NICK
+            | G_PARAM_STATIC_NAME
+            | G_PARAM_STATIC_BLURB
+            | G_PARAM_READABLE
+            | G_PARAM_WRITABLE
+        );
+    g_object_class_install_property(
+            gobject_class,
+            PROP_CHART,
+            properties[PROP_CHART]
+        );
 
     gtk_widget_class_set_template_from_resource(
             widget_class,
