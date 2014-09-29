@@ -121,6 +121,8 @@ G_DEFINE_TYPE_WITH_PRIVATE(AgWindow, ag_window, GTK_TYPE_APPLICATION_WINDOW);
 
 static GParamSpec *properties[PROP_COUNT];
 
+#define GET_PRIV(o) AgWindowPrivate *priv = ag_window_get_instance_private((o))
+
 static void
 ag_window_gear_menu_action(GSimpleAction *action,
                            GVariant      *parameter,
@@ -317,7 +319,7 @@ ag_window_redraw_aspect_table(AgWindow *window)
                     *planet2;
     guint           i,
                     j;
-    AgWindowPrivate *priv        = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     planet_list = ag_chart_get_planets(priv->chart);
 
@@ -459,7 +461,7 @@ ag_window_set_element_point(AgWindow    *window,
     guint            points;
     GtkWidget        *label;
     gchar            *points_string;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     points = gswe_moment_get_element_points(
             GSWE_MOMENT(priv->chart),
@@ -489,7 +491,7 @@ ag_window_set_quality_point(AgWindow    *window,
     guint            points;
     GtkWidget        *label;
     gchar            *points_string;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     points = gswe_moment_get_quality_points(
             GSWE_MOMENT(priv->chart),
@@ -534,7 +536,7 @@ ag_window_redraw_chart(AgWindow *window)
 {
     gsize           length;
     GError          *err         = NULL;
-    AgWindowPrivate *priv        = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     gchar           *svg_content = ag_chart_create_svg(
             priv->chart,
             &length,
@@ -575,7 +577,7 @@ ag_window_set_house_system(GtkTreeModel *model,
                             AgWindow     *window)
 {
     GsweHouseSystem row_house_system;
-    AgWindowPrivate *priv        = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     GsweHouseSystem house_system = gswe_moment_get_house_system(
             GSWE_MOMENT(priv->chart)
         );
@@ -601,7 +603,7 @@ ag_window_update_from_chart(AgWindow *window)
 {
     const gchar     *country,
                     *city;
-    AgWindowPrivate *priv        = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     GsweTimestamp   *timestamp   = gswe_moment_get_timestamp(
             GSWE_MOMENT(priv->chart)
         );
@@ -716,7 +718,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
 {
     AgDbChartSave   *edit_data,
                     *chart_data;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     gboolean        south,
                     west;
     GtkTreeIter     house_system_iter;
@@ -876,7 +878,7 @@ ag_window_export_image(AgWindow *window, GError **err)
     GtkWidget       *fs;
     gint            response;
     GError          *local_err = NULL;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     ag_window_recalculate_chart(window, TRUE);
 
@@ -1125,7 +1127,7 @@ ag_window_export_agc(AgWindow *window, GError **err)
     gchar           *file_name;
     GtkWidget       *fs;
     gint            response;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     ag_window_recalculate_chart(window, FALSE);
 
@@ -1211,7 +1213,7 @@ ag_window_export_agc_action(GSimpleAction *action,
 gboolean
 ag_window_can_close(AgWindow *window, gboolean display_dialog)
 {
-    AgWindowPrivate *priv      = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     gint            db_id      = (priv->saved_data)
             ? priv->saved_data->db_id
             : -1;
@@ -1288,7 +1290,7 @@ ag_window_save_action(GSimpleAction *action,
                       gpointer      user_data)
 {
     AgWindow        *window = AG_WINDOW(user_data);
-    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     AgDb            *db     = ag_db_get();
     GError          *err    = NULL;
     gint            old_id;
@@ -1338,7 +1340,7 @@ static void
 ag_window_clear_style_sheets(AgWindow *window)
 {
     WebKitUserContentManager *manager;
-    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     g_debug("Clearing style sheets");
 
@@ -1359,7 +1361,7 @@ ag_window_add_style_sheet(AgWindow *window, const gchar *path)
 {
     gchar           *css_source;
     gboolean        source_free = FALSE;
-    AgWindowPrivate *priv       = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     if (strncmp("gres://", path, 7) == 0) {
         gchar  *res_path = g_strdup_printf(
@@ -1413,7 +1415,7 @@ ag_window_update_style_sheets(AgWindow *window)
 {
     GList                    *item;
     WebKitUserContentManager *manager;
-    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     g_debug("Updating style sheets");
 
@@ -1435,7 +1437,7 @@ ag_window_set_theme(AgWindow *window, AgDisplayTheme *theme)
 {
     gchar           *css,
                     *css_final;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     g_debug("Setting theme to %s", (theme) ? theme->name : "no theme");
     ag_window_clear_style_sheets(window);
@@ -1466,7 +1468,7 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
 {
     GtkWidget       *active_tab;
     const gchar     *active_tab_name = gtk_stack_get_visible_child_name(stack);
-    AgWindowPrivate *priv            = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     g_debug("Active tab changed: %s", active_tab_name);
 
@@ -1534,7 +1536,7 @@ ag_window_change_tab_action(GSimpleAction *action,
 {
     AgWindow        *window     = AG_WINDOW(user_data);
     const gchar     *target_tab = g_variant_get_string(parameter, NULL);
-    AgWindowPrivate *priv       = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), target_tab);
     g_action_change_state(G_ACTION(action), parameter);
@@ -1547,7 +1549,7 @@ ag_window_set_default_house_system(GtkTreeModel *model,
                             AgWindow     *window)
 {
     GsweHouseSystem row_house_system;
-    AgWindowPrivate *priv          = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     AgSettings      *settings      = ag_settings_get();
     GSettings       *main_settings = ag_settings_peek_main_settings(settings);
     GsweHouseSystem house_system   = g_settings_get_enum(
@@ -1580,7 +1582,7 @@ ag_window_set_default_display_theme(GtkTreeModel *model,
                                     AgWindow     *window)
 {
     gint            row_display_theme;
-    AgWindowPrivate *priv          = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     AgSettings      *settings      = ag_settings_get();
     GSettings       *main_settings = ag_settings_peek_main_settings(settings);
     gint            default_theme  = g_settings_get_int(
@@ -1610,7 +1612,7 @@ ag_window_new_chart_action(GSimpleAction *action,
                            gpointer      user_data)
 {
     AgWindow        *window = AG_WINDOW(user_data);
-    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     /* Empty edit tab values */
     gtk_entry_set_text(GTK_ENTRY(priv->name), "");
@@ -1657,7 +1659,7 @@ ag_window_back_action(GSimpleAction *action,
                       gpointer      user_data)
 {
     AgWindow        *window = AG_WINDOW(user_data);
-    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     g_debug("Back button pressed");
 
@@ -1688,7 +1690,7 @@ static void
 ag_window_set_selection_mode(AgWindow *window, gboolean state)
 {
     GtkStyleContext *style;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     style = gtk_widget_get_style_context(priv->header_bar);
 
@@ -1769,7 +1771,7 @@ ag_window_delete_action(GSimpleAction *action,
     GList           *selection,
                     *item;
     AgWindow        *window = AG_WINDOW(user_data);
-    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     AgDb            *db     = ag_db_get();
 
     selection = ag_icon_view_get_selected_items(AG_ICON_VIEW(priv->chart_list));
@@ -1822,9 +1824,7 @@ ag_window_connection_action(GSimpleAction *action,
     GVariant        *current_state;
     const gchar     *state;
     gchar           *js_code = NULL;
-    AgWindowPrivate *priv    = ag_window_get_instance_private(
-            AG_WINDOW(user_data)
-        );
+    GET_PRIV(AG_WINDOW(user_data));
     static gchar *js         = "aspects = document.getElementById('aspects');\n"   \
                                "antiscia = document.getElementById('antiscia');\n" \
                                "aspects.setAttribute('display', '%s');\n"       \
@@ -1881,7 +1881,7 @@ static GActionEntry win_entries[] = {
 static void
 ag_window_display_changed(GSettings *settings, gchar *key, AgWindow *window)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     /* The planet symbols are redrawn only if aspect_table_populated is
      * set to FALSE */
@@ -1928,7 +1928,7 @@ ag_window_list_item_activated_cb(AgIconView        *icon_view,
                                  const GtkTreePath *path,
                                  AgWindow          *window)
 {
-    AgWindowPrivate *priv  = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     AgDb            *db    = ag_db_get();
     GError          *err   = NULL;
     AgDbChartSave   *save_data;
@@ -1999,7 +1999,7 @@ ag_window_list_selection_changed_cb(AgIconView *view, AgWindow *window)
 {
     GList           *selection;
     guint           count;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     selection = ag_icon_view_get_selected_items(view);
 
@@ -2024,7 +2024,7 @@ ag_window_city_matches(GtkEntryCompletion *city_comp,
                        GtkTreeIter        *iter,
                        AgWindow           *window)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
     gchar           *ccode,
                     *name,
                     *normalized_name,
@@ -2081,7 +2081,7 @@ ag_window_init(AgWindow *window)
     GtkCellRenderer          *house_system_renderer,
                              *display_theme_renderer;
     WebKitUserContentManager *manager = webkit_user_content_manager_new();
-    AgWindowPrivate          *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     gtk_widget_init_template(GTK_WIDGET(window));
 
@@ -2208,7 +2208,7 @@ ag_window_init(AgWindow *window)
 static void
 ag_window_dispose(GObject *gobject)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(AG_WINDOW(gobject));
+    GET_PRIV(AG_WINDOW(gobject));
 
     g_clear_object(&priv->settings);
 
@@ -2219,7 +2219,7 @@ static void
 ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
 {
     const gchar     *name;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     name = gtk_entry_get_text(name_entry);
 
@@ -2266,7 +2266,7 @@ static void
 ag_window_country_changed_callback(GtkSearchEntry *country, AgWindow *window)
 {
     struct cc_search search;
-    AgWindowPrivate  *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     search.target   = gtk_entry_get_text(GTK_ENTRY(country));
     search.ret_iter = NULL;
@@ -2320,7 +2320,7 @@ static void
 ag_window_city_changed_callback(GtkSearchEntry *city, AgWindow *window)
 {
     struct cc_search search;
-    AgWindowPrivate  *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     search.target   = gtk_entry_get_text(GTK_ENTRY(city));
     search.ret_iter = NULL;
@@ -2415,7 +2415,7 @@ ag_window_display_theme_changed_cb(GtkComboBox *combo_box,
     GtkTreeIter     iter;
     gint            theme_id;
     AgDisplayTheme  *theme;
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     gtk_combo_box_get_active_iter(combo_box, &iter);
     gtk_tree_model_get(
@@ -2431,7 +2431,7 @@ ag_window_display_theme_changed_cb(GtkComboBox *combo_box,
 static void
 ag_window_destroy(GtkWidget *widget)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(AG_WINDOW(widget));
+    GET_PRIV(AG_WINDOW(widget));
 
     // Destroy the signal handlers on priv->stack, as “tab” switching
     // can cause trouble during destroy. However, this function might
@@ -2477,7 +2477,7 @@ ag_window_get_property(GObject    *gobject,
                        GValue     *value,
                        GParamSpec *pspec)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(AG_WINDOW(gobject));
+    GET_PRIV(AG_WINDOW(gobject));
 
     switch (prop_id) {
         case PROP_CHART:
@@ -2725,7 +2725,7 @@ ag_window_configure_event_cb(GtkWidget         *widget,
                              gpointer          user_data)
 {
     AgWindow        *window = AG_WINDOW(widget);
-    AgWindowPrivate *priv   = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     ag_window_settings_save(
             GTK_WINDOW(window),
@@ -2738,8 +2738,8 @@ ag_window_configure_event_cb(GtkWidget         *widget,
 GtkWidget *
 ag_window_new(AgApp *app)
 {
-    AgWindow                 *window  = g_object_new(AG_TYPE_WINDOW, NULL);
-    AgWindowPrivate          *priv    = ag_window_get_instance_private(window);
+    AgWindow *window  = g_object_new(AG_TYPE_WINDOW, NULL);
+    GET_PRIV(window);
 
     // TODO: translate this error message!
     webkit_web_view_load_html(
@@ -2777,7 +2777,7 @@ ag_window_new(AgApp *app)
 void
 ag_window_set_chart(AgWindow *window, AgChart *chart)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     if (priv->chart != NULL) {
         g_signal_handlers_disconnect_by_func(
@@ -2804,7 +2804,7 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
 AgChart *
 ag_window_get_chart(AgWindow *window)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     return priv->chart;
 }
@@ -2864,7 +2864,7 @@ ag_window_settings_save(GtkWindow *window, GSettings *settings)
 void
 ag_window_change_tab(AgWindow *window, const gchar *tab_name)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), tab_name);
     g_action_change_state(
@@ -2933,7 +2933,7 @@ ag_window_reload_chart_list(AgWindow *window)
     AgDb            *db         = ag_db_get();
     GError          *err        = NULL;
     GList           *chart_list = ag_db_chart_get_list(db, &err);
-    AgWindowPrivate *priv       = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     ag_icon_view_remove_all(AG_ICON_VIEW(priv->chart_list));
 
@@ -2969,7 +2969,7 @@ ag_window_reload_chart_list(AgWindow *window)
 gboolean
 ag_window_is_usable(AgWindow *window)
 {
-    AgWindowPrivate *priv = ag_window_get_instance_private(window);
+    GET_PRIV(window);
 
     return (priv->current_tab == priv->tab_list);
 }
