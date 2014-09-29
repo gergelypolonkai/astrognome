@@ -572,10 +572,10 @@ ag_window_redraw_chart(AgWindow *window)
 }
 
 static gboolean
-ag_window_set_house_system(GtkTreeModel *model,
-                            GtkTreePath  *path,
-                            GtkTreeIter  *iter,
-                            AgWindow     *window)
+ag_window_set_model_house_system(GtkTreeModel *model,
+                                 GtkTreePath  *path,
+                                 GtkTreeIter  *iter,
+                                 AgWindow     *window)
 {
     GsweHouseSystem row_house_system;
     GET_PRIV(window);
@@ -683,7 +683,7 @@ ag_window_update_from_chart(AgWindow *window)
 
     gtk_tree_model_foreach(
             GTK_TREE_MODEL(priv->house_system_model),
-            (GtkTreeModelForeachFunc)ag_window_set_house_system,
+            (GtkTreeModelForeachFunc)ag_window_set_model_house_system,
             window
         );
 
@@ -711,6 +711,7 @@ ag_window_update_from_chart(AgWindow *window)
 static void
 ag_window_chart_changed(AgChart *chart, AgWindow *window)
 {
+    g_debug("Chart changed!");
     ag_window_redraw_chart(window);
 }
 
@@ -2409,7 +2410,29 @@ ag_window_city_changed_callback(GtkSearchEntry *city, AgWindow *window)
     }
 }
 
-void
+static void
+ag_window_house_system_changed_cb(GtkComboBox *combo_box,
+                                  AgWindow    *window)
+{
+    GtkTreeIter     iter;
+    GsweHouseSystem house_system;
+    GET_PRIV(window);
+
+    gtk_combo_box_get_active_iter(combo_box, &iter);
+    gtk_tree_model_get(
+            GTK_TREE_MODEL(priv->house_system_model), &iter,
+            0, &house_system,
+            -1
+        );
+
+    if (priv->chart) {
+        gswe_moment_set_house_system(GSWE_MOMENT(priv->chart), house_system);
+    }
+
+    g_debug("House system changed: %d", house_system);
+}
+
+static void
 ag_window_display_theme_changed_cb(GtkComboBox *combo_box,
                                    AgWindow    *window)
 {
@@ -2717,6 +2740,10 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_selection_mode_cancel_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_house_system_changed_cb
         );
 }
 
