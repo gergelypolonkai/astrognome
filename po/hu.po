@@ -1,24 +1,28 @@
 # Hungarian translation for Astrognome
 # Copyright (C) 2013 Gergely Polonkai
 # This file is distributed under the same license as the astrognome package.
-# Gergely Polonkai <gergely@polonkai.eu>, 2013.
+# Gergely Polonkai <gergely@polonkai.eu>, 2013, 2014.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: astrognome master\n"
 "Report-Msgid-Bugs-To: gergely@polonkai.eu\n"
-"POT-Creation-Date: 2014-03-30 17:25+0200\n"
-"PO-Revision-Date: 2013-09-21 20:17+0200\n"
+"POT-Creation-Date: 2014-10-01 00:31+0200\n"
+"PO-Revision-Date: 2014-10-01 00:37+0200\n"
 "Last-Translator: Gergely Polonkai <gergely@polonkai.eu>\n"
-"Language-Team: Hungarian <gergely@polonkai.eu>\n"
+"Language-Team: Hungarian <>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 2.91.6\n"
 
-#. i18n: Please don't translate "Astrognome" (it's marked as translatable for transliteration only
-#: ../data/astrognome.desktop.in.in.h:1 ../src/ag-app.c:85 ../src/ag-app.c:312
+#. i18n: Please don't translate "Astrognome" (it's marked as translatable
+#. * for transliteration only
+#: ../data/astrognome.desktop.in.in.h:1 ../src/ag-app.c:149
+#: ../src/ag-app.c:459 ../src/resources/ui/ag-window.ui.h:9
+#: ../astrognome.appdata.xml.in.h:1
 msgid "Astrognome"
 msgstr "Astrognome"
 
@@ -34,178 +38,336 @@ msgstr "Asztrológiai szoftver"
 msgid "astrology;natal;chart;birth;horoscope;"
 msgstr "asztrológia;képlet;születési;horoszkóp;"
 
-#: ../src/ag-app.c:81
+#: ../src/ag-app.c:142
 msgid "translator_credits"
 msgstr "Polonkai Gergely <gergely kukac polonkai pont eu>"
 
-#: ../src/ag-app.c:87
+#: ../src/ag-app.c:151
 msgid "Astrologers' software for GNOME"
 msgstr "Asztrológiai szoftver a GNOME-hoz"
 
-#: ../src/ag-app.c:92
+#: ../src/ag-app.c:161
 msgid "Astrognome Website"
 msgstr "Astrognome weboldal"
 
-#: ../src/ag-app.c:136
+#: ../src/ag-app.c:246
 msgid "Select charts"
 msgstr "Válasszon ki mentett képleteket"
 
-#: ../src/ag-app.c:139 ../src/ag-window.c:118
+#: ../src/ag-app.c:249 ../src/ag-window.c:920 ../src/ag-window.c:1171
 msgid "_Cancel"
 msgstr "_Mégsem"
 
-#: ../src/ag-app.c:140
-msgid "_Open"
-msgstr "M_egnyitás"
+#: ../src/ag-app.c:250
+msgid "_Import"
+msgstr "_Importálás"
 
-#: ../src/ag-window.c:89
+#: ../src/ag-app.c:550 ../src/resources/ui/ag-window.ui.h:8
+msgid "Close"
+msgstr "Bezárás"
+
+#: ../src/ag-chart.c:1936
+#, c-format
+msgid "Unknown rendering error"
+msgstr "Ismeretlen renderelési hiba"
+
+#: ../src/ag-db.c:734 ../src/ag-db.c:797
+msgid "Reason unknown"
+msgstr "Oka ismeretlen"
+
+#: ../src/ag-window.c:889 ../src/ag-window.c:1138
 msgid "Chart cannot be calculated."
-msgstr ""
+msgstr "A képletet nem lehet kiszámítani."
 
-#: ../src/ag-window.c:104
+#: ../src/ag-window.c:906 ../src/ag-window.c:1155
 msgid "You must enter a name before saving a chart."
-msgstr ""
+msgstr "Be kell írnia egy nevet, mielőtt elmenti a képletet."
 
-#: ../src/ag-window.c:115
-msgid "Save Chart"
-msgstr "Képlet mentése"
+#: ../src/ag-window.c:917
+msgid "Export Chart as Image"
+msgstr "Képlet exportálása képként"
 
-#: ../src/ag-window.c:119
+#: ../src/ag-window.c:921 ../src/ag-window.c:1172
 msgid "_Save"
 msgstr "M_entés"
 
-#: ../src/ag-window.c:386
-msgid "Name"
-msgstr "Név"
+#: ../src/ag-window.c:1063
+msgid "No"
+msgstr "Nem"
 
-#: ../src/ag-window.c:392
-msgid "Country"
-msgstr "Ország"
+#: ../src/ag-window.c:1064
+msgid "Yes"
+msgstr "Igen"
 
-#: ../src/ag-window.c:395
-msgid "City"
-msgstr "Város"
+#: ../src/ag-window.c:1168
+msgid "Export Chart"
+msgstr "Képlet Exportálása"
 
-#: ../src/ag-window.c:398
-msgid "Latitude"
-msgstr "Szélességi fok"
+#: ../src/ag-window.c:1241
+msgid "Chart is not saved. Do you want to save it?"
+msgstr "A képlet nincs elmentve. Szeretné menteni?"
 
-#: ../src/ag-window.c:401
-msgid "North"
-msgstr "Észak"
+#: ../src/ag-window.c:1242
+msgid "Save and close"
+msgstr "Mentés és bezárás"
 
-#: ../src/ag-window.c:404
-msgid "South"
-msgstr "Dél"
+#: ../src/ag-window.c:1243
+msgid "Close without saving"
+msgstr "Bezárás mentés nélkül"
 
-#: ../src/ag-window.c:411
-msgid "Longitude"
-msgstr "Hosszúsági fok"
+#: ../src/ag-window.c:1244
+msgid "Return to chart"
+msgstr "Vissza a képlethez"
 
-#: ../src/ag-window.c:414
-msgid "East"
-msgstr "Kelet"
+#: ../src/ag-window.c:1308
+#, c-format
+msgid "Unable to save: %s"
+msgstr "A mentés nem sikerült: %s"
 
-#: ../src/ag-window.c:417
-msgid "West"
-msgstr "Nyugat"
-
-#: ../src/ag-window.c:424
-msgid "Year"
-msgstr "Év"
-
-#: ../src/ag-window.c:432
-msgid "Month"
-msgstr "Hónap"
-
-#: ../src/ag-window.c:439
-msgid "Day"
-msgstr "Nap"
-
-#: ../src/ag-window.c:446
-msgid "Hour"
-msgstr "Óra"
-
-#: ../src/ag-window.c:453
-msgid "Minute"
-msgstr "Perc"
-
-#: ../src/ag-window.c:460
-msgid "Second"
-msgstr "Másodperc"
-
-#: ../src/ag-window.c:467
-msgid "Timezone"
-msgstr ""
-
-#: ../src/ag-window.c:516
-msgid "Edit"
-msgstr "Szerkesztés"
-
-#: ../src/ag-window.c:520
-msgid "Chart"
-msgstr "Képlet"
-
-#: ../src/ag-window.c:529
-msgid "Aspects"
-msgstr "Fényszögek"
-
-#: ../src/ag-window.c:532
-msgid "Points"
-msgstr "Pont-táblázatok"
-
-#: ../src/astrognome.c:40
+#: ../src/astrognome.c:95
 msgid "All files"
 msgstr "Minden fájl"
 
-#: ../src/astrognome.c:45
+#: ../src/astrognome.c:100
 msgid "Astrognome charts"
 msgstr "Astrognome képletek"
 
-#: ../src/astrognome.c:59
+#: ../src/astrognome.c:105
+msgid "Placidus charts"
+msgstr "Placidus képletek"
+
+#: ../src/astrognome.c:110
+msgid "SVG image"
+msgstr "SVG kép"
+
+#: ../src/astrognome.c:115
+msgid "JPEG image"
+msgstr "JPEG kép"
+
+#: ../src/astrognome.c:394
 msgid "Opens a new Astrognome window"
 msgstr "Új Astrognome ablakot nyit meg"
 
-#: ../src/astrognome.c:60
+#: ../src/astrognome.c:401
 msgid "Display version and exit"
 msgstr "Megjeleníti a verziószámot, majd kilép"
 
-#: ../src/astrognome.c:61
+#: ../src/astrognome.c:408
 msgid "Quit any running Astrognome"
 msgstr "Minden Astrognome ablak bezárása"
 
-#: ../src/astrognome.c:81
+#: ../src/astrognome.c:445
 msgid "[FILE…]"
 msgstr "[FÁJL…]"
 
-#: ../src/astrognome.ui.h:1
+#: ../src/resources/ui/astrognome.ui.h:1
 msgid "New window"
 msgstr "Új ablak"
 
-#: ../src/astrognome.ui.h:2
-msgid "Open"
-msgstr "Megnyitás"
+#: ../src/resources/ui/astrognome.ui.h:2
+msgid "Import"
+msgstr "Importálás"
 
-#: ../src/astrognome.ui.h:3
+#: ../src/resources/ui/astrognome.ui.h:3
+msgid "Import from Placidus"
+msgstr "Importálás Placidusból"
+
+#: ../src/resources/ui/astrognome.ui.h:4
 msgid "Preferences"
 msgstr "Beállítások"
 
-#: ../src/astrognome.ui.h:4
+#: ../src/resources/ui/astrognome.ui.h:5
 msgid "About Astrognome"
 msgstr "Az Astrognome névjegye"
 
-#: ../src/astrognome.ui.h:5
+#: ../src/resources/ui/astrognome.ui.h:6
 msgid "Quit"
 msgstr "Kilépés"
 
-#: ../src/astrognome.ui.h:6
+#: ../src/resources/ui/ag-window.ui.h:1
+msgid "Edit"
+msgstr "Szerkesztés"
+
+#: ../src/resources/ui/ag-window.ui.h:2
+msgid "Chart"
+msgstr "Képlet"
+
+#: ../src/resources/ui/ag-window.ui.h:3
+msgid "Aspects"
+msgstr "Fényszögek"
+
+#: ../src/resources/ui/ag-window.ui.h:4
+msgid "Points"
+msgstr "Pont-táblázatok"
+
+#: ../src/resources/ui/ag-window.ui.h:5
 msgid "Save"
 msgstr "Mentés"
 
-#: ../src/astrognome.ui.h:7
-msgid "Save as…"
-msgstr "Mentés másként…"
+#: ../src/resources/ui/ag-window.ui.h:6
+msgid "Export…"
+msgstr "Exportálás…"
 
-#: ../src/astrognome.ui.h:8
-msgid "Close"
-msgstr "Bezárás"
+#: ../src/resources/ui/ag-window.ui.h:7
+msgid "Export as image…"
+msgstr "Exportálás képként…"
+
+#: ../src/resources/ui/ag-window.ui.h:10
+msgid "Cancel"
+msgstr "Mégsem"
+
+#: ../src/resources/ui/ag-window.ui.h:11
+msgid "Chart list"
+msgstr "Képlet lista"
+
+#: ../src/resources/ui/ag-window.ui.h:12
+msgid "Name"
+msgstr "Név"
+
+#: ../src/resources/ui/ag-window.ui.h:13
+msgid "Location"
+msgstr "Hely"
+
+#: ../src/resources/ui/ag-window.ui.h:14
+msgid "Country"
+msgstr "Ország"
+
+#: ../src/resources/ui/ag-window.ui.h:15
+msgid "City"
+msgstr "Város"
+
+#: ../src/resources/ui/ag-window.ui.h:16
+msgid "Latitude"
+msgstr "Szélességi fok"
+
+#: ../src/resources/ui/ag-window.ui.h:17
+msgid "North"
+msgstr "Észak"
+
+#: ../src/resources/ui/ag-window.ui.h:18
+msgid "South"
+msgstr "Dél"
+
+#: ../src/resources/ui/ag-window.ui.h:19
+msgid "Longitude"
+msgstr "Hosszúsági fok"
+
+#: ../src/resources/ui/ag-window.ui.h:20
+msgid "East"
+msgstr "Kelet"
+
+#: ../src/resources/ui/ag-window.ui.h:21
+msgid "West"
+msgstr "Nyugat"
+
+#: ../src/resources/ui/ag-window.ui.h:22
+msgid "Date and time"
+msgstr "Dátum és idő"
+
+#: ../src/resources/ui/ag-window.ui.h:23
+msgid "Year"
+msgstr "Év"
+
+#: ../src/resources/ui/ag-window.ui.h:24
+msgid "Month"
+msgstr "Hónap"
+
+#: ../src/resources/ui/ag-window.ui.h:25
+msgid "Day"
+msgstr "Nap"
+
+#: ../src/resources/ui/ag-window.ui.h:26
+msgid "Hour"
+msgstr "Óra"
+
+#: ../src/resources/ui/ag-window.ui.h:27
+msgid "Minute"
+msgstr "Perc"
+
+#: ../src/resources/ui/ag-window.ui.h:28
+msgid "Second"
+msgstr "Másodperc"
+
+#: ../src/resources/ui/ag-window.ui.h:29
+msgid "Timezone"
+msgstr "Időzóna"
+
+#: ../src/resources/ui/ag-window.ui.h:30
+msgid "Notes"
+msgstr "Jegyzetek"
+
+#: ../src/resources/ui/ag-window.ui.h:31
+msgid "Antiscia"
+msgstr "Tükörpontok"
+
+#: ../src/resources/ui/ag-window.ui.h:32
+msgid "Fire"
+msgstr "Tűz"
+
+#: ../src/resources/ui/ag-window.ui.h:33
+msgid "Earth"
+msgstr "Föld"
+
+#: ../src/resources/ui/ag-window.ui.h:34
+msgid "Air"
+msgstr "Levegő"
+
+#: ../src/resources/ui/ag-window.ui.h:35
+msgid "Water"
+msgstr "Víz"
+
+#: ../src/resources/ui/ag-window.ui.h:36
+msgid "Cardinal"
+msgstr "Kardinális"
+
+#: ../src/resources/ui/ag-window.ui.h:37
+msgid "Fixed"
+msgstr "Fix"
+
+#: ../src/resources/ui/ag-window.ui.h:38
+msgid "Mutable"
+msgstr "Változékony"
+
+#: ../src/resources/ui/ag-window.ui.h:39
+msgid "Elements and Qualities"
+msgstr "Elemek és Minőségek"
+
+#: ../src/resources/ui/ag-preferences.ui.h:1
+msgid "New windows start maximized"
+msgstr "Az új ablakok teljes méretben nyíljanak meg"
+
+#: ../src/resources/ui/ag-preferences.ui.h:2
+msgid "Use UTF-8 characters for planet symbols"
+msgstr "UTF-8 karakterek használata bolygó szimbólumokhoz"
+
+#: ../src/resources/ui/ag-preferences.ui.h:3
+msgid "Use UTF-8 characters for aspect symbols"
+msgstr "UTF-8 karakterek használata fényszög szimbólumokhoz"
+
+#: ../src/resources/ui/ag-preferences.ui.h:4
+msgid "Default house system"
+msgstr "Alapértelmezett házrendszer"
+
+#: ../src/resources/ui/ag-preferences.ui.h:5
+msgid "Default display theme"
+msgstr "Alapértelmezett megjelenési téma"
+
+#: ../astrognome.appdata.xml.in.h:2
+msgid "Astrologers’ software"
+msgstr "Asztrológiai szoftver"
+
+#: ../astrognome.appdata.xml.in.h:3
+msgid "An astrologers’ software for the GNOME desktop"
+msgstr "Asztrológiai szoftver a GNOME-hoz"
+
+#~ msgid "_Open"
+#~ msgstr "M_egnyitás"
+
+#~ msgid "Save Chart"
+#~ msgstr "Képlet mentése"
+
+#~ msgid "Open"
+#~ msgstr "Megnyitás"
+
+#~ msgid "Save as…"
+#~ msgstr "Mentés másként…"
