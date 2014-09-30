@@ -292,3 +292,23 @@ One idea is to use an info button on the header bar that displays the
 chart info in a PopOver. This should be bound to an intuitive key
 binding (Alt-Enter, Ctrl-I, I don’t know). A status bar is the other
 option, but that doesn’t seem to GNOMEish…
+
+* Tables of planet, house cusp, fixed star and arabic lot positions
+
+This should be on a new, separate stack child (maybe one child for
+each table).
+
+* Create a DBUS interface for the Now chart
+
+It would be nice to have an interface that could start Astrognome and
+immediately go to the Now chart.
+
+* Copy chart to clipboard
+
+Saving charts as images is one thing, having them on the clipboard is
+another. I can't tell a valid usecase, though…
+
+* Create a desktop notification after save/export
+
+This would make the user able to display the new file in a file
+manager, so it can be shared, copied over, whatever.
