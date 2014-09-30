@@ -3,6 +3,8 @@
 data/astrognome.desktop.in.in
 src/ag-app.c
 src/ag-chart.c
+src/ag-db.c
+src/ag-display-theme.c
 src/ag-window.c
 src/astrognome.c
 [type: gettext/glade]src/resources/ui/astrognome.ui
