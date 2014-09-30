@@ -21,6 +21,7 @@
 
 #include <gio/gio.h>
 #include <glib-object.h>
+#include <swe-glib.h>
 
 G_BEGIN_DECLS
 
@@ -56,6 +57,8 @@ AgSettings *ag_settings_get(void);
 
 GSettings *ag_settings_peek_main_settings(AgSettings *settings);
 GSettings *ag_settings_peek_window_settings(AgSettings *settings);
+
+GsweHouseSystem ag_settings_get_house_system(AgSettings *settings);
 
 G_END_DECLS
 

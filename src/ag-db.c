@@ -61,7 +61,6 @@ enum {
     COLUMN_CHART_MINUTE,
     COLUMN_CHART_SECOND,
     COLUMN_CHART_TIMEZONE,
-    COLUMN_CHART_HOUSE_SYSTEM,
     COLUMN_CHART_NOTE,
 
     /* Leave this as the last element */
@@ -88,7 +87,6 @@ static TableColumnDef chart_table_column[] = {
     { COLUMN_CHART_MINUTE,       "minute" },
     { COLUMN_CHART_SECOND,       "second" },
     { COLUMN_CHART_TIMEZONE,     "timezone" },
-    { COLUMN_CHART_HOUSE_SYSTEM, "house_system" },
     { COLUMN_CHART_NOTE,         "note" },
 };
 
@@ -453,7 +451,6 @@ ag_db_check_chart_table(AgDb *db)
                 "minute UNSIGNED INTEGER NOT NULL, " \
                 "second UNSIGNED INTEGER NOT NULL, " \
                 "timezone DOUBLE NOT NULL, " \
-                "house_system TEXT NOT NULL, " \
                 "note TEXT" \
             ")"
         );
@@ -589,10 +586,6 @@ ag_db_chart_save_free(AgDbChartSave *save_data)
         g_free(save_data->city);
     }
 
-    if (save_data->house_system) {
-        g_free(save_data->house_system);
-    }
-
     if (save_data->note) {
         g_free(save_data->note);
     }
@@ -655,7 +648,6 @@ ag_db_chart_save(AgDb *db, AgDbChartSave *save_data,  GError **err)
                 minute       = G_VALUE_INIT,
                 second       = G_VALUE_INIT,
                 timezone     = G_VALUE_INIT,
-                house_system = G_VALUE_INIT,
                 note         = G_VALUE_INIT;
     AgDbPrivate *priv = ag_db_get_instance_private(db);
 
@@ -706,9 +698,6 @@ ag_db_chart_save(AgDb *db, AgDbChartSave *save_data,  GError **err)
     g_value_init(&timezone, G_TYPE_DOUBLE);
     g_value_set_double(&timezone, save_data->timezone);
 
-    g_value_init(&house_system, G_TYPE_STRING);
-    g_value_set_string(&house_system, save_data->house_system);
-
     g_value_init(&note, G_TYPE_STRING);
     g_value_set_string(&note, save_data->note);
 
@@ -731,7 +720,6 @@ ag_db_chart_save(AgDb *db, AgDbChartSave *save_data,  GError **err)
                     "minute",       &minute,
                     "second",       &second,
                     "timezone",     &timezone,
-                    "house_system", &house_system,
                     "note",         &note,
                     NULL
                 )) {
@@ -795,7 +783,6 @@ ag_db_chart_save(AgDb *db, AgDbChartSave *save_data,  GError **err)
                     "minute",       &minute,
                     "second",       &second,
                     "timezone",     &timezone,
-                    "house_system", &house_system,
                     "note",         &note,
                     NULL
                 )) {
@@ -817,7 +804,6 @@ ag_db_chart_save(AgDb *db, AgDbChartSave *save_data,  GError **err)
     }
 
     g_value_unset(&note);
-    g_value_unset(&house_system);
     g_value_unset(&timezone);
     g_value_unset(&second);
     g_value_unset(&minute);
@@ -1067,14 +1053,6 @@ ag_db_chart_get_data_by_id(AgDb *db, guint row_id, GError **err)
         );
     save_data->timezone = g_value_get_double(value);
 
-    value = gda_data_model_get_value_at(
-            result,
-            COLUMN_CHART_HOUSE_SYSTEM,
-            0,
-            NULL
-        );
-    save_data->house_system = g_strdup(g_value_get_string(value));
-
     value = gda_data_model_get_value_at(result, COLUMN_CHART_NOTE, 0, NULL);
 
     if (GDA_VALUE_HOLDS_NULL(value)) {
@@ -1221,12 +1199,6 @@ ag_db_chart_save_identical(const AgDbChartSave *a,
 
     if (a->timezone != b->timezone) {
         g_debug("identical: Timezones differ");
-
-        return FALSE;
-    }
-
-    if (string_collate(a->house_system, b->house_system) != 0) {
-        g_debug("identical: House systems differ");
 
         return FALSE;
     }
