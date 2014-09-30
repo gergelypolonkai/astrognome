@@ -914,7 +914,7 @@ ag_window_export_image(AgWindow *window, GError **err)
         return;
     }
 
-    fs = gtk_file_chooser_dialog_new(_("Export Chart as SVG"),
+    fs = gtk_file_chooser_dialog_new(_("Export Chart as Image"),
                                      GTK_WINDOW(window),
                                      GTK_FILE_CHOOSER_ACTION_SAVE,
                                      _("_Cancel"), GTK_RESPONSE_CANCEL,
