@@ -46,6 +46,7 @@ typedef struct _AgChartPrivate {
     gchar *save_buffer;
     GList *planet_list;
     gchar *note;
+    gint  db_id;
 } AgChartPrivate;
 
 enum {
@@ -54,6 +55,7 @@ enum {
     PROP_COUNTRY,
     PROP_CITY,
     PROP_NOTE,
+    PROP_DBID,
     PROP_LAST
 };
 
@@ -148,6 +150,24 @@ ag_chart_class_init(AgChartClass *klass)
             PROP_NOTE,
             properties[PROP_NOTE]
         );
+
+    properties[PROP_DBID] = g_param_spec_int(
+            "db-id",
+            "DB ID",
+            "Database ID",
+            -1, G_MAXINT,
+            -1,
+            G_PARAM_STATIC_NICK
+            | G_PARAM_STATIC_NAME
+            | G_PARAM_STATIC_BLURB
+            | G_PARAM_READABLE
+            | G_PARAM_WRITABLE
+        );
+    g_object_class_install_property(
+            gobject_class,
+            PROP_DBID,
+            properties[PROP_DBID]
+        );
 }
 
 static void
@@ -188,6 +208,16 @@ ag_chart_set_property(GObject      *gobject,
             ag_chart_set_note(AG_CHART(gobject), g_value_get_string(value));
 
             break;
+
+        case PROP_DBID:
+            ag_chart_set_db_id(AG_CHART(gobject), g_value_get_int(value));
+
+            break;
+
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, param_spec);
+
+            break;
     }
 }
 
@@ -217,6 +247,16 @@ ag_chart_get_property(GObject    *gobject,
 
         case PROP_NOTE:
             g_value_set_string(value, priv->note);
+
+            break;
+
+        case PROP_DBID:
+            g_value_set_int(value, priv->db_id);
+
+            break;
+
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, param_spec);
 
             break;
     }
@@ -1275,6 +1315,7 @@ ag_chart_new_from_db_save(AgDbChartSave *save_data,
     ag_chart_set_country(chart, save_data->country);
     ag_chart_set_city(chart, save_data->city);
     ag_chart_set_note(chart, save_data->note);
+    ag_chart_set_db_id(chart, save_data->db_id);
 
     return chart;
 }
@@ -2007,14 +2048,14 @@ ag_chart_get_note(AgChart *chart)
 }
 
 AgDbChartSave *
-ag_chart_get_db_save(AgChart *chart, gint db_id)
+ag_chart_get_db_save(AgChart *chart)
 {
     GsweCoordinates *coords;
     AgChartPrivate  *priv      = ag_chart_get_instance_private(chart);
     AgDbChartSave   *save_data = ag_db_chart_save_new(TRUE);
     GsweTimestamp   *timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
 
-    save_data->db_id = db_id;
+    save_data->db_id = priv->db_id;
 
     save_data->name         = g_strdup(priv->name);
     save_data->country      = g_strdup(priv->country);
@@ -2049,4 +2090,22 @@ ag_chart_get_db_save(AgChart *chart, gint db_id)
     save_data->note         = g_strdup(priv->note);
 
     return save_data;
+}
+
+void
+ag_chart_set_db_id(AgChart *chart, gint id)
+{
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    priv->db_id = id;
+
+    g_object_notify_by_pspec(G_OBJECT(chart), properties[PROP_DBID]);
+}
+
+int
+ag_chart_get_db_id(AgChart *chart)
+{
+    AgChartPrivate *priv = ag_chart_get_instance_private(chart);
+
+    return priv->db_id;
 }

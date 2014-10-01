@@ -139,13 +139,17 @@ void ag_chart_set_note(AgChart *chart, const gchar *note);
 
 const gchar *ag_chart_get_note(AgChart *chart);
 
-AgDbChartSave *ag_chart_get_db_save(AgChart *chart, gint db_id);
+AgDbChartSave *ag_chart_get_db_save(AgChart *chart);
 
 GdkPixbuf *ag_chart_get_pixbuf(AgChart        *chart,
                                guint          image_size,
                                guint          icon_size,
                                AgDisplayTheme *theme,
                                GError         **err);
+
+void ag_chart_set_db_id(AgChart *chart, gint db_id);
+
+gint ag_chart_get_db_id(AgChart *chart);
 
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);
