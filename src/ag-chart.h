@@ -147,6 +147,10 @@ GdkPixbuf *ag_chart_get_pixbuf(AgChart        *chart,
                                AgDisplayTheme *theme,
                                GError         **err);
 
+void ag_chart_set_db_id(AgChart *chart, gint db_id);
+
+gint ag_chart_get_db_id(AgChart *chart);
+
 #define AG_CHART_ERROR (ag_chart_error_quark())
 GQuark ag_chart_error_quark(void);
 
