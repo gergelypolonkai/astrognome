@@ -188,6 +188,11 @@ ag_chart_set_property(GObject      *gobject,
             ag_chart_set_note(AG_CHART(gobject), g_value_get_string(value));
 
             break;
+
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, param_spec);
+
+            break;
     }
 }
 
@@ -217,6 +222,11 @@ ag_chart_get_property(GObject    *gobject,
 
         case PROP_NOTE:
             g_value_set_string(value, priv->note);
+
+            break;
+
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(gobject, prop_id, param_spec);
 
             break;
     }
