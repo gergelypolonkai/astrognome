@@ -811,7 +811,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
         );
 
     chart_data = (priv->chart)
-            ? ag_chart_get_db_save(priv->chart, db_id)
+            ? ag_chart_get_db_save(priv->chart)
             : NULL
         ;
 
@@ -1213,9 +1213,6 @@ gboolean
 ag_window_can_close(AgWindow *window, gboolean display_dialog)
 {
     GET_PRIV(window);
-    gint            db_id      = (priv->saved_data)
-            ? priv->saved_data->db_id
-            : -1;
     AgDbChartSave   *save_data = NULL;
     AgDb            *db        = ag_db_get();
     GError          *err       = NULL;
@@ -1223,7 +1220,7 @@ ag_window_can_close(AgWindow *window, gboolean display_dialog)
 
     if (priv->chart) {
         ag_window_recalculate_chart(window, TRUE);
-        save_data = ag_chart_get_db_save(priv->chart, db_id);
+        save_data = ag_chart_get_db_save(priv->chart);
 
         if (
                     !ag_db_chart_save_identical(priv->saved_data, save_data, FALSE)
@@ -1292,14 +1289,12 @@ ag_window_save_action(GSimpleAction *action,
     GET_PRIV(window);
     AgDb            *db     = ag_db_get();
     GError          *err    = NULL;
-    gint            old_id;
     AgDbChartSave   *save_data;
 
     ag_window_recalculate_chart(window, TRUE);
 
     if (!ag_window_can_close(window, FALSE)) {
-        old_id    = (priv->saved_data) ? priv->saved_data->db_id : -1;
-        save_data = ag_chart_get_db_save(priv->chart, old_id);
+        save_data = ag_chart_get_db_save(priv->chart);
 
         if (!ag_db_chart_save(db, save_data, &err)) {
             ag_app_message_dialog(
@@ -2827,7 +2822,7 @@ ag_window_set_chart(AgWindow *window, AgChart *chart)
                 window
             );
         g_object_ref(chart);
-        priv->saved_data = ag_chart_get_db_save(chart, -1);
+        priv->saved_data = ag_chart_get_db_save(chart);
     } else {
         priv->saved_data = NULL;
     }

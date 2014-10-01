@@ -1315,6 +1315,7 @@ ag_chart_new_from_db_save(AgDbChartSave *save_data,
     ag_chart_set_country(chart, save_data->country);
     ag_chart_set_city(chart, save_data->city);
     ag_chart_set_note(chart, save_data->note);
+    ag_chart_set_db_id(chart, save_data->db_id);
 
     return chart;
 }
@@ -2047,14 +2048,14 @@ ag_chart_get_note(AgChart *chart)
 }
 
 AgDbChartSave *
-ag_chart_get_db_save(AgChart *chart, gint db_id)
+ag_chart_get_db_save(AgChart *chart)
 {
     GsweCoordinates *coords;
     AgChartPrivate  *priv      = ag_chart_get_instance_private(chart);
     AgDbChartSave   *save_data = ag_db_chart_save_new(TRUE);
     GsweTimestamp   *timestamp = gswe_moment_get_timestamp(GSWE_MOMENT(chart));
 
-    save_data->db_id = db_id;
+    save_data->db_id = priv->db_id;
 
     save_data->name         = g_strdup(priv->name);
     save_data->country      = g_strdup(priv->country);
