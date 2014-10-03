@@ -4,6 +4,7 @@
     <file>ui/astrognome.ui</file>
     <file>ui/ag-window.ui</file>
     <file>ui/ag-preferences.ui</file>
+    <file>ui/ag-chart-edit.ui</file>
     <file>ui/chart-default.css</file>
     <file>ui/chart-default.xsl</file>
 

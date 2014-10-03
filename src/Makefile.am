@@ -34,6 +34,7 @@ astrognome_source_files = \
 						  ag-display-theme.c  \
 						  ag-icon-view.c      \
 						  ag-chart-renderer.c \
+						  ag-chart-edit.c     \
 						  astrognome.c        \
 						  $(NULL)
 
