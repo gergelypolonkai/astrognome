@@ -53,9 +53,9 @@ enum {
 };
 
 struct cc_search {
-    const gchar  *target;
-    GtkTreeIter  *ret_iter;
-    gchar        *ret_code;
+    const gchar *target;
+    GtkTreeIter *ret_iter;
+    gchar       *ret_code;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(AgChartEdit, ag_chart_edit, GTK_TYPE_GRID);
@@ -67,9 +67,9 @@ static guint      signals[SIGNAL_COUNT];
 
 static gboolean
 ag_chart_edit_find_country(GtkTreeModel     *model,
-                       GtkTreePath      *path,
-                       GtkTreeIter      *iter,
-                       struct cc_search *search)
+                           GtkTreePath      *path,
+                           GtkTreeIter      *iter,
+                           struct cc_search *search)
 {
     gchar    *name,
              *ccode;
@@ -83,7 +83,7 @@ ag_chart_edit_find_country(GtkTreeModel     *model,
         );
 
     if (g_utf8_collate(search->target, name) == 0) {
-        found = TRUE;
+        found            = TRUE;
         search->ret_iter = gtk_tree_iter_copy(iter);
         search->ret_code = ccode;
     } else {
@@ -103,7 +103,7 @@ ag_chart_edit_find_country(GtkTreeModel     *model,
  */
 static void
 ag_chart_edit_country_changed_cb(GtkSearchEntry *country,
-                                   AgChartEdit  *chart_edit)
+                                 AgChartEdit    *chart_edit)
 {
     struct cc_search search;
     GET_PRIV(chart_edit);
@@ -301,7 +301,7 @@ ag_chart_edit_get_longitude(AgChartEdit *chart_edit)
 }
 
 void
-ag_chart_edit_set_from_timestamp(AgChartEdit *chart_edit,
+ag_chart_edit_set_from_timestamp(AgChartEdit   *chart_edit,
                                  GsweTimestamp *timestamp)
 {
     GET_PRIV(chart_edit);
@@ -353,7 +353,7 @@ ag_chart_edit_set_from_timestamp(AgChartEdit *chart_edit,
  *          returns @timestamp after modifying it.
  */
 GsweTimestamp *
-ag_chart_edit_get_to_timestamp(AgChartEdit *chart_edit,
+ag_chart_edit_get_to_timestamp(AgChartEdit   *chart_edit,
                                GsweTimestamp *timestamp)
 {
     GET_PRIV(chart_edit);
@@ -380,7 +380,7 @@ ag_chart_edit_get_to_timestamp(AgChartEdit *chart_edit,
             GTK_SPIN_BUTTON(priv->timezone)
         );
 
-     if (timestamp && GSWE_IS_TIMESTAMP(timestamp)) {
+    if (timestamp && GSWE_IS_TIMESTAMP(timestamp)) {
         gswe_timestamp_set_gregorian_full(
                 timestamp,
                 year, month, day,
@@ -456,10 +456,10 @@ ag_chart_edit_set_property(GObject      *gobject,
 
             break;
     }
-}                           
+}
 
 static void
-ag_chart_edit_get_property(GObject    *gobject, 
+ag_chart_edit_get_property(GObject    *gobject,
                            guint      prop_id,
                            GValue     *value,
                            GParamSpec *pspec)
@@ -522,7 +522,7 @@ ag_chart_edit_find_city(GtkTreeModel     *model,
         );
 
     if (g_utf8_collate(search->target, name) == 0) {
-        found = TRUE;
+        found            = TRUE;
         search->ret_iter = gtk_tree_iter_copy(iter);
         search->ret_code = ccode;
     } else {
@@ -631,13 +631,13 @@ ag_chart_edit_name_changed_cb(GtkEntry *name_entry, AgChartEdit *chart_edit)
 }
 
 static void
-ag_chart_edit_class_init (AgChartEditClass *klass)
+ag_chart_edit_class_init(AgChartEditClass *klass)
 {
     GObjectClass   *gobject_class = (GObjectClass *)klass;
     GtkWidgetClass *widget_class  = GTK_WIDGET_CLASS(klass);
 
-    gobject_class->dispose = ag_chart_edit_dispose;
-    gobject_class->finalize = ag_chart_edit_finalize;
+    gobject_class->dispose      = ag_chart_edit_dispose;
+    gobject_class->finalize     = ag_chart_edit_finalize;
     gobject_class->set_property = ag_chart_edit_set_property;
     gobject_class->get_property = ag_chart_edit_get_property;
 
@@ -934,7 +934,7 @@ ag_chart_edit_city_matches(GtkEntryCompletion *city_comp,
 }
 
 static void
-ag_chart_edit_init (AgChartEdit *chart_edit)
+ag_chart_edit_init(AgChartEdit *chart_edit)
 {
     GET_PRIV(chart_edit);
 
