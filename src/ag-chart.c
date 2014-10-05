@@ -1983,11 +1983,12 @@ ag_chart_get_pixbuf(AgChart        *chart,
     return pixbuf;
 }
 
-void
-ag_chart_export_jpg_to_file(AgChart        *chart,
-                            GFile          *file,
-                            AgDisplayTheme *theme,
-                            GError         **err)
+static void
+ag_chart_export_to_image(AgChart        *chart,
+                         GFile          *file,
+                         AgDisplayTheme *theme,
+                         gchar          *format,
+                         GError         **err)
 {
     gchar      *jpg;
     gsize      jpg_length;
@@ -2003,7 +2004,7 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
                 pixbuf,
                 &jpg,
                 &jpg_length,
-                "jpeg",
+                format,
                 err,
                 NULL
             )) {
@@ -2027,6 +2028,15 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
         );
 
     g_free(jpg);
+}
+
+void
+ag_chart_export_jpg_to_file(AgChart        *chart,
+                            GFile          *file,
+                            AgDisplayTheme *theme,
+                            GError         **err)
+{
+    ag_chart_export_to_image(chart, file, theme, "jpeg", err);
 }
 
 void
