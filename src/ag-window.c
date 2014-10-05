@@ -35,11 +35,10 @@
 #include "ag-display-theme.h"
 #include "ag-icon-view.h"
 #include "ag-chart-edit.h"
+#include "ag-header-bar.h"
 
 struct _AgWindowPrivate {
     GtkWidget     *header_bar;
-    GtkWidget     *menubutton_stack;
-    GtkWidget     *new_back_stack;
     GtkWidget     *selection_toolbar;
     GtkWidget     *stack;
     GtkWidget     *house_system;
@@ -1341,23 +1340,9 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
     }
 
     if (strcmp("list", active_tab_name) == 0) {
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->menubutton_stack),
-                "list"
-            );
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->new_back_stack),
-                "new"
-            );
+        ag_header_bar_set_mode(AG_HEADER_BAR(priv->header_bar), AG_HEADER_BAR_MODE_LIST);
     } else {
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->menubutton_stack),
-                "chart"
-            );
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->new_back_stack),
-                "back"
-            );
+        ag_header_bar_set_mode(AG_HEADER_BAR(priv->header_bar), AG_HEADER_BAR_MODE_CHART);
 
         // Note that priv->current_tab is actually the previously selected tab,
         // not the real active one!
@@ -1516,42 +1501,44 @@ ag_window_refresh_action(GSimpleAction *action,
 static void
 ag_window_set_selection_mode(AgWindow *window, gboolean state)
 {
-    GtkStyleContext *style;
     GET_PRIV(window);
 
-    style = gtk_widget_get_style_context(priv->header_bar);
+    if (priv->current_tab != priv->tab_list) {
+        g_warning("You can activate selection mode only in the list view!");
+
+        return;
+    }
+
+    g_debug("Set selection mode: %d", state);
 
     if (state) {
-        gtk_header_bar_set_show_close_button(
-                GTK_HEADER_BAR(priv->header_bar),
-                FALSE
-            );
-        gtk_style_context_add_class(style, "selection-mode");
+        ag_header_bar_set_mode(AG_HEADER_BAR(priv->header_bar), AG_HEADER_BAR_MODE_SELECTION);
         ag_icon_view_set_mode(
                 AG_ICON_VIEW(priv->chart_list),
                 AG_ICON_VIEW_MODE_SELECTION
             );
-        gtk_widget_hide(priv->new_back_stack);
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->menubutton_stack),
-                "selection"
-            );
     } else {
-        gtk_header_bar_set_show_close_button(
-                GTK_HEADER_BAR(priv->header_bar),
-                TRUE
-            );
-        gtk_style_context_remove_class(style, "selection-mode");
+        ag_header_bar_set_mode(AG_HEADER_BAR(priv->header_bar), AG_HEADER_BAR_MODE_LIST);
         ag_icon_view_set_mode(
                 AG_ICON_VIEW(priv->chart_list),
                 AG_ICON_VIEW_MODE_NORMAL
             );
-        gtk_widget_show_all(priv->new_back_stack);
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->menubutton_stack),
-                "list"
-            );
     }
+}
+
+static void
+ag_window_header_bar_mode_change_cb(AgHeaderBar *header_bar,
+                                    GParamSpec  *pspec,
+                                    AgWindow    *window)
+{
+    AgHeaderBarMode mode;
+
+    mode = ag_header_bar_get_mode(header_bar);
+
+    ag_window_set_selection_mode(
+            window,
+            (mode == AG_HEADER_BAR_MODE_SELECTION)
+        );
 }
 
 static void
@@ -1584,8 +1571,6 @@ ag_window_selection_mode_action(GSimpleAction *action,
     new_state = !g_variant_get_boolean(state);
     g_action_change_state(G_ACTION(action), g_variant_new_boolean(new_state));
     g_variant_unref(state);
-
-    g_debug("Set selection mode: %d", new_state);
 
     ag_window_set_selection_mode(window, new_state);
 }
@@ -2137,16 +2122,6 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_child_private(
             widget_class,
             AgWindow,
-            new_back_stack
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            menubutton_stack
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
             tab_edit
         );
     gtk_widget_class_bind_template_child_private(
@@ -2241,6 +2216,10 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_house_system_changed_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_header_bar_mode_change_cb
         );
 }
 
