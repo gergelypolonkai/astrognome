@@ -648,7 +648,7 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     gint            db_id = (priv->saved_data) ? priv->saved_data->db_id : -1;
     AgSettings      *settings;
 
-    ag_chart_edit_update(AG_CHART_EDIT(priv->tab_chart));
+    ag_chart_edit_update(AG_CHART_EDIT(priv->tab_edit));
 
     edit_data = ag_chart_edit_get_chart_save(AG_CHART_EDIT(priv->tab_edit));
     edit_data->db_id = db_id;
