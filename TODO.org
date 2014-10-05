@@ -152,11 +152,11 @@ dependent on the chart's size (currently, for the big chart it's
 
 * Regiomontanus import                                          :version_2.0:
 
-* Chart export as different image types [2/3]                   :version_1.0:
+* Chart export as different image types [3/3]                   :version_1.0:
 
   - [X] SVG
   - [X] JPEG
-  - [ ] PNG
+  - [X] PNG
 
   Other formats supported by GDK-PixBuf are considered useless, and
   most people should be able to open these types.

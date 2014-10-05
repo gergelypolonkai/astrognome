@@ -110,6 +110,11 @@ void ag_chart_export_jpg_to_file(AgChart        *chart,
                                  AgDisplayTheme *theme,
                                  GError         **err);
 
+void ag_chart_export_png_to_file(AgChart        *chart,
+                                 GFile          *file,
+                                 AgDisplayTheme *theme,
+                                 GError         **err);
+
 void ag_chart_set_name(AgChart     *chart,
                        const gchar *name);
 

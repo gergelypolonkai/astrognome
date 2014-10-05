@@ -2040,6 +2040,15 @@ ag_chart_export_jpg_to_file(AgChart        *chart,
 }
 
 void
+ag_chart_export_png_to_file(AgChart        *chart,
+                            GFile          *file,
+                            AgDisplayTheme *theme,
+                            GError         **err)
+{
+    ag_chart_export_to_image(chart, file, theme, "png", err);
+}
+
+void
 ag_chart_set_note(AgChart *chart, const gchar *note)
 {
     AgChartPrivate *priv = ag_chart_get_instance_private(chart);
