@@ -44,6 +44,7 @@ GtkFileFilter *filter_chart = NULL;
 GtkFileFilter *filter_hor   = NULL;
 GtkFileFilter *filter_svg   = NULL;
 GtkFileFilter *filter_jpg   = NULL;
+GtkFileFilter *filter_png   = NULL;
 GtkTreeModel  *country_list = NULL;
 GtkTreeModel  *city_list    = NULL;
 GHashTable    *xinclude_positions;
@@ -117,6 +118,11 @@ init_filters(void)
     gtk_file_filter_add_pattern(filter_jpg, "*.jpe");
     gtk_file_filter_add_pattern(filter_jpg, "*.jpeg");
     g_object_ref_sink(filter_jpg);
+
+    filter_png = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter_png, _("PNG image"));
+    gtk_file_filter_add_pattern(filter_png, "*.png");
+    g_object_ref_sink(filter_png);
 }
 
 static int
