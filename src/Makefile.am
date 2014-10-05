@@ -1,7 +1,7 @@
 RESOURCE_DIR = $(srcdir)/resources
 resource_files = $(shell glib-compile-resources --sourcedir=$(RESOURCE_DIR) --generate-dependencies $(srcdir)/ag.gresource.xml)
 
-ag_enum_headers = ag-icon-view.h
+ag_enum_headers = ag-icon-view.h ag-header-bar.h
 
 ag-resources.c: ag.gresource.xml $(resource_files)
 	glib-compile-resources --target=$@ --sourcedir=$(RESOURCE_DIR) --generate-source --c-name ag $(srcdir)/ag.gresource.xml
@@ -35,6 +35,7 @@ astrognome_source_files = \
 						  ag-icon-view.c      \
 						  ag-chart-renderer.c \
 						  ag-chart-edit.c     \
+						  ag-header-bar.c     \
 						  astrognome.c        \
 						  $(NULL)
 
