@@ -765,6 +765,7 @@ ag_window_export_image(AgWindow *window, GError **err)
                                      NULL);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_svg);
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_jpg);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(fs), filter_png);
     gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(fs), filter_svg);
     gtk_dialog_set_default_response(GTK_DIALOG(fs), GTK_RESPONSE_ACCEPT);
     gtk_file_chooser_set_local_only(GTK_FILE_CHOOSER(fs), FALSE);
@@ -796,6 +797,9 @@ ag_window_export_image(AgWindow *window, GError **err)
             } else if (filter == filter_jpg) {
                 extension = ".jpg";
                 save_func = &ag_chart_export_jpg_to_file;
+            } else if (filter == filter_png) {
+                extension = ".png";
+                save_func = &ag_chart_export_png_to_file;
             } else {
                 g_warning("Unknown file type");
                 gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(fs), filter_svg);
