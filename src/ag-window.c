@@ -64,6 +64,7 @@ struct _AgWindowPrivate {
     AgDisplayTheme *theme;
     GtkListStore   *display_theme_model;
     gulong         chart_changed_handler;
+    WebKitUserContentManager *content_manager;
 };
 
 enum {
@@ -1179,16 +1180,11 @@ ag_window_delete_event_callback(AgWindow *window,
 static void
 ag_window_clear_style_sheets(AgWindow *window)
 {
-    WebKitUserContentManager *manager;
     GET_PRIV(window);
 
     g_debug("Clearing style sheets");
 
-    manager = webkit_web_view_get_user_content_manager(
-            WEBKIT_WEB_VIEW(priv->chart_web_view)
-        );
-
-    webkit_user_content_manager_remove_all_style_sheets(manager);
+    webkit_user_content_manager_remove_all_style_sheets(priv->content_manager);
     g_list_free_full(
             priv->style_sheets,
             (GDestroyNotify)webkit_user_style_sheet_unref
@@ -1254,21 +1250,16 @@ static void
 ag_window_update_style_sheets(AgWindow *window)
 {
     GList                    *item;
-    WebKitUserContentManager *manager;
     GET_PRIV(window);
 
     g_debug("Updating style sheets");
 
-    manager = webkit_web_view_get_user_content_manager(
-            WEBKIT_WEB_VIEW(priv->chart_web_view)
-        );
-
-    webkit_user_content_manager_remove_all_style_sheets(manager);
+    webkit_user_content_manager_remove_all_style_sheets(priv->content_manager);
 
     for (item = priv->style_sheets; item; item = g_list_next(item)) {
         WebKitUserStyleSheet *style_sheet = item->data;
 
-        webkit_user_content_manager_add_style_sheet(manager, style_sheet);
+        webkit_user_content_manager_add_style_sheet(priv->content_manager, style_sheet);
     }
 }
 
@@ -1854,26 +1845,9 @@ ag_window_init(AgWindow *window)
                              *display_theme_list;
     GtkCellRenderer          *house_system_renderer,
                              *display_theme_renderer;
-    WebKitUserContentManager *manager = webkit_user_content_manager_new();
     GET_PRIV(window);
 
     gtk_widget_init_template(GTK_WIDGET(window));
-
-    priv->chart_web_view = WEBKIT_WEB_VIEW(webkit_web_view_new_with_user_content_manager(
-            manager
-        ));
-    gtk_box_pack_end(
-            GTK_BOX(priv->tab_chart),
-            GTK_WIDGET(priv->chart_web_view),
-            TRUE, TRUE, 0
-        );
-
-    g_signal_connect(
-            priv->chart_web_view,
-            "context-menu",
-            G_CALLBACK(ag_window_chart_context_cb),
-            NULL
-        );
 
     priv->settings = ag_settings_get();
     main_settings  = ag_settings_peek_main_settings(priv->settings);
@@ -2182,6 +2156,16 @@ ag_window_class_init(AgWindowClass *klass)
             AgWindow,
             chart_list
         );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            chart_web_view
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            content_manager
+        );
 
     gtk_widget_class_bind_template_callback(
             widget_class,
@@ -2222,6 +2206,10 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_header_bar_mode_change_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_chart_context_cb
         );
 }
 
