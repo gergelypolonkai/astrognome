@@ -44,6 +44,8 @@ struct _AgWindowPrivate {
     GtkWidget     *house_system;
     GtkWidget     *display_theme;
     GtkWidget     *toolbar_aspect;
+    GtkProgressBar *load_progress;
+    GtkRevealer    *load_progress_revealer;
 
     GtkWidget     *tab_list;
     GtkWidget     *tab_chart;
@@ -75,12 +77,12 @@ enum {
 };
 
 typedef struct {
-    guint      load_state;
-    guint      load_id;
-    AgIconView *icon_view;
-    gint       n_items;
-    gint       n_loaded;
-    GList      *items;
+    guint           load_state;
+    guint           load_id;
+    AgWindowPrivate *priv;
+    gint            n_items;
+    gint            n_loaded;
+    GList           *items;
 } LoadIdleData;
 
 enum {
@@ -2166,6 +2168,16 @@ ag_window_class_init(AgWindowClass *klass)
             AgWindow,
             content_manager
         );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            load_progress
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            load_progress_revealer
+        );
 
     gtk_widget_class_bind_template_callback(
             widget_class,
@@ -2395,17 +2407,22 @@ ag_window_add_chart(LoadIdleData *idle_data)
         idle_data->load_state = PREVIEW_STATE_LOADING;
     }
 
+    gtk_progress_bar_set_fraction(
+            idle_data->priv->load_progress,
+            (gdouble)idle_data->n_loaded / (gdouble)idle_data->n_items
+        );
+
     save_data = g_list_nth_data(idle_data->items, idle_data->n_loaded);
 
     g_assert(save_data);
 
-    ag_icon_view_add_chart(idle_data->icon_view, save_data);
+    ag_icon_view_add_chart(idle_data->priv->chart_list, save_data);
 
     idle_data->n_loaded++;
 
-    // TODO: maybe a progress bar should update somewhere during loading?
-
     if (idle_data->n_loaded == idle_data->n_items) {
+        g_debug("Finished loading");
+
         idle_data->load_state = PREVIEW_STATE_COMPLETE;
         idle_data->n_loaded = 0;
         idle_data->n_items = 0;
@@ -2422,6 +2439,13 @@ static void
 ag_window_cleanup_load_items(LoadIdleData *idle_data)
 {
     g_assert(idle_data->load_state == PREVIEW_STATE_COMPLETE);
+
+    g_debug("Cleaning up lazy loader");
+
+    gtk_revealer_set_reveal_child(
+            idle_data->priv->load_progress_revealer,
+            FALSE
+        );
 
     g_free(idle_data);
 }
@@ -2444,8 +2468,11 @@ ag_window_reload_chart_list(AgWindow *window)
     idle_data->items = chart_list;
     idle_data->n_items = 0;
     idle_data->n_loaded = 0;
-    idle_data->icon_view = priv->chart_list;
+    idle_data->priv = priv;
     idle_data->load_state = PREVIEW_STATE_STARTED;
+
+    gtk_progress_bar_set_fraction(priv->load_progress, 0.0);
+    gtk_revealer_set_reveal_child(priv->load_progress_revealer, TRUE);
 
     idle_data->load_id = g_idle_add_full(
             G_PRIORITY_DEFAULT_IDLE,

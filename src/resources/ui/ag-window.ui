@@ -100,10 +100,27 @@
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkOverlay">
-                    <property name="hexpand">True</property>
-                    <property name="vexpand">True</property>
+                    <child type="overlay">
+                      <object class="GtkRevealer" id="load_progress_revealer">
+                        <property name="halign">center</property>
+                        <property name="valign">start</property>
+                        <child>
+                          <object class="GtkFrame">
+                            <style>
+                              <class name="app-notification"/>
+                            </style>
+                            <child>
+                              <object class="GtkProgressBar" id="load_progress">
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                     <child>
                       <object class="GtkScrolledWindow">
+                        <property name="hexpand">True</property>
+                        <property name="vexpand">True</property>
                         <child>
                           <object class="AgIconView" id="chart_list">
                             <signal name="item-activated" handler="ag_window_list_item_activated_cb" object="AgWindow" swapped="no"/>
