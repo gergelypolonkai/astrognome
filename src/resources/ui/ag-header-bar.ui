@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.0"/>
+  <template class="AgHeaderBar" parent="GtkHeaderBar">
+    <property name="visible">True</property>
+    <property name="show_close_button">True</property>
+    <property name="title" translatable="yes">Astrognome</property>
+    <property name="vexpand">False</property>
+    <child>
+      <object class="GtkStack" id="left_stack">
+        <property name="visible">True</property>
+        <property name="homogeneous">False</property>
+        <child>
+          <object class="GtkGrid">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkButton" id="new_button">
+                <property name="visible">True</property>
+                <property name="action_name">win.new-chart</property>
+                <style>
+                  <class name="image-button"/>
+                </style>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="icon_name">document-new-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="refresh_button">
+                <property name="visible">True</property>
+                <property name="action_name">win.refresh</property>
+                <style>
+                  <class name="image-button"/>
+                </style>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="icon_name">view-refresh-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="name">list</property>
+          </packing>
+        </child><!-- list mode left side buttons -->
+        <child>
+          <object class="GtkGrid">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkButton" id="back_button">
+                <property name="visible">True</property>
+                <property name="action_name">win.back</property>
+                <style>
+                  <class name="image-button"/>
+                </style>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="icon_name">go-previous-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="name">chart</property>
+          </packing>
+        </child><!-- chart mode left side buttons -->
+      </object>
+    </child>
+    <child>
+      <object class="GtkStack" id="right_stack">
+        <property name="visible">True</property>
+        <property name="homogeneous">False</property>
+        <child>
+          <object class="GtkButton">
+            <property name="visible">True</property>
+            <signal name="clicked" handler="ag_header_bar_selection_mode_cb" object="AgHeaderBar" swapped="no"/>
+            <style>
+              <class name="image-button"/>
+            </style>
+            <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="icon_name">object-select-symbolic</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="name">list</property>
+          </packing>
+        </child><!-- list mode right side buttons -->
+        <child>
+          <object class="GtkButton" id="selection_cancel_button">
+            <property name="visible">True</property>
+            <property name="label" translatable="yes">Cancel</property>
+            <signal name="clicked" handler="ag_header_bar_selection_mode_cb" object="AgHeaderBar" swapped="no"/>
+          </object>
+          <packing>
+            <property name="name">selection</property>
+          </packing>
+        </child><!-- selection mode right side buttons -->
+        <child>
+          <object class="GtkGrid">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkMenuButton" id="view_menu">
+                <property name="action_name">win.view-menu</property>
+                <style>
+                  <class name="image-button"/>
+                </style>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="icon_name">document-properties-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuButton" id="gear_menu">
+                <property name="visible">True</property>
+                <property name="action_name">win.gear-menu</property>
+                <style>
+                  <class name="image-button"/>
+                </style>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="icon_name">open-menu-symbolic</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="name">chart</property>
+          </packing>
+        </child><!-- chart mode right side buttons -->
+      </object>
+      <packing>
+        <property name="pack_type">end</property>
+      </packing>
+    </child>
+  </template>
+</interface>

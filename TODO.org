@@ -39,7 +39,7 @@ suggested in ag_window_load_chart_list().
 After the chart editing part of the UI is done, the help screenshots
 must be taken again.
 
-** TODO Add a progress bar for the list screen
+** DONE Add a progress bar for the list screen
 
 When there are many charts, loading the previews may take long. A
 progress bar should show the state of loading.

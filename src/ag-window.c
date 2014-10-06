@@ -34,32 +34,18 @@
 #include "ag-db.h"
 #include "ag-display-theme.h"
 #include "ag-icon-view.h"
+#include "ag-chart-edit.h"
+#include "ag-header-bar.h"
 
 struct _AgWindowPrivate {
-    GtkWidget     *header_bar;
-    GtkWidget     *menubutton_stack;
-    GtkWidget     *new_back_stack;
+    AgHeaderBar   *header_bar;
     GtkWidget     *selection_toolbar;
-    GtkWidget     *stack;
-    GtkWidget     *name;
-    GtkWidget     *country;
-    GtkWidget     *city;
-    GtkWidget     *north_lat;
-    GtkWidget     *south_lat;
-    GtkWidget     *latitude;
-    GtkWidget     *east_long;
-    GtkWidget     *west_long;
-    GtkWidget     *longitude;
-    GtkWidget     *year;
-    GtkWidget     *month;
-    GtkWidget     *day;
-    GtkWidget     *hour;
-    GtkWidget     *minute;
-    GtkWidget     *second;
-    GtkWidget     *timezone;
+    GtkStack      *tabs;
     GtkWidget     *house_system;
     GtkWidget     *display_theme;
     GtkWidget     *toolbar_aspect;
+    GtkProgressBar *load_progress;
+    GtkRevealer    *load_progress_revealer;
 
     GtkWidget     *tab_list;
     GtkWidget     *tab_chart;
@@ -67,31 +53,20 @@ struct _AgWindowPrivate {
     GtkWidget     *current_tab;
 
     GtkWidget     *aspect_table;
-    GtkWidget     *chart_web_view;
+    WebKitWebView *chart_web_view;
     GtkWidget     *points_eq;
-    GtkAdjustment *year_adjust;
 
-    GtkWidget     *chart_list;
+    AgIconView    *chart_list;
     AgSettings    *settings;
     AgChart       *chart;
     gboolean      aspect_table_populated;
-    GtkTextBuffer *note_buffer;
     GtkListStore  *house_system_model;
-    AgDbChartSave      *saved_data;
-    GtkEntryCompletion *country_comp;
-    GtkEntryCompletion *city_comp;
-    gchar              *selected_country;
-    gchar              *selected_city;
-    GList              *style_sheets;
-    AgDisplayTheme     *theme;
-    GtkListStore       *display_theme_model;
-    gulong             chart_changed_handler;
-};
-
-struct cc_search {
-    const gchar  *target;
-    GtkTreeIter  *ret_iter;
-    gchar        *ret_code;
+    AgDbChartSave *saved_data;
+    GList         *style_sheets;
+    AgDisplayTheme *theme;
+    GtkListStore   *display_theme_model;
+    gulong         chart_changed_handler;
+    WebKitUserContentManager *content_manager;
 };
 
 enum {
@@ -102,12 +77,12 @@ enum {
 };
 
 typedef struct {
-    guint      load_state;
-    guint      load_id;
-    AgIconView *icon_view;
-    gint       n_items;
-    gint       n_loaded;
-    GList      *items;
+    guint           load_state;
+    guint           load_id;
+    AgWindowPrivate *priv;
+    gint            n_items;
+    gint            n_loaded;
+    GList           *items;
 } LoadIdleData;
 
 enum {
@@ -560,7 +535,7 @@ ag_window_redraw_chart(AgWindow *window)
         content = g_bytes_new_take(svg_content, length);
 
         webkit_web_view_load_bytes(
-                WEBKIT_WEB_VIEW(priv->chart_web_view),
+                priv->chart_web_view,
                 content, "image/svg+xml",
                 "UTF-8", NULL
             );
@@ -602,8 +577,6 @@ ag_window_set_model_house_system(GtkTreeModel *model,
 void
 ag_window_update_from_chart(AgWindow *window)
 {
-    const gchar     *country,
-                    *city;
     GET_PRIV(window);
     GsweTimestamp   *timestamp   = gswe_moment_get_timestamp(
             GSWE_MOMENT(priv->chart)
@@ -612,74 +585,26 @@ ag_window_update_from_chart(AgWindow *window)
             GSWE_MOMENT(priv->chart)
         );
 
-    if ((country = ag_chart_get_country(priv->chart)) != NULL) {
-        gtk_entry_set_text(
-                GTK_ENTRY(priv->country),
-                ag_chart_get_country(priv->chart)
-            );
-    } else {
-        gtk_entry_set_text(
-                GTK_ENTRY(priv->country),
-                ""
-            );
-    }
-
-    if ((city = ag_chart_get_city(priv->chart)) != NULL) {
-        gtk_entry_set_text(
-                GTK_ENTRY(priv->city),
-                ag_chart_get_city(priv->chart)
-            );
-    } else {
-        gtk_entry_set_text(
-                GTK_ENTRY(priv->city),
-                ""
-            );
-    }
-
-    gtk_spin_button_set_value(
-            GTK_SPIN_BUTTON(priv->year),
-            gswe_timestamp_get_gregorian_year(timestamp, NULL)
+    ag_chart_edit_set_country(
+            AG_CHART_EDIT(priv->tab_edit),
+            ag_chart_get_country(priv->chart)
         );
-    gtk_spin_button_set_value(
-            GTK_SPIN_BUTTON(priv->month),
-            gswe_timestamp_get_gregorian_month(timestamp, NULL)
+    ag_chart_edit_set_city(
+            AG_CHART_EDIT(priv->tab_edit),
+            ag_chart_get_city(priv->chart)
         );
-    gtk_spin_button_set_value(
-            GTK_SPIN_BUTTON(priv->day),
-            gswe_timestamp_get_gregorian_day(timestamp, NULL)
+    ag_chart_edit_set_from_timestamp(
+            AG_CHART_EDIT(priv->tab_edit),
+            timestamp
         );
-    gtk_spin_button_set_value(
-            GTK_SPIN_BUTTON(priv->hour),
-            gswe_timestamp_get_gregorian_hour(timestamp, NULL)
+    ag_chart_edit_set_latitude(
+            AG_CHART_EDIT(priv->tab_edit),
+            coordinates->latitude
         );
-    gtk_spin_button_set_value(
-            GTK_SPIN_BUTTON(priv->minute),
-            gswe_timestamp_get_gregorian_minute(timestamp, NULL)
+    ag_chart_edit_set_longitude(
+            AG_CHART_EDIT(priv->tab_edit),
+            coordinates->longitude
         );
-    gtk_spin_button_set_value(
-            GTK_SPIN_BUTTON(priv->second),
-            gswe_timestamp_get_gregorian_second(timestamp, NULL));
-    gtk_spin_button_set_value(
-            GTK_SPIN_BUTTON(priv->timezone),
-            gswe_timestamp_get_gregorian_timezone(timestamp)
-        );
-    gtk_spin_button_set_value(
-            GTK_SPIN_BUTTON(priv->longitude),
-            fabs(coordinates->longitude)
-        );
-
-    if (coordinates->longitude < 0.0) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->west_long), TRUE);
-    }
-
-    gtk_spin_button_set_value(
-            GTK_SPIN_BUTTON(priv->latitude),
-            fabs(coordinates->latitude)
-        );
-
-    if (coordinates->latitude < 0.0) {
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->south_lat), TRUE);
-    }
 
     gtk_tree_model_foreach(
             GTK_TREE_MODEL(priv->house_system_model),
@@ -687,16 +612,15 @@ ag_window_update_from_chart(AgWindow *window)
             window
         );
 
-    gtk_entry_set_text(GTK_ENTRY(priv->name), ag_chart_get_name(priv->chart));
+    ag_chart_edit_set_name(
+            AG_CHART_EDIT(priv->tab_edit),
+            ag_chart_get_name(priv->chart)
+        );
 
-    if (ag_chart_get_note(priv->chart)) {
-        // TODO: maybe setting length to -1 here is not that good of an idea…
-        gtk_text_buffer_set_text(
-                GTK_TEXT_BUFFER(priv->note_buffer),
-                ag_chart_get_note(priv->chart),
-                -1
-            );
-    }
+    ag_chart_edit_set_note(
+            AG_CHART_EDIT(priv->tab_edit),
+            ag_chart_get_note(priv->chart)
+        );
 
     gtk_header_bar_set_subtitle(
             GTK_HEADER_BAR(priv->header_bar),
@@ -721,94 +645,15 @@ ag_window_recalculate_chart(AgWindow *window, gboolean set_everything)
     AgDbChartSave   *edit_data,
                     *chart_data;
     GET_PRIV(window);
-    gboolean        south,
-                    west;
-    GtkTreeIter     house_system_iter;
     GsweHouseSystem house_system;
-    GtkTextIter     start_iter,
-                    end_iter;
     GsweTimestamp   *timestamp;
-    GtkWidget       *current;
     gint            db_id = (priv->saved_data) ? priv->saved_data->db_id : -1;
     AgSettings      *settings;
 
-    south = gtk_toggle_button_get_active(
-            GTK_TOGGLE_BUTTON(priv->south_lat)
-        );
+    ag_chart_edit_update(AG_CHART_EDIT(priv->tab_edit));
 
-    west      = gtk_toggle_button_get_active(
-            GTK_TOGGLE_BUTTON(priv->west_long)
-        );
-
-    // If the current widget is a spin button, force it to update. This is
-    // required when the user enters a new value in a spin button, but doesn't
-    // leave the spin entry before switching to the chart tab with an accel.
-    current = gtk_window_get_focus(GTK_WINDOW(window));
-
-    if (GTK_IS_SPIN_BUTTON(current)) {
-        gtk_spin_button_update(GTK_SPIN_BUTTON(current));
-    }
-
-    edit_data = ag_db_chart_save_new(TRUE);
-
+    edit_data = ag_chart_edit_get_chart_save(AG_CHART_EDIT(priv->tab_edit));
     edit_data->db_id = db_id;
-
-    edit_data->name = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->name)));
-    edit_data->country = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->country)));
-    edit_data->city = g_strdup(gtk_entry_get_text(GTK_ENTRY(priv->city)));
-    edit_data->longitude = gtk_spin_button_get_value(
-            GTK_SPIN_BUTTON(priv->longitude)
-        );
-
-    if (west) {
-        edit_data->longitude = - edit_data->longitude;
-    }
-
-    edit_data->latitude = gtk_spin_button_get_value(
-            GTK_SPIN_BUTTON(priv->latitude)
-        );
-
-    if (south) {
-        edit_data->latitude = - edit_data->latitude;
-    }
-
-    // TODO: This will cause problems with imported charts
-    edit_data->altitude = DEFAULT_ALTITUDE;
-    edit_data->year = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->year)
-        );
-    edit_data->month = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->month)
-        );
-    edit_data->day = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->day)
-        );
-    edit_data->hour = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->hour)
-        );
-    edit_data->minute = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->minute)
-        );
-    edit_data->second = gtk_spin_button_get_value_as_int(
-            GTK_SPIN_BUTTON(priv->second)
-        );
-    edit_data->timezone = gtk_spin_button_get_value(
-            GTK_SPIN_BUTTON(priv->timezone)
-        );
-
-    if (!gtk_combo_box_get_active_iter(
-                GTK_COMBO_BOX(priv->house_system),
-                &house_system_iter
-            )) {
-        g_error("House system is not set! This is clearly a bug.");
-    }
-
-    gtk_text_buffer_get_bounds(priv->note_buffer, &start_iter, &end_iter);
-    edit_data->note = gtk_text_buffer_get_text(
-            priv->note_buffer,
-            &start_iter, &end_iter,
-            TRUE
-        );
 
     chart_data = (priv->chart)
             ? ag_chart_get_db_save(priv->chart)
@@ -1337,16 +1182,11 @@ ag_window_delete_event_callback(AgWindow *window,
 static void
 ag_window_clear_style_sheets(AgWindow *window)
 {
-    WebKitUserContentManager *manager;
     GET_PRIV(window);
 
     g_debug("Clearing style sheets");
 
-    manager = webkit_web_view_get_user_content_manager(
-            WEBKIT_WEB_VIEW(priv->chart_web_view)
-        );
-
-    webkit_user_content_manager_remove_all_style_sheets(manager);
+    webkit_user_content_manager_remove_all_style_sheets(priv->content_manager);
     g_list_free_full(
             priv->style_sheets,
             (GDestroyNotify)webkit_user_style_sheet_unref
@@ -1412,21 +1252,16 @@ static void
 ag_window_update_style_sheets(AgWindow *window)
 {
     GList                    *item;
-    WebKitUserContentManager *manager;
     GET_PRIV(window);
 
     g_debug("Updating style sheets");
 
-    manager = webkit_web_view_get_user_content_manager(
-            WEBKIT_WEB_VIEW(priv->chart_web_view)
-        );
-
-    webkit_user_content_manager_remove_all_style_sheets(manager);
+    webkit_user_content_manager_remove_all_style_sheets(priv->content_manager);
 
     for (item = priv->style_sheets; item; item = g_list_next(item)) {
         WebKitUserStyleSheet *style_sheet = item->data;
 
-        webkit_user_content_manager_add_style_sheet(manager, style_sheet);
+        webkit_user_content_manager_add_style_sheet(priv->content_manager, style_sheet);
     }
 }
 
@@ -1462,10 +1297,10 @@ ag_window_set_theme(AgWindow *window, AgDisplayTheme *theme)
 }
 
 static void
-ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
+ag_window_tab_changed_cb(GtkStack *tabs, GParamSpec *pspec, AgWindow *window)
 {
     GtkWidget       *active_tab;
-    const gchar     *active_tab_name = gtk_stack_get_visible_child_name(stack);
+    const gchar     *active_tab_name = gtk_stack_get_visible_child_name(tabs);
     GET_PRIV(window);
 
     g_debug("Active tab changed: %s", active_tab_name);
@@ -1474,7 +1309,7 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
         return;
     }
 
-    active_tab = gtk_stack_get_visible_child(stack);
+    active_tab = gtk_stack_get_visible_child(tabs);
 
     if (strcmp("chart", active_tab_name) == 0) {
         gtk_widget_set_size_request(active_tab, 600, 600);
@@ -1498,23 +1333,9 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
     }
 
     if (strcmp("list", active_tab_name) == 0) {
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->menubutton_stack),
-                "list"
-            );
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->new_back_stack),
-                "new"
-            );
+        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_LIST);
     } else {
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->menubutton_stack),
-                "chart"
-            );
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->new_back_stack),
-                "back"
-            );
+        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_CHART);
 
         // Note that priv->current_tab is actually the previously selected tab,
         // not the real active one!
@@ -1536,7 +1357,7 @@ ag_window_change_tab_action(GSimpleAction *action,
     const gchar     *target_tab = g_variant_get_string(parameter, NULL);
     GET_PRIV(window);
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), target_tab);
+    gtk_stack_set_visible_child_name(priv->tabs, target_tab);
     g_action_change_state(G_ACTION(action), parameter);
 }
 
@@ -1612,27 +1433,13 @@ ag_window_new_chart_action(GSimpleAction *action,
     AgWindow        *window = AG_WINDOW(user_data);
     GET_PRIV(window);
 
-    /* Empty edit tab values */
-    gtk_entry_set_text(GTK_ENTRY(priv->name), "");
-    gtk_entry_set_text(GTK_ENTRY(priv->country), "");
-    gtk_entry_set_text(GTK_ENTRY(priv->city), "");
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->year), (gdouble)1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->month), (gdouble)1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->day), (gdouble)1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->hour), (gdouble)1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->minute), (gdouble)1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->second), (gdouble)1);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->timezone), 0.0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->north_lat), TRUE);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(priv->east_long), TRUE);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->longitude), 0.0);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(priv->latitude), 0.0);
+    ag_chart_edit_clear(AG_CHART_EDIT(priv->tab_edit));
+
     gtk_tree_model_foreach(
             GTK_TREE_MODEL(priv->house_system_model),
             (GtkTreeModelForeachFunc)ag_window_set_default_house_system,
             window
         );
-    gtk_text_buffer_set_text(GTK_TEXT_BUFFER(priv->note_buffer), "", 0);
 
     if (priv->chart) {
         ag_app_message_dialog(
@@ -1643,12 +1450,12 @@ ag_window_new_chart_action(GSimpleAction *action,
                 "please consider issuing a bug report!"
             );
 
-        gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "chart");
+        gtk_stack_set_visible_child_name(priv->tabs, "chart");
 
         return;
     }
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
+    gtk_stack_set_visible_child_name(priv->tabs, "edit");
 }
 
 static void
@@ -1671,7 +1478,7 @@ ag_window_back_action(GSimpleAction *action,
         priv->saved_data = NULL;
 
         ag_window_reload_chart_list(window);
-        gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+        gtk_stack_set_visible_child_name(priv->tabs, "list");
         gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), NULL);
     }
 }
@@ -1687,42 +1494,44 @@ ag_window_refresh_action(GSimpleAction *action,
 static void
 ag_window_set_selection_mode(AgWindow *window, gboolean state)
 {
-    GtkStyleContext *style;
     GET_PRIV(window);
 
-    style = gtk_widget_get_style_context(priv->header_bar);
+    if (priv->current_tab != priv->tab_list) {
+        g_warning("You can activate selection mode only in the list view!");
+
+        return;
+    }
+
+    g_debug("Set selection mode: %d", state);
 
     if (state) {
-        gtk_header_bar_set_show_close_button(
-                GTK_HEADER_BAR(priv->header_bar),
-                FALSE
-            );
-        gtk_style_context_add_class(style, "selection-mode");
+        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_SELECTION);
         ag_icon_view_set_mode(
-                AG_ICON_VIEW(priv->chart_list),
+                priv->chart_list,
                 AG_ICON_VIEW_MODE_SELECTION
             );
-        gtk_widget_hide(priv->new_back_stack);
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->menubutton_stack),
-                "selection"
-            );
     } else {
-        gtk_header_bar_set_show_close_button(
-                GTK_HEADER_BAR(priv->header_bar),
-                TRUE
-            );
-        gtk_style_context_remove_class(style, "selection-mode");
+        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_LIST);
         ag_icon_view_set_mode(
-                AG_ICON_VIEW(priv->chart_list),
+                priv->chart_list,
                 AG_ICON_VIEW_MODE_NORMAL
             );
-        gtk_widget_show_all(priv->new_back_stack);
-        gtk_stack_set_visible_child_name(
-                GTK_STACK(priv->menubutton_stack),
-                "list"
-            );
     }
+}
+
+static void
+ag_window_header_bar_mode_change_cb(AgHeaderBar *header_bar,
+                                    GParamSpec  *pspec,
+                                    AgWindow    *window)
+{
+    AgHeaderBarMode mode;
+
+    mode = ag_header_bar_get_mode(header_bar);
+
+    ag_window_set_selection_mode(
+            window,
+            (mode == AG_HEADER_BAR_MODE_SELECTION)
+        );
 }
 
 static void
@@ -1756,8 +1565,6 @@ ag_window_selection_mode_action(GSimpleAction *action,
     g_action_change_state(G_ACTION(action), g_variant_new_boolean(new_state));
     g_variant_unref(state);
 
-    g_debug("Set selection mode: %d", new_state);
-
     ag_window_set_selection_mode(window, new_state);
 }
 
@@ -1772,14 +1579,14 @@ ag_window_delete_action(GSimpleAction *action,
     GET_PRIV(window);
     AgDb            *db     = ag_db_get();
 
-    selection = ag_icon_view_get_selected_items(AG_ICON_VIEW(priv->chart_list));
+    selection = ag_icon_view_get_selected_items(priv->chart_list);
 
     for (item = selection; item; item = g_list_next(item)) {
         GtkTreePath   *path = item->data;
         GError        *err = NULL;
         AgDbChartSave *save_data;
 
-        save_data = ag_icon_view_get_chart_save_at_path(AG_ICON_VIEW(priv->chart_list), path);
+        save_data = ag_icon_view_get_chart_save_at_path(priv->chart_list, path);
 
         if (!ag_db_chart_delete(db, save_data->db_id, &err)) {
             ag_app_message_dialog(
@@ -1793,20 +1600,22 @@ ag_window_delete_action(GSimpleAction *action,
         }
     }
 
-    ag_icon_view_remove_selected(AG_ICON_VIEW(priv->chart_list));
+    ag_icon_view_remove_selected(priv->chart_list);
 
     g_action_group_activate_action(G_ACTION_GROUP(window), "selection", NULL);
     g_action_group_activate_action(G_ACTION_GROUP(window), "refresh", NULL);
 }
 
 static void
-ag_window_js_callback(GObject *object, GAsyncResult *res, gpointer user_data)
+ag_window_js_callback(WebKitWebView *web_view,
+                      GAsyncResult  *res,
+                      gpointer      user_data)
 {
     WebKitJavascriptResult *js_result;
     GError                 *err = NULL;
 
     if ((js_result = webkit_web_view_run_javascript_finish(
-                WEBKIT_WEB_VIEW(object),
+                web_view,
                 res,
                 &err
             )) != NULL) {
@@ -1850,10 +1659,10 @@ ag_window_connection_action(GSimpleAction *action,
 
     if (js_code) {
         webkit_web_view_run_javascript(
-                WEBKIT_WEB_VIEW(priv->chart_web_view),
+                priv->chart_web_view,
                 js_code,
                 NULL,
-                ag_window_js_callback,
+                (GAsyncReadyCallback)ag_window_js_callback,
                 NULL
             );
         g_free(js_code);
@@ -2019,49 +1828,6 @@ ag_window_list_selection_changed_cb(AgIconView *view, AgWindow *window)
     // Here it is possible to set button sensitivity later
 }
 
-static gboolean
-ag_window_city_matches(GtkEntryCompletion *city_comp,
-                       const gchar        *key,
-                       GtkTreeIter        *iter,
-                       AgWindow           *window)
-{
-    GET_PRIV(window);
-    gchar           *ccode,
-                    *name,
-                    *normalized_name,
-                    *case_normalized_name;
-    gboolean        ret = FALSE;
-
-    gtk_tree_model_get(
-            gtk_entry_completion_get_model(city_comp), iter,
-            AG_CITY_NAME,    &name,
-            AG_CITY_COUNTRY, &ccode,
-            -1
-        );
-
-    if (
-                (priv->selected_country == NULL)
-                || (strcmp(priv->selected_country, ccode) == 0)
-            ) {
-        normalized_name = g_utf8_normalize(name, -1, G_NORMALIZE_ALL);
-
-        if (normalized_name) {
-            case_normalized_name = g_utf8_casefold(normalized_name, -1);
-            if (strncmp(key, case_normalized_name, strlen(key)) == 0) {
-                ret = TRUE;
-            }
-
-            g_free(case_normalized_name);
-            g_free(normalized_name);
-        }
-    }
-
-    g_free(name);
-    g_free(ccode);
-
-    return ret;
-}
-
 gboolean
 ag_window_chart_context_cb(WebKitWebView       *web_view,
                            GtkWidget           *default_menu,
@@ -2081,26 +1847,9 @@ ag_window_init(AgWindow *window)
                              *display_theme_list;
     GtkCellRenderer          *house_system_renderer,
                              *display_theme_renderer;
-    WebKitUserContentManager *manager = webkit_user_content_manager_new();
     GET_PRIV(window);
 
     gtk_widget_init_template(GTK_WIDGET(window));
-
-    priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
-            manager
-        );
-    gtk_box_pack_end(
-            GTK_BOX(priv->tab_chart),
-            priv->chart_web_view,
-            TRUE, TRUE, 0
-        );
-
-    g_signal_connect(
-            priv->chart_web_view,
-            "context-menu",
-            G_CALLBACK(ag_window_chart_context_cb),
-            NULL
-        );
 
     priv->settings = ag_settings_get();
     main_settings  = ag_settings_peek_main_settings(priv->settings);
@@ -2116,21 +1865,6 @@ ag_window_init(AgWindow *window)
             "changed::aspects-char",
             G_CALLBACK(ag_window_display_changed),
             window
-        );
-
-    gtk_entry_completion_set_model(priv->country_comp, country_list);
-    gtk_entry_completion_set_text_column(priv->country_comp, AG_COUNTRY_NAME);
-    gtk_entry_set_completion(GTK_ENTRY(priv->country), priv->country_comp);
-
-    gtk_entry_completion_set_model(priv->city_comp, city_list);
-    gtk_entry_completion_set_text_column(priv->city_comp, AG_CITY_NAME);
-    gtk_entry_completion_set_minimum_key_length(priv->city_comp, 3);
-    gtk_entry_set_completion(GTK_ENTRY(priv->city), priv->city_comp);
-    gtk_entry_completion_set_match_func(
-            priv->city_comp,
-            (GtkEntryCompletionMatchFunc)ag_window_city_matches,
-            window,
-            NULL
         );
 
     // Fill the house system model and set the combo box on the Edit tab to the
@@ -2183,15 +1917,8 @@ ag_window_init(AgWindow *window)
             NULL
         );
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+    gtk_stack_set_visible_child_name(priv->tabs, "list");
     priv->current_tab = priv->tab_list;
-
-    g_object_set(
-            priv->year_adjust,
-            "lower", (gdouble)G_MININT,
-            "upper", (gdouble)G_MAXINT,
-            NULL
-        );
 
     ag_window_set_chart(window, NULL);
 
@@ -2217,196 +1944,14 @@ ag_window_dispose(GObject *gobject)
 }
 
 static void
-ag_window_name_changed_cb(GtkEntry *name_entry, AgWindow *window)
+ag_window_name_changed_cb(AgChartEdit *chart_edit, AgWindow *window)
 {
-    const gchar     *name;
     GET_PRIV(window);
 
-    name = gtk_entry_get_text(name_entry);
-
-    gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), name);
-}
-
-static gboolean
-ag_window_find_country(GtkTreeModel     *model,
-                       GtkTreePath      *path,
-                       GtkTreeIter      *iter,
-                       struct cc_search *search)
-{
-    gchar    *name,
-             *ccode;
-    gboolean found = FALSE;
-
-    gtk_tree_model_get(
-            model, iter,
-            AG_COUNTRY_NAME, &name,
-            AG_COUNTRY_CODE, &ccode,
-            -1
+    gtk_header_bar_set_subtitle(
+            GTK_HEADER_BAR(priv->header_bar),
+            ag_chart_edit_get_name(AG_CHART_EDIT(priv->tab_edit))
         );
-
-    if (g_utf8_collate(search->target, name) == 0) {
-        found = TRUE;
-        search->ret_iter = gtk_tree_iter_copy(iter);
-        search->ret_code = ccode;
-    } else {
-        g_free(ccode);
-    }
-
-    return found;
-}
-
-/**
- * ag_window_country_changed_callback:
- * @country: the #GtkSearchEntry for country search
- * @window: the window in which the event happens
- *
- * This function is called whenever the text in the country search entry is
- * changed.
- */
-static void
-ag_window_country_changed_callback(GtkSearchEntry *country, AgWindow *window)
-{
-    struct cc_search search;
-    GET_PRIV(window);
-
-    search.target   = gtk_entry_get_text(GTK_ENTRY(country));
-    search.ret_iter = NULL;
-
-    gtk_tree_model_foreach(
-            country_list,
-            (GtkTreeModelForeachFunc)ag_window_find_country,
-            &search
-        );
-
-    g_free(priv->selected_country);
-
-    if (search.ret_iter != NULL) {
-        g_debug("Country (entry-changed): %s", search.ret_code);
-        gtk_tree_iter_free(search.ret_iter);
-        priv->selected_country = search.ret_code;
-    } else {
-        priv->selected_country = NULL;
-    }
-}
-
-static gboolean
-ag_window_find_city(GtkTreeModel     *model,
-                    GtkTreePath      *path,
-                    GtkTreeIter      *iter,
-                    struct cc_search *search)
-{
-    gchar    *name,
-             *ccode;
-    gboolean found = FALSE;
-
-    gtk_tree_model_get(
-            model, iter,
-            AG_CITY_NAME, &name,
-            AG_CITY_COUNTRY, &ccode,
-            -1
-        );
-
-    if (g_utf8_collate(search->target, name) == 0) {
-        found = TRUE;
-        search->ret_iter = gtk_tree_iter_copy(iter);
-        search->ret_code = ccode;
-    } else {
-        g_free(ccode);
-    }
-
-    return found;
-}
-
-static void
-ag_window_city_changed_callback(GtkSearchEntry *city, AgWindow *window)
-{
-    struct cc_search search;
-    GET_PRIV(window);
-
-    search.target   = gtk_entry_get_text(GTK_ENTRY(city));
-    search.ret_iter = NULL;
-
-    gtk_tree_model_foreach(
-            city_list,
-            (GtkTreeModelForeachFunc)ag_window_find_city,
-            &search
-        );
-
-    g_free(priv->selected_city);
-
-    if (search.ret_iter != NULL) {
-        gdouble longitude,
-                latitude,
-                altitude;
-        gchar   *name,
-                *ccode;
-
-        gtk_tree_model_get(
-                city_list, search.ret_iter,
-                AG_CITY_COUNTRY, &ccode,
-                AG_CITY_NAME,    &name,
-                AG_CITY_LAT,     &latitude,
-                AG_CITY_LONG,    &longitude,
-                AG_CITY_ALT,     &altitude,
-                -1
-            );
-
-        if (
-                    (priv->selected_country != NULL)
-                    && (strcmp(priv->selected_country, ccode) != 0)
-                ) {
-            return;
-        }
-
-        if (latitude < 0.0) {
-            gtk_toggle_button_set_active(
-                    GTK_TOGGLE_BUTTON(priv->south_lat),
-                    TRUE
-                );
-            gtk_spin_button_set_value(
-                    GTK_SPIN_BUTTON(priv->latitude),
-                    -latitude
-                );
-        } else {
-            gtk_toggle_button_set_active(
-                    GTK_TOGGLE_BUTTON(priv->north_lat),
-                    TRUE
-                );
-            gtk_spin_button_set_value(
-                    GTK_SPIN_BUTTON(priv->latitude),
-                    latitude
-                );
-        }
-
-        if (longitude < 0.0) {
-            gtk_toggle_button_set_active(
-                    GTK_TOGGLE_BUTTON(priv->west_long),
-                    TRUE
-                );
-            gtk_spin_button_set_value(
-                    GTK_SPIN_BUTTON(priv->longitude),
-                    -longitude
-                );
-        } else {
-            gtk_toggle_button_set_active(
-                    GTK_TOGGLE_BUTTON(priv->east_long),
-                    TRUE
-                );
-            gtk_spin_button_set_value(
-                    GTK_SPIN_BUTTON(priv->longitude),
-                    longitude
-                );
-        }
-
-        // TODO: implement setting altitude maybe? Is that really necessary?
-
-        g_debug("City (entry-changed): %s (%s); %.6f, %.6f, %.6f", name, search.ret_code, longitude, latitude, altitude);
-        g_free(name);
-        gtk_tree_iter_free(search.ret_iter);
-        priv->selected_city = search.ret_code;
-    } else {
-        priv->selected_city = NULL;
-    }
 }
 
 static void
@@ -2456,12 +2001,12 @@ ag_window_destroy(GtkWidget *widget)
 {
     GET_PRIV(AG_WINDOW(widget));
 
-    // Destroy the signal handlers on priv->stack, as “tab” switching
+    // Destroy the signal handlers on priv->tabs, as “tab” switching
     // can cause trouble during destroy. However, this function might
     // get called multiple times for the same object, in which case
-    // priv->stack is NULL.
-    if (priv->stack) {
-        g_signal_handlers_destroy(priv->stack);
+    // priv->tabs is NULL.
+    if (priv->tabs) {
+        g_signal_handlers_destroy(priv->tabs);
     }
 
     GTK_WIDGET_CLASS(ag_window_parent_class)->destroy(widget);
@@ -2555,83 +2100,7 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_child_private(
             widget_class,
             AgWindow,
-            new_back_stack
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            menubutton_stack
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
             tab_edit
-        );
-    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, name);
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            country
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            country_comp
-        );
-    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, city);
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            city_comp
-        );
-    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, year);
-    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, month);
-    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, day);
-    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, hour);
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            minute
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            second
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            timezone
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            north_lat
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            south_lat
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            east_long
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            west_long
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            latitude
-        );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            longitude
         );
     gtk_widget_class_bind_template_child_private(
             widget_class,
@@ -2653,17 +2122,7 @@ ag_window_class_init(AgWindowClass *klass)
             AgWindow,
             aspect_table
         );
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            year_adjust
-        );
-    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, stack);
-    gtk_widget_class_bind_template_child_private(
-            widget_class,
-            AgWindow,
-            note_buffer
-        );
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, tabs);
     gtk_widget_class_bind_template_child_private(
             widget_class,
             AgWindow,
@@ -2699,6 +2158,26 @@ ag_window_class_init(AgWindowClass *klass)
             AgWindow,
             chart_list
         );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            chart_web_view
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            content_manager
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            load_progress
+        );
+    gtk_widget_class_bind_template_child_private(
+            widget_class,
+            AgWindow,
+            load_progress_revealer
+        );
 
     gtk_widget_class_bind_template_callback(
             widget_class,
@@ -2711,14 +2190,6 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_name_changed_cb
-        );
-    gtk_widget_class_bind_template_callback(
-            widget_class,
-            ag_window_country_changed_callback
-        );
-    gtk_widget_class_bind_template_callback(
-            widget_class,
-            ag_window_city_changed_callback
         );
     gtk_widget_class_bind_template_callback(
             widget_class,
@@ -2743,6 +2214,14 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_house_system_changed_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_header_bar_mode_change_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_window_chart_context_cb
         );
 }
 
@@ -2770,7 +2249,7 @@ ag_window_new(AgApp *app)
 
     // TODO: translate this error message!
     webkit_web_view_load_html(
-            WEBKIT_WEB_VIEW(priv->chart_web_view),
+            priv->chart_web_view,
             "<html>" \
                 "<head>" \
                     "<title>No Chart</title>" \
@@ -2899,7 +2378,7 @@ ag_window_change_tab(AgWindow *window, const gchar *tab_name)
 {
     GET_PRIV(window);
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), tab_name);
+    gtk_stack_set_visible_child_name(priv->tabs, tab_name);
     g_action_change_state(
             g_action_map_lookup_action(G_ACTION_MAP(window), "change-tab"),
             g_variant_new_string(tab_name)
@@ -2928,17 +2407,22 @@ ag_window_add_chart(LoadIdleData *idle_data)
         idle_data->load_state = PREVIEW_STATE_LOADING;
     }
 
+    gtk_progress_bar_set_fraction(
+            idle_data->priv->load_progress,
+            (gdouble)idle_data->n_loaded / (gdouble)idle_data->n_items
+        );
+
     save_data = g_list_nth_data(idle_data->items, idle_data->n_loaded);
 
     g_assert(save_data);
 
-    ag_icon_view_add_chart(idle_data->icon_view, save_data);
+    ag_icon_view_add_chart(idle_data->priv->chart_list, save_data);
 
     idle_data->n_loaded++;
 
-    // TODO: maybe a progress bar should update somewhere during loading?
-
     if (idle_data->n_loaded == idle_data->n_items) {
+        g_debug("Finished loading");
+
         idle_data->load_state = PREVIEW_STATE_COMPLETE;
         idle_data->n_loaded = 0;
         idle_data->n_items = 0;
@@ -2956,6 +2440,13 @@ ag_window_cleanup_load_items(LoadIdleData *idle_data)
 {
     g_assert(idle_data->load_state == PREVIEW_STATE_COMPLETE);
 
+    g_debug("Cleaning up lazy loader");
+
+    gtk_revealer_set_reveal_child(
+            idle_data->priv->load_progress_revealer,
+            FALSE
+        );
+
     g_free(idle_data);
 }
 
@@ -2968,7 +2459,7 @@ ag_window_reload_chart_list(AgWindow *window)
     GList           *chart_list = ag_db_chart_get_list(db, &err);
     GET_PRIV(window);
 
-    ag_icon_view_remove_all(AG_ICON_VIEW(priv->chart_list));
+    ag_icon_view_remove_all(priv->chart_list);
 
     /* Lazy loading of charts with previews. Idea is from
      * http://blogs.gnome.org/ebassi/documentation/lazy-loading/ */
@@ -2977,8 +2468,11 @@ ag_window_reload_chart_list(AgWindow *window)
     idle_data->items = chart_list;
     idle_data->n_items = 0;
     idle_data->n_loaded = 0;
-    idle_data->icon_view = AG_ICON_VIEW(priv->chart_list);
+    idle_data->priv = priv;
     idle_data->load_state = PREVIEW_STATE_STARTED;
+
+    gtk_progress_bar_set_fraction(priv->load_progress, 0.0);
+    gtk_revealer_set_reveal_child(priv->load_progress_revealer, TRUE);
 
     idle_data->load_id = g_idle_add_full(
             G_PRIORITY_DEFAULT_IDLE,

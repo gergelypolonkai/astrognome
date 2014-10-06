@@ -10,4 +10,5 @@ src/astrognome.c
 [type: gettext/glade]src/resources/ui/astrognome.ui
 [type: gettext/glade]src/resources/ui/ag-window.ui
 [type: gettext/glade]src/resources/ui/ag-preferences.ui
+[type: gettext/glade]src/resources/ui/ag-chart-edit.ui
 astrognome.appdata.xml.in
