@@ -87,7 +87,7 @@
       </object>
     </child>
     <child>
-      <object class="GtkBox">
+      <object class="GtkGrid">
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkStack" id="tabs">
@@ -96,12 +96,56 @@
             <property name="hexpand">True</property>
             <signal name="notify::visible-child" handler="ag_window_tab_changed_cb" object="AgWindow" swapped="no"/>
             <child>
-              <object class="GtkScrolledWindow" id="tab_list">
+              <object class="GtkGrid" id="tab_list">
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="AgIconView" id="chart_list">
-                    <signal name="item-activated" handler="ag_window_list_item_activated_cb" object="AgWindow" swapped="no"/>
-                    <signal name="selection-changed" handler="ag_window_list_selection_changed_cb" object="AgWindow" swapped="no"/>
-                    <signal name="notify::mode" handler="ag_window_icon_view_mode_cb" object="AgWindow" swapped="no"/>
+                  <object class="GtkOverlay">
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <child>
+                          <object class="AgIconView" id="chart_list">
+                            <signal name="item-activated" handler="ag_window_list_item_activated_cb" object="AgWindow" swapped="no"/>
+                            <signal name="selection-changed" handler="ag_window_list_selection_changed_cb" object="AgWindow" swapped="no"/>
+                            <signal name="notify::mode" handler="ag_window_icon_view_mode_cb" object="AgWindow" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkRevealer" id="selection_toolbar">
+                    <property name="visible">True</property>
+                    <property name="reveal_child">False</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="action_name">win.delete</property>
+                            <style>
+                              <class name="image-button"/>
+                              <class name="destructive-action"/>
+                            </style>
+                            <child>
+                              <object class="GtkImage">
+                                <property name="visible">True</property>
+                                <property name="icon_size">1</property>
+                                <property name="icon_name">user-trash-symbolic</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="pack_type">end</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -333,39 +377,6 @@
                 <property name="name">points</property>
                 <property name="title" translatable="yes">Points</property>
               </packing>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkRevealer" id="selection_toolbar">
-            <property name="visible">True</property>
-            <property name="reveal_child">False</property>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkButton">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="action_name">win.delete</property>
-                    <style>
-                      <class name="image-button"/>
-                      <class name="destructive-action"/>
-                    </style>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="icon_size">1</property>
-                        <property name="icon_name">user-trash-symbolic</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="pack_type">end</property>
-                  </packing>
-                </child>
-              </object>
             </child>
           </object>
         </child>
