@@ -259,8 +259,6 @@ ag_header_bar_class_init(AgHeaderBarClass *klass)
 static void
 ag_header_bar_init(AgHeaderBar *header_bar)
 {
-    GET_PRIV(priv, header_bar);
-
     gtk_widget_init_template(GTK_WIDGET(header_bar));
 
     ag_header_bar_set_mode_internal(header_bar, DEFAULT_MODE, TRUE);

@@ -88,7 +88,7 @@
       <object class="GtkBox">
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkStack" id="stack">
+          <object class="GtkStack" id="tabs">
             <property name="visible">True</property>
             <property name="vexpand">True</property>
             <property name="hexpand">True</property>

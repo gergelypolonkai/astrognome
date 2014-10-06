@@ -38,9 +38,9 @@
 #include "ag-header-bar.h"
 
 struct _AgWindowPrivate {
-    GtkWidget     *header_bar;
+    AgHeaderBar   *header_bar;
     GtkWidget     *selection_toolbar;
-    GtkWidget     *stack;
+    GtkStack      *tabs;
     GtkWidget     *house_system;
     GtkWidget     *display_theme;
     GtkWidget     *toolbar_aspect;
@@ -51,10 +51,10 @@ struct _AgWindowPrivate {
     GtkWidget     *current_tab;
 
     GtkWidget     *aspect_table;
-    GtkWidget     *chart_web_view;
+    WebKitWebView *chart_web_view;
     GtkWidget     *points_eq;
 
-    GtkWidget     *chart_list;
+    AgIconView    *chart_list;
     AgSettings    *settings;
     AgChart       *chart;
     gboolean      aspect_table_populated;
@@ -532,7 +532,7 @@ ag_window_redraw_chart(AgWindow *window)
         content = g_bytes_new_take(svg_content, length);
 
         webkit_web_view_load_bytes(
-                WEBKIT_WEB_VIEW(priv->chart_web_view),
+                priv->chart_web_view,
                 content, "image/svg+xml",
                 "UTF-8", NULL
             );
@@ -1304,10 +1304,10 @@ ag_window_set_theme(AgWindow *window, AgDisplayTheme *theme)
 }
 
 static void
-ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
+ag_window_tab_changed_cb(GtkStack *tabs, GParamSpec *pspec, AgWindow *window)
 {
     GtkWidget       *active_tab;
-    const gchar     *active_tab_name = gtk_stack_get_visible_child_name(stack);
+    const gchar     *active_tab_name = gtk_stack_get_visible_child_name(tabs);
     GET_PRIV(window);
 
     g_debug("Active tab changed: %s", active_tab_name);
@@ -1316,7 +1316,7 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
         return;
     }
 
-    active_tab = gtk_stack_get_visible_child(stack);
+    active_tab = gtk_stack_get_visible_child(tabs);
 
     if (strcmp("chart", active_tab_name) == 0) {
         gtk_widget_set_size_request(active_tab, 600, 600);
@@ -1340,9 +1340,9 @@ ag_window_tab_changed_cb(GtkStack *stack, GParamSpec *pspec, AgWindow *window)
     }
 
     if (strcmp("list", active_tab_name) == 0) {
-        ag_header_bar_set_mode(AG_HEADER_BAR(priv->header_bar), AG_HEADER_BAR_MODE_LIST);
+        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_LIST);
     } else {
-        ag_header_bar_set_mode(AG_HEADER_BAR(priv->header_bar), AG_HEADER_BAR_MODE_CHART);
+        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_CHART);
 
         // Note that priv->current_tab is actually the previously selected tab,
         // not the real active one!
@@ -1364,7 +1364,7 @@ ag_window_change_tab_action(GSimpleAction *action,
     const gchar     *target_tab = g_variant_get_string(parameter, NULL);
     GET_PRIV(window);
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), target_tab);
+    gtk_stack_set_visible_child_name(priv->tabs, target_tab);
     g_action_change_state(G_ACTION(action), parameter);
 }
 
@@ -1457,12 +1457,12 @@ ag_window_new_chart_action(GSimpleAction *action,
                 "please consider issuing a bug report!"
             );
 
-        gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "chart");
+        gtk_stack_set_visible_child_name(priv->tabs, "chart");
 
         return;
     }
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "edit");
+    gtk_stack_set_visible_child_name(priv->tabs, "edit");
 }
 
 static void
@@ -1485,7 +1485,7 @@ ag_window_back_action(GSimpleAction *action,
         priv->saved_data = NULL;
 
         ag_window_reload_chart_list(window);
-        gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+        gtk_stack_set_visible_child_name(priv->tabs, "list");
         gtk_header_bar_set_subtitle(GTK_HEADER_BAR(priv->header_bar), NULL);
     }
 }
@@ -1512,15 +1512,15 @@ ag_window_set_selection_mode(AgWindow *window, gboolean state)
     g_debug("Set selection mode: %d", state);
 
     if (state) {
-        ag_header_bar_set_mode(AG_HEADER_BAR(priv->header_bar), AG_HEADER_BAR_MODE_SELECTION);
+        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_SELECTION);
         ag_icon_view_set_mode(
-                AG_ICON_VIEW(priv->chart_list),
+                priv->chart_list,
                 AG_ICON_VIEW_MODE_SELECTION
             );
     } else {
-        ag_header_bar_set_mode(AG_HEADER_BAR(priv->header_bar), AG_HEADER_BAR_MODE_LIST);
+        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_LIST);
         ag_icon_view_set_mode(
-                AG_ICON_VIEW(priv->chart_list),
+                priv->chart_list,
                 AG_ICON_VIEW_MODE_NORMAL
             );
     }
@@ -1586,14 +1586,14 @@ ag_window_delete_action(GSimpleAction *action,
     GET_PRIV(window);
     AgDb            *db     = ag_db_get();
 
-    selection = ag_icon_view_get_selected_items(AG_ICON_VIEW(priv->chart_list));
+    selection = ag_icon_view_get_selected_items(priv->chart_list);
 
     for (item = selection; item; item = g_list_next(item)) {
         GtkTreePath   *path = item->data;
         GError        *err = NULL;
         AgDbChartSave *save_data;
 
-        save_data = ag_icon_view_get_chart_save_at_path(AG_ICON_VIEW(priv->chart_list), path);
+        save_data = ag_icon_view_get_chart_save_at_path(priv->chart_list, path);
 
         if (!ag_db_chart_delete(db, save_data->db_id, &err)) {
             ag_app_message_dialog(
@@ -1607,20 +1607,22 @@ ag_window_delete_action(GSimpleAction *action,
         }
     }
 
-    ag_icon_view_remove_selected(AG_ICON_VIEW(priv->chart_list));
+    ag_icon_view_remove_selected(priv->chart_list);
 
     g_action_group_activate_action(G_ACTION_GROUP(window), "selection", NULL);
     g_action_group_activate_action(G_ACTION_GROUP(window), "refresh", NULL);
 }
 
 static void
-ag_window_js_callback(GObject *object, GAsyncResult *res, gpointer user_data)
+ag_window_js_callback(WebKitWebView *web_view,
+                      GAsyncResult  *res,
+                      gpointer      user_data)
 {
     WebKitJavascriptResult *js_result;
     GError                 *err = NULL;
 
     if ((js_result = webkit_web_view_run_javascript_finish(
-                WEBKIT_WEB_VIEW(object),
+                web_view,
                 res,
                 &err
             )) != NULL) {
@@ -1664,10 +1666,10 @@ ag_window_connection_action(GSimpleAction *action,
 
     if (js_code) {
         webkit_web_view_run_javascript(
-                WEBKIT_WEB_VIEW(priv->chart_web_view),
+                priv->chart_web_view,
                 js_code,
                 NULL,
-                ag_window_js_callback,
+                (GAsyncReadyCallback)ag_window_js_callback,
                 NULL
             );
         g_free(js_code);
@@ -1857,12 +1859,12 @@ ag_window_init(AgWindow *window)
 
     gtk_widget_init_template(GTK_WIDGET(window));
 
-    priv->chart_web_view = webkit_web_view_new_with_user_content_manager(
+    priv->chart_web_view = WEBKIT_WEB_VIEW(webkit_web_view_new_with_user_content_manager(
             manager
-        );
+        ));
     gtk_box_pack_end(
             GTK_BOX(priv->tab_chart),
-            priv->chart_web_view,
+            GTK_WIDGET(priv->chart_web_view),
             TRUE, TRUE, 0
         );
 
@@ -1939,7 +1941,7 @@ ag_window_init(AgWindow *window)
             NULL
         );
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), "list");
+    gtk_stack_set_visible_child_name(priv->tabs, "list");
     priv->current_tab = priv->tab_list;
 
     ag_window_set_chart(window, NULL);
@@ -2023,12 +2025,12 @@ ag_window_destroy(GtkWidget *widget)
 {
     GET_PRIV(AG_WINDOW(widget));
 
-    // Destroy the signal handlers on priv->stack, as “tab” switching
+    // Destroy the signal handlers on priv->tabs, as “tab” switching
     // can cause trouble during destroy. However, this function might
     // get called multiple times for the same object, in which case
-    // priv->stack is NULL.
-    if (priv->stack) {
-        g_signal_handlers_destroy(priv->stack);
+    // priv->tabs is NULL.
+    if (priv->tabs) {
+        g_signal_handlers_destroy(priv->tabs);
     }
 
     GTK_WIDGET_CLASS(ag_window_parent_class)->destroy(widget);
@@ -2144,7 +2146,7 @@ ag_window_class_init(AgWindowClass *klass)
             AgWindow,
             aspect_table
         );
-    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, stack);
+    gtk_widget_class_bind_template_child_private(widget_class, AgWindow, tabs);
     gtk_widget_class_bind_template_child_private(
             widget_class,
             AgWindow,
@@ -2247,7 +2249,7 @@ ag_window_new(AgApp *app)
 
     // TODO: translate this error message!
     webkit_web_view_load_html(
-            WEBKIT_WEB_VIEW(priv->chart_web_view),
+            priv->chart_web_view,
             "<html>" \
                 "<head>" \
                     "<title>No Chart</title>" \
@@ -2376,7 +2378,7 @@ ag_window_change_tab(AgWindow *window, const gchar *tab_name)
 {
     GET_PRIV(window);
 
-    gtk_stack_set_visible_child_name(GTK_STACK(priv->stack), tab_name);
+    gtk_stack_set_visible_child_name(priv->tabs, tab_name);
     g_action_change_state(
             g_action_map_lookup_action(G_ACTION_MAP(window), "change-tab"),
             g_variant_new_string(tab_name)
@@ -2445,7 +2447,7 @@ ag_window_reload_chart_list(AgWindow *window)
     GList           *chart_list = ag_db_chart_get_list(db, &err);
     GET_PRIV(window);
 
-    ag_icon_view_remove_all(AG_ICON_VIEW(priv->chart_list));
+    ag_icon_view_remove_all(priv->chart_list);
 
     /* Lazy loading of charts with previews. Idea is from
      * http://blogs.gnome.org/ebassi/documentation/lazy-loading/ */
@@ -2454,7 +2456,7 @@ ag_window_reload_chart_list(AgWindow *window)
     idle_data->items = chart_list;
     idle_data->n_items = 0;
     idle_data->n_loaded = 0;
-    idle_data->icon_view = AG_ICON_VIEW(priv->chart_list);
+    idle_data->icon_view = priv->chart_list;
     idle_data->load_state = PREVIEW_STATE_STARTED;
 
     idle_data->load_id = g_idle_add_full(
