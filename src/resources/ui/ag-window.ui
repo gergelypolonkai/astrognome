@@ -239,6 +239,8 @@
                 <child>
                   <object class="WebkitWebView" id="chart_web_view">
                     <property name="user-content-manager">content_manager</property>
+                    <property name="vexpand">True</property>
+                    <property name="hexpand">True</property>
                     <signal name="context-menu" handler="ag_window_chart_context_cb"/>
                   </object>
                 </child>
