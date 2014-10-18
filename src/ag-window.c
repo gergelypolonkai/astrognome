@@ -1299,20 +1299,19 @@ ag_window_set_theme(AgWindow *window, AgDisplayTheme *theme)
 static void
 ag_window_tab_changed_cb(GtkStack *tabs, GParamSpec *pspec, AgWindow *window)
 {
-    GtkWidget       *active_tab;
-    const gchar     *active_tab_name = gtk_stack_get_visible_child_name(tabs);
     GET_PRIV(window);
+    GtkWidget       *old_tab = priv->current_tab;
+    GtkWidget       *new_tab = gtk_stack_get_visible_child(tabs);
+    const gchar     *active_tab_name = gtk_stack_get_visible_child_name(tabs);
 
-    g_debug("Active tab changed: %s", active_tab_name);
-
-    if (active_tab_name == NULL) {
+    if (old_tab == new_tab) {
         return;
     }
 
-    active_tab = gtk_stack_get_visible_child(tabs);
+    g_debug("Active tab changed: %s", active_tab_name);
 
     if (strcmp("chart", active_tab_name) == 0) {
-        gtk_widget_set_size_request(active_tab, 600, 600);
+        gtk_widget_set_size_request(new_tab, 600, 600);
         if (priv->theme == NULL) {
             AgSettings           *settings;
             GSettings            *main_settings;
@@ -1335,6 +1334,8 @@ ag_window_tab_changed_cb(GtkStack *tabs, GParamSpec *pspec, AgWindow *window)
     if (strcmp("list", active_tab_name) == 0) {
         ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_LIST);
     } else {
+        g_debug("Switching header bar to chart mode");
+
         ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_CHART);
 
         // Note that priv->current_tab is actually the previously selected tab,
@@ -1345,7 +1346,7 @@ ag_window_tab_changed_cb(GtkStack *tabs, GParamSpec *pspec, AgWindow *window)
         }
     }
 
-    priv->current_tab = active_tab;
+    priv->current_tab = new_tab;
 }
 
 static void
@@ -1492,46 +1493,29 @@ ag_window_refresh_action(GSimpleAction *action,
 }
 
 static void
-ag_window_set_selection_mode(AgWindow *window, gboolean state)
+ag_window_header_bar_mode_change_cb(AgHeaderBar     *header_bar,
+                                    AgHeaderBarMode mode,
+                                    AgWindow        *window)
 {
     GET_PRIV(window);
 
-    if (priv->current_tab != priv->tab_list) {
-        g_warning("You can activate selection mode only in the list view!");
+    switch (mode) {
+        case AG_HEADER_BAR_MODE_LIST:
+            ag_window_change_tab(window, "list");
+            ag_header_bar_set_mode(header_bar, mode);
+            ag_icon_view_set_mode(priv->chart_list, AG_ICON_VIEW_MODE_NORMAL);
 
-        return;
+            break;
+
+        case AG_HEADER_BAR_MODE_SELECTION:
+            ag_header_bar_set_mode(header_bar, mode);
+            ag_icon_view_set_mode(priv->chart_list, AG_ICON_VIEW_MODE_SELECTION);
+
+            break;
+
+        default:
+            break;
     }
-
-    g_debug("Set selection mode: %d", state);
-
-    if (state) {
-        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_SELECTION);
-        ag_icon_view_set_mode(
-                priv->chart_list,
-                AG_ICON_VIEW_MODE_SELECTION
-            );
-    } else {
-        ag_header_bar_set_mode(priv->header_bar, AG_HEADER_BAR_MODE_LIST);
-        ag_icon_view_set_mode(
-                priv->chart_list,
-                AG_ICON_VIEW_MODE_NORMAL
-            );
-    }
-}
-
-static void
-ag_window_header_bar_mode_change_cb(AgHeaderBar *header_bar,
-                                    GParamSpec  *pspec,
-                                    AgWindow    *window)
-{
-    AgHeaderBarMode mode;
-
-    mode = ag_header_bar_get_mode(header_bar);
-
-    ag_window_set_selection_mode(
-            window,
-            (mode == AG_HEADER_BAR_MODE_SELECTION)
-        );
 }
 
 static void
@@ -1543,29 +1527,21 @@ ag_window_icon_view_mode_cb(AgIconView *icon_view,
     GVariant       *state_var = g_variant_new_boolean(
             (mode == AG_ICON_VIEW_MODE_SELECTION)
         );
+    GET_PRIV(window);
+
+    g_debug("IV mode change: %d", (mode == AG_ICON_VIEW_MODE_SELECTION));
 
     g_action_group_activate_action(
             G_ACTION_GROUP(window),
             "selection",
             state_var
         );
-}
-
-static void
-ag_window_selection_mode_action(GSimpleAction *action,
-                                GVariant      *parameter,
-                                gpointer      user_data)
-{
-    GVariant        *state;
-    gboolean        new_state;
-    AgWindow        *window = AG_WINDOW(user_data);
-
-    state = g_action_get_state(G_ACTION(action));
-    new_state = !g_variant_get_boolean(state);
-    g_action_change_state(G_ACTION(action), g_variant_new_boolean(new_state));
-    g_variant_unref(state);
-
-    ag_window_set_selection_mode(window, new_state);
+    ag_header_bar_set_mode(
+            priv->header_bar,
+            (mode == AG_ICON_VIEW_MODE_SELECTION)
+            ? AG_HEADER_BAR_MODE_SELECTION
+            : AG_HEADER_BAR_MODE_LIST
+        );
 }
 
 static void
@@ -1680,7 +1656,6 @@ static GActionEntry win_entries[] = {
     { "new-chart",    ag_window_new_chart_action,      NULL, NULL,        NULL },
     { "back",         ag_window_back_action,           NULL, NULL,        NULL },
     { "refresh",      ag_window_refresh_action,        NULL, NULL,        NULL },
-    { "selection",    ag_window_selection_mode_action, "b",  "false",     NULL },
     { "delete",       ag_window_delete_action,         NULL, NULL,        NULL },
     { "connection",   ag_window_connection_action,     "s",  "'aspects'", NULL },
 };
@@ -2013,12 +1988,6 @@ ag_window_destroy(GtkWidget *widget)
 }
 
 static void
-ag_window_selection_mode_cancel_cb(GtkButton *button, AgWindow *window)
-{
-    ag_window_set_selection_mode(window, FALSE);
-}
-
-static void
 ag_window_set_property(GObject      *gobject,
                        guint        prop_id,
                        const GValue *value,
@@ -2206,10 +2175,6 @@ ag_window_class_init(AgWindowClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_window_icon_view_mode_cb
-        );
-    gtk_widget_class_bind_template_callback(
-            widget_class,
-            ag_window_selection_mode_cancel_cb
         );
     gtk_widget_class_bind_template_callback(
             widget_class,

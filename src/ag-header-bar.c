@@ -17,6 +17,11 @@ enum {
     PROP_COUNT
 };
 
+enum {
+    SIGNAL_MODE_CHANGED,
+    SIGNAL_COUNT
+};
+
 static void ag_header_bar_dispose(GObject *gobject);
 static void ag_header_bar_finalize(GObject *gobject);
 
@@ -25,6 +30,7 @@ G_DEFINE_TYPE_WITH_PRIVATE(AgHeaderBar, ag_header_bar, GTK_TYPE_HEADER_BAR);
 #define GET_PRIV(v, o) AgHeaderBarPrivate *v = ag_header_bar_get_instance_private(o);
 
 static GParamSpec *properties[PROP_COUNT];
+static guint signals[SIGNAL_COUNT] = { 0 };
 
 static void
 ag_header_bar_selection_mode_cb(GtkButton   *button,
@@ -32,22 +38,58 @@ ag_header_bar_selection_mode_cb(GtkButton   *button,
 {
     GET_PRIV(priv, header_bar);
 
-    switch (priv->mode) {
-        case AG_HEADER_BAR_MODE_LIST:
-            ag_header_bar_set_mode(header_bar, AG_HEADER_BAR_MODE_SELECTION);
+    /* If we are not in list mode, this transition is invalid */
+    if (priv->mode != AG_HEADER_BAR_MODE_LIST) {
+        g_warning("Invalid header bar mode transition!");
 
-            break;
-
-        case AG_HEADER_BAR_MODE_SELECTION:
-            ag_header_bar_set_mode(header_bar, AG_HEADER_BAR_MODE_LIST);
-
-            break;
-
-        default:
-            g_warning("Invalid header bar mode transition!");
-
-            break;
+        return;
     }
+
+    g_signal_emit(
+            header_bar,
+            signals[SIGNAL_MODE_CHANGED], 0,
+            AG_HEADER_BAR_MODE_SELECTION
+        );
+}
+
+static void
+ag_header_bar_selection_cancel_cb(GtkButton   *button,
+                                  AgHeaderBar *header_bar)
+{
+    GET_PRIV(priv, header_bar);
+
+    /* If we are not in selection mode, this transition is invalid */
+    if (priv->mode != AG_HEADER_BAR_MODE_SELECTION) {
+        g_warning("Invalid header bar mode transition!");
+
+        return;
+    }
+
+    g_signal_emit(
+            header_bar,
+            signals[SIGNAL_MODE_CHANGED], 0,
+            AG_HEADER_BAR_MODE_LIST
+        );
+}
+
+static void
+ag_header_bar_back_cb(GtkButton   *button,
+                      AgHeaderBar *header_bar)
+{
+    GET_PRIV(priv, header_bar);
+
+    /* If we are not in chart mode, this transition is invalid */
+    if (priv->mode != AG_HEADER_BAR_MODE_CHART) {
+        g_warning("Invalid header bar mode transition!");
+
+        return;
+    }
+
+    g_signal_emit(
+            header_bar,
+            signals[SIGNAL_MODE_CHANGED], 0,
+            AG_HEADER_BAR_MODE_LIST
+        );
 }
 
 static void
@@ -55,6 +97,10 @@ ag_header_bar_set_selection_mode(AgHeaderBar *header_bar, gboolean state)
 {
     GtkStyleContext *style;
     GET_PRIV(priv, header_bar);
+
+    if (state == (priv->mode == AG_HEADER_BAR_MODE_SELECTION)) {
+         return;
+    }
 
     style = gtk_widget_get_style_context(GTK_WIDGET(header_bar));
 
@@ -83,13 +129,15 @@ ag_header_bar_set_mode_internal(AgHeaderBar     *header_bar,
                                 AgHeaderBarMode mode,
                                 gboolean        force)
 {
+    gboolean        invalid = FALSE;
+    AgHeaderBarMode old_mode;
     GET_PRIV(priv, header_bar);
 
     if (!force && (priv->mode == mode)) {
         return;
     }
 
-    priv->mode = mode;
+    old_mode   = priv->mode;
 
     switch (mode) {
         case AG_HEADER_BAR_MODE_LIST:
@@ -124,12 +172,18 @@ ag_header_bar_set_mode_internal(AgHeaderBar     *header_bar,
             break;
 
         default:
+            invalid = TRUE;
             g_warning("Invalid header bar mode!");
 
             break;
     }
 
-    g_object_notify_by_pspec(G_OBJECT(header_bar), properties[PROP_MODE]);
+    if (invalid) {
+        priv->mode = old_mode;
+    } else {
+        priv->mode = mode;
+        g_object_notify_by_pspec(G_OBJECT(header_bar), properties[PROP_MODE]);
+    }
 }
 
 void
@@ -229,6 +283,18 @@ ag_header_bar_class_init(AgHeaderBarClass *klass)
             properties[PROP_MODE]
         );
 
+    signals[SIGNAL_MODE_CHANGED] = g_signal_new(
+            "mode-changed",
+            AG_TYPE_HEADER_BAR,
+            G_SIGNAL_RUN_FIRST,
+            0,
+            NULL, NULL,
+            NULL,
+            G_TYPE_NONE,
+            1,
+            AG_TYPE_HEADER_BAR_MODE
+        );
+
     gtk_widget_class_set_template_from_resource(
             widget_class,
             "/eu/polonkai/gergely/Astrognome/ui/ag-header-bar.ui"
@@ -253,6 +319,14 @@ ag_header_bar_class_init(AgHeaderBarClass *klass)
     gtk_widget_class_bind_template_callback(
             widget_class,
             ag_header_bar_selection_mode_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_header_bar_selection_cancel_cb
+        );
+    gtk_widget_class_bind_template_callback(
+            widget_class,
+            ag_header_bar_back_cb
         );
 }
 

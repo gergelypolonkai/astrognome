@@ -55,6 +55,7 @@
               <object class="GtkButton" id="back_button">
                 <property name="visible">True</property>
                 <property name="action_name">win.back</property>
+                <signal name="clicked" handler="ag_header_bar_back_cb" swapped="no" object="AgHeaderBar"/>
                 <style>
                   <class name="image-button"/>
                 </style>
@@ -99,7 +100,7 @@
           <object class="GtkButton" id="selection_cancel_button">
             <property name="visible">True</property>
             <property name="label" translatable="yes">Cancel</property>
-            <signal name="clicked" handler="ag_header_bar_selection_mode_cb" object="AgHeaderBar" swapped="no"/>
+            <signal name="clicked" handler="ag_header_bar_selection_cancel_cb" object="AgHeaderBar" swapped="no"/>
           </object>
           <packing>
             <property name="name">selection</property>

@@ -36,25 +36,27 @@ ag_icon_view_set_mode(AgIconView *icon_view, AgIconViewMode mode)
 {
     AgIconViewPrivate *priv = ag_icon_view_get_instance_private(icon_view);
 
-    if (priv->mode != mode) {
-        priv->mode = mode;
-
-        if (mode != AG_ICON_VIEW_MODE_SELECTION) {
-            ag_icon_view_unselect_all(icon_view);
-        }
-
-        ag_chart_renderer_set_toggle_visible(
-                priv->thumb_renderer,
-                (mode == AG_ICON_VIEW_MODE_SELECTION)
-            );
-
-        gtk_widget_queue_draw(GTK_WIDGET(icon_view));
-
-        g_object_notify_by_pspec(
-                G_OBJECT(icon_view),
-                properties[PROP_MODE]
-            );
+    if (priv->mode == mode) {
+        return;
     }
+
+    priv->mode = mode;
+
+    if (mode != AG_ICON_VIEW_MODE_SELECTION) {
+        ag_icon_view_unselect_all(icon_view);
+    }
+
+    ag_chart_renderer_set_toggle_visible(
+            priv->thumb_renderer,
+            (mode == AG_ICON_VIEW_MODE_SELECTION)
+        );
+
+    gtk_widget_queue_draw(GTK_WIDGET(icon_view));
+
+    g_object_notify_by_pspec(
+            G_OBJECT(icon_view),
+            properties[PROP_MODE]
+        );
 }
 
 AgIconViewMode

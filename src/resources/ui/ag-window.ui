@@ -83,7 +83,7 @@
     <signal name="delete-event" handler="ag_window_delete_event_callback" swapped="no"/>
     <child type="titlebar">
       <object class="AgHeaderBar" id="header_bar">
-        <signal name="notify::mode" handler="ag_window_header_bar_mode_change_cb" swapped="no"/>
+        <signal name="mode-changed" handler="ag_window_header_bar_mode_change_cb" swapped="no"/>
       </object>
     </child>
     <child>
