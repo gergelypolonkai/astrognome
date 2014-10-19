@@ -361,6 +361,7 @@ const gchar *action_accels[] = {
     "win.change-tab::points",  "F7",                NULL,
     "win.change-tab::edit",    "F4",                NULL,
     "win.back",                "<Alt>Left",         "Back", NULL,
+    "win.select-all",          "<Primary>A",        NULL,
     NULL
 };
 
@@ -379,29 +380,6 @@ setup_accelerators(AgApp *app)
 }
 
 static void
-setup_menu(AgApp *app)
-{
-    GtkBuilder *builder;
-    GMenuModel *model;
-    GError     *err = NULL;
-
-    builder = gtk_builder_new();
-
-    if (!gtk_builder_add_from_resource(
-                builder,
-                "/eu/polonkai/gergely/Astrognome/ui/astrognome.ui",
-                &err
-            )) {
-        g_error("%s", (err) ? err->message : "unknown error");
-    }
-
-    model = G_MENU_MODEL(gtk_builder_get_object(builder, "app-menu"));
-    gtk_application_set_app_menu(GTK_APPLICATION(app), model);
-
-    g_object_unref(builder);
-}
-
-static void
 startup(GApplication *gapp)
 {
     AgApp *app = AG_APP(gapp);
@@ -409,7 +387,6 @@ startup(GApplication *gapp)
     G_APPLICATION_CLASS(ag_app_parent_class)->startup(gapp);
 
     setup_actions(app);
-    setup_menu(app);
     setup_accelerators(app);
 }
 
