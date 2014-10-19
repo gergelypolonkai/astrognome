@@ -1645,6 +1645,26 @@ ag_window_connection_action(GSimpleAction *action,
     }
 }
 
+static void
+ag_window_select_all_action(GSimpleAction *action,
+                            GVariant      *parameter,
+                            gpointer      user_data)
+{
+    GET_PRIV(AG_WINDOW(user_data));
+
+    ag_icon_view_select_all(priv->chart_list);
+}
+
+    static void
+ag_window_select_none_action(GSimpleAction *action,
+                             GVariant      *parameter,
+                             gpointer      user_data)
+{
+    GET_PRIV(AG_WINDOW(user_data));
+
+    ag_icon_view_unselect_all(priv->chart_list);
+}
+
 static GActionEntry win_entries[] = {
     { "close",        ag_window_close_action,          NULL, NULL,        NULL },
     { "save",         ag_window_save_action,           NULL, NULL,        NULL },
@@ -1658,6 +1678,8 @@ static GActionEntry win_entries[] = {
     { "refresh",      ag_window_refresh_action,        NULL, NULL,        NULL },
     { "delete",       ag_window_delete_action,         NULL, NULL,        NULL },
     { "connection",   ag_window_connection_action,     "s",  "'aspects'", NULL },
+    { "select-all",   ag_window_select_all_action,     NULL, NULL,        NULL },
+    { "select-none",  ag_window_select_none_action,    NULL, NULL,        NULL },
 };
 
 static void
