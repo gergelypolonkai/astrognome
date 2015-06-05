@@ -99,38 +99,6 @@ static GParamSpec *properties[PROP_COUNT];
 
 #define GET_PRIV(o) AgWindowPrivate *priv = ag_window_get_instance_private((o))
 
-static void
-ag_window_gear_menu_action(GSimpleAction *action,
-                           GVariant      *parameter,
-                           gpointer      user_data)
-{
-    GVariant *state;
-
-    state = g_action_get_state(G_ACTION(action));
-    g_action_change_state(
-            G_ACTION(action),
-            g_variant_new_boolean(!g_variant_get_boolean(state))
-        );
-
-    g_variant_unref(state);
-}
-
-static void
-ag_window_view_menu_action(GSimpleAction *action,
-                           GVariant      *parameter,
-                           gpointer      user_data)
-{
-    GVariant *state;
-
-    state = g_action_get_state(G_ACTION(action));
-    g_action_change_state(
-            G_ACTION(action),
-            g_variant_new_boolean(!g_variant_get_boolean(state))
-        );
-
-    g_variant_unref(state);
-}
-
 const gchar *
 ag_window_planet_character(GswePlanet planet)
 {
@@ -1670,8 +1638,6 @@ static GActionEntry win_entries[] = {
     { "save",         ag_window_save_action,           NULL, NULL,        NULL },
     { "export-agc",   ag_window_export_agc_action,     NULL, NULL,        NULL },
     { "export-image", ag_window_export_image_action,   NULL, NULL,        NULL },
-    { "view-menu",    ag_window_view_menu_action,      NULL, "false",     NULL },
-    { "gear-menu",    ag_window_gear_menu_action,      NULL, "false",     NULL },
     { "change-tab",   ag_window_change_tab_action,     "s",  "'edit'",    NULL },
     { "new-chart",    ag_window_new_chart_action,      NULL, NULL,        NULL },
     { "back",         ag_window_back_action,           NULL, NULL,        NULL },

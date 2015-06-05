@@ -1,6 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="3.0"/>
+  <menu id="menu_gear_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Save</attribute>
+        <attribute name="action">win.save</attribute>
+        <attribute name="accel">&lt;Primary&gt;s</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Export…</attribute>
+        <attribute name="action">win.export-agc</attribute>
+        <attribute name="accel">&lt;Primary&gt;&lt;Shift&gt;e</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Export as image…</attribute>
+        <attribute name="action">win.export-image</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Close</attribute>
+        <attribute name="action">win.close</attribute>
+        <attribute name="accel">&lt;Primary&gt;w</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="menu_view_menu">
+      <section>
+        <item>
+          <attribute name="label" translatable="yes">Edit</attribute>
+          <attribute name="action">win.change-tab</attribute>
+          <attribute name="accel">&lt;F4&gt;</attribute>
+          <attribute name="target">edit</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Chart</attribute>
+          <attribute name="action">win.change-tab</attribute>
+          <attribute name="accel">&lt;F5&gt;</attribute>
+          <attribute name="target">chart</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Aspects</attribute>
+          <attribute name="action">win.change-tab</attribute>
+          <attribute name="accel">&lt;F6&gt;</attribute>
+          <attribute name="target">aspects</attribute>
+        </item>
+        <item>
+          <attribute name="label" translatable="yes">Points</attribute>
+          <attribute name="action">win.change-tab</attribute>
+          <attribute name="accel">&lt;F7&gt;</attribute>
+          <attribute name="target">points</attribute>
+        </item>
+    </section>
+  </menu>
   <template class="AgHeaderBar" parent="GtkHeaderBar">
     <property name="visible">True</property>
     <property name="show_close_button">True</property>
@@ -111,7 +166,7 @@
             <property name="visible">True</property>
             <child>
               <object class="GtkMenuButton" id="view_menu">
-                <property name="action_name">win.view-menu</property>
+                <property name="menu-model">menu_view_menu</property>
                 <style>
                   <class name="image-button"/>
                 </style>
@@ -126,7 +181,7 @@
             <child>
               <object class="GtkMenuButton" id="gear_menu">
                 <property name="visible">True</property>
-                <property name="action_name">win.gear-menu</property>
+                <property name="menu-model">menu_gear_menu</property>
                 <style>
                   <class name="image-button"/>
                 </style>
