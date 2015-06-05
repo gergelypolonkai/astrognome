@@ -1120,10 +1120,10 @@ ag_window_save_action(GSimpleAction *action,
                     _("Unable to save: %s"),
                     err->message
                 );
+        } else {
+            ag_db_chart_save_unref(priv->saved_data);
+            priv->saved_data = save_data;
         }
-
-        ag_db_chart_save_unref(priv->saved_data);
-        priv->saved_data = save_data;
     }
 }
 
