@@ -54,12 +54,12 @@ allCountries.txt: allCountries.zip
 	fi;
 
 cities.txt: allCountries.txt
-	$(AM_V_GEN) $(AWK) -f geonames_process.awk allCountries.txt > $@
+	$(AM_V_GEN) $(AWK) -f $(VPATH)/geonames_process.awk allCountries.txt > $@
 
 geodata.xml: countryInfo.txt timeZones.txt cities.txt
 	$(AM_V_GEN) if test -x "$(PERL)"; then \
 	    if test "x$(have_geonames_perl_modules)" = "xyes" -o "x$(I_HAVE_PERL_MODULES)" = "xyes"; then \
-	        $(PERL) geonames_process.pl; \
+	        $(PERL) $(VPATH)/geonames_process.pl; \
 	    else \
 	        echo "XML::Writer and IO::File perl modules are required to process geonames data."; \
 	        echo "configure reported they are not installed. If you are sure they are,"; \
